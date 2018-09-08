@@ -5,7 +5,7 @@ use Slim\Http\Response;
 
 // Routes
 
-$app->get('/users', function (Request $request, Response $response, array $args) {
+$app->post('/authtoken', function (Request $request, Response $response, array $args) {
 	// $table = "ossn_users";
 	// $conditions = null;
 	// $conditions[] = [

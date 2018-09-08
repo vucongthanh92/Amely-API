@@ -19,7 +19,7 @@ return [
             "host" => "localhost",
             "dbname" => "amely",
             "user" => "root",
-            "pass" => "root"
+            "pass" => "thinhnez123"
         ],
     ],
 ];
