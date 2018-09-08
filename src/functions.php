@@ -2,6 +2,20 @@
 
 use Slim\Http\Response;
 
+function checkToken($db, $token)
+{
+	$table = "ossn_usertokens";
+	$conditions = null;
+	$conditions[] = [
+		'key' => 'token',
+		'value' => "= '{$token}'",
+		'operation' => ""
+	];
+	$token = getData($db, $table, $conditions, $offset = 0, $limit = 1, $load_more = true);
+	if ($token) return true;
+	return false;
+}
+
 function response($result)
 {
 	$response = new Response();

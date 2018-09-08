@@ -73,7 +73,7 @@ function saveTableObject($db, $object, $action = "insert", $show_id = false)
 		$object->title,
 		$object->description
 	);
-	return switchAction($db, $params, $action, $show_id = false, "guid", $object->guid);
+	return switchAction($db, $params, $action, $show_id = false, "guid", property_exists($object, 'guid')?$object->guid:false);
 }
 
 function saveTableEntities($db, $entities, $action = "insert", $show_id = false)  
@@ -98,7 +98,7 @@ function saveTableEntities($db, $entities, $action = "insert", $show_id = false)
 		2,
 		1
 	);
-	return switchAction($db, $params, $action, $show_id = false, "guid", $entities->guid);
+	return switchAction($db, $params, $action, $show_id = false, "guid", property_exists($entities, 'guid')?$entities->guid:false);
 }
 
 function saveTableMetaData($db, $entities_metadata, $action = "insert", $show_id = false) 
@@ -113,7 +113,7 @@ function saveTableMetaData($db, $entities_metadata, $action = "insert", $show_id
 		$entities_metadata->guid,
 		$entities_metadata->value,
 	);
-	return switchAction($db, $params, $action, $show_id = false, "guid", $entities_metadata->guid);
+	return switchAction($db, $params, $action, $show_id = false, "guid", property_exists($entities_metadata, 'guid')?$entities_metadata->guid:false);
 }
 
 function saveTableAnnotations($db, $annotation, $action = "insert", $show_id = false) 
@@ -132,7 +132,7 @@ function saveTableAnnotations($db, $annotation, $action = "insert", $show_id = f
 		$annotation->type,
 		time()
 	);
-	return switchAction($db, $params, $action, $show_id = false, "id", $annotation->id);
+	return switchAction($db, $params, $action, $show_id = false, "id", property_exists($annotation, 'id')?$annotation->id:false);
 }
 
 function saveTableLikes($db, $like, $action = "insert", $show_id = false) 
@@ -150,7 +150,7 @@ function saveTableLikes($db, $like, $action = "insert", $show_id = false)
 		$like->type,
 		time()
 	);
-	return switchAction($db, $params, $action, $show_id = false, "id", $like->id);
+	return switchAction($db, $params, $action, $show_id = false, "id", property_exists($like, 'id')?$like->id:false);
 }
 
 function saveTableNotifications($db, $notification, $action = "insert", $show_id = false) 
@@ -175,7 +175,7 @@ function saveTableNotifications($db, $notification, $action = "insert", $show_id
 		time(),
 		$notification->item_guid
 	);
-	return switchAction($db, $params, $action, $show_id = false, "guid", $notification->guid);
+	return switchAction($db, $params, $action, $show_id = false, "guid", property_exists($notification, 'guid')?$notification->guid:false);
 }
 
 function saveTableRedeem($db, $redeem, $action = "insert", $show_id = false) 
@@ -198,7 +198,7 @@ function saveTableRedeem($db, $redeem, $action = "insert", $show_id = false)
 		$redeem->type,
 		$redeem->guest_guid
 	);
-	return switchAction($db, $params, $action, $show_id = false, "id", $redeem->id);
+	return switchAction($db, $params, $action, $show_id = false, "id", property_exists($redeem, 'id')?$redeem->id:false);
 }
 
 function saveTableRelationships($db, $relation, $action = "insert", $show_id = false) 
@@ -219,7 +219,7 @@ function saveTableRelationships($db, $relation, $action = "insert", $show_id = f
 		$relation->type,
 		time(),
 	);
-	return switchAction($db, $params, $action, $show_id = false, "relation_id", $relation->relation_id);
+	return switchAction($db, $params, $action, $show_id = false, "relation_id", property_exists($relation, 'relation_id')?$relation->relation_id:false);
 }
 
 function saveTableSite($db, $site, $action = "insert", $show_id = false) 
@@ -236,7 +236,7 @@ function saveTableSite($db, $site, $action = "insert", $show_id = false)
 		$site->name,
 		$site->value,
 	);
-	return switchAction($db, $params, $action, $show_id = false, "setting_id", $site->setting_id);
+	return switchAction($db, $params, $action, $show_id = false, "setting_id", property_exists($site, 'setting_id')?$site->setting_id:false);
 }
 
 function saveTableUsers($db, $user, $action = "insert", $show_id = false) 
@@ -271,7 +271,7 @@ function saveTableUsers($db, $user, $action = "insert", $show_id = false)
 		time(),
 		$user->verification_code
 	);
-	return switchAction($db, $params, $action, $show_id = false, "guid", $user->guid);
+	return switchAction($db, $params, $action, $show_id = false, "guid", property_exists($user, 'guid')?$user->guid:false);
 }
 
 function saveTableToken($db, $token, $action = "insert", $show_id = false) 
@@ -281,7 +281,7 @@ function saveTableToken($db, $token, $action = "insert", $show_id = false)
 	$params['names']  = array(
 		'token',
 		'created',
-		'expried',
+		'expired',
 		'user_guid',
 		'session_id'
 	);
@@ -292,7 +292,7 @@ function saveTableToken($db, $token, $action = "insert", $show_id = false)
 		$token->user_guid,
 		$token->session_id		
 	);
-	return switchAction($db, $params, $action, $show_id = false, "id", $token->id);
+	return switchAction($db, $params, $action, $show_id = false, "id", property_exists($token, 'id')?$token->id:false);
 }
 
 function switchAction($db, $params, $action, $show_id = false, $key, $value) 
@@ -303,7 +303,6 @@ function switchAction($db, $params, $action, $show_id = false, $key, $value)
 				return insert($db, $params, true);	
 			}
 			return insert($db, $params);
-
 			break;
 		case 'update':
 			$params['wheres'][] = "`{$key}` = {$value}";
@@ -323,8 +322,9 @@ function insert($db, $params, $show_id = false )
 	if(count($params['names']) == count($params['values'])) {
 		$colums = "`" . implode("`, `", $params['names']) . '`';
 		$values = "'" . implode("', '", $params['values']) . "'";
-		$query  = "INSERT INTO {$params['into']} ($colums) VALUES ($values);";
+		$query  = "INSERT INTO {$params['into']} ($colums) VALUES ($values)";
 		// var_dump($query);die('12');
+		// $db->query($query);
 		$db->query($query);
 		if ($show_id) {
 			return $db->insert_id;
@@ -404,9 +404,13 @@ function select($db, $params)
 		$db = $db->query($query);
 		// var_dump(expression)
 	    // $db->execute();
+	    if (!$db->num_rows) return false;
 	    $alldata = [];
 	    while($all = $db->fetch_assoc()) {
 			$alldata[] = $all;
+		}
+		if ($params['limit'] == 1) {
+			return (object)$alldata[0];	
 		}
 		return $alldata;
 	}
@@ -443,5 +447,6 @@ function getData($db, $table, $conditions, $offset = 0, $limit = 10, $load_more 
             }
         }
     }
+
     return select($db, $params);
 }
