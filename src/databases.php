@@ -407,10 +407,7 @@ function select($db, $params)
 	    if (!$db->num_rows) return false;
 	    $alldata = [];
 	    while($all = $db->fetch_assoc()) {
-			$alldata[] = $all;
-		}
-		if ($params['limit'] == 1) {
-			return (object)$alldata[0];	
+			$alldata[] = (object)$all;
 		}
 		return $alldata;
 	}

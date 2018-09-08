@@ -1,4 +1,9 @@
 <?php
+define("IMAGE_URL", "https://userdata.amely.com");
+define("IMAGE_PATH", "/home/amelywebmaster/ossn_userdata");
+define("AVATAR_DEFAULT", "https://i1.wp.com/grueneroadpharmacy.com/wp-content/uploads/2017/02/user-placeholder-1.jpg");
+define("COVER_DEFAULT", "https://i1.wp.com/grueneroadpharmacy.com/wp-content/uploads/2017/02/user-placeholder-1.jpg");
+
 return [
     'settings' => [
         'displayErrorDetails' => true, // set to false in production
@@ -19,7 +24,8 @@ return [
             "host" => "localhost",
             "dbname" => "amely",
             "user" => "root",
-            "pass" => "thinhnez123"
+            "pass" => "root"
         ],
+        "url" => "https://amely.com"
     ],
 ];

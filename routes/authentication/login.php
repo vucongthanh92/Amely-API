@@ -30,8 +30,10 @@ $app->post('/authtoken', function (Request $request, Response $response) {
 			'operation' => ''
 		];
 	}
-	$user = getData($this->db, $table, $conditions, $offset = 0, $limit = 1, $load_more = true);
-
+	// $user = getUsers($this->db, $conditions, $offset = 0, $limit = 1, $load_more = true);
+	// var_dump($user);die();
+	$users = getData($this->db, $table, $conditions, $offset = 0, $limit = 1, $load_more = true);
+	$user = $users[0];
 	$salt     = $user->salt;
     $password = md5($input['password'] . $salt);
     if ($password == $user->password) {

@@ -12,7 +12,7 @@ function checkToken($db, $token)
 		'operation' => ""
 	];
 	$token = getData($db, $table, $conditions, $offset = 0, $limit = 1, $load_more = true);
-	if ($token) return true;
+	if ($token) return $token->user_guid;
 	return false;
 }
 

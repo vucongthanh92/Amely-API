@@ -26,6 +26,7 @@ require __DIR__ . '/../src/middleware.php';
 // Register routes
 require __DIR__ . '/../src/functions.php';
 require __DIR__ . '/../src/databases.php';
+require __DIR__ . '/../src/select.php';
 require __DIR__ . '/../src/routes.php';
 
 // Run app
