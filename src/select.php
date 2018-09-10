@@ -198,5 +198,131 @@ class SlimSelect extends SlimDatabase
 		}
 		return $product_groups;
 	}
+
+	public function getAnnotations($conditions, $offset = 0, $limit = 10, $load_more = true)
+	{
+		$table = "ossn_annotations";
+		$annotations = $this->getData($table, $conditions, $offset, $limit, $load_more);
+		if ($limit == 1) {
+			return $annotations[0];
+		}
+		return $annotations;
+	}	
+
+	public function getFeeds($conditions, $offset = 0, $limit = 10, $load_more = true, $owner_guid = null)
+	{
+		if (!$owner_guid) {
+			$owner_guid = loggedin_user()->guid;
+		}
+
+		$table = "wallphotos_feeds";
+    	$feeds = $this->getData($table, $conditions, $offset, $limit, $load_more);
+		if (!$feeds) return false;
+
+		foreach ($feeds as $key => $feed) {
+			// $feed = ossn_object_cast('OssnWall', $feed);
+			$like_params = null;
+			$like_params[] = [
+				'key' => 'subject_id',
+				'value' => "= {$feed->guid}",
+				'operation' => ''
+			];
+			$like_params[] = [
+				'key' => 'type',
+				'value' => "= 'post'",
+				'operation' => 'AND'
+			];
+			$likes = $this->getLikes($like_params,0,1);
+			$feed->liked = false;
+			if ($likes) {
+				foreach ($likes as $key => $like) {
+					if ($like->guid == $owner_guid) {
+						$feed->liked = true;
+						break;		
+					}
+				}
+			}
+			$likes = count($likes);
+			if (!$likes) $likes = "0";
+			$feed->likes = (string)$likes;
+			
+			$comment_params = null;
+			$comment_params[] = [
+				'key' => 'type',
+				'value' => "= 'comments:post'",
+				'operation' => ''
+			];
+			$comment_params[] = [
+				'key' => 'subject_id',
+				'value' => "= {$feed->guid}",
+				'operation' => 'AND'
+			];
+			$comment_params[] = [
+				'key' => '',
+				'value' => "",
+				'operation' => 'count'
+			];
+			$comments = $this->getAnnotations($comment_params,0,1);
+			$comments = $comments->count;
+			if (!$comments) $comments = "0";
+			$feed->comments = (string)$comments;
+
+			if ($feed->images) {
+				$photos = explode(",", $feed->images);
+				foreach ($photos as $kphoto => $photo) {
+					$filename = array_pop(explode("/", $photo));
+					$file_path = "/object/{$feed->guid}/ossnwall/images/"."lgthumb_{$avatar}";
+					if (file_exists(IMAGE_PATH.$file_path)) {
+						$url = IMAGE_URL.$file_path;
+					} else {
+						$url = AVATAR_DEFAULT;
+					}
+					$photos[$kphoto] = $url;
+				}
+				$feed->wallphoto = $photos;
+			}
+			// $photos = $od->select($photo_params, true);
+			$data = json_decode(html_entity_decode($feed->description));
+			$desc['post'] = $data->post;
+			$desc['location'] = $data->location;
+			$desc['friend'] = $data->friend;
+			$feed->desc = $desc;
+			$feeds[$key] = $feed;
+		}
+		if ($limit == 1) {
+			$feeds = $feeds[0];
+		}
+		return $feeds;
+	}
 	
+	public function getObjects($conditions, $offset = 0, $limit = 10, $load_more = true)
+	{
+		$table = "ossn_object";
+		$objects = $this->getData($table, $conditions, $offset, $limit, $load_more);
+		if ($limit == 1) {
+			return $objects[0];
+		}
+		return $objects;
+	}
+
+	public function getLinkPreview($conditions, $offset = 0, $limit = 10, $load_more = true)
+	{
+		$table = "feed_linkpreview";
+		$links = $this->getData($table, $conditions, $offset, $limit, $load_more);
+		if ($limit == 1) {
+			return $links[0];
+		}
+		return $links;
+	}
+
+	public function getMoods($conditions, $offset = 0, $limit = 10, $load_more = true)
+	{
+		$table = "moods";
+		$moods = $this->getData($table, $conditions, $offset, $limit, $load_more);
+		if ($limit == 1) {
+			return $moods[0];
+		}
+		return $moods;
+	}
+
 }

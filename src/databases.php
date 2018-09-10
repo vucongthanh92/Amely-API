@@ -419,7 +419,8 @@ class SlimDatabase
 			} elseif(!empty($params['joins']) && is_array($params['joins'])) {
 					$joins = implode(' ', $params['joins']);
 			}
-			$query = "SELECT {$parameters} FROM {$params['from']} {$joins} {$wheres} {$order_by} {$group_by} {$limit};";
+			$offset = "OFFSET {$params['offset']}";
+			$query = "SELECT {$parameters} FROM {$params['from']} {$joins} {$wheres} {$order_by} {$group_by} {$limit} {$offset};";
 			$db = $this->db->query($query);
 			// var_dump(expression)
 		    // $db->execute();

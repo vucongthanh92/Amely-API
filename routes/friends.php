@@ -60,6 +60,7 @@ $app->get($container['prefix'].'/friends', function (Request $request, Response 
 	    ];
 	    
 	    $friends = $select->getRelationships($relation_params,0,99999999);
+        if (!$friends) return response(false);
 	    $friends_guid = array_map(create_function('$o', 'return $o->relation_to;'), $friends);
     	$friends_guid = implode(",", $friends_guid);
 
@@ -86,7 +87,9 @@ $app->get($container['prefix'].'/friends', function (Request $request, Response 
 		    	'operation' => 'query_params'
 		    ];
 		    $friends_requested = $select->getRelationships($relation_params,0,99999999);
-		    $friends_requested_guid = array_map(create_function('$o', 'return $o->relation_to;'), $friends_requested);
+            if ($friends_requested) {
+		      $friends_requested_guid = array_map(create_function('$o', 'return $o->relation_to;'), $friends_requested);
+            }
     	}
 
     	$user_params = null;
@@ -102,11 +105,14 @@ $app->get($container['prefix'].'/friends', function (Request $request, Response 
 			    if (is_array($block_list) && count($block_list) > 0) {
 				    if (in_array($friend->guid, $block_list)) {
 				    	unset($friends[$key]);
+                        continue;
 				    }
 			    }
-			    if (in_array($friend->guid, $friends_requested_guid)) {
-	            	$friend->requested = 1;
-			    }
+                if ($friends_requested) {
+    			    if (in_array($friend->guid, $friends_requested_guid)) {
+    	            	$friend->requested = 1;
+    			    }
+                }
     		}
     	}
     	$friends = array_values($friends);
