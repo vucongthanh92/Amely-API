@@ -2,6 +2,11 @@
 
 use Slim\Http\Response;
 
+function loggedin_user()
+{
+	return $_SESSION["OSSN_USER"];
+}
+
 function checkToken($db, $token)
 {
 	$table = "ossn_usertokens";
@@ -12,7 +17,7 @@ function checkToken($db, $token)
 		'operation' => ""
 	];
 	$token = getData($db, $table, $conditions, $offset = 0, $limit = 1, $load_more = true);
-	if ($token) return $token->user_guid;
+	if ($token) return true;
 	return false;
 }
 

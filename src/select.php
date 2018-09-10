@@ -11,7 +11,7 @@ function getAddress($db, $id, $type)
 		'value' => "= '{$id}'",
 		'operation' => ''
 	];
-	$addr = getData($db, $table, $conditions, 0, 1, $load_more);
+	$addr = getData($db, $table, $conditions, 0, 1, false);
 	return $addr[0];
 }
 
@@ -91,6 +91,14 @@ function getShops($db, $conditions, $offset = 0, $limit = 10, $load_more = true)
 	    $owner_ward = $owner_ward->type .' '. $owner_ward->name;
 	    $shop->owner_full_address = $shop->owner_address.', '.$owner_ward.', '.$owner_district.', '.$owner_province;
 
+	    $shop_province = getAddress($db, $shop->shop_province, 'province');
+	    $shop_district = getAddress($db, $shop->shop_district, 'district');
+	    $shop_ward = getAddress($db, $shop->shop_ward, 'ward');
+	    $shop_province = $shop_province->type .' '. $shop_province->name;
+	    $shop_district = $shop_district->type .' '. $shop_district->name;
+	    $shop_ward = $shop_ward->type .' '. $shop_ward->name;
+	    $shop->full_address = $shop->shop_address.', '.$shop_ward.', '.$shop_district.', '.$shop_province;
+
 	   //  if ($shop->files_scan) {
 	   //  	$files_scan = [];
 	   //  	$files = explode(";", $shop->files_scan);
@@ -108,4 +116,50 @@ function getShops($db, $conditions, $offset = 0, $limit = 10, $load_more = true)
 		return $shops[0];
 	}
 	return $shops;
+}
+
+function getStores($db, $conditions, $offset = 0, $limit = 10, $load_more = true)
+{
+	$table = "stores";
+	$stores = getData($db, $table, $conditions, $offset, $limit, $load_more);
+	if (!$stores) return false;
+	foreach ($stores as $key => $store) {
+
+		$store_province = getAddress($db, $shop->owner_province, 'province');
+		$store_district = getAddress($db, $shop->shop_district, 'district');
+		$store_ward = getAddress($db, $shop->shop_ward, 'ward');
+
+	    $store_province = $store_province->type .' '. $store_province->name;
+	    $store_district = $store_district->type .' '. $store_district->name;
+	    $store_ward = $store_ward->type .' '. $store_ward->name;
+	    $store->full_address = $store->address.' '.$store_ward.' '.$store_district.' '.$store_province;
+
+	    $stores[$key] = $store;
+	}
+	if ($limit == 1) {
+		return $stores[0];
+	}
+	return $stores;
+}
+
+function getRelationships($db, $conditions, $offset = 0, $limit = 10, $load_more = true)
+{
+	$table = "ossn_relationships";
+	$ossn_relationships = getData($db, $table, $conditions, $offset, $limit, $load_more);
+	if ($limit == 1) {
+		return $ossn_relationships[0];
+	}
+	return $ossn_relationships;
+
+}
+
+function getLikes($db, $conditions, $offset = 0, $limit = 10, $load_more = true)
+{
+	$table = "ossn_likes";
+	$ossn_likes = getData($db, $table, $conditions, $offset, $limit, $load_more);
+	if ($limit == 1) {
+		return $ossn_likes[0];
+	}
+	return $ossn_likes;
+
 }

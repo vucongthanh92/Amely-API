@@ -5,7 +5,10 @@ use Slim\Http\Response;
 
 // Routes
 // $app->get('/authtoken', function (Request $request, Response $response, array $args) {
-$app->post('/authtoken', function (Request $request, Response $response) {
+$app->post('/authtoken', function (Request $request, Response $response, array $args) {
+
+	// $shops = getShops($this->db, null, $offset = 0, $limit = 1, $load_more = true);
+	// var_dump($shops);die();
 	
 	$input = $request->getParsedBody();
 	$table = "users";
@@ -37,9 +40,9 @@ $app->post('/authtoken', function (Request $request, Response $response) {
 	$salt     = $user->salt;
     $password = md5($input['password'] . $salt);
     if ($password == $user->password) {
+		unset($user->salt);
+		unset($user->password);
     	if($user && $user->activation) {
-    		unset($user->salt);
-    		unset($user->password);
     		$result = [
     			'status' => false,
     			'validation' => $user
@@ -53,7 +56,8 @@ $app->post('/authtoken', function (Request $request, Response $response) {
 		$token->user_guid = $user->guid;
 		$token->session_id = session_id();
 		saveTableToken($this->db, $token, $action = "insert", $show_id = false);
+		$_SESSION["OSSN_USER"] = $user;
 		return response(["token" => $token->token]);
     }
 	return response(false);
-});
+})->setName('authtoken');

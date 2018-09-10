@@ -1,4 +1,5 @@
 <?php
+
 function updateEAV($db, $object, $show_id = false)
 {
 	$select = $update = $db;
@@ -425,6 +426,9 @@ function getData($db, $table, $conditions, $offset = 0, $limit = 10, $load_more 
     if (is_array($conditions)) {
         foreach ($conditions as $key => $condition) {
            switch ($condition['operation']) {
+           		case 'query_params':
+                    $params['params'][] = $condition['key'];
+                    break;
                 case 'count':
                     $params['params'][] = "count(*) as count";
                     break;
