@@ -232,7 +232,7 @@ class SlimSelect extends SlimDatabase
 				'value' => "= 'post'",
 				'operation' => 'AND'
 			];
-			$likes = $this->getLikes($like_params,0,1);
+			$likes = $this->getLikes($like_params,0,9999999);
 			$feed->liked = false;
 			if ($likes) {
 				foreach ($likes as $key => $like) {
@@ -262,16 +262,18 @@ class SlimSelect extends SlimDatabase
 				'value' => "",
 				'operation' => 'count'
 			];
-			$comments = $this->getAnnotations($comment_params,0,1);
-			$comments = $comments->count;
-			if (!$comments) $comments = "0";
-			$feed->comments = (string)$comments;
+			$comments = $this->getAnnotations($comment_params,0,9999);
+			if (!$comments) {
+				$feed->comments = "0";
+			} else {
+				$feed->comments = (string) $comments->count;
+			}
 
 			if ($feed->images) {
 				$photos = explode(",", $feed->images);
 				foreach ($photos as $kphoto => $photo) {
 					$filename = array_pop(explode("/", $photo));
-					$file_path = "/object/{$feed->guid}/ossnwall/images/"."lgthumb_{$avatar}";
+					$file_path = "/object/{$feed->guid}/ossnwall/images/"."lgthumb_{$filename}";
 					if (file_exists(IMAGE_PATH.$file_path)) {
 						$url = IMAGE_URL.$file_path;
 					} else {
@@ -283,9 +285,9 @@ class SlimSelect extends SlimDatabase
 			}
 			// $photos = $od->select($photo_params, true);
 			$data = json_decode(html_entity_decode($feed->description));
-			$desc['post'] = $data->post;
-			$desc['location'] = $data->location;
-			$desc['friend'] = $data->friend;
+			if (property_exists($data, 'post')) $desc['post'] = $data->post;
+			if (property_exists($data, 'location')) $desc['location'] = $data->location;
+			if (property_exists($data, 'friend')) $desc['friend'] = $data->friend;
 			$feed->desc = $desc;
 			$feeds[$key] = $feed;
 		}
@@ -324,5 +326,17 @@ class SlimSelect extends SlimDatabase
 		}
 		return $moods;
 	}
+
+	public function getAdvertisements($conditions, $offset = 0, $limit = 10, $load_more = true)
+	{
+		$table = "advertisements";
+		$advertisements = $this->getData($table, $conditions, $offset, $limit, $load_more);
+		if ($limit == 1) {
+			return $advertisements[0];
+		}
+		return $advertisements;
+	}
+
+	
 
 }

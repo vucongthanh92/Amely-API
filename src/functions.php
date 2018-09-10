@@ -7,12 +7,61 @@ function loggedin_user()
 	return $_SESSION["OSSN_USER"];
 }
 
-function checkParam($param)
+function compareAds($advertises)
 {
-	if (isset($param) && $param) {
-		return true;
-	}
-	return false;
+	foreach ($advertises as &$advertise) {
+        if (count($advertise) > 1) {
+            usort($advertise, function($ads1, $ads2)
+            {
+                return $ads1->balance > $ads2->balance ? -1 : 1;
+            });
+        }
+    }
+    return $advertises;
+}
+
+
+function conditionAds()
+{
+	date_default_timezone_set('Asia/Ho_Chi_Minh');
+	$current_time = time();
+	$time = date("H:i:s", $current_time);
+	$conditions[] = [
+		'key' => 'start_date',
+		'value' => "< {$current_time}",
+		'operation' => ''
+	];
+	$conditions[] = [
+		'key' => 'end_date',
+		'value' => "> {$current_time}",
+		'operation' => 'AND'
+	];
+	$conditions[] = [
+		'key' => "concat('{$time}')",
+		'value' => "> concat(start_time,':00')",
+		'operation' => 'AND'
+	];
+	$conditions[] = [
+		'key' => "concat('{$time}')",
+		'value' => "< concat(end_time,':00')",
+		'operation' => 'AND'
+	];
+	$conditions[] = [
+		'key' => '(budget*1 - cpc*1)',
+		'value' => ">= amount*1",
+		'operation' => 'AND'
+	];
+	$conditions[] = [
+		'key' => "approved",
+		'value' => "NOT IN ('new', 'suspended')",
+		'operation' => 'AND'
+	];
+	$conditions[] = [
+		'key' => "enabled",
+		'value' => "= 1",
+		'operation' => 'AND'
+	];
+    return $conditions;
 }
 
 function checkToken($token)

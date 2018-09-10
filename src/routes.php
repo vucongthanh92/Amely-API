@@ -10,6 +10,8 @@ require __DIR__ . '/../routes/services.php';
 require __DIR__ . '/../routes/friends.php';
 require __DIR__ . '/../routes/product_group.php';
 require __DIR__ . '/../routes/feeds.php';
+require __DIR__ . '/../routes/banner.php';
+
 
 
 

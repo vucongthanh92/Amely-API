@@ -6,7 +6,10 @@ $app->post($container['prefix'].'/feeds', function (Request $request, Response $
 	$select = SlimSelect::getInstance();
 	$feed_params = $mood_params = $poster_params = $photo_params = $shares = $shares_post = $shares_product = [];
 	$loggedin_user = loggedin_user();
-	$block_list = json_decode($loggedin_user->blockedusers);
+	$block_list = 0;
+	if (property_exists($loggedin_user, 'blockedusers')) {
+		$block_list = json_decode($loggedin_user->blockedusers);
+	}
 
 	$relation_params = null;
     $relation_params[] = [
@@ -59,13 +62,13 @@ $app->post($container['prefix'].'/feeds', function (Request $request, Response $
 			
 	    	foreach ($friends as $key => $friend) {
 			    if (is_array($block_list) && count($block_list) > 0) {
-				    if (in_array($friend->guid, $block_list)) {
+				    if (in_array($friend->relation_to, $block_list)) {
 				    	unset($friends[$key]);
 				    	continue;
 				    }
 			    }
-			    if (!in_array($friend->guid, $friends_guid)) {
-					array_push($friends_guid, $friend->guid);
+			    if (!in_array($friend->relation_to, $friends_guid)) {
+					array_push($friends_guid, $friend->relation_to);
 				}
 	    	}
 		    $friends_guid = implode(",", $friends_guid);
@@ -73,6 +76,7 @@ $app->post($container['prefix'].'/feeds', function (Request $request, Response $
 	}
 
 	$params = $request->getParsedBody();
+	if (!$params) $params = [];
 	if (!array_key_exists("feeds_type", $params)) $params["feeds_type"] = "home";
 	if (!array_key_exists("offset", $params)) $params["offset"] = 0;
 	if (!array_key_exists("limit", $params)) $params["limit"] = 10;
@@ -106,7 +110,7 @@ $app->post($container['prefix'].'/feeds', function (Request $request, Response $
 			if ($friends) {
 				$feed_params[] = [
 					'key' => '',
-					'value' => "(access = 3 AND poster_guid IN ({$friends}) )",
+					'value' => "(access = 3 AND poster_guid IN ({$friends_guid}) )",
 					'operation' => 'OR'
 				];
 			}
@@ -158,12 +162,12 @@ $app->post($container['prefix'].'/feeds', function (Request $request, Response $
 			if ($friends) {
 				$feed_params[] = [
 					'key' => '',
-					'value' => "(access = 3 AND poster_guid IN ({$friends}))",
+					'value' => "(access = 3 AND poster_guid IN ({$friends_guid}))",
 					'operation' => 'OR'
 				];
 				$feed_params[] = [
 					'key' => '',
-					'value' => "(access = 2 AND poster_guid IN ({$friends}))",
+					'value' => "(access = 2 AND poster_guid IN ({$friends_guid}))",
 					'operation' => 'OR'
 				];
 			}
@@ -214,60 +218,61 @@ $app->post($container['prefix'].'/feeds', function (Request $request, Response $
 			$feed->owner_title = $object->title;
 		}
 		
-		if ($feed->mood_guid) {
+		if (property_exists($feed, 'mood_guid') && $feed->mood_guid) {
 			array_push($mood_guids, $feed->mood_guid);
 		}
 		array_push($users_guid, $feed->poster_guid);
 
 		$description = json_decode($feed->description);
-		if ($description->friend) {
+		if (property_exists($description, 'friend') && $description->friend) {
 			$friends = explode(",", $description->friend);
 			$users_guid = array_merge($friends, $users_guid);
 		}
-
-		switch ($feed->share_type) {
-		 	case 'post':
-		 		if ($feed->item_type == "post:share:post") {
+		if (property_exists($feed, 'share_type')) {
+			switch ($feed->share_type) {
+			 	case 'post':
+			 		if ($feed->item_type == "post:share:post") {
+				 		if ($feed->item_guid) {
+				 			$feed_params = null;
+				 			$feed_params[] = [
+				 				'key' => 'guid',
+				 				'value' => "= {$feed->item_guid}",
+				 				'operation' => ''
+				 			];
+				 			$post_shared = $select->getFeeds($feed_params,0,1);
+				 			if (!$post_shared) continue;
+				 			if ($post_shared) {
+				 				array_push($shares_post, $post_shared);
+				 			} else {
+				 				unset($feeds[$key]);
+				 				continue;
+				 				// $wall = new OssnWall;
+				 				// $wall->deletePost($feed->guid);
+				 			}
+				 		}
+				 	}
+			 		break;
+			 	case 'product':
 			 		if ($feed->item_guid) {
-			 			$feed_params = null;
-			 			$feed_params[] = [
-			 				'key' => 'guid',
-			 				'value' => "= {$feed->item_guid}",
-			 				'operation' => ''
-			 			];
-			 			$post_shared = $select->getFeeds($feed_params,0,1);
-			 			if (!$post_shared) continue;
-			 			if ($post_shared) {
-			 				array_push($shares_post, $post_shared);
-			 			} else {
-			 				unset($feeds[$key]);
-			 				continue;
-			 				// $wall = new OssnWall;
-			 				// $wall->deletePost($feed->guid);
-			 			}
+			 			unset($feeds[$key]);
+		 				continue;
+			 			// $product = ossn_get_object($feed->item_guid);
+			 			// if ($product) {
+			 			// 	array_push($shares_product, $feed->item_guid);
+			 			// }
 			 		}
-			 	}
-		 		break;
-		 	case 'product':
-		 		if ($feed->item_guid) {
-		 			unset($feeds[$key]);
-	 				continue;
-		 			// $product = ossn_get_object($feed->item_guid);
-		 			// if ($product) {
-		 			// 	array_push($shares_product, $feed->item_guid);
-		 			// }
-		 		}
-		 		break;
-		 	default:
-		 		# code...
-		 		break;
+			 		break;
+			 	default:
+			 		# code...
+			 		break;
+			}
 		}
 
-		if ($feed->linkPreview) {
+		if (property_exists($feed, 'linkPreview') && $feed->linkPreview) {
 			$link_params = null;
 			$link_params[] = [
 				'key' => 'guid',
-				'value' => "= {$feed->linkPreview}",
+				'value' => "= '{$feed->linkPreview}'",
 				'operation' => ''
 			];
 			$link = $select->getLinkPreview($link_params,0,1);
@@ -286,17 +291,17 @@ $app->post($container['prefix'].'/feeds', function (Request $request, Response $
 
 	if (is_array($shares_post) && count($shares_post) > 0) {
 		foreach ($shares_post as $feed_share) {
-			if ($feed_share->mood_guid) {
+			if (property_exists($feed_share, 'mood_guid') && $feed_share->mood_guid) {
 				array_push($mood_guids, $feed_share->mood_guid);
 			}
 			array_push($users_guid, $feed_share->poster_guid);
 			$description = json_decode($feed_share->description);
-			if ($description->friend) {
+			if (property_exists($description, 'friend') && $description->friend) {
 				$friends = explode(",", $description->friend);
 				$users_guid = array_merge($friends, $users_guid);
 			}
 
-			if ($feed_share->linkPreview) {
+			if (property_exists($feed_share, 'linkPreview') && $feed_share->linkPreview) {
 				$link_params = null;
 				$link_params[] = [
 					'key' => 'guid',
@@ -335,9 +340,11 @@ $app->post($container['prefix'].'/feeds', function (Request $request, Response $
 			'operation' => ''
 		];
 		$moods = $select->getMoods($mood_params,0,99999);
-		foreach ($moods as $key => $mood) {
-			// $mood->mood_icon = market_photo_url($mood->guid, $mood->mood_icon, "mood");
-			$return["moods"][$mood->guid] = $mood;
+		if ($moods) {
+			foreach ($moods as $key => $mood) {
+				// $mood->mood_icon = market_photo_url($mood->guid, $mood->mood_icon, "mood");
+				$return["moods"][$mood->guid] = $mood;
+			}
 		}
 	}
 
@@ -365,5 +372,5 @@ $app->post($container['prefix'].'/feeds', function (Request $request, Response $
 	if ($shares) {
 		$return["shares"] = $shares;
 	}
-	return $return;
+	return response($return);
 });

@@ -3,6 +3,7 @@ define("IMAGE_URL", "https://userdata.amely.com");
 define("IMAGE_PATH", "/home/thinhnez/ossn_userdata");
 define("AVATAR_DEFAULT", "https://i1.wp.com/grueneroadpharmacy.com/wp-content/uploads/2017/02/user-placeholder-1.jpg");
 define("COVER_DEFAULT", "https://i1.wp.com/grueneroadpharmacy.com/wp-content/uploads/2017/02/user-placeholder-1.jpg");
+define("DOMAIN_NAME", "amely.com");
 
 return [
     'settings' => [
@@ -25,7 +26,7 @@ return [
             "host" => "localhost",
             "dbname" => "amely",
             "user" => "root",
-            "pass" => "thinhnez123"
+            "pass" => "root"
         ],
         'url' => "https://amely.com",
         'prefix' => "/ws/v1",

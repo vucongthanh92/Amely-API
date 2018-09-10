@@ -419,11 +419,13 @@ class SlimDatabase
 			} elseif(!empty($params['joins']) && is_array($params['joins'])) {
 					$joins = implode(' ', $params['joins']);
 			}
-			$offset = "OFFSET {$params['offset']}";
+			$offset = "OFFSET {$params['load_more_offset']}";
 			$query = "SELECT {$parameters} FROM {$params['from']} {$joins} {$wheres} {$order_by} {$group_by} {$limit} {$offset};";
 			$db = $this->db->query($query);
 			// var_dump(expression)
 		    // $db->execute();
+		    if (!$db) return false;
+		    if (!property_exists($db, 'num_rows')) return false;
 		    if (!$db->num_rows) return false;
 		    $alldata = [];
 		    while($all = $db->fetch_assoc()) {
