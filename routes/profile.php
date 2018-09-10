@@ -5,148 +5,124 @@ use Slim\Http\Response;
 
 // Routes
 // $app->get('/authtoken', function (Request $request, Response $response, array $args) {
-$app->get('/profile', function (Request $request, Response $response, array $args) {
-
+$app->get($container['prefix'].'/profile', function (Request $request, Response $response, array $args) {
+	$select = SlimSelect::getInstance();
 	// $likes = new OssnLikes;
 	// $user = null;
 	$params = $request->getQueryParams();
 	$loggedin_user = loggedin_user();
 	$user_params = null;
 
-	if ($params['guid'] && is_numeric($params['guid'])) {
+	if (array_key_exists("guid", $params) && is_numeric($params['guid'])) {
 		$user_params[] = [
 			'key' => 'guid',
 			'value' => "= {$params['guid']}",
 			'operation' => ''
 		];
-		$user = getUsers($user_params,0,1);
-	} else if ($params['username'] && $params['username'] != null) {
+		$user = $select->getUsers($user_params,0,1);
+	} else if (array_key_exists("username", $params) && $params['username'] != null) {
 		$user_params[] = [
 			'key' => 'username',
 			'value' => "= '{$params['username']}'",
 			'operation' => ''
 		];
-		$user = getUsers($user_params,0,1);
+		$user = $select->getUsers($user_params,0,1);
 	} else {
 		$user = $loggedin_user;
 	}
+	if (!array_key_exists("type", $params)) $params['type'] = "default";
+	switch ($params['type']) {
+		case 'notification':
+			break;
+		default:
+			$shop_params = null;
+		    if ($user->chain_store) {
+		    	$store_params = null;
+		    	$store_params[] = [
+		    		'key' => 'guid',
+		    		'value' => "= {$user->chain_store}",
+		    		'operation' => ''
+		    	];
+		    	$store = $select->getStores($store_params,0,1);
+		    	$shop_params[] = [
+			    	'key' => 'guid',
+			    	'value' => "= {$store->owner_guid}",
+			    	'operation' => ''
+			    ];
+		    } else {
+			    $shop_params[] = [
+			    	'key' => 'owner_guid',
+			    	'value' => "= {$user->guid}",
+			    	'operation' => ''
+			    ];
+		    }
+		    $shop = $select->getShops($shop_params,0,1);
+		    if ($shop) {
+			    $like_params = null;
+			    $like_params[] = [
+			    	'key' => 'guid',
+			    	'value' => "= {$loggedin_user->guid}",
+			    	'operation' => ''
+			    ];
+			    $like_params[] = [
+			    	'key' => 'type',
+			    	'value' => "= 'shop'",
+			    	'operation' => 'AND'
+			    ];
+			    $like_params[] = [
+			    	'key' => 'subject_id',
+			    	'value' => "= {$shop->guid}",
+			    	'operation' => 'AND'
+			    ];
+			    $is_liked_shop = $select->getLikes($like_params,0,1);
+			    if ($is_liked_shop) {
+			    	$shop->liked = true;
+			    }
+			    if ($user->chain_store) {
+			    	$shop->shop_address = $store->address;
+					$shop->shop_phone = $store->phone;
+					$shop->shop_province = $store->shop_province;
+					$shop->shop_district = $store->shop_district;
+					$shop->shop_ward = $store->shop_ward;
+					$shop->full_address = $store->full_address;
+			    }
+			    $user->shop = $shop;
+		    }
+		    $relation_params = null;
+		    $relation_params[] = [
+		    	'key' => 'relation_from',
+		    	'value' => "= {$loggedin_user->guid}",
+		    	'operation' => ''
+		    ];
+		    $relation_params[] = [
+		    	'key' => 'relation_to',
+		    	'value' => "= {$user->guid}",
+		    	'operation' => 'AND'
+		    ];
+		    $relation_params[] = [
+		    	'key' => 'type',
+		    	'value' => "= 'friend:request'",
+		    	'operation' => 'AND'
+		    ];
+		    $relation = $select->getRelationships($relation_params,0,1);
+		    if ($relation) {
+		        $user->requested = 1;
+		    }
+			break;
+	}
 
-	
-	var_dump($user);die();
-
-
-	// $shop = ShopsService::getInstance()->getShopOnView($shop_params,0,1);
-
-
-	// $conditions = null;
-	// $conditions[] = [
-	// 	'key' => 'guid',
-	// 	'value' => '',
-	// 	'operation' => 'query_params'
-	// ];
-	// $conditions[] = [
-	// 	'key' => 'guid',
-	// 	'value' => "= {$loggedin_user->guid}",
-	// 	'operation' => ''
-	// ];
-	// $conditions[] = [
-	// 	'key' => 'type',
-	// 	'value' => "= 'shop'",
-	// 	'operation' => 'AND'
-	// ];
-	// $likes = getLikes($conditions,);
-
-	// $shops_liked = (array)$likes->GetSubjectsLikes($loggedin_user->guid, "shop");
-	// $shops_liked_guid = [];
-	// if (is_array($shops_liked) && count($shops_liked) > 0) {
-	// 	foreach ($shops_liked as $shop) {
-	// 		$shops_liked_guid[] = $shop->subject_id;
-	// 	}
-	// }
-	// $user_params = null;
-
-	// if (input('guid')) {
-	// 	$guid = input('guid');
-	// 	$user_params[] = [
-	// 		'key' => 'guid',
-	// 		'value' => "= {$guid}",
-	// 		'operation' => ''
-	// 	];
-	// } else if (input('username')) {
-	// 	$username = input('username');
-	// 	$user_params[] = [
-	// 		'key' => 'username',
-	// 		'value' => "= '{$username}'",
-	// 		'operation' => ''
-	// 	];
-	// } else {
-	// 	$user_params[] = [
-	// 		'key' => 'guid',
-	// 		'value' => "= {$loggedin_user->guid}",
-	// 		'operation' => ''
-	// 	];
-	// }
-	// $user = (new OssnUser)->getUsersOnView($user_params,0,1);
-	// if (!$user) return false;
-
-	// if ($user->guid != $loggedin_user->guid) {
-	// 	$block_list = json_decode($loggedin_user->blockedusers);
-	//     if (is_array($block_list) && count($block_list) > 0) {
-	// 	    if (in_array($user->guid, $block_list)) {
-	// 	    	return [
-	// 				"error"   => "User is blocked",
-	// 				"status"  => false
-	// 			];
-	// 	    }
-	//     }
-	// }
-
-	// if (ossn_relation_exists($loggedin_user->guid, $user->guid, "friend:request")) {
- //        $user->requested = 1;
- //    }
-
- //    $shop_params = null;
- //    if ($user->chain_store) {
- //    	$store_params = null;
- //    	$store_params[] = [
- //    		'key' => 'guid',
- //    		'value' => "= {$user->chain_store}",
- //    		'operation' => ''
- //    	];
- //    	$store = ShopsService::getInstance()->getStoresOnView($store_params,0,1);
- //    	$shop_params[] = [
-	//     	'key' => 'guid',
-	//     	'value' => "= {$store->owner_guid}",
-	//     	'operation' => ''
-	//     ];
- //    } else {
-	//     $shop_params[] = [
-	//     	'key' => 'owner_guid',
-	//     	'value' => "= {$user->guid}",
-	//     	'operation' => ''
-	//     ];
- //    }
- //    $shop = ShopsService::getInstance()->getShopOnView($shop_params,0,1);
- //    if ($shop) {
-	//     if (is_array($shops_liked_guid) && count($shops_liked_guid) > 0) {
-	// 	    if (in_array($shop->guid, $shops_liked_guid)) {
-	// 	    	$shop->liked = true;
-	// 	    }
-	//     }
-	//     if ($user->chain_store) {
-	//     	$shop->shop_address = $store->address;
-	// 		$shop->shop_phone = $store->phone;
-	// 		$shop->shop_province = $store->shop_province;
-	// 		$shop->shop_district = $store->shop_district;
-	// 		$shop->shop_ward = $store->shop_ward;
-	// 		$shop->full_address = $store->full_address;
-	//     }
- //    } else {
- //    	$shop = new OssnObject;
- //    	$shop->status = false;
- //    }
-	// $user->shop = $shop;
-	
+	if ($user->guid != $loggedin_user->guid) {
+		$block_list = json_decode($loggedin_user->blockedusers);
+	    if (is_array($block_list) && count($block_list) > 0) {
+		    if (in_array($user->guid, $block_list)) {
+		    	return response([
+					"status"  => false,
+					"error"   => "User is blocked"
+				]);
+		    }
+	    }
+	}
+	return response($user);
 	// $feed_params = null;
 	// $feed_params[] = [
 	// 	'key' => 'poster_guid',

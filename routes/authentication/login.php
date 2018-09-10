@@ -5,40 +5,43 @@ use Slim\Http\Response;
 
 // Routes
 // $app->get('/authtoken', function (Request $request, Response $response, array $args) {
-$app->post('/authtoken', function (Request $request, Response $response, array $args) {
-
+$app->post($container['prefix'].'/authtoken', function (Request $request, Response $response, array $args) {
+	$db =  SlimDatabase::getInstance();
 	// $shops = getShops($this->db, null, $offset = 0, $limit = 1, $load_more = true);
 	// var_dump($shops);die();
 	
-	$input = $request->getParsedBody();
+	$params = $request->getParsedBody();
 	$table = "users";
 	$conditions = null;
-	if(strpos($input['username'], '@') !== false) {
+	if (!array_key_exists("username", $params)) return response(false);
+	if (!array_key_exists("password", $params)) return response(false);
+
+	if(strpos($params['username'], '@') !== false) {
 		$conditions[] = [
 			'key' => 'email',
-			'value' => "= '{$input['username']}'",
+			'value' => "= '{$params['username']}'",
 			'operation' => ''
 		];
 	}
-	if (is_numeric($input['username'])) {
+	if (is_numeric($params['username'])) {
 		$conditions[] = [
 			'key' => 'mobilelogin',
-			'value' => "= '{$input['username']}'",
+			'value' => "= '{$params['username']}'",
 			'operation' => ''
 		];
 	} else {
 		$conditions[] = [
 			'key' => 'username',
-			'value' => "= '{$input['username']}'",
+			'value' => "= '{$params['username']}'",
 			'operation' => ''
 		];
 	}
 	// $user = getUsers($this->db, $conditions, $offset = 0, $limit = 1, $load_more = true);
 	// var_dump($user);die();
-	$users = getData($this->db, $table, $conditions, $offset = 0, $limit = 1, $load_more = true);
+	$users = $db->getData($table, $conditions, $offset = 0, $limit = 1, $load_more = true);
 	$user = $users[0];
 	$salt     = $user->salt;
-    $password = md5($input['password'] . $salt);
+    $password = md5($params['password'] . $salt);
     if ($password == $user->password) {
 		unset($user->salt);
 		unset($user->password);
@@ -55,7 +58,7 @@ $app->post('/authtoken', function (Request $request, Response $response, array $
 		$token->expried = time()+3600;
 		$token->user_guid = $user->guid;
 		$token->session_id = session_id();
-		saveTableToken($this->db, $token, $action = "insert", $show_id = false);
+		$db->saveTableToken($token, $action = "insert", $show_id = false);
 		$_SESSION["OSSN_USER"] = $user;
 		return response(["token" => $token->token]);
     }

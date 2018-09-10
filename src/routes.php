@@ -6,6 +6,11 @@ use Slim\Http\Response;
 // Routes
 require __DIR__ . '/../routes/authentication/login.php';
 require __DIR__ . '/../routes/profile.php';
+require __DIR__ . '/../routes/services.php';
+require __DIR__ . '/../routes/friends.php';
+require __DIR__ . '/../routes/product_group.php';
+
+
 
 // $app->get('/users', function (Request $request, Response $response, array $args) {
 // 	// $table = "ossn_users";

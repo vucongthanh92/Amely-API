@@ -7,8 +7,17 @@ function loggedin_user()
 	return $_SESSION["OSSN_USER"];
 }
 
-function checkToken($db, $token)
+function checkParam($param)
 {
+	if (isset($param) && $param) {
+		return true;
+	}
+	return false;
+}
+
+function checkToken($token)
+{
+	$db =  SlimDatabase::getInstance();
 	$table = "ossn_usertokens";
 	$conditions = null;
 	$conditions[] = [
@@ -16,7 +25,7 @@ function checkToken($db, $token)
 		'value' => "= '{$token}'",
 		'operation' => ""
 	];
-	$token = getData($db, $table, $conditions, $offset = 0, $limit = 1, $load_more = true);
+	$token = $db->getData($table, $conditions, $offset = 0, $limit = 1, $load_more = true);
 	if ($token) return true;
 	return false;
 }
