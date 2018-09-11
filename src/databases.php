@@ -464,17 +464,9 @@ class SlimDatabase
 	                case 'image':
 	                    $size_image = $condition['value'];
 	                    break;
-	                case 'OR':
-	                    $where = "OR ".$condition['key']." ".$condition['value'];
-	                    $params['wheres'][] = $where;
-	                    break;
-	                case 'AND':
-	                    $where = "AND ".$condition['key']." ".$condition['value'];
-	                    $params['wheres'][] = $where;
-	                    break;
-	                case 'default':
-	                    break;
 	                default:
+	                    $where = $condition['operation']." ".$condition['key']." ".$condition['value'];
+	                    $params['wheres'][] = $where;
 	                    break;
 	            }
 	        }
