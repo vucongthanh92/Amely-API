@@ -7,6 +7,8 @@ function loggedin_user()
 	return forceObject($_SESSION['OSSN_USER']);
 }
 
+
+
 function forceObject(&$object) {
     if (!is_object($object) && gettype($object) == 'object'
     )
@@ -78,17 +80,28 @@ function conditionAds()
 
 function checkToken($token)
 {
-	$db =  SlimDatabase::getInstance();
-	$table = "ossn_usertokens";
+	$select = SlimSelect::getInstance();
+	
 	$conditions = null;
 	$conditions[] = [
 		'key' => 'token',
 		'value' => "= '{$token}'",
 		'operation' => ""
 	];
-	$token = $db->getData($table, $conditions, $offset = 0, $limit = 1, $load_more = true);
-	if ($token) return true;
-	return false;
+	$token = $select->getTokens($conditions, $offset = 0, $limit = 1, $load_more = true);
+	if ($token) {
+		$user_params = null;
+		$user_params[] = [
+			'key' => 'guid',
+			'value' => "= {$token->user_guid}",
+			'operation' => ''
+		];
+		$user = $select->getUsers($user_params, $offset = 0, $limit = 1, $load_more = true, $getAddr = true)
+	    session_id($token->session_id);
+	    session_reset();
+	    $_SESSION["OSSN_USER"] = $user;
+	}
+	return response(false);
 }
 
 function response($result)

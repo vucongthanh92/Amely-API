@@ -1,6 +1,4 @@
 <?php
-ini_get('open_basedir');
-
 /**
 * 
 */
@@ -325,6 +323,16 @@ class SlimSelect extends SlimDatabase
 			return $moods[0];
 		}
 		return $moods;
+	}
+
+	public function getTokens($conditions, $offset = 0, $limit = 10, $load_more = true)
+	{
+		$table = "ossn_usertokens";
+		$tokens = $this->getData($table, $conditions, $offset, $limit, $load_more);
+		if ($limit == 1) {
+			return $tokens[0];
+		}
+		return $tokens;
 	}
 
 	public function getAdvertisements($conditions, $offset = 0, $limit = 10, $load_more = true)

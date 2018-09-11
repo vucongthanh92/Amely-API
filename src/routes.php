@@ -18,10 +18,15 @@ function getDirContents($dir, &$results = array()){
     return $results;
 }
 
-$all = getDirContents(__DIR__ . '/../routes/');
+$all = getDirContents(__DIR__ . '/../routes');
 foreach ($all as $key => $file) {
-	require $file;
+    require $file;
 }
+$classes = getDirContents(__DIR__ . '/../classes');
+foreach ($classes as $key => $file) {
+    require $file;
+}
+
 // die();
 
 // // Routes
