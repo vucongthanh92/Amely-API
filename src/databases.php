@@ -446,6 +446,7 @@ class SlimDatabase
 	    $size_image = "default";
 	    if (is_array($conditions)) {
 	        foreach ($conditions as $key => $condition) {
+	    		if ($condition['operation']) $condition['operation'] = "default";
 	           switch ($condition['operation']) {
 	           		case 'query_params':
 	                    $params['params'][] = $condition['key'];

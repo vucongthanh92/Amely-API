@@ -213,7 +213,7 @@ $app->post($container['prefix'].'/feeds', function (Request $request, Response $
 			];
 			$object = $select->getObjects($object_param,0,1);
 			if (!$object) {
-				unset($fees[$key]);
+				unset($feed[$key]);
 				continue;
 			}
 			$feed->owner_title = $object->title;
