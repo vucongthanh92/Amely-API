@@ -446,12 +446,7 @@ class SlimDatabase
 	    $size_image = "default";
 	    if (is_array($conditions)) {
 	        foreach ($conditions as $key => $condition) {
-	        	if (isset($condition['operation']) && empty($condition['operation'])) {
-	        		$operation = "default";
-	        	} else {
-	        		$operation = $condition['operation'];
-	        	}
-	           	switch ($operation) {
+	            switch ($condition['operation']) {
 	           		case 'query_params':
 	                    $params['params'][] = $condition['key'];
 	                    break;
@@ -467,16 +462,8 @@ class SlimDatabase
 	                case 'image':
 	                    $size_image = $condition['value'];
 	                    break;
-	                case 'AND':
-	                    $where = "AND ".$condition['key']." ".$condition['value'];
-	                    $params['wheres'][] = $where;
-	                    break;
-	                case 'OR':
-	                    $where = "OR ".$condition['key']." ".$condition['value'];
-	                    $params['wheres'][] = $where;
-	                    break;
 	                default:
-	                    $where = $condition['key']." ".$condition['value'];
+	                    $where = $condition['operation']." ".$condition['key']." ".$condition['value'];
 	                    $params['wheres'][] = $where;
 	                    break;
 	            }
