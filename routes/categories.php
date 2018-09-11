@@ -90,5 +90,5 @@ $app->post($container['prefix'].'/categories', function (Request $request, Respo
 	        $category->total_product = $products->count;
 		}
 	}
-	return $categories;
+	return response($categories);
 });

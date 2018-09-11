@@ -3,6 +3,10 @@
 use Slim\Http\Request;
 use Slim\Http\Response;
 
+
+
+
+
 // Routes
 require __DIR__ . '/../routes/authentication/login.php';
 require __DIR__ . '/../routes/profile.php';
@@ -11,6 +15,10 @@ require __DIR__ . '/../routes/friends.php';
 require __DIR__ . '/../routes/product_group.php';
 require __DIR__ . '/../routes/feeds.php';
 require __DIR__ . '/../routes/banner.php';
+require __DIR__ . '/../routes/categories.php';
+require __DIR__ . '/../routes/featured_shops.php';
+require __DIR__ . '/../routes/featured_products.php';
+require __DIR__ . '/../routes/most_sold_products.php';
 
 
 

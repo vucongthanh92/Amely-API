@@ -26,7 +26,7 @@ return [
             "host" => "localhost",
             "dbname" => "amely",
             "user" => "root",
-            "pass" => "root"
+            "pass" => "thinhnez123"
         ],
         'url' => "https://amely.com",
         'prefix' => "/ws/v1",
