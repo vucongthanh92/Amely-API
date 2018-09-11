@@ -96,7 +96,7 @@ function checkToken($token)
 			'value' => "= {$token->user_guid}",
 			'operation' => ''
 		];
-		$user = $select->getUsers($user_params, $offset = 0, $limit = 1, $load_more = true, $getAddr = true)
+		$user = $select->getUsers($user_params, $offset = 0, $limit = 1, $load_more = true, $getAddr = true);
 	    session_id($token->session_id);
 	    session_reset();
 	    $_SESSION["OSSN_USER"] = $user;
