@@ -112,7 +112,10 @@ $app->get($container['prefix'].'/profile', function (Request $request, Response 
 	}
 
 	if ($user->guid != $loggedin_user->guid) {
-		$block_list = json_decode($loggedin_user->blockedusers);
+		$block_list = 0;
+		if (property_exists($loggedin_user, 'blockedusers')) {
+			$block_list = json_decode($loggedin_user->blockedusers);
+		}
 	    if (is_array($block_list) && count($block_list) > 0) {
 		    if (in_array($user->guid, $block_list)) {
 		    	return response([
@@ -122,6 +125,7 @@ $app->get($container['prefix'].'/profile', function (Request $request, Response 
 		    }
 	    }
 	}
+
 	return response($user);
 	// $feed_params = null;
 	// $feed_params[] = [

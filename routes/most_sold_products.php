@@ -3,7 +3,7 @@ use Slim\Http\Request;
 use Slim\Http\Response;
 
 $app->get($container['prefix'].'/most_sold_products', function (Request $request, Response $response, array $args) {
-
+	$select = SlimSelect::getInstance();
 	$loggedin_user = loggedin_user();
 	if ($loggedin_user->usercurrency) $currency_code = $loggedin_user->usercurrency;
 

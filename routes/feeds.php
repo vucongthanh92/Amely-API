@@ -203,7 +203,7 @@ $app->post($container['prefix'].'/feeds', function (Request $request, Response $
 	$users_guid = [];
 
 	foreach ($feeds as $key => $feed) {
-		if (!$feed->linkPreview) unset($feed->linkPreview);
+		if ($feed->linkPreview) unset($feed->linkPreview);
 		if ($feed->type != "user") {
 			$object_param = null;
 			$object_param = [
@@ -213,7 +213,7 @@ $app->post($container['prefix'].'/feeds', function (Request $request, Response $
 			];
 			$object = $select->getObjects($object_param,0,1);
 			if (!$object) {
-				unset($feed[$key]);
+				unset($feeds[$key]);
 				continue;
 			}
 			$feed->owner_title = $object->title;
