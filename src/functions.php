@@ -4,7 +4,14 @@ use Slim\Http\Response;
 
 function loggedin_user()
 {
-	return $_SESSION["OSSN_USER"];
+	return forceObject($_SESSION['OSSN_USER']);
+}
+
+function forceObject(&$object) {
+    if (!is_object($object) && gettype($object) == 'object'
+    )
+        return ($object = unserialize(serialize($object)));
+    return $object;
 }
 
 function compareAds($advertises)
