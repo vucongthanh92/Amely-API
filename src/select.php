@@ -337,6 +337,99 @@ class SlimSelect extends SlimDatabase
 		return $advertisements;
 	}
 
-	
+	public function getCategories($conditions, $offset = 0, $limit = 10, $load_more = true)
+	{
+		$table = "categories";
+		$categories = $this->getData($table, $conditions, $offset, $limit, $load_more);
+		if (!$categories) return false;
+		foreach ($categories as $key => $category) {
+			if ($category->subtype == "shop:category" || $category->subtype == "market:category") {
+				$filename = array_pop(explode("/", $category->logo));
+				$file_path = "/object/{$category->guid}/category/images/"."lgthumb_{$filename}";
+				if (file_exists(IMAGE_PATH.$file_path)) {
+					$url = IMAGE_URL.$file_path;
+				} else {
+					$url = AVATAR_DEFAULT;
+				}
+
+				$category->logo = $url;
+				$categories[$key] = $category;
+			} 
+		}
+		if ($limit == 1) {
+			return $categories[0];
+		}
+		return $categories;
+	}
+
+	public function getProducts($conditions, $offset = 0, $limit = 10, $load_more = true, $currency_code = "VND", $encode = true)
+	{
+		$table = "categories_images_products";
+		$products = $this->getData($table, $conditions, $offset, $limit, $load_more);
+        if (!$products) return false;
+
+        foreach ($products as $key => $product) {
+            if (!$currency_code) $currency_code = $product->currency;
+            if ($encode) {
+                $product->description = html_entity_decode($product->description);
+            }
+            $product->shop_categories = explode(",", $product->shop_category);
+            $product->market_categories = explode(",", $product->market_category);
+            $product->voucher_categories = explode(",", $product->voucher_category);
+
+            $images = [];
+            $images_entities = [];
+            if ($product->images) $images = explode(",", $product->images);
+            if ($product->images_entities) $images_entities = explode(",", $product->images_entities);
+
+            $entities = [];
+            $entities_guid = [];
+
+            if ($images) {
+                foreach ($images as $kimage => $image) {
+                    $is_http = false;
+                    $type_list = array("https://", "http://");
+                    foreach ($type_list as $type) {
+                        if (strpos($image, $type) !== false) {
+                            $is_http = true;
+                        }
+                    }
+                    if ($is_http) {
+                        $images[$kimage] = $image;
+                        $entities[$images_entities[$kimage]] = $images[$kimage];
+                        array_push($entities_guid, $images_entities[$kimage]);
+                    } else {
+                    	$filename = $image;
+						$file_path = "/object/{$product->guid}/product/images/"."lgthumb_{$filename}";
+						if (file_exists(IMAGE_PATH.$file_path)) {
+							$url = IMAGE_URL.$file_path;
+						} else {
+							$url = AVATAR_DEFAULT;
+						}
+
+                        $images[$kimage] = $url;
+                        $entities[$images_entities[$kimage]] = $images[$kimage];
+                        array_push($entities_guid, $images_entities[$kimage]);
+                    }
+                }
+            }
+            $product->images = $images;
+            $product->images_entities = $entities;
+
+            $product->images = $images;
+            $product->category = explode(",", $product->category);
+
+            $display_price = getPrice($product);
+            $product->display_price = $display_price;
+            $product->display_currency = $currency_code;
+            $product->display_old_price = $product->price;
+
+            $products[$key] = $product;
+        }
+		if ($limit == 1) {
+			return $products[0];
+		}
+		return $products;
+	}
 
 }

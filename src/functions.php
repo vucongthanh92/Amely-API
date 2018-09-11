@@ -20,6 +20,11 @@ function compareAds($advertises)
     return $advertises;
 }
 
+function getPrice(Object $product)
+{
+	if (!empty($product->sale_price)) return $product->sale_price;
+	return $product->price;
+}
 
 function conditionAds()
 {
