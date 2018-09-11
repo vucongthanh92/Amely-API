@@ -7,16 +7,18 @@ $app->post($container['prefix'].'/banner', function (Request $request, Response 
 	$loggedin_user = loggedin_user();
 	$shops_block = 0;
 	if (property_exists($loggedin_user, 'blockedusers')) {
-		$block_list = json_decode($loggedin_user->blockedusers);
-		$block_users = implode(',', $block_list);
-		$shop_params = null;
-		$shop_params[] = [
-			'key' => 'owner_guid',
-			'value' => "IN ({$block_users})",
-			'operation' => ''
-		];
-		$shops = $select->getShops($shop_params,0,999999);
-		$shops_block = array_map(create_function('$o', 'return $o->guid;'), $shops);
+		if ($loggedin_user->blockedusers) {
+			$block_list = json_decode($loggedin_user->blockedusers);
+			$block_users = implode(',', $block_list);
+			$shop_params = null;
+			$shop_params[] = [
+				'key' => 'owner_guid',
+				'value' => "IN ({$block_users})",
+				'operation' => ''
+			];
+			$shops = $select->getShops($shop_params,0,999999);
+			$shops_block = array_map(create_function('$o', 'return $o->guid;'), $shops);
+		}
 	}
 
 	$ads_params = null;
