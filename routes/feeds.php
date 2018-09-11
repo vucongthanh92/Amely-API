@@ -217,6 +217,7 @@ $app->post($container['prefix'].'/feeds', function (Request $request, Response $
 			}
 			$feed->owner_title = $object->title;
 		}
+
 		
 		if (property_exists($feed, 'mood_guid') && $feed->mood_guid) {
 			array_push($mood_guids, $feed->mood_guid);
@@ -305,7 +306,7 @@ $app->post($container['prefix'].'/feeds', function (Request $request, Response $
 				$link_params = null;
 				$link_params[] = [
 					'key' => 'guid',
-					'value' => "= {$feed->linkPreview}",
+					'value' => "= {$feed_share->linkPreview}",
 					'operation' => ''
 				];
 				$link = $select->getLinkPreview($link_params,0,1);
