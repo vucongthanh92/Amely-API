@@ -101,17 +101,21 @@ $app->get($container['prefix'].'/friends', function (Request $request, Response 
     	$friends = $select->getUsers($user_params,0,99999999,true,false);
     	foreach ($friends as $key => $friend) {
     		if ($friend->guid != $loggedin_user->guid) {
-		    	$block_list = json_decode($loggedin_user->blockedusers);
-			    if (is_array($block_list) && count($block_list) > 0) {
-				    if (in_array($friend->guid, $block_list)) {
-				    	unset($friends[$key]);
-                        continue;
-				    }
-			    }
-                if ($friends_requested) {
-    			    if (in_array($friend->guid, $friends_requested_guid)) {
-    	            	$friend->requested = 1;
+                if (property_exists($loggedin_user, 'blockedusers')) {
+    		    	$block_list = json_decode($loggedin_user->blockedusers);
+    			    if (is_array($block_list) && count($block_list) > 0) {
+    				    if (in_array($friend->guid, $block_list)) {
+    				    	unset($friends[$key]);
+                            continue;
+    				    }
     			    }
+                }
+                if ($user->guid != $loggedin_user->guid) {
+                    if ($friends_requested_guid) {
+        			    if (in_array($friend->guid, $friends_requested_guid)) {
+        	            	$friend->requested = 1;
+        			    }
+                    }
                 }
     		}
     	}

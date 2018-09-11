@@ -203,7 +203,9 @@ $app->post($container['prefix'].'/feeds', function (Request $request, Response $
 	$users_guid = [];
 
 	foreach ($feeds as $key => $feed) {
-		if ($feed->linkPreview) unset($feed->linkPreview);
+		if (property_exists($feed_share, 'linkPreview') {
+			if ($feed->linkPreview) unset($feed->linkPreview);
+		}
 		if ($feed->type != "user") {
 			$object_param = null;
 			$object_param = [
