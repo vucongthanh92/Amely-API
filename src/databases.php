@@ -451,7 +451,7 @@ class SlimDatabase
 	                    $params['params'][] = $condition['key'];
 	                    break;
 	                case 'count':
-	                    $params['params'][] = "count(*) as count";
+	                    $params['params'][] = "count(".$condition['key'].") as ".$condition['value'];
 	                    break;
 	                case 'order_by':
 	                    $params['order_by'] = $condition['key']." ".$condition['value'];

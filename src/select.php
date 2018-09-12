@@ -440,4 +440,97 @@ class SlimSelect extends SlimDatabase
 		return $products;
 	}
 
+	public function getOffers($conditions, $offset = 0, $limit = 10, $load_more = true)
+	{
+		$table = "offers";
+		$offers = $this->getData($table, $conditions, $offset, $limit, $load_more);
+		if (!$offers) return false;
+		foreach ($offers as $key => $offer) {
+			if ($offer->offer_type == "random") {
+				$offer->counter_number = $offer->counter_number - 1;
+			}
+			$offers[$key] = $offer;
+		}
+		if ($limit == 1) {
+			return $offers[0];
+		}
+		return array_values($offers);
+	}
+
+	public function getSnapshots($conditions = null, $offset = 0, $limit = 10, $load_more = true, $currency_code = "VND")
+	{
+		$table = "products_snapshot";
+        $snapshots = $this->getData($table, $conditions, $offset, $limit, $load_more);
+		if (!$snapshots) return false;
+
+		foreach ($snapshots as $key => $snapshot) {
+			if (!$currency_code) $currency_code = $snapshot->currency;
+			$snapshot->description = html_entity_decode($snapshot->description);
+			$snapshot->shop_categories = explode(",", $snapshot->shop_category);
+			$snapshot->market_categories = explode(",", $snapshot->market_category);
+			$snapshot->voucher_categories = explode(",", $snapshot->voucher_category);
+			$images = explode(",", $snapshot->images);
+			if ($images) {
+				foreach ($images as $kimage => $image) {
+					$is_http = false;
+                    $type_list = array("https://", "http://");
+                    foreach ($type_list as $type) {
+                        if (strpos($image, $type) !== false) {
+                            $is_http = true;
+                        }
+                    }
+                    if ($is_http) {
+                        $images[$kimage] = $image;
+                    } else {
+                    	$filename = $image;
+						$file_path = "/object/{$snapshot->guid}/product/images/"."lgthumb_{$filename}";
+						if (file_exists(IMAGE_PATH.$file_path)) {
+							$url = IMAGE_URL.$file_path;
+						} else {
+							$url = AVATAR_DEFAULT;
+						}
+						$images[$kimage] = $url;
+                    }
+						
+				}
+			}
+			$snapshot->images = $images;
+			$snapshot->category = explode(",", $snapshot->category);
+
+			$display_price = getPrice($snapshot);
+			$snapshot->display_price = $display_price;
+			$snapshot->display_currency = $currency_code;
+			$snapshot->display_old_price = $snapshot->price;
+
+			$snapshots[$key] = $snapshot;
+		}
+
+		if ($limit == 1) {
+			$snapshots = $snapshots[0];
+		}
+
+		return $snapshots;
+	}
+
+	public function getCounters($conditions = null, $offset = 0, $limit = 10, $load_more = true)
+	{
+		$table = "counter_offers";
+        $counters = $this->getData($table, $conditions, $offset, $limit, $load_more);
+		if (!$counters) return false;
+		if ($limit == 1) {
+			$counters = $counters[0];
+		}
+		return $counters;
+	}
+
+	public function getItems($conditions = null, $offset = 0, $limit = 10, $load_more = true)
+	{
+		$table = "items";
+        $items = $this->getData($table, $conditions, $offset, $limit, $load_more);
+		if (!$items) return false;
+		if ($limit == 1) {
+			$items = $items[0];
+		}
+		return $items;
+	}
 }

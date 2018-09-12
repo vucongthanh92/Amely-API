@@ -7,6 +7,56 @@ function loggedin_user()
 	return forceObject($_SESSION['OSSN_USER']);
 }
 
+function getFriendsGUID($owner_guid)
+{
+	$select = SlimSelect::getInstance();
+
+	$relation_params = null;
+    $relation_params[] = [
+    	'key' => 'type',
+    	'value' => "= 'friend:request'",
+    	'operation' => ''
+    ];
+    $relation_params[] = [
+    	'key' => 'relation_to',
+    	'value' => "= {$owner_guid}",
+    	'operation' => 'AND'
+    ];
+    $relation_params[] = [
+    	'key' => 'relation_from',
+    	'value' => '',
+    	'operation' => 'query_params'
+    ];
+    
+    $relations = $select->getRelationships($relation_params,0,99999999);
+    if ($relations) {
+    	$relations_from = array_map(create_function('$o', 'return $o->relation_from;'), $relations);
+    	$relations_from = implode(",", $relations_from);
+
+	    $relation_params = null;
+	    $relation_params[] = [
+	    	'key' => 'type',
+	    	'value' => "= 'friend:request'",
+	    	'operation' => ''
+	    ];
+	    $relation_params[] = [
+	    	'key' => 'relation_from',
+	    	'value' => "= {$owner_guid}",
+	    	'operation' => 'AND'
+	    ];
+	    $relation_params[] = [
+	    	'key' => 'relation_to',
+	    	'value' => "IN ($relations_from)",
+	    	'operation' => 'AND'
+	    ];
+	    
+	    $friends = $select->getRelationships($relation_params,0,99999999);
+	    $friends_guid = array_map(create_function('$o', 'return $o->relation_to;'), $friends);
+	    return $friends_guid;
+
+	}
+	return false;
+}
 
 
 function forceObject(&$object) {

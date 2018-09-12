@@ -81,8 +81,8 @@ $app->post($container['prefix'].'/categories', function (Request $request, Respo
 				'operation' => ''
 			];
 			$product_params[] = [
-				'key' => '',
-				'value' => '',
+				'key' => '*',
+				'value' => 'count',
 				'operation' => 'count'
 			];
 
