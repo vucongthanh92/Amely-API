@@ -40,7 +40,7 @@ $app->get($container['prefix'].'/friends', function (Request $request, Response 
     $relations = $select->getRelationships($relation_params,0,99999999);
     if ($relations) {
     	$relations_from = array_map(create_function('$o', 'return $o->relation_from;'), $relations);
-    	$relations_from = implode(",", $relations_from);
+    	$relations_from = implode(",", array_unique($relations_from));
 
 	    $relation_params = null;
 	    $relation_params[] = [
@@ -62,7 +62,7 @@ $app->get($container['prefix'].'/friends', function (Request $request, Response 
 	    $friends = $select->getRelationships($relation_params,0,99999999);
         if (!$friends) return response(false);
 	    $friends_guid = array_map(create_function('$o', 'return $o->relation_to;'), $friends);
-    	$friends_guid = implode(",", $friends_guid);
+    	$friends_guid = implode(",", array_unique($friends_guid));
 
     	if ($user->guid != $loggedin_user->guid) {
     		$relation_params = null;

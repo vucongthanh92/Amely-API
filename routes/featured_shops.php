@@ -52,7 +52,7 @@ $app->post($container['prefix'].'/featured_shops', function (Request $request, R
         	$shops_ads[$advertise->item] = $advertise->guid;
         }
     }
-    $shops_guid = implode(",", $shops_guid);
+    $shops_guid = implode(",", array_unique($shops_guid));
 	$shop_params = null;
 	$shop_params[] = [
 		'key' => 'guid',

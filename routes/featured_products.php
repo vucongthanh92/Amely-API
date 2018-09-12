@@ -35,7 +35,7 @@ $app->post($container['prefix'].'/featured_products', function (Request $request
 			array_push($shops_guid, $ads->owner_guid);
 		}
 	}
-	$shops_guid = implode(",", $shops_guid);
+	$shops_guid = implode(",", array_unique($shops_guid));
 
 	$shop_params = null;
 	$shop_params[] = [
@@ -77,7 +77,7 @@ $app->post($container['prefix'].'/featured_products', function (Request $request
 		'value' => "IN {$products_guid}",
 		'operation' => ''
 	];
-	$products = $select->getProducts($product_params,0,99999999);
+	$products = $select->getProductsMarket($product_params,0,99999999);
 	if (!$products) return response(false);
 	foreach ($products as $key => $product) {
 

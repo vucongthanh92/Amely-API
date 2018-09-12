@@ -197,7 +197,7 @@ $app->post($container['prefix'].'/offers', function (Request $request, Response 
 		case 'friends':
 			$friends_guid = getFriendsGUID($loggedin_user->guid);
 			if (!$friends_guid) return response(false);
-			$friends_guid = implode(',', $friends_guid);
+			$friends_guid = implode(',', array_unique($friends_guid));
 			$offer_params[] = [
 				'key' => 'owner_guid',
 				'value' => "IN ({$friends_guid})",
@@ -242,7 +242,7 @@ $app->post($container['prefix'].'/offers', function (Request $request, Response 
 		}
 	}
 
-	$snapshots_guid = implode(',', $snapshots_guid);
+	$snapshots_guid = implode(',', array_unique($snapshots_guid));
 	$snapshot_params = null;
 	$snapshot_params[] = [
 		'key' => 'guid',
@@ -270,7 +270,7 @@ $app->post($container['prefix'].'/offers', function (Request $request, Response 
 	];
 	$bookmarks = $select->getRelationships($relation_params,0,9999999);
 
-	$offers_guid = implode(',', $offers_guid);
+	$offers_guid = implode(',', array_unique($offers_guid));
 	$counter_params = null;
 	$counter_params[] = [
 		'key' => 'offer_guid',

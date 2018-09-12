@@ -533,4 +533,71 @@ class SlimSelect extends SlimDatabase
 		}
 		return $items;
 	}
+
+	public function getItemsInventory($conditions = null, $offset = 0, $limit = 10, $load_more = true)
+	{
+		$table = "items_inventory";
+        $items = $this->getData($table, $conditions, $offset, $limit, $load_more);
+		if (!$items) return false;
+		if ($limit == 1) {
+			$items = $items[0];
+		}
+		return $items;
+	}
+
+	public function getProductsMarket($conditions, $offset = 0, $limit = 10, $load_more = true, $currency_code = "VND", $encode = true)
+	{
+		$table = "products_market";
+        $products = $this->getData($table, $conditions, $offset, $limit, $load_more);
+        if (!$products) return false;
+
+        foreach ($products as $key => $product) {
+            if (!$currency_code) $currency_code = $product->currency;
+            if ($encode) {
+                $product->description = html_entity_decode($product->description);
+            }
+            $images = [];
+            if ($product->images) $images = explode(",", $product->images);
+
+            if ($images) {
+                foreach ($images as $kimage => $image) {
+                    $is_http = false;
+                    $type_list = array("https://", "http://");
+                    foreach ($type_list as $type) {
+                        if (strpos($image, $type) !== false) {
+                            $is_http = true;
+                        }
+                    }
+                    if ($is_http) {
+                        $images[$kimage] = $image;
+                    } else {
+                    	$filename = $image;
+						$file_path = "/object/{$product->guid}/product/images/"."lgthumb_{$filename}";
+						if (file_exists(IMAGE_PATH.$file_path)) {
+							$url = IMAGE_URL.$file_path;
+						} else {
+							$url = AVATAR_DEFAULT;
+						}
+                        $images[$kimage] = $url;
+                    }
+                }
+            }
+            $product->images = $images;
+            $product->category = explode(",", $product->category);
+
+            $display_price = getPrice($product);
+            $product->display_price = $display_price;
+            $product->display_currency = $currency_code;
+            $product->display_old_price = $product->price;
+
+            $products[$key] = $product;
+        }
+		if ($limit == 1) {
+			return $products[0];
+		}
+		return $products;
+	}
+	
+
+	
 }

@@ -40,7 +40,7 @@ $app->get($container['prefix'].'/most_sold_products', function (Request $request
 		'value' => "DESC",
 		'operation' => 'order_by'
 	];
-	$products =  $select->getProducts($product_params,0,16);
+	$products =  $select->getProductsMarket($product_params,0,16);
 	if (!$products) return response(false);
 
 	$products_owner_guid = [];
@@ -50,7 +50,7 @@ $app->get($container['prefix'].'/most_sold_products', function (Request $request
  				array_push($products_owner_guid, $product->owner_guid);
  			}
  		}
- 		$products_owner_guid = implode(",", $products_owner_guid);
+ 		$products_owner_guid = implode(",", array_unique($products_owner_guid));
  		$shop_params = null;
 		$shop_params[] = [
 			'key' => 'guid',

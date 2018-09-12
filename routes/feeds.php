@@ -10,6 +10,12 @@ $app->post($container['prefix'].'/feeds', function (Request $request, Response $
 	if (property_exists($loggedin_user, 'blockedusers')) {
 		$block_list = json_decode($loggedin_user->blockedusers);
 	}
+	$params = $request->getParsedBody();
+	if (!$params) $params = [];
+	if (!array_key_exists("feeds_type", $params)) $params["feeds_type"] = "home";
+	if (!array_key_exists("offset", $params)) $params["offset"] = 0;
+	if (!array_key_exists("limit", $params)) $params["limit"] = 10;
+	if (!array_key_exists("owner_guid", $params)) $params["owner_guid"] = $loggedin_user->guid;
 
 	$relation_params = null;
     $relation_params[] = [
@@ -31,7 +37,7 @@ $app->post($container['prefix'].'/feeds', function (Request $request, Response $
     $relations = $select->getRelationships($relation_params,0,99999999);
     if ($relations) {
     	$relations_from = array_map(create_function('$o', 'return $o->relation_from;'), $relations);
-    	$relations_from = implode(",", $relations_from);
+    	$relations_from = implode(",", array_unique($relations_from));
 
 	    $relation_params = null;
 	    $relation_params[] = [
@@ -71,16 +77,11 @@ $app->post($container['prefix'].'/feeds', function (Request $request, Response $
 					array_push($friends_guid, $friend->relation_to);
 				}
 	    	}
-		    $friends_guid = implode(",", $friends_guid);
+		    $friends_guid = implode(",", array_unique($friends_guid));
 	    }
 	}
 
-	$params = $request->getParsedBody();
-	if (!$params) $params = [];
-	if (!array_key_exists("feeds_type", $params)) $params["feeds_type"] = "home";
-	if (!array_key_exists("offset", $params)) $params["offset"] = 0;
-	if (!array_key_exists("limit", $params)) $params["limit"] = 10;
-	if (!array_key_exists("owner_guid", $params)) $params["owner_guid"] = $loggedin_user->guid;
+	
 
 
 	$feeds_type = $params["feeds_type"];
