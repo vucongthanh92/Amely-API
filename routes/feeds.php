@@ -17,72 +17,25 @@ $app->post($container['prefix'].'/feeds', function (Request $request, Response $
 	if (!array_key_exists("limit", $params)) $params["limit"] = 10;
 	if (!array_key_exists("owner_guid", $params)) $params["owner_guid"] = $loggedin_user->guid;
 
-	$relation_params = null;
-    $relation_params[] = [
-    	'key' => 'type',
-    	'value' => "= 'friend:request'",
-    	'operation' => ''
-    ];
-    $relation_params[] = [
-    	'key' => 'relation_to',
-    	'value' => "= {$loggedin_user->guid}",
-    	'operation' => 'AND'
-    ];
-    $relation_params[] = [
-    	'key' => 'relation_from',
-    	'value' => '',
-    	'operation' => 'query_params'
-    ];
-    
-    $relations = $select->getRelationships($relation_params,0,99999999);
-    if ($relations) {
-    	$relations_from = array_map(create_function('$o', 'return $o->relation_from;'), $relations);
-    	$relations_from = implode(",", array_unique($relations_from));
+	$friends = getFriendsGUID($loggedin_user->guid);
 
-	    $relation_params = null;
-	    $relation_params[] = [
-	    	'key' => 'type',
-	    	'value' => "= 'friend:request'",
-	    	'operation' => ''
-	    ];
-	    $relation_params[] = [
-	    	'key' => 'relation_from',
-	    	'value' => "= {$loggedin_user->guid}",
-	    	'operation' => 'AND'
-	    ];
-	    $relation_params[] = [
-	    	'key' => 'relation_to',
-	    	'value' => "IN ($relations_from)",
-	    	'operation' => 'AND'
-	    ];
-	    $relation_params[] = [
-	    	'key' => 'relation_to',
-	    	'value' => '',
-	    	'operation' => 'query_params'
-	    ];
-	    
-	    $friends = $select->getRelationships($relation_params,0,99999999);
-	    if ($friends) {
-	    	$friends_guid = [];
-	    	array_push($friends_guid, $loggedin_user->guid);
-			
-	    	foreach ($friends as $key => $friend) {
-			    if (is_array($block_list) && count($block_list) > 0) {
-				    if (in_array($friend->relation_to, $block_list)) {
-				    	unset($friends[$key]);
-				    	continue;
-				    }
+    if ($friends) {
+    	$friends_guid = [];
+    	array_push($friends_guid, $loggedin_user->guid);
+		
+    	foreach ($friends as $friend) {
+		    if (is_array($block_list) && count($block_list) > 0) {
+			    if (in_array($friend, $block_list)) {
+			    	unset($friends[$key]);
+			    	continue;
 			    }
-			    if (!in_array($friend->relation_to, $friends_guid)) {
-					array_push($friends_guid, $friend->relation_to);
-				}
-	    	}
-		    $friends_guid = implode(",", array_unique($friends_guid));
-	    }
-	}
-
-	
-
+		    }
+		    if (!in_array($friend, $friends_guid)) {
+				array_push($friends_guid, $friend);
+			}
+    	}
+	    $friends_guid = implode(",", array_unique($friends_guid));
+    }
 
 	$feeds_type = $params["feeds_type"];
 	$offset = (double) $params["offset"];

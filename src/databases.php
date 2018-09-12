@@ -384,6 +384,21 @@ class SlimDatabase
 		return false;
 	}
 
+	public function query($query) 
+	{
+		$db = $this->db->query($query);
+		// var_dump(expression)
+	    // $db->execute();
+	    if (!$db) return false;
+	    if (!property_exists($db, 'num_rows')) return false;
+	    if (!$db->num_rows) return false;
+	    $alldata = [];
+	    while($all = $db->fetch_assoc()) {
+			$alldata[] = (object)$all;
+		}
+		return $alldata;
+	}
+
 	public function select($params) 
 	{
 		if(is_array($params)) {
@@ -437,8 +452,6 @@ class SlimDatabase
 
 	public function getData($table, $conditions, $offset = 0, $limit = 10, $load_more = true)
 	{
-		if (!$table) return false;
-
 	    $params['from'] = $table;
 	    $params['load_more']          = $load_more;
 	    $params['load_more_offset']  = $offset;
@@ -462,6 +475,9 @@ class SlimDatabase
 	                case 'image':
 	                    $size_image = $condition['value'];
 	                    break;
+	                case 'JOIN':
+	                    $params['joins'] = "JOIN ".$condition['key']." ON ".$condition['value'];
+	                    break;   
 	                default:
 	                    $where = $condition['operation']." ".$condition['key']." ".$condition['value'];
 	                    $params['wheres'][] = $where;
@@ -469,8 +485,9 @@ class SlimDatabase
 	            }
 	        }
 	    }
-
-	    return $this->select($params);
+	    $result = $this->select($params);
+	    if (count($result) > 0) return $result;
+	    return false;
 	}
 }
 

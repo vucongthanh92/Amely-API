@@ -7,55 +7,143 @@ function loggedin_user()
 	return forceObject($_SESSION['OSSN_USER']);
 }
 
+function get2Relationships($type, $owner_guid)
+{
+	$select = SlimSelect::getInstance();
+
+	$relation_params = null;
+	$relation_params[] = [
+		'key' => 'ossn_relationships r1',
+		'value' => "ossn_relationships r1 on r.relation_from = r1.relation_to",
+		'operation' => 'JOIN'
+	];
+	$relation_params[] = [
+		'key' => 'r.relation_to',
+		'value' => "= r1.relation_from",
+		'operation' => ''
+	];
+    $relation_params[] = [
+    	'key' => 'r.type',
+    	'value' => "= 'friend:request'",
+    	'operation' => 'AND'
+    ];
+    $relation_params[] = [
+    	'key' => 'r.relation_from',
+    	'value' => "= {$owner_guid}",
+    	'operation' => 'AND'
+    ];
+    $relation_params[] = [
+    	'key' => 'r.relation_from',
+    	'value' => '',
+    	'operation' => 'query_params'
+    ];
+    $relation_params[] = [
+    	'key' => 'r.relation_to',
+    	'value' => '',
+    	'operation' => 'query_params'
+    ];
+
+    $friends = $select->getRelationships($relation_params,0,99999999);
+    if (!$friends) return false;
+    $friends_guid = array_map(create_function('$o', 'return $o->relation_to;'), $friends);
+    return $friends_guid;
+
+	// select * from ossn_relationships r JOIN ossn_relationships r1 on r.relation_from = r1.relation_to where r.relation_to = r1.relation_from AND r.type = "friend:request" AND r.relation_from = 27
+}
+
+function getInvitation($invite_type, $approve_type, $owner_guid)
+{
+	$db = SlimDatabase::getInstance();
+	$query = "select * from ossn_relationships r where r.type = '{$invite_type}' AND r.relation_to = {$owner_guid} AND r.relation_from NOT IN (select r1.relation_to from ossn_relationships r1 where r1.type = '{$approve_type}' AND r1.relation_from = {$owner_guid})";
+	$invitations = $db->query($query);
+	if (!$invitations) return false;
+    $invitations_guid = array_map(create_function('$o', 'return $o->relation_from;'), $invitations);
+    return $invitations_guid;
+}
+
+
 function getFriendsGUID($owner_guid)
 {
 	$select = SlimSelect::getInstance();
 
 	$relation_params = null;
+	$relation_params[] = [
+		'key' => 'ossn_relationships r1',
+		'value' => "r.relation_from = r1.relation_to",
+		'operation' => 'JOIN'
+	];
+	$relation_params[] = [
+		'key' => 'r.relation_to',
+		'value' => "= r1.relation_from",
+		'operation' => ''
+	];
     $relation_params[] = [
-    	'key' => 'type',
+    	'key' => 'r.type',
     	'value' => "= 'friend:request'",
-    	'operation' => ''
+    	'operation' => 'AND'
     ];
     $relation_params[] = [
-    	'key' => 'relation_to',
+    	'key' => 'r.relation_from',
     	'value' => "= {$owner_guid}",
     	'operation' => 'AND'
     ];
     $relation_params[] = [
-    	'key' => 'relation_from',
+    	'key' => 'r.relation_to',
     	'value' => '',
     	'operation' => 'query_params'
     ];
+
+    $friends = $select->getRelationships($relation_params,0,99999999);
+    if (!$friends) return false;
+    $friends_guid = array_map(create_function('$o', 'return $o->relation_to;'), $friends);
+    return $friends_guid;
+	// $select = SlimSelect::getInstance();
+
+	// $relation_params = null;
+ //    $relation_params[] = [
+ //    	'key' => 'type',
+ //    	'value' => "= 'friend:request'",
+ //    	'operation' => ''
+ //    ];
+ //    $relation_params[] = [
+ //    	'key' => 'relation_to',
+ //    	'value' => "= {$owner_guid}",
+ //    	'operation' => 'AND'
+ //    ];
+ //    $relation_params[] = [
+ //    	'key' => 'relation_from',
+ //    	'value' => '',
+ //    	'operation' => 'query_params'
+ //    ];
     
-    $relations = $select->getRelationships($relation_params,0,99999999);
-    if ($relations) {
-    	$relations_from = array_map(create_function('$o', 'return $o->relation_from;'), $relations);
-    	$relations_from = implode(",", $relations_from);
+ //    $relations = $select->getRelationships($relation_params,0,99999999);
+ //    if ($relations) {
+ //    	$relations_from = array_map(create_function('$o', 'return $o->relation_from;'), $relations);
+ //    	$relations_from = implode(",", $relations_from);
 
-	    $relation_params = null;
-	    $relation_params[] = [
-	    	'key' => 'type',
-	    	'value' => "= 'friend:request'",
-	    	'operation' => ''
-	    ];
-	    $relation_params[] = [
-	    	'key' => 'relation_from',
-	    	'value' => "= {$owner_guid}",
-	    	'operation' => 'AND'
-	    ];
-	    $relation_params[] = [
-	    	'key' => 'relation_to',
-	    	'value' => "IN ($relations_from)",
-	    	'operation' => 'AND'
-	    ];
+	//     $relation_params = null;
+	//     $relation_params[] = [
+	//     	'key' => 'type',
+	//     	'value' => "= 'friend:request'",
+	//     	'operation' => ''
+	//     ];
+	//     $relation_params[] = [
+	//     	'key' => 'relation_from',
+	//     	'value' => "= {$owner_guid}",
+	//     	'operation' => 'AND'
+	//     ];
+	//     $relation_params[] = [
+	//     	'key' => 'relation_to',
+	//     	'value' => "IN ($relations_from)",
+	//     	'operation' => 'AND'
+	//     ];
 	    
-	    $friends = $select->getRelationships($relation_params,0,99999999);
-	    $friends_guid = array_map(create_function('$o', 'return $o->relation_to;'), $friends);
-	    return $friends_guid;
+	//     $friends = $select->getRelationships($relation_params,0,99999999);
+	//     $friends_guid = array_map(create_function('$o', 'return $o->relation_to;'), $friends);
+	//     return $friends_guid;
 
-	}
-	return false;
+	// }
+	// return false;
 }
 
 

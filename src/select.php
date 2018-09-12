@@ -159,7 +159,7 @@ class SlimSelect extends SlimDatabase
 
 	public function getRelationships($conditions, $offset = 0, $limit = 10, $load_more = true)
 	{
-		$table = "ossn_relationships";
+		$table = "ossn_relationships r";
 		$ossn_relationships = $this->getData($table, $conditions, $offset, $limit, $load_more);
 		if ($limit == 1) {
 			return $ossn_relationships[0];
@@ -195,6 +195,27 @@ class SlimSelect extends SlimDatabase
 			return $product_groups[0];
 		}
 		return $product_groups;
+	}
+
+	public function getGroups($conditions, $offset = 0, $limit = 10, $load_more = true)
+	{
+		$table = "groups";
+		$groups = $this->getData($table, $conditions, $offset, $limit, $load_more);
+		foreach ($groups as $key => $group) {
+			$filename = array_pop(explode("/", $group->{"file:avatar"}));
+			$file_path = "object/{$group->guid}/avatar/images/larger_{$filename}";
+			if (file_exists(IMAGE_PATH.$file_path)) {
+				$url = IMAGE_URL.$file_path;
+			} else {
+				$url = AVATAR_DEFAULT;
+			}
+			$group->avatar = $url;
+			$groups[$key] = $group;
+		}
+		if ($limit == 1) {
+			return $groups[0];
+		}
+		return $groups;
 	}
 
 	public function getAnnotations($conditions, $offset = 0, $limit = 10, $load_more = true)
@@ -598,6 +619,15 @@ class SlimSelect extends SlimDatabase
 		return $products;
 	}
 	
-
+	public function getEvents($conditions = null, $offset = 0, $limit = 10, $load_more = true)
+	{
+		$table = "events";
+        $events = $this->getData($table, $conditions, $offset, $limit, $load_more);
+		if (!$events) return false;
+		if ($limit == 1) {
+			$events = $events[0];
+		}
+		return $events;
+	}
 	
 }
