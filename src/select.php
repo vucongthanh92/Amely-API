@@ -231,12 +231,8 @@ class SlimSelect extends SlimDatabase
 		return $annotations;
 	}	
 
-	public function getFeeds($conditions, $offset = 0, $limit = 10, $owner_guid = null)
+	public function getFeeds($conditions, $offset = 0, $limit = 10)
 	{
-		if (!$owner_guid) {
-			$owner_guid = loggedin_user()->guid;
-		}
-
 		$table = "wallphotos_feeds";
     	$feeds = $this->getData($table, $conditions, $offset, $limit);
 		if (!$feeds) return false;
