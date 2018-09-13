@@ -87,7 +87,7 @@ $app->post($container['prefix'].'/business', function (Request $request, Respons
 		'value' => "IN ({$owners})",
 		'operation' => ''
 	];
-	$users = $select->getUsers($user_params,0,9999999);
+	$users = $select->getUsers($user_params,0,9999999,false);
 	if (!$users) return response(false);
 	foreach ($users as $key => $user) {
 		$users_result[$user->guid] = $user;

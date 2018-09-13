@@ -79,7 +79,7 @@ $app->get($container['prefix'].'/offers', function (Request $request, Response $
 		'value' => "IN ({$users_guid})",
 		'operation' => ''
 	];
-	$users = $select->getUsers($user_params,0,999999);
+	$users = $select->getUsers($user_params,0,999999,false);
 	if (!$users) return response(false);
 
 	$snapshot_params = null;
@@ -214,7 +214,7 @@ $app->post($container['prefix'].'/offers', function (Request $request, Response 
 				'value' => "IN ({$friends_guid})",
 				'operation' => ''
 			];
-			$users = $select->getUsers($user_params,0,999999999);
+			$users = $select->getUsers($user_params,0,999999999,false);
 			
 			break;
 		default:

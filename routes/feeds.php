@@ -151,7 +151,7 @@ $app->post($container['prefix'].'/feeds', function (Request $request, Response $
 		];
 	}
 
-	$feeds = $select->getFeeds($feed_params, $offset, $limit, true);
+	$feeds = $select->getFeeds($feed_params, $offset, $limit);
 
 	if (!$feeds) return false;
 	$feeds_guid = $linkPreview = $objects_guid = $users_guid = $mood_guids = [];
