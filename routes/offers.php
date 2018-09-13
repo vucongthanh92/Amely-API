@@ -271,7 +271,6 @@ $app->post($container['prefix'].'/offers', function (Request $request, Response 
 	];
 	$bookmarks = $select->getRelationships($relation_params,0,9999999);
 
-	$offers_guid = implode(',', array_unique($offers_guid));
 	$counter_params = null;
 	$counter_params[] = [
 		'key' => 'offer_guid',
