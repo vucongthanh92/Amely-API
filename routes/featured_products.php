@@ -56,18 +56,20 @@ $app->post($container['prefix'].'/featured_products', function (Request $request
 	}
 	
 	$shops = $select->getShops($shop_params,0,9999999);
-	if ($shops) {
-		$shops_guid = array_map(create_function('$o', 'return $o->guid;'), $shops);
-		foreach ($products_ads as $key => $product_ads) {
-			if (!in_array($product_ads->owner_guid, $shops_guid)) {
-				unset($products_ads[$key]);
-				continue;
-			}
-			$ads[$product_ads->owner_guid] = $product_ads->guid;
+	if (!$shops) return response(false);
+	$shops_guid = array_map(create_function('$o', 'return $o->guid;'), $shops);
+	foreach ($products_ads as $key => $product_ads) {
+		if (!in_array($product_ads->owner_guid, $shops_guid)) {
+			unset($products_ads[$key]);
+			continue;
 		}
+		if (!in_array($product_ads->item, $products_guid)) {
+			array_push($products_guid, $product_ads->item);
+		}
+		$ads[$product_ads->owner_guid] = $product_ads->guid;
 	}
 	if (!$products_ads) return response(false);
-	$products_guid = array_map(create_function('$o', 'return $o->item;'), $products_ads);
+	$products_guid = implode(',', array_unique($products_guid));
 	$product_params = null;
 	$product_params[] = [
 		'key' => 'guid',
