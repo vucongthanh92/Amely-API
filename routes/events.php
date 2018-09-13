@@ -203,5 +203,4 @@ $app->post($container['prefix'].'/events', function (Request $request, Response 
 		"events" => $events,
 		"users" => $users_result
 	];
-	return response(false);
 });

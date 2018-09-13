@@ -238,7 +238,6 @@ class SlimSelect extends SlimDatabase
 		$table = "wallphotos_feeds";
     	$feeds = $this->getData($table, $conditions, $offset, $limit, $load_more);
 		if (!$feeds) return false;
-
 		foreach ($feeds as $key => $feed) {
 			// $feed = ossn_object_cast('OssnWall', $feed);
 			$like_params = null;
@@ -653,28 +652,4 @@ class SlimSelect extends SlimDatabase
 		}
 		return $events;
 	}
-
-	public function getEvents($conditions = null, $offset = 0, $limit = 10, $load_more = true)
-	{
-		$table = "events";
-        $events = $this->getData($table, $conditions, $offset, $limit, $load_more);
-		if (!$events) return false;
-		foreach ($events as $key => $event) {
-			$filename = array_pop(explode("/", $event->{"file:avatar"}));
-			$file_path = "/object/{$event->guid}/avatar/images/"."larger_{$filename}";
-			if (file_exists(IMAGE_PATH.$file_path)) {
-				$url = IMAGE_URL.$file_path;
-			} else {
-				$url = AVATAR_DEFAULT;
-			}
-			$event->avatar = $url;
-			$events[$key] = $event;
-		}
-		$events = array_values($events);
-		if ($limit == 1) {
-			$events = $events[0];
-		}
-		return $events;
-	}
-	
 }
