@@ -53,7 +53,8 @@ $app->post($container['prefix'].'/business', function (Request $request, Respons
 		$pages_liked = array_map(create_function('$o', 'return $o->subject_id;'), $pages_liked);
 	}
 
-	$pages_guid = array_unique(array_merge($pages_guid, $pages_liked));
+	$pages_guid = implode(',', array_unique(array_merge($pages_guid, $pages_liked)));
+
 	if (!$pages_guid) return response(false);
 
 	$page_params = null;

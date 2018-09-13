@@ -363,13 +363,14 @@ class SlimSelect extends SlimDatabase
 		if (!$advertisements) return response(false);
 		foreach ($advertisements as $key => $advertise) {
 			$filename = array_pop(explode("/", $advertise->image));
-			$file_path = "/object/{$advertise->guid}/advertise/images/"."lgthumb_{$filename}";
+			$file_path = "/object/{$advertise->guid}/advertise/images/"."{$filename}";
 			if (file_exists(IMAGE_PATH.$file_path)) {
 				$image_url = IMAGE_URL.$file_path;
 			} else {
 				$image_url = AVATAR_DEFAULT;
 			}
 			$advertise->image = $image_url;
+			$advertisements[$key] = $advertise;
 		}
 		if ($limit == 1) {
 			return $advertisements[0];
