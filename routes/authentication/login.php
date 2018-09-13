@@ -37,7 +37,7 @@ $app->post($container['prefix'].'/authtoken', function (Request $request, Respon
 		];
 	}
 	// $user = getUsers($this->db, $conditions, $offset = 0, $limit = 1, $load_more = true);
-	$users = $db->getData($table, $conditions, $offset = 0, $limit = 1, $load_more = true);
+	$users = $db->getData($table, $conditions, $offset = 0, $limit = 1);
 	$user = $users[0];
 	$salt     = $user->salt;
     $password = md5($params['password'] . $salt);

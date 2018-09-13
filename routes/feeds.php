@@ -481,7 +481,7 @@ $app->post($container['prefix'].'/feeds', function (Request $request, Response $
 				'operation' => ''
 			];
 
-			$users = $select->getUsers($user_params,0,999999,true,false);
+			$users = $select->getUsers($user_params,0,999999,false);
 			if (!$users) return false;
 			foreach ($users as $key => $user) {
 				$return["users"][$user->guid] = $user;

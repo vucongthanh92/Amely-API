@@ -55,7 +55,7 @@ $app->post($container['prefix'].'/featured_products', function (Request $request
 		}
 	}
 	
-	$shops = $select->getShops($shop_params,0,9999999);
+	$shops = $select->getShops($shop_params,0,9999999, false);
 	if (!$shops) return response(false);
 	$shops_guid = array_map(create_function('$o', 'return $o->guid;'), $shops);
 	foreach ($products_ads as $key => $product_ads) {

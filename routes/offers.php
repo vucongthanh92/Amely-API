@@ -38,7 +38,7 @@ $app->get($container['prefix'].'/offers', function (Request $request, Response $
 		'operation' => "AND"
 	];
 
-	$offer = $select->getOffers($offer_params, 0, 1, false);
+	$offer = $select->getOffers($offer_params, 0, 1);
 	if (!$offer) return response(false);
 	array_push($users_guid, $offer->owner_guid);
 	array_push($snapshots_guid, $offer->product_snapshot);
@@ -62,7 +62,7 @@ $app->get($container['prefix'].'/offers', function (Request $request, Response $
 			'operation' => "AND"
 		];
 	}
-	$counter_offers = $select->getCounters($counter_params, $offset, $limit, true);
+	$counter_offers = $select->getCounters($counter_params, $offset, $limit);
 
 	if ($counter_offers && is_array($counter_offers)) {
 		foreach ($counter_offers as $key => $counter_offer) {

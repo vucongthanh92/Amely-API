@@ -19,14 +19,14 @@ $app->get($container['prefix'].'/profile', function (Request $request, Response 
 			'value' => "= {$params['guid']}",
 			'operation' => ''
 		];
-		$user = $select->getUsers($user_params,0,1);
+		$user = $select->getUsers($user_params,0,1,false);
 	} else if (array_key_exists("username", $params) && $params['username'] != null) {
 		$user_params[] = [
 			'key' => 'username',
 			'value' => "= '{$params['username']}'",
 			'operation' => ''
 		];
-		$user = $select->getUsers($user_params,0,1);
+		$user = $select->getUsers($user_params,0,1,false);
 	} else {
 		$user = $loggedin_user;
 	}

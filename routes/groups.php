@@ -110,7 +110,7 @@ $app->post($container['prefix'].'/groups', function (Request $request, Response 
 			'value' => "IN ({$owners})",
 			'operation' => ''
 		];
-		$users = $select->getUsers($user_params,0,9999999999);
+		$users = $select->getUsers($user_params,0,9999999999,false);
 		if ($users) {
 			$user_result = [];
 			foreach ($users as $key => $user) {

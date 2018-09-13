@@ -70,7 +70,7 @@ $app->post($container['prefix'].'/featured_shops', function (Request $request, R
 			];
 		}
 	}
-	$shops = $select->getShops($shop_params,0,9999999);
+	$shops = $select->getShops($shop_params,0,9999999,false);
 	if (!$shops) return response(false);
 	foreach ($shops as $key => $shop) {
 		$shop->advertise_guid = $shops_ads[$shop->guid];

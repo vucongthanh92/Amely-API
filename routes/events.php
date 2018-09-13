@@ -197,7 +197,7 @@ $app->post($container['prefix'].'/events', function (Request $request, Response 
 		'value' => "IN ({$users_guid})",
 		'operation' => ''
 	];
-	$users = $select->getUsers($user_params,0,99999999);
+	$users = $select->getUsers($user_params,0,99999999, false);
 
 	$users_result = [];
 	foreach ($users as $key => $user) {

@@ -14,7 +14,7 @@ $app->get($container['prefix'].'/friends', function (Request $request, Response 
     		'value' => "= {$params['user_guid']}",
     		'operation' => ''
     	];
-        $user = $select->getUsers($user_params,0,1);
+        $user = $select->getUsers($user_params,0,1,false);
         if (!$user) return response(false);
     } else {
         $user = $loggedin_user;
@@ -55,7 +55,7 @@ $app->get($container['prefix'].'/friends', function (Request $request, Response 
 		'value' => "IN ({$friends_guid})",
 		'operation' => ''
 	];
-	$friends = $select->getUsers($user_params,0,99999999,true,false);
+	$friends = $select->getUsers($user_params,0,99999999,false);
 	foreach ($friends as $key => $friend) {
 		if ($friend->guid != $loggedin_user->guid) {
             if (property_exists($loggedin_user, 'blockedusers')) {

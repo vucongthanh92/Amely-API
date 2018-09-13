@@ -28,10 +28,10 @@ class SlimSelect extends SlimDatabase
 		return $addr[0];
 	}
 
-	public function getUsers($conditions, $offset = 0, $limit = 10, $load_more = true, $getAddr = true)
+	public function getUsers($conditions, $offset = 0, $limit = 10, $getAddr = true)
 	{
 		$table = "users";
-		$users = $this->getData($table, $conditions, $offset, $limit, $load_more);
+		$users = $this->getData($table, $conditions, $offset, $limit);
 		if (!$users) return false;
 		foreach ($users as $key => $user) {
 			unset($user->password);
@@ -71,10 +71,10 @@ class SlimSelect extends SlimDatabase
 		return $users;
 	}
 
-	public function getShops($conditions, $offset = 0, $limit = 10, $load_more = true)
+	public function getShops($conditions, $offset = 0, $limit = 10, $getAddr = true)
 	{
 		$table = "shops";
-		$shops = $this->getData($table, $conditions, $offset, $limit, $load_more);
+		$shops = $this->getData($table, $conditions, $offset, $limit);
 		if (!$shops) return false;
 		foreach ($shops as $key => $shop) {
 			$avatar = array_pop(explode("/", $shop->avatar));
@@ -97,22 +97,24 @@ class SlimSelect extends SlimDatabase
 		    $shop->policy = html_entity_decode($shop->policy);
 		    $shop->contact = html_entity_decode($shop->contact);
 
+		    if ($getAddr) {
+			    $owner_province = $this->getAddress($shop->owner_province, 'province');
+			    $owner_district = $this->getAddress($shop->owner_district, 'district');
+			    $owner_ward = $this->getAddress($shop->owner_ward, 'ward');
+			    $owner_province = $owner_province->type .' '. $owner_province->name;
+			    $owner_district = $owner_district->type .' '. $owner_district->name;
+			    $owner_ward = $owner_ward->type .' '. $owner_ward->name;
+			    $shop->owner_full_address = $shop->owner_address.', '.$owner_ward.', '.$owner_district.', '.$owner_province;
 
-		    $owner_province = $this->getAddress($shop->owner_province, 'province');
-		    $owner_district = $this->getAddress($shop->owner_district, 'district');
-		    $owner_ward = $this->getAddress($shop->owner_ward, 'ward');
-		    $owner_province = $owner_province->type .' '. $owner_province->name;
-		    $owner_district = $owner_district->type .' '. $owner_district->name;
-		    $owner_ward = $owner_ward->type .' '. $owner_ward->name;
-		    $shop->owner_full_address = $shop->owner_address.', '.$owner_ward.', '.$owner_district.', '.$owner_province;
+			    $shop_province = $this->getAddress($shop->shop_province, 'province');
+			    $shop_district = $this->getAddress($shop->shop_district, 'district');
+			    $shop_ward = $this->getAddress($shop->shop_ward, 'ward');
+			    $shop_province = $shop_province->type .' '. $shop_province->name;
+			    $shop_district = $shop_district->type .' '. $shop_district->name;
+			    $shop_ward = $shop_ward->type .' '. $shop_ward->name;
+			    $shop->full_address = $shop->shop_address.', '.$shop_ward.', '.$shop_district.', '.$shop_province;
+		    }
 
-		    $shop_province = $this->getAddress($shop->shop_province, 'province');
-		    $shop_district = $this->getAddress($shop->shop_district, 'district');
-		    $shop_ward = $this->getAddress($shop->shop_ward, 'ward');
-		    $shop_province = $shop_province->type .' '. $shop_province->name;
-		    $shop_district = $shop_district->type .' '. $shop_district->name;
-		    $shop_ward = $shop_ward->type .' '. $shop_ward->name;
-		    $shop->full_address = $shop->shop_address.', '.$shop_ward.', '.$shop_district.', '.$shop_province;
 
 		   //  if ($shop->files_scan) {
 		   //  	$files_scan = [];
@@ -133,10 +135,10 @@ class SlimSelect extends SlimDatabase
 		return $shops;
 	}
 
-	public function getStores($conditions, $offset = 0, $limit = 10, $load_more = true)
+	public function getStores($conditions, $offset = 0, $limit = 10)
 	{
 		$table = "stores";
-		$stores = $this->getData($table, $conditions, $offset, $limit, $load_more);
+		$stores = $this->getData($table, $conditions, $offset, $limit);
 		if (!$stores) return false;
 		foreach ($stores as $key => $store) {
 
@@ -157,50 +159,50 @@ class SlimSelect extends SlimDatabase
 		return $stores;
 	}
 
-	public function getRelationships($conditions, $offset = 0, $limit = 10, $load_more = true)
+	public function getRelationships($conditions, $offset = 0, $limit = 10)
 	{
 		$table = "ossn_relationships r";
-		$ossn_relationships = $this->getData($table, $conditions, $offset, $limit, $load_more);
+		$ossn_relationships = $this->getData($table, $conditions, $offset, $limit);
 		if ($limit == 1) {
 			return $ossn_relationships[0];
 		}
 		return $ossn_relationships;
 	}
 
-	public function getLikes($conditions, $offset = 0, $limit = 10, $load_more = true)
+	public function getLikes($conditions, $offset = 0, $limit = 10)
 	{
 		$table = "ossn_likes";
-		$ossn_likes = $this->getData($table, $conditions, $offset, $limit, $load_more);
+		$ossn_likes = $this->getData($table, $conditions, $offset, $limit);
 		if ($limit == 1) {
 			return $ossn_likes[0];
 		}
 		return $ossn_likes;
 	}
 
-	public function getSiteSettings($conditions, $offset = 0, $limit = 10, $load_more = true)
+	public function getSiteSettings($conditions, $offset = 0, $limit = 10)
 	{
 		$table = "ossn_site_settings";
-		$settings = $this->getData($table, $conditions, $offset, $limit, $load_more);
+		$settings = $this->getData($table, $conditions, $offset, $limit);
 		if ($limit == 1) {
 			return $settings[0];
 		}
 		return $settings;
 	}
 
-	public function getProductGroup($conditions, $offset = 0, $limit = 10, $load_more = true)
+	public function getProductGroup($conditions, $offset = 0, $limit = 10)
 	{
 		$table = "product_group";
-		$product_groups = $this->getData($table, $conditions, $offset, $limit, $load_more);
+		$product_groups = $this->getData($table, $conditions, $offset, $limit);
 		if ($limit == 1) {
 			return $product_groups[0];
 		}
 		return $product_groups;
 	}
 
-	public function getGroups($conditions, $offset = 0, $limit = 10, $load_more = true)
+	public function getGroups($conditions, $offset = 0, $limit = 10)
 	{
 		$table = "groups";
-		$groups = $this->getData($table, $conditions, $offset, $limit, $load_more);
+		$groups = $this->getData($table, $conditions, $offset, $limit);
 		if (!$groups) return false;
 		foreach ($groups as $key => $group) {
 			$filename = array_pop(explode("/", $group->{"file:avatar"}));
@@ -219,24 +221,24 @@ class SlimSelect extends SlimDatabase
 		return $groups;
 	}
 
-	public function getAnnotations($conditions, $offset = 0, $limit = 10, $load_more = true)
+	public function getAnnotations($conditions, $offset = 0, $limit = 10)
 	{
 		$table = "ossn_annotations";
-		$annotations = $this->getData($table, $conditions, $offset, $limit, $load_more);
+		$annotations = $this->getData($table, $conditions, $offset, $limit);
 		if ($limit == 1) {
 			return $annotations[0];
 		}
 		return $annotations;
 	}	
 
-	public function getFeeds($conditions, $offset = 0, $limit = 10, $load_more = true, $owner_guid = null)
+	public function getFeeds($conditions, $offset = 0, $limit = 10, $owner_guid = null)
 	{
 		if (!$owner_guid) {
 			$owner_guid = loggedin_user()->guid;
 		}
 
 		$table = "wallphotos_feeds";
-    	$feeds = $this->getData($table, $conditions, $offset, $limit, $load_more);
+    	$feeds = $this->getData($table, $conditions, $offset, $limit);
 		if (!$feeds) return false;
 		foreach ($feeds as $key => $feed) {
 			// $feed = ossn_object_cast('OssnWall', $feed);
@@ -268,50 +270,50 @@ class SlimSelect extends SlimDatabase
 		return $feeds;
 	}
 	
-	public function getObjects($conditions, $offset = 0, $limit = 10, $load_more = true)
+	public function getObjects($conditions, $offset = 0, $limit = 10)
 	{
 		$table = "ossn_object";
-		$objects = $this->getData($table, $conditions, $offset, $limit, $load_more);
+		$objects = $this->getData($table, $conditions, $offset, $limit);
 		if ($limit == 1) {
 			return $objects[0];
 		}
 		return $objects;
 	}
 
-	public function getLinkPreview($conditions, $offset = 0, $limit = 10, $load_more = true)
+	public function getLinkPreview($conditions, $offset = 0, $limit = 10)
 	{
 		$table = "feed_linkpreview";
-		$links = $this->getData($table, $conditions, $offset, $limit, $load_more);
+		$links = $this->getData($table, $conditions, $offset, $limit);
 		if ($limit == 1) {
 			return $links[0];
 		}
 		return $links;
 	}
 
-	public function getMoods($conditions, $offset = 0, $limit = 10, $load_more = true)
+	public function getMoods($conditions, $offset = 0, $limit = 10)
 	{
 		$table = "moods";
-		$moods = $this->getData($table, $conditions, $offset, $limit, $load_more);
+		$moods = $this->getData($table, $conditions, $offset, $limit);
 		if ($limit == 1) {
 			return $moods[0];
 		}
 		return $moods;
 	}
 
-	public function getTokens($conditions, $offset = 0, $limit = 10, $load_more = true)
+	public function getTokens($conditions, $offset = 0, $limit = 10)
 	{
 		$table = "ossn_usertokens";
-		$tokens = $this->getData($table, $conditions, $offset, $limit, $load_more);
+		$tokens = $this->getData($table, $conditions, $offset, $limit);
 		if ($limit == 1) {
 			return $tokens[0];
 		}
 		return $tokens;
 	}
 
-	public function getAdvertisements($conditions, $offset = 0, $limit = 10, $load_more = true)
+	public function getAdvertisements($conditions, $offset = 0, $limit = 10)
 	{
 		$table = "advertisements";
-		$advertisements = $this->getData($table, $conditions, $offset, $limit, $load_more);
+		$advertisements = $this->getData($table, $conditions, $offset, $limit);
 		if (!$advertisements) return response(false);
 		foreach ($advertisements as $key => $advertise) {
 			$filename = array_pop(explode("/", $advertise->image));
@@ -330,10 +332,10 @@ class SlimSelect extends SlimDatabase
 		return $advertisements;
 	}
 
-	public function getCategories($conditions, $offset = 0, $limit = 10, $load_more = true)
+	public function getCategories($conditions, $offset = 0, $limit = 10)
 	{
 		$table = "categories";
-		$categories = $this->getData($table, $conditions, $offset, $limit, $load_more);
+		$categories = $this->getData($table, $conditions, $offset, $limit);
 		if (!$categories) return false;
 		foreach ($categories as $key => $category) {
 			if ($category->subtype == "shop:category" || $category->subtype == "market:category") {
@@ -355,10 +357,10 @@ class SlimSelect extends SlimDatabase
 		return $categories;
 	}
 
-	public function getProducts($conditions, $offset = 0, $limit = 10, $load_more = true, $currency_code = "VND", $encode = true)
+	public function getProducts($conditions, $offset = 0, $limit = 10, $currency_code = "VND", $encode = true)
 	{
 		$table = "categories_images_products";
-		$products = $this->getData($table, $conditions, $offset, $limit, $load_more);
+		$products = $this->getData($table, $conditions, $offset, $limit);
         if (!$products) return false;
 
         foreach ($products as $key => $product) {
@@ -425,10 +427,10 @@ class SlimSelect extends SlimDatabase
 		return $products;
 	}
 
-	public function getOffers($conditions, $offset = 0, $limit = 10, $load_more = true)
+	public function getOffers($conditions, $offset = 0, $limit = 10)
 	{
 		$table = "offers";
-		$offers = $this->getData($table, $conditions, $offset, $limit, $load_more);
+		$offers = $this->getData($table, $conditions, $offset, $limit);
 		if (!$offers) return false;
 		foreach ($offers as $key => $offer) {
 			if ($offer->offer_type == "random") {
@@ -442,10 +444,10 @@ class SlimSelect extends SlimDatabase
 		return array_values($offers);
 	}
 
-	public function getSnapshots($conditions = null, $offset = 0, $limit = 10, $load_more = true, $currency_code = "VND")
+	public function getSnapshots($conditions = null, $offset = 0, $limit = 10, $currency_code = "VND")
 	{
 		$table = "products_snapshot";
-        $snapshots = $this->getData($table, $conditions, $offset, $limit, $load_more);
+        $snapshots = $this->getData($table, $conditions, $offset, $limit);
 		if (!$snapshots) return false;
 
 		foreach ($snapshots as $key => $snapshot) {
@@ -497,10 +499,10 @@ class SlimSelect extends SlimDatabase
 		return $snapshots;
 	}
 
-	public function getCounters($conditions = null, $offset = 0, $limit = 10, $load_more = true)
+	public function getCounters($conditions = null, $offset = 0, $limit = 10)
 	{
 		$table = "counter_offers";
-        $counters = $this->getData($table, $conditions, $offset, $limit, $load_more);
+        $counters = $this->getData($table, $conditions, $offset, $limit);
 		if (!$counters) return false;
 		if ($limit == 1) {
 			$counters = $counters[0];
@@ -508,10 +510,10 @@ class SlimSelect extends SlimDatabase
 		return $counters;
 	}
 
-	public function getItems($conditions = null, $offset = 0, $limit = 10, $load_more = true)
+	public function getItems($conditions = null, $offset = 0, $limit = 10)
 	{
 		$table = "items";
-        $items = $this->getData($table, $conditions, $offset, $limit, $load_more);
+        $items = $this->getData($table, $conditions, $offset, $limit);
 		if (!$items) return false;
 		if ($limit == 1) {
 			$items = $items[0];
@@ -519,10 +521,10 @@ class SlimSelect extends SlimDatabase
 		return $items;
 	}
 
-	public function getItemsInventory($conditions = null, $offset = 0, $limit = 10, $load_more = true)
+	public function getItemsInventory($conditions = null, $offset = 0, $limit = 10)
 	{
 		$table = "items_inventory";
-        $items = $this->getData($table, $conditions, $offset, $limit, $load_more);
+        $items = $this->getData($table, $conditions, $offset, $limit);
 		if (!$items) return false;
 		if ($limit == 1) {
 			$items = $items[0];
@@ -530,10 +532,10 @@ class SlimSelect extends SlimDatabase
 		return $items;
 	}
 
-	public function getPages($conditions = null, $offset = 0, $limit = 10, $load_more = true)
+	public function getPages($conditions = null, $offset = 0, $limit = 10)
 	{
 		$table = "business_pages";
-        $pages = $this->getData($table, $conditions, $offset, $limit, $load_more);
+        $pages = $this->getData($table, $conditions, $offset, $limit);
 		if (!$pages) return false;
 		if ($limit == 1) {
 			$pages = $pages[0];
@@ -541,10 +543,10 @@ class SlimSelect extends SlimDatabase
 		return $pages;
 	}
 
-	public function getProductsMarket($conditions, $offset = 0, $limit = 10, $load_more = true, $currency_code = "VND", $encode = true)
+	public function getProductsMarket($conditions, $offset = 0, $limit = 10, $currency_code = "VND", $encode = true)
 	{
 		$table = "products_market";
-        $products = $this->getData($table, $conditions, $offset, $limit, $load_more);
+        $products = $this->getData($table, $conditions, $offset, $limit);
         if (!$products) return false;
 
         foreach ($products as $key => $product) {
@@ -594,10 +596,10 @@ class SlimSelect extends SlimDatabase
 		return $products;
 	}
 
-	public function getSnapshotsMarket($conditions, $offset = 0, $limit = 10, $load_more = true, $currency_code = "VND", $encode = true)
+	public function getSnapshotsMarket($conditions, $offset = 0, $limit = 10, $currency_code = "VND", $encode = true)
 	{
 		$table = "snapshots_market";
-        $snapshots = $this->getData($table, $conditions, $offset, $limit, $load_more);
+        $snapshots = $this->getData($table, $conditions, $offset, $limit);
         if (!$snapshots) return false;
 
         foreach ($snapshots as $key => $snapshot) {
@@ -647,10 +649,10 @@ class SlimSelect extends SlimDatabase
 		return $snapshots;
 	}
 	
-	public function getEvents($conditions = null, $offset = 0, $limit = 10, $load_more = true)
+	public function getEvents($conditions = null, $offset = 0, $limit = 10)
 	{
 		$table = "events";
-        $events = $this->getData($table, $conditions, $offset, $limit, $load_more);
+        $events = $this->getData($table, $conditions, $offset, $limit);
 		if (!$events) return false;
 		foreach ($events as $key => $event) {
 			$filename = array_pop(explode("/", $event->{"file:avatar"}));

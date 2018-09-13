@@ -44,7 +44,7 @@ $app->post($container['prefix'].'/invitation', function (Request $request, Respo
 			'value' => "IN ({$users_guid})",
 			'operation' => ''
 		];
-		$users = $select->getUsers($user_params,0,999999999);
+		$users = $select->getUsers($user_params,0,999999999,false);
 		foreach ($users as $key => $user) {
 			$users_result[$user->guid] = $user;
 		}

@@ -450,10 +450,9 @@ class SlimDatabase
 		}
 	}
 
-	public function getData($table, $conditions, $offset = 0, $limit = 10, $load_more = true)
+	public function getData($table, $conditions, $offset = 0, $limit = 10)
 	{
 	    $params['from'] = $table;
-	    $params['load_more']          = $load_more;
 	    $params['load_more_offset']  = $offset;
 	    $params['limit']              = $limit;
 	    $size_image = "default";

@@ -16,7 +16,7 @@ $app->post($container['prefix'].'/banner', function (Request $request, Response 
 				'value' => "IN ({$block_users})",
 				'operation' => ''
 			];
-			$shops = $select->getShops($shop_params,0,999999);
+			$shops = $select->getShops($shop_params,0,999999, false);
 			$shops_block = array_map(create_function('$o', 'return $o->guid;'), $shops);
 		}
 	}
@@ -68,7 +68,7 @@ $app->post($container['prefix'].'/banner', function (Request $request, Response 
 							'value' => "= {$path[2]}",
 							'operation' => ''
 						];
-						$user = $select->getUsers($user_param,0,1,true,false);
+						$user = $select->getUsers($user_param,0,1,false);
 						$banners[$key]['type'] = "user";
 						$banners[$key]['user_guid'] = $user->guid;
 						break;
@@ -98,7 +98,7 @@ $app->post($container['prefix'].'/banner', function (Request $request, Response 
 								'value' => "= '{$friendly_url}'",
 								'operation' => ''
 							];
-							$shop = $select->getShops($shop_params,0,1);
+							$shop = $select->getShops($shop_params,0,1,false);
 							$banners[$key]['type'] = "shop";
 							$banners[$key]['shop_guid'] = $shop->guid;
 							$banners[$key]['shop_owner_guid'] = $shop->owner_guid;
