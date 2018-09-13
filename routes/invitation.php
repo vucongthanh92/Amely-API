@@ -19,17 +19,18 @@ $app->post($container['prefix'].'/invitation', function (Request $request, Respo
 	$offset = (double)$params['offset'];
 	$limit = (double)$params['limit'];
 
+	$users = $groups = $events = [];
 	foreach ($invitation_type as $key => $type) {
 		switch ($type) {
 			case 'user':
 				$user_requests = getInvitation("friend:request", "friend:request", $loggedin_user->guid);
 				break;
 			case 'group':
-				$group_requests = getInvitation("group:invite", "group:invite:approve", $loggedin_user->guid);
+				$group_requests = getInvitation("group:invite", "group:invite:approve", $loggedin_user->guid, true);
 				break;
 			case 'event':
-				$invite_requests = getInvitation("event:invite", "event:invite:approve", $loggedin_user->guid);
-				$member_requests = getInvitation("event:member", "event:member:approve", $loggedin_user->guid);
+				$invite_requests = getInvitation("event:invite", "event:invite:approve", $loggedin_user->guid, true);
+				$member_requests = getInvitation("event:member", "event:member:approve", $loggedin_user->guid, true);
 				break;
 		}
 	}
@@ -49,7 +50,7 @@ $app->post($container['prefix'].'/invitation', function (Request $request, Respo
 		}
 	}
 
-	$group_result = [];
+	$groups_result = [];
 	$group_requests = array_unique($group_requests);
 	if ($group_requests) {
 		$groups_guid = implode(',', array_unique($group_requests));
@@ -61,17 +62,20 @@ $app->post($container['prefix'].'/invitation', function (Request $request, Respo
 		];
 		$groups = $select->getGroups($group_params,0,999999999);
 		foreach ($groups as $key => $group) {
-			$group_result[$group->guid] = $group;
+			$groups_result[$group->guid] = $group;
 		}
 	}
 
-
-	$events = array_unique($event_requests);
-	foreach ($events as $key => $event_guid) {
-		$event = ossn_get_event($event_guid);
-		$event->avatar = market_avatar_cover_url($event->guid, $event->{"file:avatar"}, $type = 'avatar', $size = 'larger');
-		if ($event)
-			$events[$key] = $event;
+	$event_requests = array_unique(array_merge($invite_requests, $member_requests));
+	if ($event_requests) {
+		$event_requests = implode(',', array_unique($event_requests));
+		$event_params = null;
+		$event_params[] = [
+			'key' => 'guid',
+			'value' => "IN ({$event_requests})",
+			'operation' => ''
+		];
+		$events = $select->getEvents($event_params,0,9999999999);
 	}
 
 	return [

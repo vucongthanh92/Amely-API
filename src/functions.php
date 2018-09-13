@@ -51,16 +51,107 @@ function get2Relationships($type, $owner_guid)
 	// select * from ossn_relationships r JOIN ossn_relationships r1 on r.relation_from = r1.relation_to where r.relation_to = r1.relation_from AND r.type = "friend:request" AND r.relation_from = 27
 }
 
-function getInvitation($invite_type, $approve_type, $owner_guid)
+function getInvitation($invite_type, $approve_type, $owner_guid, $reverse = false)
 {
 	$db = SlimDatabase::getInstance();
 	$query = "select * from ossn_relationships r where r.type = '{$invite_type}' AND r.relation_to = {$owner_guid} AND r.relation_from NOT IN (select r1.relation_to from ossn_relationships r1 where r1.type = '{$approve_type}' AND r1.relation_from = {$owner_guid})";
+	if ($reverse) {
+		$query = "select * from ossn_relationships r where r.type = '{$invite_type}' AND r.relation_from = {$owner_guid} AND r.relation_to NOT IN (select r1.relation_from from ossn_relationships r1 where r1.type = '{$approve_type}' AND r1.relation_to = {$owner_guid})";
+	}
 	$invitations = $db->query($query);
 	if (!$invitations) return false;
-    $invitations_guid = array_map(create_function('$o', 'return $o->relation_from;'), $invitations);
+	if ($reverse) {
+		$invitations_guid = array_map(create_function('$o', 'return $o->relation_to;'), $invitations);
+	} else {
+    	$invitations_guid = array_map(create_function('$o', 'return $o->relation_from;'), $invitations);
+	}
     return $invitations_guid;
 }
 
+function getMembersGUID($type, $owner_guid, $count = false)
+{
+	$select = SlimSelect::getInstance();
+	$limit = 99999999;
+	$relation_params = null;
+	switch ($type) {
+		case 'group':
+			$relation_params[] = [
+				'key' => 'type',
+				'value' => "IN ('group:join:approve', 'group:invite:approve')",
+				'operation' => ''
+			];
+			break;
+		case 'event':
+			$relation_params[] = [
+				'key' => 'type',
+				'value' => "IN ('event:join:approve', 'event:invite:approve')",
+				'operation' => ''
+			];
+			break;
+		default:
+			return  false;
+			break;
+	}
+	
+	$relation_params[] = [
+		'key' => 'relation_from',
+		'value' => "IN ({$owner_guid})",
+		'operation' => 'AND'
+	];
+	if ($count) {
+		$relation_params[] = [
+			'key' => '*',
+			'value' => "count",
+			'operation' => 'count'
+		];
+		$limit = 1;
+		$relation_params[] = [
+			'key' => 'relation_from',
+			'value' => "",
+			'operation' => 'group_by'
+		];
+	}
+	$relation_params[] = [
+		'key' => 'relation_from',
+		'value' => "",
+		'operation' => 'query_params'
+	];
+	$relation_params[] = [
+		'key' => 'relation_to',
+		'value' => "",
+		'operation' => 'query_params'
+	];
+	
+
+	$relations = $select->getRelationships($relation_params, 0, $limit);
+	if (!$relations) return false;
+	if ($count) {
+		return $relations;
+	}
+
+    // $relations_guid = array_map(create_function('$o', 'return $o->relation_to;'), $relations);
+    return $relations;
+}
+
+function getGroupsGUID($owner_guid)
+{
+	$select = SlimSelect::getInstance();
+	$relation_params = null;
+	$relation_params[] = [
+		'key' => 'type',
+		'value' => "IN ('group:join:approve', 'group:invite:approve')",
+		'operation' => ''
+	];
+	$relation_params[] = [
+		'key' => 'relation_to',
+		'value' => "= {$owner_guid}",
+		'operation' => 'AND'
+	];
+	$relations = $select->getRelationships($relation_params,0,99999999);
+	if (!$relations) return false;
+    $groups_guid = array_map(create_function('$o', 'return $o->relation_from;'), $relations);
+    return $groups_guid;
+}
 
 function getFriendsGUID($owner_guid)
 {

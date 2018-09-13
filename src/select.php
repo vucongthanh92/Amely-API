@@ -624,6 +624,18 @@ class SlimSelect extends SlimDatabase
 		$table = "events";
         $events = $this->getData($table, $conditions, $offset, $limit, $load_more);
 		if (!$events) return false;
+		foreach ($events as $key => $event) {
+			$filename = array_pop(explode("/", $event->{"file:avatar"}));
+			$file_path = "/object/{$event->guid}/avatar/images/"."larger_{$filename}";
+			if (file_exists(IMAGE_PATH.$file_path)) {
+				$url = IMAGE_URL.$file_path;
+			} else {
+				$url = AVATAR_DEFAULT;
+			}
+			$event->avatar = $url;
+			$events[$key] = $event;
+		}
+		$events = array_values($events);
 		if ($limit == 1) {
 			$events = $events[0];
 		}
