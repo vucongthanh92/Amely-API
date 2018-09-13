@@ -240,54 +240,6 @@ class SlimSelect extends SlimDatabase
 		if (!$feeds) return false;
 		foreach ($feeds as $key => $feed) {
 			// $feed = ossn_object_cast('OssnWall', $feed);
-			$like_params = null;
-			$like_params[] = [
-				'key' => 'subject_id',
-				'value' => "= {$feed->guid}",
-				'operation' => ''
-			];
-			$like_params[] = [
-				'key' => 'type',
-				'value' => "= 'post'",
-				'operation' => 'AND'
-			];
-			$likes = $this->getLikes($like_params,0,9999999);
-			$feed->liked = false;
-			if ($likes) {
-				foreach ($likes as $key => $like) {
-					if ($like->guid == $owner_guid) {
-						$feed->liked = true;
-						break;		
-					}
-				}
-			}
-			$likes = count($likes);
-			if (!$likes) $likes = "0";
-			$feed->likes = (string)$likes;
-			
-			$comment_params = null;
-			$comment_params[] = [
-				'key' => 'type',
-				'value' => "= 'comments:post'",
-				'operation' => ''
-			];
-			$comment_params[] = [
-				'key' => 'subject_id',
-				'value' => "= {$feed->guid}",
-				'operation' => 'AND'
-			];
-			$comment_params[] = [
-				'key' => '',
-				'value' => "",
-				'operation' => 'count'
-			];
-			$comments = $this->getAnnotations($comment_params,0,9999);
-			if (!$comments) {
-				$feed->comments = "0";
-			} else {
-				$feed->comments = (string) $comments->count;
-			}
-
 			if ($feed->images) {
 				$photos = explode(",", $feed->images);
 				foreach ($photos as $kphoto => $photo) {

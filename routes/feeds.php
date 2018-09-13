@@ -152,27 +152,33 @@ $app->post($container['prefix'].'/feeds', function (Request $request, Response $
 	}
 
 	$feeds = $select->getFeeds($feed_params, $offset, $limit, true);
+
 	if (!$feeds) return false;
-	$mood_guids = [];
-	$users_guid = [];
+	$feeds_guid = $linkPreview = $objects_guid = $users_guid = $mood_guids = [];
 
 	foreach ($feeds as $key => $feed) {
+		if (!in_array($feed->guid, $feeds_guid)) {
+			array_push($feeds_guid, $feed->guid);
+		}
 		if (property_exists($feed, 'linkPreview')) {
 			if ($feed->linkPreview) unset($feed->linkPreview);
 		}
 		if ($feed->type != "user") {
-			$object_param = null;
-			$object_param = [
-				'key' => 'guid',
-				'value' => "= {$feed->owner_guid}",
-				'operation' => ''
-			];
-			$object = $select->getObjects($object_param,0,1);
-			if (!$object) {
-				unset($feeds[$key]);
-				continue;
+			if (!in_array($feed->owner_guid, $objects_guid)) {
+				array_push($objects_guid, $feed->owner_guid);
 			}
-			$feed->owner_title = $object->title;
+			// $object_param = null;
+			// $object_param = [
+			// 	'key' => 'guid',
+			// 	'value' => "= {$feed->owner_guid}",
+			// 	'operation' => ''
+			// ];
+			// $object = $select->getObjects($object_param,0,1);
+			// if (!$object) {
+			// 	unset($feeds[$key]);
+			// 	continue;
+			// }
+			// $feed->owner_title = $object->title;
 		}
 
 		
@@ -227,18 +233,22 @@ $app->post($container['prefix'].'/feeds', function (Request $request, Response $
 		}
 
 		if (property_exists($feed, 'linkPreview') && $feed->linkPreview) {
-			$link_params = null;
-			$link_params[] = [
-				'key' => 'guid',
-				'value' => "= '{$feed->linkPreview}'",
-				'operation' => ''
-			];
-			$link = $select->getLinkPreview($link_params,0,1);
-			if ($link) {
-				$feed->linkPreview = $link;
-			} else {
-				unset($feed->linkPreview);	
+			if (!in_array($feed->linkPreview, $linkPreview)) {
+				array_push($linkPreview, $feed->linkPreview);
 			}
+
+			// $link_params = null;
+			// $link_params[] = [
+			// 	'key' => 'guid',
+			// 	'value' => "= '{$feed->linkPreview}'",
+			// 	'operation' => ''
+			// ];
+			// $link = $select->getLinkPreview($link_params,0,1);
+			// if ($link) {
+			// 	$feed->linkPreview = $link;
+			// } else {
+			// 	unset($feed->linkPreview);	
+			// }
 		} else {
 			unset($feed->linkPreview);
 		}
@@ -260,18 +270,21 @@ $app->post($container['prefix'].'/feeds', function (Request $request, Response $
 			}
 
 			if (property_exists($feed_share, 'linkPreview') && $feed_share->linkPreview) {
-				$link_params = null;
-				$link_params[] = [
-					'key' => 'guid',
-					'value' => "= {$feed_share->linkPreview}",
-					'operation' => ''
-				];
-				$link = $select->getLinkPreview($link_params,0,1);
-				if ($link) {
-					$feed_share->linkPreview = $link;
-				} else {
-					unset($feed_share->linkPreview);	
+				if (!in_array($feed_share->linkPreview, $linkPreview)) {
+					array_push($linkPreview, $feed_share->linkPreview);
 				}
+				// $link_params = null;
+				// $link_params[] = [
+				// 	'key' => 'guid',
+				// 	'value' => "= {$feed_share->linkPreview}",
+				// 	'operation' => ''
+				// ];
+				// $link = $select->getLinkPreview($link_params,0,1);
+				// if ($link) {
+				// 	$feed_share->linkPreview = $link;
+				// } else {
+				// 	unset($feed_share->linkPreview);	
+				// }
 			} else {
 				unset($feed_share->linkPreview);
 			}
@@ -287,6 +300,158 @@ $app->post($container['prefix'].'/feeds', function (Request $request, Response $
 	// 		$shares['products'][$guid] = $product;
 	// 	}
 	// }
+	$feeds_guid = implode(',', array_unique($feeds_guid));
+
+	$like_params = null;
+	$like_params[] = [
+		'key' => 'subject_id',
+		'value' => "IN ({$feeds_guid})",
+		'operation' => ''
+	];
+	$like_params[] = [
+		'key' => 'type',
+		'value' => "= 'post'",
+		'operation' => 'AND'
+	];
+	$like_params[] = [
+		'key' => '*',
+		'value' => "count",
+		'operation' => 'count'
+	];
+	$like_params[] = [
+		'key' => 'subject_id',
+		'value' => "",
+		'operation' => 'query_params'
+	];
+	$like_params[] = [
+		'key' => 'subject_id',
+		'value' => "",
+		'operation' => 'group_by'
+	];
+	$likes_count = $select->getLikes($like_params,0,99999999);
+	$like_params[] = [
+		'key' => 'guid',
+		'value' => "= {$loggedin_user->guid}",
+		'operation' => 'AND'
+	];
+	$liked_feed = $select->getLikes($like_params,0,99999999);
+
+	$comment_params = null;
+	$comment_params[] = [
+		'key' => 'type',
+		'value' => "= 'comments:post'",
+		'operation' => ''
+	];
+	$comment_params[] = [
+		'key' => 'subject_guid',
+		'value' => "IN ({$feeds_guid})",
+		'operation' => 'AND'
+	];
+	$comment_params[] = [
+		'key' => '*',
+		'value' => "count",
+		'operation' => 'count'
+	];
+	$comment_params[] = [
+		'key' => 'subject_guid',
+		'value' => "",
+		'operation' => 'query_params'
+	];
+	$comment_params[] = [
+		'key' => 'subject_guid',
+		'value' => "",
+		'operation' => 'group_by'
+	];
+	$comments_count = $select->getAnnotations($comment_params,0, 999999);
+
+	if ($objects_guid) {
+		$objects_guid = implode(',', array_unique($objects_guid));
+		$object_param = null;
+		$object_param = [
+			'key' => 'guid',
+			'value' => "IN ({$objects_guid})",
+			'operation' => ''
+		];
+		$objects = $select->getObjects($object_param,0,99999999);
+	}
+
+	if ($linkPreview) {
+		$linkPreview = implode(',', array_unique($linkPreview));
+		$link_params = null;
+		$link_params[] = [
+			'key' => 'guid',
+			'value' => "= {$linkPreview}",
+			'operation' => ''
+		];
+		$links = $select->getLinkPreview($link_params,0,1);
+	}
+
+	foreach ($feeds as $key => $feed) {
+		$feed->likes = "0";
+		foreach ($likes_count as $like_count) {
+			if ($like_count->subject_id == $feed->guid) {
+				$feed->likes = (string) $like_count->count;
+			}
+		}
+		$feed->liked = false;
+		foreach ($liked_feed as $liked) {
+			if ($liked->subject_id == $feed->guid) {
+				$feed->liked = true;
+			}
+		}
+		$feed->comments = "0";
+		foreach ($comments_count as $comment_count) {
+			if ($comment_count->subject_guid == $feed->guid) {
+				$feed->comments = (string) $comment_count->count;
+			}
+		}
+		if ($feed->type != "user") {
+			if ($objects) {
+				$flag = false;
+				foreach ($objects as $object) {
+					if ($object->guid == $feed->owner_guid) {
+						$flag = true;
+						$feed->owner_title = $object->title;
+					}
+				}
+				if (!$flag) {
+					unset($feeds[$key]);
+					continue;
+				}
+			}
+		}
+		$flag = false;
+		foreach ($links as $key => $link) {
+			if ($link->guid == $feed->linkPreview) {
+				$flag = true;
+				$feed->linkPreview = $link;
+			}
+		}
+		if (!$flag) unset($feed->linkPreview);
+		$feeds[$key] = $feed;
+	}
+
+	if (is_array($shares_post) && count($shares_post) > 0) {
+		foreach ($shares_post as $feed_share) {
+			if (property_exists($feed_share, 'linkPreview') && $feed_share->linkPreview) {
+				if (!in_array($feed_share->linkPreview, $linkPreview)) {
+					array_push($linkPreview, $feed_share->linkPreview);
+				}
+				$flag = false;
+				foreach ($links as $key => $link) {
+					if ($link->guid == $feed_share->linkPreview) {
+						$flag = true;
+						$feed_share->linkPreview = $link;
+					}
+				}
+				if (!$flag) unset($feed_share->linkPreview);
+			} else {
+				unset($feed_share->linkPreview);
+			}
+
+			$shares['posts'][$feed_share->guid] = $feed_share;
+		}
+	}
 
 	if (is_array($mood_guids) && count($mood_guids) > 0) {
 		$mood_guids = implode(",", array_unique($mood_guids));
