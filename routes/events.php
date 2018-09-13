@@ -125,12 +125,17 @@ $app->post($container['prefix'].'/events', function (Request $request, Response 
 	//check user is blocked
 	if (property_exists($loggedin_user, 'blockedusers')) {
 		$block_list = json_decode($loggedin_user->blockedusers);
-		$block_users = implode(',', $block_list);
-		$event_params[] = [
-			'key' => 'creator_guid',
-			'value' => "NOT IN ({$block_users})",
-			'operation' => 'AND'
-		];
+		if (property_exists($loggedin_user, 'blockedusers')) {
+			$block_list = json_decode($loggedin_user->blockedusers);
+			if (is_array($block_list) && count($block_list) > 0) {
+				$block_users = implode(',', $block_list);
+				$event_params[] = [
+					'key' => 'creator_guid',
+					'value' => "NOT IN ({$block_users})",
+					'operation' => 'AND'
+				];
+			}
+		}
 	}
 
 	$event_params[] = [

@@ -55,14 +55,6 @@ $app->post($container['prefix'].'/banner', function (Request $request, Response 
 
     foreach ($final_ads as $advertises) {
         foreach ($advertises as $key => $advertise) {
-
-        	$filename = $advertise->image;
-			$file_path = "/object/{$advertise->guid}/advertise/images/"."large_{$filename}";
-			if (file_exists(IMAGE_PATH.$file_path)) {
-				$image_url = IMAGE_URL.$file_path;
-			} else {
-				$image_url = AVATAR_DEFAULT;
-			}
 			$parse = parse_url($advertise->link);
 			$url = preg_replace('/^www\./i', '', $parse['host']);
 			if ($url == DOMAIN_NAME) {

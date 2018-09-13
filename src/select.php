@@ -360,6 +360,17 @@ class SlimSelect extends SlimDatabase
 	{
 		$table = "advertisements";
 		$advertisements = $this->getData($table, $conditions, $offset, $limit, $load_more);
+		if (!$advertisements) return response(false);
+		foreach ($advertisements as $key => $advertise) {
+			$filename = array_pop(explode("/", $advertise->image));
+			$file_path = "/object/{$advertise->guid}/advertise/images/"."large_{$filename}";
+			if (file_exists(IMAGE_PATH.$file_path)) {
+				$image_url = IMAGE_URL.$file_path;
+			} else {
+				$image_url = AVATAR_DEFAULT;
+			}
+			$advertise->image = $image_url;
+		}
 		if ($limit == 1) {
 			return $advertisements[0];
 		}
