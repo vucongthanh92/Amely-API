@@ -119,7 +119,7 @@ $app->post($container['prefix'].'/banner', function (Request $request, Response 
 
 				}
 			}
-			$banners[$key]['banner_url'] = $image_url;
+			$banners[$key]['banner_url'] = $advertise->image;
 			$banners[$key]['link'] = $advertise->link;
 			$banners[$key]['guid'] = $advertise->guid;
         }

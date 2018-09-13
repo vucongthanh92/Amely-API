@@ -25,9 +25,9 @@ $app->post($container['prefix'].'/featured_products', function (Request $request
 	$products_ads = $select->getAdvertisements($ads_params, 0, 16);
 	if (!$products_ads) return response(false);
 	$ads = $shops_guid = $products_guid = [];
-	foreach ($products_ads as $key => $ads) {
-		if (!in_array($ads->owner_guid, $shops_guid)) {
-			array_push($shops_guid, $ads->owner_guid);
+	foreach ($products_ads as $key => $product_ads) {
+		if (!in_array($product_ads->owner_guid, $shops_guid)) {
+			array_push($shops_guid, $product_ads->owner_guid);
 		}
 	}
 	$shops_guid = implode(",", array_unique($shops_guid));
@@ -56,7 +56,7 @@ $app->post($container['prefix'].'/featured_products', function (Request $request
 	}
 	
 	$shops = $select->getShops($shop_params,0,9999999);
-	if (!$shops) {
+	if ($shops) {
 		$shops_guid = array_map(create_function('$o', 'return $o->guid;'), $shops);
 		foreach ($products_ads as $key => $product_ads) {
 			if (!in_array($product_ads->owner_guid, $shops_guid)) {
