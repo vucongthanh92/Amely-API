@@ -59,6 +59,7 @@ $app->post($container['prefix'].'/authtoken', function (Request $request, Respon
 		$token->session_id = session_id();
 		$db->saveTableToken($token, $action = "insert", $show_id = false);
 		$_SESSION["OSSN_USER"] = $user;
+		$_SESSION["TOKEN"] = $token->token;
 		return response(["token" => $token->token]);
     }
 	return response(false);

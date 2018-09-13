@@ -339,16 +339,19 @@ function checkToken($token)
 	];
 	$token = $select->getTokens($conditions, $offset = 0, $limit = 1, $load_more = true);
 	if ($token) {
-		$user_params = null;
-		$user_params[] = [
-			'key' => 'guid',
-			'value' => "= {$token->user_guid}",
-			'operation' => ''
-		];
-		$user = $select->getUsers($user_params, $offset = 0, $limit = 1, $load_more = true, $getAddr = true);
-	    session_id($token->session_id);
-	    session_reset();
-	    $_SESSION["OSSN_USER"] = $user;
+		if ($token != $_SESSION["TOKEN"]) {
+			$user_params = null;
+			$user_params[] = [
+				'key' => 'guid',
+				'value' => "= {$token->user_guid}",
+				'operation' => ''
+			];
+			$user = $select->getUsers($user_params, $offset = 0, $limit = 1, $load_more = true, $getAddr = true);
+		    session_id($token->session_id);
+		    session_reset();
+		    $_SESSION["OSSN_USER"] = $user;
+		}
+		return true;
 	}
 	return response(false);
 }
