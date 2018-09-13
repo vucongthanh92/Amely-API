@@ -61,12 +61,14 @@ $app->post($container['prefix'].'/featured_shops', function (Request $request, R
 	];
 	if (property_exists($loggedin_user, 'blockedusers')) {
 		$block_list = json_decode($loggedin_user->blockedusers);
-		$block_users = implode(',', $block_list);
-		$shop_params[] = [
-			'key' => 'owner_guid',
-			'value' => "NOT IN ({$block_users})",
-			'operation' => 'AND'
-		];
+		if (is_array($block_list) && count($block_list) > 0) {
+			$block_users = implode(',', $block_list);
+			$shop_params[] = [
+				'key' => 'owner_guid',
+				'value' => "NOT IN ({$block_users})",
+				'operation' => 'AND'
+			];
+		}
 	}
 	$shops = $select->getShops($shop_params,0,9999999);
 	if (!$shops) return response(false);

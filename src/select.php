@@ -201,6 +201,7 @@ class SlimSelect extends SlimDatabase
 	{
 		$table = "groups";
 		$groups = $this->getData($table, $conditions, $offset, $limit, $load_more);
+		if (!$groups) return false;
 		foreach ($groups as $key => $group) {
 			$filename = array_pop(explode("/", $group->{"file:avatar"}));
 			$file_path = "object/{$group->guid}/avatar/images/larger_{$filename}";
@@ -566,6 +567,17 @@ class SlimSelect extends SlimDatabase
 		return $items;
 	}
 
+	public function getPages($conditions = null, $offset = 0, $limit = 10, $load_more = true)
+	{
+		$table = "business_pages";
+        $pages = $this->getData($table, $conditions, $offset, $limit, $load_more);
+		if (!$pages) return false;
+		if ($limit == 1) {
+			$pages = $pages[0];
+		}
+		return $pages;
+	}
+
 	public function getProductsMarket($conditions, $offset = 0, $limit = 10, $load_more = true, $currency_code = "VND", $encode = true)
 	{
 		$table = "products_market";
@@ -619,6 +631,29 @@ class SlimSelect extends SlimDatabase
 		return $products;
 	}
 	
+	public function getEvents($conditions = null, $offset = 0, $limit = 10, $load_more = true)
+	{
+		$table = "events";
+        $events = $this->getData($table, $conditions, $offset, $limit, $load_more);
+		if (!$events) return false;
+		foreach ($events as $key => $event) {
+			$filename = array_pop(explode("/", $event->{"file:avatar"}));
+			$file_path = "/object/{$event->guid}/avatar/images/"."larger_{$filename}";
+			if (file_exists(IMAGE_PATH.$file_path)) {
+				$url = IMAGE_URL.$file_path;
+			} else {
+				$url = AVATAR_DEFAULT;
+			}
+			$event->avatar = $url;
+			$events[$key] = $event;
+		}
+		$events = array_values($events);
+		if ($limit == 1) {
+			$events = $events[0];
+		}
+		return $events;
+	}
+
 	public function getEvents($conditions = null, $offset = 0, $limit = 10, $load_more = true)
 	{
 		$table = "events";

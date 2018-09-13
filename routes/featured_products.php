@@ -7,11 +7,6 @@ $app->post($container['prefix'].'/featured_products', function (Request $request
 	$select = SlimSelect::getInstance();
 	$loggedin_user = loggedin_user();
 	$shops_block = 0;
-	if (property_exists($loggedin_user, 'blockedusers')) {
-		$block_list = json_decode($loggedin_user->blockedusers);
-		$block_users = implode(',', $block_list);
-	}
-
 	if ($loggedin_user->usercurrency)
 		$currency_code = $loggedin_user->usercurrency;
 
@@ -50,12 +45,14 @@ $app->post($container['prefix'].'/featured_products', function (Request $request
 	];
 	if (property_exists($loggedin_user, 'blockedusers')) {
 		$block_list = json_decode($loggedin_user->blockedusers);
-		$block_users = implode(',', $block_list);
-		$shop_params[] = [
-			'key' => 'owner_guid',
-			'value' => "NOT IN ({$block_users})",
-			'operation' => 'AND'
-		];
+		if (is_array($block_list) && count($block_list) > 0) {
+			$block_users = implode(',', $block_list);
+			$shop_params[] = [
+				'key' => 'owner_guid',
+				'value' => "NOT IN ({$block_users})",
+				'operation' => 'AND'
+			];
+		}
 	}
 	
 	$shops = $select->getShops($shop_params,0,9999999);

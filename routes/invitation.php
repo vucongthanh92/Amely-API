@@ -35,8 +35,8 @@ $app->post($container['prefix'].'/invitation', function (Request $request, Respo
 		}
 	}
 	$users_result = [];
-	$user_requests = array_unique($user_requests);
 	if ($user_requests) {
+		$user_requests = array_unique($user_requests);
 		$users_guid = implode(',', array_unique($user_requests));
 		$user_params = null;
 		$user_params[] = [
@@ -51,8 +51,8 @@ $app->post($container['prefix'].'/invitation', function (Request $request, Respo
 	}
 
 	$groups_result = [];
-	$group_requests = array_unique($group_requests);
 	if ($group_requests) {
+		$group_requests = array_unique($group_requests);
 		$groups_guid = implode(',', array_unique($group_requests));
 		$group_params = null;
 		$group_params[] = [
@@ -66,8 +66,8 @@ $app->post($container['prefix'].'/invitation', function (Request $request, Respo
 		}
 	}
 
-	$event_requests = array_unique(array_merge($invite_requests, $member_requests));
 	if ($event_requests) {
+		$event_requests = array_unique(array_merge($invite_requests, $member_requests));
 		$event_requests = implode(',', array_unique($event_requests));
 		$event_params = null;
 		$event_params[] = [

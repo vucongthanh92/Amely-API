@@ -133,6 +133,26 @@ function getMembersGUID($type, $owner_guid, $count = false)
     return $relations;
 }
 
+function getPagesGUID($owner_guid)
+{
+	$select = SlimSelect::getInstance();
+	$relation_params = null;
+	$relation_params[] = [
+		'key' => 'type',
+		'value' => "IN ('business:join:approve')",
+		'operation' => ''
+	];
+	$relation_params[] = [
+		'key' => 'relation_to',
+		'value' => "= {$owner_guid}",
+		'operation' => 'AND'
+	];
+	$relations = $select->getRelationships($relation_params,0,99999999);
+	if (!$relations) return false;
+    $pages_guid = array_map(create_function('$o', 'return $o->relation_from;'), $relations);
+    return $pages_guid;
+}
+
 function getGroupsGUID($owner_guid)
 {
 	$select = SlimSelect::getInstance();
