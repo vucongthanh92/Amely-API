@@ -641,6 +641,59 @@ class SlimSelect extends SlimDatabase
 		}
 		return $products;
 	}
+
+	public function getSnapshotsMarket($conditions, $offset = 0, $limit = 10, $load_more = true, $currency_code = "VND", $encode = true)
+	{
+		$table = "snapshots_market";
+        $snapshots = $this->getData($table, $conditions, $offset, $limit, $load_more);
+        if (!$snapshots) return false;
+
+        foreach ($snapshots as $key => $snapshot) {
+            if (!$currency_code) $currency_code = $snapshot->currency;
+            if ($encode) {
+                $snapshot->description = html_entity_decode($snapshot->description);
+            }
+            $images = [];
+            if ($snapshot->images) $images = explode(",", $snapshot->images);
+
+            if ($images) {
+                foreach ($images as $kimage => $image) {
+                    $is_http = false;
+                    $type_list = array("https://", "http://");
+                    foreach ($type_list as $type) {
+                        if (strpos($image, $type) !== false) {
+                            $is_http = true;
+                        }
+                    }
+                    if ($is_http) {
+                        $images[$kimage] = $image;
+                    } else {
+                    	$filename = $image;
+						$file_path = "/object/{$snapshot->guid}/product/images/"."lgthumb_{$filename}";
+						if (file_exists(IMAGE_PATH.$file_path)) {
+							$url = IMAGE_URL.$file_path;
+						} else {
+							$url = AVATAR_DEFAULT;
+						}
+                        $images[$kimage] = $url;
+                    }
+                }
+            }
+            $snapshot->images = $images;
+            $snapshot->category = explode(",", $snapshot->category);
+
+            $display_price = getPrice($snapshot);
+            $snapshot->display_price = $display_price;
+            $snapshot->display_currency = $currency_code;
+            $snapshot->display_old_price = $snapshot->price;
+
+            $snapshots[$key] = $snapshot;
+        }
+		if ($limit == 1) {
+			return $snapshots[0];
+		}
+		return $snapshots;
+	}
 	
 	public function getEvents($conditions = null, $offset = 0, $limit = 10, $load_more = true)
 	{

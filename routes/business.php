@@ -80,7 +80,7 @@ $app->post($container['prefix'].'/business', function (Request $request, Respons
 	}
 	
 	$users_result = [];
-
+	$owners = implode(',', array_unique($owners));
 	$user_params = null;
 	$user_params[] = [
 		'key' => 'guid',
@@ -88,6 +88,7 @@ $app->post($container['prefix'].'/business', function (Request $request, Respons
 		'operation' => ''
 	];
 	$users = $select->getUsers($user_params,0,9999999);
+	if (!$users) return response(false);
 	foreach ($users as $key => $user) {
 		$users_result[$user->guid] = $user;
 	}

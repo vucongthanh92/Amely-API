@@ -249,9 +249,10 @@ $app->post($container['prefix'].'/offers', function (Request $request, Response 
 		'value' => "IN ({$snapshots_guid})",
 		'operation' => ''
 	];
-	$snapshots = $select->getSnapshots($snapshot_params, $offset, $limit);
+	$snapshots = $select->getSnapshotsMarket($snapshot_params, $offset, $limit);
 	if (!$snapshots) return response(false);
-
+	
+	$offers_guid = implode(',', array_unique($offers_guid));
 	$relation_params = null;
 	$relation_params[] = [
 		'key' => 'relation_from',
