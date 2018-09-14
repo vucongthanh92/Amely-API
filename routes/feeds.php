@@ -394,15 +394,19 @@ $app->post($container['prefix'].'/feeds', function (Request $request, Response $
 			}
 		}
 		$feed->liked = false;
-		foreach ($liked_feed as $liked) {
-			if ($liked->subject_id == $feed->guid) {
-				$feed->liked = true;
+		if ($liked_feed) {
+			foreach ($liked_feed as $liked) {
+				if ($liked->subject_id == $feed->guid) {
+					$feed->liked = true;
+				}
 			}
 		}
 		$feed->comments = "0";
-		foreach ($comments_count as $comment_count) {
-			if ($comment_count->subject_guid == $feed->guid) {
-				$feed->comments = (string) $comment_count->count;
+		if ($comments_count) {
+			foreach ($comments_count as $comment_count) {
+				if ($comment_count->subject_guid == $feed->guid) {
+					$feed->comments = (string) $comment_count->count;
+				}
 			}
 		}
 		if ($feed->type != "user") {
@@ -420,14 +424,16 @@ $app->post($container['prefix'].'/feeds', function (Request $request, Response $
 				}
 			}
 		}
-		$flag = false;
-		foreach ($links as $key => $link) {
-			if ($link->guid == $feed->linkPreview) {
-				$flag = true;
-				$feed->linkPreview = $link;
+		if ($links) {
+			$flag = false;
+			foreach ($links as $key => $link) {
+				if ($link->guid == $feed->linkPreview) {
+					$flag = true;
+					$feed->linkPreview = $link;
+				}
 			}
+			if (!$flag) unset($feed->linkPreview);
 		}
-		if (!$flag) unset($feed->linkPreview);
 		$feeds[$key] = $feed;
 	}
 
