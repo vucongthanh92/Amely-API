@@ -167,21 +167,8 @@ $app->post($container['prefix'].'/feeds', function (Request $request, Response $
 			if (!in_array($feed->owner_guid, $objects_guid)) {
 				array_push($objects_guid, $feed->owner_guid);
 			}
-			// $object_param = null;
-			// $object_param = [
-			// 	'key' => 'guid',
-			// 	'value' => "= {$feed->owner_guid}",
-			// 	'operation' => ''
-			// ];
-			// $object = $select->getObjects($object_param,0,1);
-			// if (!$object) {
-			// 	unset($feeds[$key]);
-			// 	continue;
-			// }
-			// $feed->owner_title = $object->title;
 		}
 
-		
 		if (property_exists($feed, 'mood_guid') && $feed->mood_guid) {
 			array_push($mood_guids, $feed->mood_guid);
 		}
@@ -210,8 +197,6 @@ $app->post($container['prefix'].'/feeds', function (Request $request, Response $
 				 			} else {
 				 				unset($feeds[$key]);
 				 				continue;
-				 				// $wall = new OssnWall;
-				 				// $wall->deletePost($feed->guid);
 				 			}
 				 		}
 				 	}
@@ -220,10 +205,6 @@ $app->post($container['prefix'].'/feeds', function (Request $request, Response $
 			 		if ($feed->item_guid) {
 			 			unset($feeds[$key]);
 		 				continue;
-			 			// $product = ossn_get_object($feed->item_guid);
-			 			// if ($product) {
-			 			// 	array_push($shares_product, $feed->item_guid);
-			 			// }
 			 		}
 			 		break;
 			 	default:
@@ -236,19 +217,6 @@ $app->post($container['prefix'].'/feeds', function (Request $request, Response $
 			if (!in_array($feed->linkPreview, $linkPreview)) {
 				array_push($linkPreview, $feed->linkPreview);
 			}
-
-			// $link_params = null;
-			// $link_params[] = [
-			// 	'key' => 'guid',
-			// 	'value' => "= '{$feed->linkPreview}'",
-			// 	'operation' => ''
-			// ];
-			// $link = $select->getLinkPreview($link_params,0,1);
-			// if ($link) {
-			// 	$feed->linkPreview = $link;
-			// } else {
-			// 	unset($feed->linkPreview);	
-			// }
 		} else {
 			unset($feed->linkPreview);
 		}
@@ -273,18 +241,6 @@ $app->post($container['prefix'].'/feeds', function (Request $request, Response $
 				if (!in_array($feed_share->linkPreview, $linkPreview)) {
 					array_push($linkPreview, $feed_share->linkPreview);
 				}
-				// $link_params = null;
-				// $link_params[] = [
-				// 	'key' => 'guid',
-				// 	'value' => "= {$feed_share->linkPreview}",
-				// 	'operation' => ''
-				// ];
-				// $link = $select->getLinkPreview($link_params,0,1);
-				// if ($link) {
-				// 	$feed_share->linkPreview = $link;
-				// } else {
-				// 	unset($feed_share->linkPreview);	
-				// }
 			} else {
 				unset($feed_share->linkPreview);
 			}
@@ -293,13 +249,6 @@ $app->post($container['prefix'].'/feeds', function (Request $request, Response $
 		}
 	}
 
-	// if (is_array($shares_product) && count($shares_product) > 0) {
-	// 	foreach ($shares_product as $guid) {
-	// 		$product = ProductsService::getInstance()->changeStructureProductOnView($guid, false, true);
-	// 		if (!$product) continue;
-	// 		$shares['products'][$guid] = $product;
-	// 	}
-	// }
 	$feeds_guid = implode(',', array_unique($feeds_guid));
 
 	$like_params = null;
@@ -424,7 +373,7 @@ $app->post($container['prefix'].'/feeds', function (Request $request, Response $
 				}
 			}
 		}
-		if ($links) {
+		if ($linkPreview) {
 			$flag = false;
 			foreach ($links as $key => $link) {
 				if ($link->guid == $feed->linkPreview) {
