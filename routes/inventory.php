@@ -431,7 +431,7 @@ $app->post($container['prefix'].'/inventory', function (Request $request, Respon
 		'operation' => ''
 	];
 
-	$product_snapshots = $select->getItemsInventory($snapshot_params, 0, 999999999999);
+	$product_snapshots = $select->getSnapshots($snapshot_params, 0, 999999999999);
 	if (!$product_snapshots) return response(false);
 	foreach ($items as $key => $item) {
 		$searchedValue = $item->product_snapshot;

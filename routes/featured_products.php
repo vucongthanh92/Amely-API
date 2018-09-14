@@ -76,7 +76,7 @@ $app->post($container['prefix'].'/featured_products', function (Request $request
 		'value' => "IN {$products_guid}",
 		'operation' => ''
 	];
-	$products = $select->getProductsMarket($product_params,0,99999999);
+	$products = $select->getProducts($product_params,0,99999999);
 	if (!$products) return response(false);
 	foreach ($products as $key => $product) {
 

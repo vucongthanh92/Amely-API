@@ -40,7 +40,7 @@ $app->get($container['prefix'].'/most_sold_products', function (Request $request
 		'value' => "DESC",
 		'operation' => 'order_by'
 	];
-	$products =  $select->getProductsMarket($product_params,0,16);
+	$products =  $select->getProducts($product_params,0,16);
 	if (!$products) return response(false);
 
 	$products_owner_guid = [];

@@ -355,7 +355,7 @@ class SlimSelect extends SlimDatabase
 
 	public function getProducts($conditions, $offset = 0, $limit = 10, $currency_code = "VND", $encode = true)
 	{
-		$table = "categories_images_products";
+		$table = "amely_products";
 		$products = $this->getData($table, $conditions, $offset, $limit);
         if (!$products) return false;
 
@@ -442,7 +442,7 @@ class SlimSelect extends SlimDatabase
 
 	public function getSnapshots($conditions = null, $offset = 0, $limit = 10, $currency_code = "VND")
 	{
-		$table = "products_snapshot";
+		$table = "amely_products_snapshot";
         $snapshots = $this->getData($table, $conditions, $offset, $limit);
 		if (!$snapshots) return false;
 
