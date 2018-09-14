@@ -47,8 +47,6 @@ function get2Relationships($type, $owner_guid)
     if (!$friends) return false;
     $friends_guid = array_map(create_function('$o', 'return $o->relation_to;'), $friends);
     return $friends_guid;
-
-	// select * from ossn_relationships r JOIN ossn_relationships r1 on r.relation_from = r1.relation_to where r.relation_to = r1.relation_from AND r.type = "friend:request" AND r.relation_from = 27
 }
 
 function getInvitation($invite_type, $approve_type, $owner_guid, $reverse = false)
@@ -208,53 +206,6 @@ function getFriendsGUID($owner_guid)
     if (!$friends) return false;
     $friends_guid = array_map(create_function('$o', 'return $o->relation_to;'), $friends);
     return $friends_guid;
-	// $select = SlimSelect::getInstance();
-
-	// $relation_params = null;
- //    $relation_params[] = [
- //    	'key' => 'type',
- //    	'value' => "= 'friend:request'",
- //    	'operation' => ''
- //    ];
- //    $relation_params[] = [
- //    	'key' => 'relation_to',
- //    	'value' => "= {$owner_guid}",
- //    	'operation' => 'AND'
- //    ];
- //    $relation_params[] = [
- //    	'key' => 'relation_from',
- //    	'value' => '',
- //    	'operation' => 'query_params'
- //    ];
-    
- //    $relations = $select->getRelationships($relation_params,0,99999999);
- //    if ($relations) {
- //    	$relations_from = array_map(create_function('$o', 'return $o->relation_from;'), $relations);
- //    	$relations_from = implode(",", $relations_from);
-
-	//     $relation_params = null;
-	//     $relation_params[] = [
-	//     	'key' => 'type',
-	//     	'value' => "= 'friend:request'",
-	//     	'operation' => ''
-	//     ];
-	//     $relation_params[] = [
-	//     	'key' => 'relation_from',
-	//     	'value' => "= {$owner_guid}",
-	//     	'operation' => 'AND'
-	//     ];
-	//     $relation_params[] = [
-	//     	'key' => 'relation_to',
-	//     	'value' => "IN ($relations_from)",
-	//     	'operation' => 'AND'
-	//     ];
-	    
-	//     $friends = $select->getRelationships($relation_params,0,99999999);
-	//     $friends_guid = array_map(create_function('$o', 'return $o->relation_to;'), $friends);
-	//     return $friends_guid;
-
-	// }
-	// return false;
 }
 
 
@@ -337,7 +288,7 @@ function checkToken($token)
 		'value' => "= '{$token}'",
 		'operation' => ""
 	];
-	$token = $select->getTokens($conditions, $offset = 0, $limit = 1, $load_more = true);
+	$token = $select->getTokens($conditions, $offset = 0, $limit = 1);
 	if ($token) {
 		session_id($token->session_id);
 		session_reset();
@@ -348,7 +299,7 @@ function checkToken($token)
 				'value' => "= {$token->user_guid}",
 				'operation' => ''
 			];
-			$user = $select->getUsers($user_params, $offset = 0, $limit = 1, $load_more = true, $getAddr = true);
+			$user = $select->getUsers($user_params, 0, 1, true);
 		    
 		    $_SESSION["OSSN_USER"] = $user;
 		}
