@@ -2,9 +2,199 @@
 use Slim\Http\Request;
 use Slim\Http\Response;
 
+$app->get($container['prefix'].'/feeds', function (Request $request, Response $response, array $args) {
+	$select = SlimSelect::getInstance();
+	$loggedin_user = loggedin_user();
+	if ($loggedin_user->usercurrency)
+		$currency_code = $loggedin_user->usercurrency;
+	$params = $request->getQueryParams();
+	if (!array_key_exists("post_guid", $params)) $params["post_guid"] = false;
+
+	$feed_guid = $params['post_guid'];
+	if (!$feed_guid) return response(false);
+
+	$feed_params = null;
+	$feed_params[] = [
+		'key' => 'guid',
+		'value' => "= {$feed_guid}",
+		'operation' => ''
+	];
+	$feed = $select->getFeeds($feed_params,0,1);
+	if (!$feed) return response(false);
+
+	if (property_exists($feed, 'linkPreview')) {
+		if ($feed->linkPreview) {
+			if ($linkPreview) {
+				$link_params = null;
+				$link_params[] = [
+					'key' => 'guid',
+					'value' => "= {$feed->linkPreview}",
+					'operation' => ''
+				];
+				$link = $select->getLinkPreview($link_params,0,1);
+
+				if ($link) {
+					$feed->linkPreview = $link;	
+				} else {
+					unset($feed->linkPreview);
+				}
+			} else {
+				unset($feed->linkPreview);
+			}
+		} else {
+			unset($feed->linkPreview);
+		}
+	}
+
+
+	if ($feed->poster_guid != $loggedin_user->guid) {
+		if (property_exists($loggedin_user, 'blockedusers')) {
+			$block_list = json_decode($loggedin_user->blockedusers);
+		    if (is_array($block_list) && count($block_list) > 0) {
+			    if (in_array($loggedin_user->guid, $block_list)) {
+			    	return response([
+						'status' => false,
+						'error' => 'blocked'
+					]);
+			    }
+		    }
+		}
+	}
+
+	if ($feed->type != "user") {
+		$object_params = null;
+		$object_params[] = [
+			'key' => 'guid',
+			'value' => "= {$feed->owner_guid}",
+			'operation' => ''
+		];
+		$object = $select->getObjects($object_params,0,1);
+		if (!$object) return response(false);
+		$feed->owner_title = $object->title;
+	}
+
+	$like_params = null;
+	$like_params[] = [
+		'key' => 'subject_id',
+		'value' => "= {$feed->guid}",
+		'operation' => ''
+	];
+	$like_params[] = [
+		'key' => 'type',
+		'value' => "= 'post'",
+		'operation' => 'AND'
+	];
+	$like_params[] = [
+		'key' => '*',
+		'value' => "count",
+		'operation' => 'count'
+	];
+	$like_params[] = [
+		'key' => 'subject_id',
+		'value' => "",
+		'operation' => 'query_params'
+	];
+	$like_params[] = [
+		'key' => 'subject_id',
+		'value' => "",
+		'operation' => 'group_by'
+	];
+	$likes_count = $select->getLikes($like_params,0,99999999);
+	$like_params[] = [
+		'key' => 'guid',
+		'value' => "= {$loggedin_user->guid}",
+		'operation' => 'AND'
+	];
+	$liked_feed = $select->getLikes($like_params,0,99999999);
+	$feed->likes = "0";
+	if ($likes_count) $feed->likes = (string)$likes_count->count;
+	
+	$feed->liked = false;
+	if ($liked_feed) $feed->liked = true;
+	
+	$comment_params = null;
+	$comment_params[] = [
+		'key' => 'type',
+		'value' => "= 'comments:post'",
+		'operation' => ''
+	];
+	$comment_params[] = [
+		'key' => 'subject_guid',
+		'value' => "= {$feed->guid}",
+		'operation' => 'AND'
+	];
+	$comment_params[] = [
+		'key' => '*',
+		'value' => "count",
+		'operation' => 'count'
+	];
+	$comment_params[] = [
+		'key' => 'subject_guid',
+		'value' => "",
+		'operation' => 'query_params'
+	];
+	$comment_params[] = [
+		'key' => 'subject_guid',
+		'value' => "",
+		'operation' => 'group_by'
+	];
+	$comments_count = $select->getAnnotations($comment_params,0, 999999);
+
+	$feed->comments = "0";
+	if ($comments_count) $feed->comments = (string) $comments_count->count;
+
+	// mood
+	if ($feed->mood) {
+		$mood_params = null;
+		$mood_params[] = [
+			'key' => 'guid',
+			'value' => "= {$feed->mood}",
+			'operation' => ''
+		];
+		$mood = $select->getMoods($mood_params,0,1);
+		if ($mood) {
+			$feed->mood = $mood;
+		}
+	}
+
+	// users
+	$users_guid = [];
+	$description = json_decode($feed->description);
+	if (!empty($description->friend)) {
+		$friends = explode(",", $description->friend);
+		$users_guid = array_merge($friends, $users_guid);
+	}
+	$users_guid = array_unique(array_merge(array($feed->poster_guid), $users_guid));
+	$users_result = $users = [];
+	if (is_array($users_guid)) {
+		$users_guid = implode(',', array_unique($users_guid));
+		$user_params = null;
+		$user_params[] = [
+			'key' => 'guid',
+			'value' => "IN ({$users_guid})",
+			'operation' => ''
+		];
+		$users = $select->getUsers($user_params,0,999999);
+		if (!$users) return response(false);
+		foreach ($users as $key => $user) {
+			$users_result[$user->guid] = $user;
+		}
+	}
+	$desc['post'] = $description->post;
+	$desc['location'] = $description->location;
+	$desc['friend'] = $description->friend;
+	$feed->desc = $desc;
+	
+	return [
+		"post" => $feed,
+		"users" => $users
+	];
+	return response(false);
+});
+
 $app->post($container['prefix'].'/feeds', function (Request $request, Response $response, array $args) {
 	$select = SlimSelect::getInstance();
-	$feed_params = $mood_params = $poster_params = $photo_params = $shares = $shares_post = $shares_product = [];
+	$feed_params = $mood_params = $feeder_params = $photo_params = $shares = $shares_post = $shares_product = [];
 	$loggedin_user = loggedin_user();
 	$block_list = 0;
 	if (property_exists($loggedin_user, 'blockedusers')) {
@@ -190,10 +380,10 @@ $app->post($container['prefix'].'/feeds', function (Request $request, Response $
 				 				'value' => "= {$feed->item_guid}",
 				 				'operation' => ''
 				 			];
-				 			$post_shared = $select->getFeeds($feed_params,0,1);
-				 			if (!$post_shared) continue;
-				 			if ($post_shared) {
-				 				array_push($shares_post, $post_shared);
+				 			$feed_shared = $select->getFeeds($feed_params,0,1);
+				 			if (!$feed_shared) continue;
+				 			if ($feed_shared) {
+				 				array_push($shares_post, $feed_shared);
 				 			} else {
 				 				unset($feeds[$key]);
 				 				continue;
@@ -451,4 +641,81 @@ $app->post($container['prefix'].'/feeds', function (Request $request, Response $
 		$return["shares"] = $shares;
 	}
 	return response($return);
+});
+
+$app->put($container['prefix'].'/feeds', function (Request $request, Response $response, array $args) {
+	$db = SlimDatabase::getInstance();
+	$loggedin_user = loggedin_user();
+
+	$params = $request->getParsedBody();
+	if (!$params) $params = [];
+	if (!array_key_exists("content", $params)) $params["content"] = false;
+	if (!array_key_exists("friends", $params)) $params["friends"] = false;
+	if (!array_key_exists("location", $params)) $params["location"] = false;
+	if (!array_key_exists("privacy", $params)) $params["privacy"] = "";
+	if (!array_key_exists("images", $params)) $params["images"] = false;
+	if (!array_key_exists("mood", $params)) $params["mood"] = "";
+	if (!array_key_exists("type", $params)) $params["type"] = "user";
+	if (!array_key_exists("owner_guid", $params)) $params["owner_guid"] = $loggedin_user->guid;
+
+	$post     	= $params["content"];
+	$friends  	= $params["friends"];
+	$location 	= $params["location"];
+	$privacy  	= $params["privacy"];
+	$images 	= $params["images"];
+	$mood 		= $params["mood"];
+	$type 		= $params["type"];
+	$owner_guid = $params["owner_guid"];
+
+	$path = "users/{$loggedin_user->username}/";
+	$fb_params = [
+		'mood' => (string)$mood
+	];
+	insertFirebase($path, $fb_params);
+
+	$post = preg_replace('/\t/', ' ', $post);
+	$post = str_replace("\\n\\r", "", $post);
+	$wallpost['post'] = htmlspecialchars($post, ENT_QUOTES, 'UTF-8');
+	
+	//wall tag a friend , GUID issue #566
+	if(!empty($friends)) {
+		$friend_guids = explode(',', $friends);
+		//reset friends guids
+		$friends      = array();
+		foreach($friend_guids as $guid) {
+				if(ossn_user_by_guid($guid)) {
+						$friends[] = $guid;
+				}
+		}
+		$wallpost['friend'] = implode(',', $friends);
+	}
+	if(!empty($location)) {
+		$wallpost['location'] = $location;
+	}
+	//Encode multibyte Unicode characters literally (default is to escape as \uXXXX)
+	$this->description = json_encode($wallpost, JSON_UNESCAPED_UNICODE);
+
+	$feed = new stdClass;
+	$feed->type = $type;
+	$feed->owner_guid = $owner_guid;
+	$feed->subtype = 'wall';
+	$feed->title = '';
+	$feed->description = '';
+	
+	insertEAV($object, $show_id = false)
+
+	$wall = new OssnWall;
+	$wall->type = $type;
+	$wall->poster_guid = $loggedin_user->guid;
+	$wall->owner_guid = $owner_guid;
+
+	$feed_guid = $wall->Post($post, $friends, $location, $privacy, $images, $mood, "post", true);
+	if ($feed_guid) {
+		return [
+			'status' => true,
+			'guid' => $feed_guid
+		];
+	}
+	return false;
+
 });

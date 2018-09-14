@@ -46,7 +46,7 @@ class SlimDatabase
 
 	public function insertEAV($object, $show_id = false)
 	{
-		$object_guid = insertTableObject($object, true);
+		$object_guid = $this->saveTableObject($object, true);
 		if ($object_guid) {
 			foreach ($object->data as $key => $value) {
 				$entities = new stdClass();

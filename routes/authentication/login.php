@@ -6,7 +6,7 @@ use Slim\Http\Response;
 // Routes
 // $app->get('/authtoken', function (Request $request, Response $response, array $args) {
 $app->post($container['prefix'].'/authtoken', function (Request $request, Response $response, array $args) {
-	$db =  SlimDatabase::getInstance();
+	$select =  SlimSelect::getInstance();
 	// $shops = getShops($this->db, null, $offset = 0, $limit = 1, $load_more = true);
 	// var_dump($shops);die();
 	
@@ -37,9 +37,8 @@ $app->post($container['prefix'].'/authtoken', function (Request $request, Respon
 		];
 	}
 	// $user = getUsers($this->db, $conditions, $offset = 0, $limit = 1, $load_more = true);
-	$users = $db->getData($table, $conditions, $offset = 0, $limit = 1);
-	if (!$users) return response(false);
-	$user = (object)$users[0];
+	$user = $select->getUsers($conditions, 0, 1, true, false);
+	if (!$user) return response(false);
 	$salt     = $user->salt;
     $password = md5($params['password'] . $salt);
     if ($password == $user->password) {

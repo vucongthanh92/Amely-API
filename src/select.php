@@ -28,14 +28,16 @@ class SlimSelect extends SlimDatabase
 		return $addr[0];
 	}
 
-	public function getUsers($conditions, $offset = 0, $limit = 10, $getAddr = true)
+	public function getUsers($conditions, $offset = 0, $limit = 10, $getAddr = true, $password = true)
 	{
 		$table = "users";
 		$users = $this->getData($table, $conditions, $offset, $limit);
 		if (!$users) return false;
 		foreach ($users as $key => $user) {
-			unset($user->password);
-			unset($user->salt);
+			if ($password) {
+				unset($user->password);
+				unset($user->salt);
+			}
 			$user->fullname = $user->last_name.' '.$user->first_name;
 			$avatar = str_replace('profile/photo/', '', $user->avatar);
 			$cover = str_replace('profile/cover/', '', $user->cover);
@@ -294,6 +296,16 @@ class SlimSelect extends SlimDatabase
 			return $moods[0];
 		}
 		return $moods;
+	}
+
+	public function getManufacturers($conditions, $offset = 0, $limit = 10)
+	{
+		$table = "manufacturers";
+		$manufacturers = $this->getData($table, $conditions, $offset, $limit);
+		if ($limit == 1) {
+			return $manufacturers[0];
+		}
+		return $manufacturers;
 	}
 
 	public function getTokens($conditions, $offset = 0, $limit = 10)

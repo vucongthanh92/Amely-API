@@ -7,6 +7,19 @@ function loggedin_user()
 	return forceObject($_SESSION['OSSN_USER']);
 }
 
+function insertFirebase($path, $params)
+{
+	global $Ossn;
+	$firebase = new \Geckob\Firebase\Firebase($Ossn->firebase_key);
+	$firebase = $firebase->setPath($path);
+	if ($params) {
+		foreach ($params as $key => $value) {
+			$firebase->set($key, (string)$value);
+		}
+	}
+	return true;
+}
+
 function get2Relationships($type, $owner_guid)
 {
 	$select = SlimSelect::getInstance();
