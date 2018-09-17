@@ -2,6 +2,22 @@
 
 use Slim\Http\Response;
 
+
+function isUsername($username) 
+{
+	if(preg_match("/^[a-zA-Z0-9]+$/", $username) && strlen($username) > 4) {
+			return true;
+	}
+	return false;
+}
+
+function isNumberPhone($mobilelogin) {
+	if (preg_match("/^\\+?\d+$/i", $mobilelogin)) {
+		return true;
+	}
+	return false;
+}
+
 function loggedin_user()
 {
 	return forceObject($_SESSION['OSSN_USER']);

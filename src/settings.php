@@ -4,6 +4,7 @@ define("IMAGE_PATH", "/home/thinhnez/ossn_userdata");
 define("AVATAR_DEFAULT", "https://i1.wp.com/grueneroadpharmacy.com/wp-content/uploads/2017/02/user-placeholder-1.jpg");
 define("COVER_DEFAULT", "https://i1.wp.com/grueneroadpharmacy.com/wp-content/uploads/2017/02/user-placeholder-1.jpg");
 define("DOMAIN_NAME", "amely.com");
+define("SMS", "http://sms.amely.com");
 
 return [
     'settings' => [

@@ -27,6 +27,9 @@ require __DIR__ . '/src/middleware.php';
 require __DIR__ . '/src/functions.php';
 require __DIR__ . '/src/databases.php';
 require __DIR__ . '/src/select.php';
+require __DIR__ . '/src/insert.php';
+require __DIR__ . '/src/delete.php';
+require __DIR__ . '/src/services.php';
 require __DIR__ . '/src/routes.php';
 
 // Run app

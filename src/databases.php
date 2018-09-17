@@ -330,10 +330,31 @@ class SlimDatabase
 				}
 				return $this->update($params);
 				break;
+			case 'delete':
+				return $this->delete($params);
+				break;
 			default:
 				return false;
 				break;
 		}
+	}
+
+	public function delete($params) {
+		if(is_array($params)) {
+			$where = implode(' ', $params['wheres']);
+			if(!empty($params['wheres'])) {
+				$wheres = "WHERE({$where})";
+			}
+			if(empty($params['wheres'])) {
+					return false;
+			}
+			$query = "DELETE FROM `{$params['from']}` {$wheres};";
+			$this->statement($query);
+			if($this->execute()) {
+					return true;
+			}
+		}
+		return false;
 	}
 
 	public function insert($params, $show_id = false )

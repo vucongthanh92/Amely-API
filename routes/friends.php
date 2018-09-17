@@ -79,94 +79,16 @@ $app->get($container['prefix'].'/friends', function (Request $request, Response 
 	$friends = array_values($friends);
     if (!$friends) return response(false);
 	return response($friends);
+});
 
-    // $likes = new OssnLikes;
-    // $shops_liked = (array)$likes->GetSubjectsLikes($loggedin_user->guid, "shop");
-    // $shops_liked_guid = [];
-    // foreach ($shops_liked as $shop) {
-    //     $shops_liked_guid[] = $shop->subject_id;
-    // }
+$app->delete($container['prefix'].'/friends', function (Request $request, Response $response, array $args) {
+    $delete = SlimDelete::getInstance();
+    $loggedin_user = loggedin_user();
+    $params = $request->getQueryParams();
+    if (!array_key_exists('user_guid', $params)) $params['user_guid'] = false;
 
-    
+    if (!$params['user_guid']) return response(false);
+    if (!is_numeric($params['user_guid'])) return response(false);
 
-    // if (is_array($friends)) {
-    //     foreach ($friends as $key => $friend) {
-    //         if (is_numeric($user_guid)) {
-    //             if ($friend->guid == $user_guid) {
-    //                 unset($friends[$key]);
-    //                 continue;
-    //             }
-    //         } else {
-    //             if ($friend->guid == $loggedin_user->guid) {
-    //                 unset($friends[$key]);
-    //                 continue;
-    //             }
-    //         }
-
-    //         $block = new OssnBlock;
-    //         if (is_numeric($user_guid)) {
-    //             if ($block->isBlocked($user_currentview, $friend)) {
-    //                 unset($friends[$key]);
-    //                 continue;
-    //             }
-    //         } else {
-    //             if ($block->isBlocked($user, $friend)) {
-    //                 unset($friends[$key]);
-    //                 continue;
-    //             }
-    //         }
-    //         $data = [
-    //             'offset' => input('offset', false, '1'),
-    //             'limit' => input('limit', false, '1'),
-    //             'entities_pairs' => array(
-    //                 array(
-    //                     "name" => "poster_guid",
-    //                     "value" => $group->owner_guid
-    //                     )
-    //                 )
-    //         ];
-    //         $friend = ossn_user_remove_attr($friend->guid, true);
-    //         if (ossn_relation_exists($loggedin_user->guid, $friend->guid, "friend:request")) {
-    //             $friend->requested = 1;
-    //         }
-    //         $posts = (new OssnWall)->GetPostByOwner($friend->guid, "user", false, $data);
-    //         if ($posts) {
-    //             $post = $posts[0];
-    //             $thought = json_decode(html_entity_decode($post->description));
-    //             $friend->thought = $thought->post;
-    //             if (!empty($post->mood)) {
-    //                 $mood = ossn_get_object($post->mood);
-    //                 if ($mood) {
-    //                     $mood->icon = $mood->{'file:mood:icon'};
-    //                     unset($mood->{'file:mood:icon'});
-    //                     $friend->mood = $mood;
-    //                 }
-    //             }
-    //         }
-    //         $shop_params = null;
-    //         $shop_params[] = [
-    //             'key' => 'owner_guid',
-    //             'value' => "= {$friend->guid}",
-    //             'operation' => ''
-    //         ];
-    //         $shops = ShopsService::getInstance()->getShopOnView($shop_params);
-    //         if ($shops) {
-    //             $shop = $shops[0];
-    //             if (is_array($shops_liked_guid) && count($shops_liked_guid) > 0) {
-    //                 if (in_array($shop->guid, $shops_liked_guid)) {
-    //                     $shop->liked = true;
-    //                 }
-    //             }
-                
-    //             $friend->shop = $shop;
-    //         }
-    //         $friends[$key] = $friend;
-    //     }
-    //     if ($friends) {
-    //         return array_values($friends);
-    //     }
-    //     return false;
-    // }
-    // return false;
-
+    return $delete->friend($loggedin_user->guid, $params['user_guid']);
 });
