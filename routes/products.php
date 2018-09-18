@@ -26,7 +26,7 @@ $app->get($container['prefix'].'/products', function (Request $request, Response
 		];
 		$product = $select->getProducts($product_params,0,1);
 	}
-	if ($guid)) {
+	if ($guid) {
 		$product_params = null;
 		$product_params[] = [
 			'key' => 'guid',

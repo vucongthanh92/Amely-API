@@ -6,6 +6,8 @@ use Slim\Http\Response;
 // Routes
 // $app->get('/authtoken', function (Request $request, Response $response, array $args) {
 $app->post($container['prefix'].'/authtoken', function (Request $request, Response $response, array $args) {
+	var_dump($this);
+	die();
 	$select =  SlimSelect::getInstance();
 	// $shops = getShops($this->db, null, $offset = 0, $limit = 1, $load_more = true);
 	// var_dump($shops);die();

@@ -34,5 +34,10 @@ $container['prefix'] = function ($c) {
     return $c->get('settings')['prefix'];
 };
 
-global $db;
+$container['mail'] = function ($c) {
+    return (object)$c->get('settings')['mail'];
+};
+
+global $db, $email;
 $db = $container['db'];
+$mail = $container['mail'];

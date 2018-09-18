@@ -702,20 +702,5 @@ $app->put($container['prefix'].'/feeds', function (Request $request, Response $r
 	$feed->title = '';
 	$feed->description = '';
 	
-	insertEAV($object, $show_id = false)
-
-	$wall = new OssnWall;
-	$wall->type = $type;
-	$wall->poster_guid = $loggedin_user->guid;
-	$wall->owner_guid = $owner_guid;
-
-	$feed_guid = $wall->Post($post, $friends, $location, $privacy, $images, $mood, "post", true);
-	if ($feed_guid) {
-		return [
-			'status' => true,
-			'guid' => $feed_guid
-		];
-	}
-	return false;
-
+	return insertEAV($object, $show_id = false);
 });

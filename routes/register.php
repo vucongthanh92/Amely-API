@@ -84,11 +84,16 @@ $app->post($container['prefix'].'/register', function (Request $request, Respons
 		$services = Services::getInstance();
 		$code = rand(100000, 999999);
 
-		if ($services->sendCodeByMobile($object->mobilelogin, $code)) {
-			
+		if ($services->sendByMobile($object->mobilelogin, $code)) {
+			$update = new stdClass;
+			$update->verification_code = $code;
+
+			$object_tmp = new stdClass;
+			$object_tmp->update = $update;
+			$object_tmp->where = "guid= '{$guid}'";
+			return $db->updateTable($object_tmp, 'ossn_users');
 		}
-		SQAPI\ActivationService::getInstance()->send($add->mobilelogin);
 		return true;
 	}
 	return response(false);
-});
+})->setName('register');

@@ -29,6 +29,17 @@ return [
             "user" => "root",
             "pass" => "thinhnez123"
         ],
+        'mail' => [
+            'mail_SMTPDebug' => 0,
+            'mail_Host' => 'in-v3.mailjet.com',
+            'mail_SMTPAuth' => true,
+            'mail_Username' => '1f03b62014b346a06e7b24286172c299',
+            'mail_Password' => '9d2c1b8179722b042d809e700dc5c473',
+            'mail_From' => 'amelywebmaster@gmail.com',
+            'mail_Sitename' => 'AMELY',
+            'mail_SMTPSecure' => 'tls',
+            'mail_Port' => 25
+        ],
         'url' => "https://amely.com",
         'prefix' => "/ws/v1",
 
