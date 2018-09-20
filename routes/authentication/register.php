@@ -17,12 +17,13 @@ $app->post($container['prefix'].'/register', function (Request $request, Respons
 	if (!array_key_exists("gender", $params))  	 	$params["gender"] = false;
 	if (!array_key_exists("mobilelogin", $params)) 	$params["mobilelogin"] = false;
 
-	if (!isUsername($params['username'])) return response(false);
-	if (!isNumberPhone($params['mobilelogin'])) return response(false);
-
-	$username = $params['username'];
-	$mobilelogin = $params['mobilelogin'];
-	$email = $params['email'];
+	if (!isUsername($params["username"])) return response(false);
+	if (!isNumberPhone($params["mobilelogin"])) return response(false);
+	if (!$params["password"]) return response(false);
+	$username = $params["username"];
+	$mobilelogin = $params["mobilelogin"];
+	$email = $params["email"];
+	$password = $params["password"];
 
 	$user_params = null;
 	$user_params[] = [
@@ -30,7 +31,7 @@ $app->post($container['prefix'].'/register', function (Request $request, Respons
 		'value' => "= '{$username}'",
 		'operation' => ''
 	];
-	$user = $select->getUsers($user_param, 0, 1, false);
+	$user = $select->getUsers($user_params, 0, 1, false);
 	if ($user) return response([
     	"status" => false,
     	"error" => "username_exist"
@@ -42,7 +43,7 @@ $app->post($container['prefix'].'/register', function (Request $request, Respons
 			'value' => "= '{$mobilelogin}'",
 			'operation' => 'OR'
 		];
-		$user = $select->getUsers($user_param, 0, 1, false);
+		$user = $select->getUsers($user_params, 0, 1, false);
 		if ($user) return response([
 	    	"status" => false,
 	    	"error" => "mobile_exist"
@@ -55,7 +56,7 @@ $app->post($container['prefix'].'/register', function (Request $request, Respons
 			'value' => "= '{$email}'",
 			'operation' => 'OR'
 		];
-		$user = $select->getUsers($user_param, 0, 1, false);
+		$user = $select->getUsers($user_params, 0, 1, false);
 		if ($user) return response([
 	    	"status" => false,
 	    	"error" => "email_exist"
@@ -65,35 +66,30 @@ $app->post($container['prefix'].'/register', function (Request $request, Respons
 	$salt = substr(uniqid(), 5);
 	$activation = md5($password . time() . rand());
 	$password = md5($password . $salt);
+	$code = rand(100000, 999999);
 
+	$insert = new stdClass;
+	$insert->type = "normal";
+	$insert->username = $username;
+	$insert->email = $email;
+	$insert->password = $password;
+	$insert->salt = $salt;
+	$insert->first_name = $params['firstname'];
+	$insert->last_name = $params['lastname'];
+	$insert->last_login = 0;
+	$insert->last_activity = 0;
+	$insert->activation = $activation;
+	$insert->mobilelogin = preg_replace("/^\\+?84/i", "0", $mobilelogin);
+	$insert->verification_code = $code;
+	$insert->time_created = time();
+	$insert->birthdate = "1993-08-03";
+	$insert->gender = "male";
 
 	$object = new stdClass;
-	$object->type = "normal";
-	$object->username = $username;
-	$object->email = $email;
-	$object->password = $password;
-	$object->salt = $salt;
-	$object->first_name = $params['first_name'];
-	$object->last_name = $params['last_name'];
-	$object->last_login = 0;
-	$object->last_activity = 0;
-	$object->activation = $activation;
-	$object->mobilelogin = preg_replace("/^\\+?84/i", "0", $mobilelogin);
-
-	if ($db->saveTableUsers($object, "insert")){
-		$services = Services::getInstance();
-		$code = rand(100000, 999999);
-
-		if ($services->sendByMobile($object->mobilelogin, $code)) {
-			$update = new stdClass;
-			$update->verification_code = $code;
-
-			$object_tmp = new stdClass;
-			$object_tmp->update = $update;
-			$object_tmp->where = "guid= '{$guid}'";
-			return $db->updateTable($object_tmp, 'ossn_users');
-		}
-		return true;
+	$object->insert = $insert;
+	$insert_guid = $db->saveTable($object, "amely_users", "insert", true);
+	if ($insert_guid) {
+		return response(Services::getInstance()->sendByMobile($insert->mobilelogin, $code));
 	}
 	return response(false);
 })->setName('register');

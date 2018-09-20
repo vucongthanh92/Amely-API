@@ -16,7 +16,7 @@ class SlimDelete extends SlimDatabase
 
 	public function friend($from, $to)
 	{
-		$params['from'] = "ossn_relationships";
+		$params['from'] = "amely_relationships";
 		$params['wheres'][] = "(type = 'friend:request' AND relation_from = '{$from}' AND relation_to = '{$to}')";
 		$params['wheres'][] = "OR (type = 'friend:request' AND relation_from = '{$to}' AND relation_to = '{$from}')";
 

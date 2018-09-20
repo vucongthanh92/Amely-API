@@ -124,3 +124,8 @@ $app->post($container['prefix'].'/groups', function (Request $request, Response 
 		'owners' => $user_result
 	];
 });
+
+$app->put($container['prefix'].'/groups', function (Request $request, Response $response, array $args) {
+	$select = SlimSelect::getInstance();
+	return response(false);
+});

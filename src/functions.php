@@ -42,8 +42,8 @@ function get2Relationships($type, $owner_guid)
 
 	$relation_params = null;
 	$relation_params[] = [
-		'key' => 'ossn_relationships r1',
-		'value' => "ossn_relationships r1 on r.relation_from = r1.relation_to",
+		'key' => 'amely_relationships r1',
+		'value' => "amely_relationships r1 on r.relation_from = r1.relation_to",
 		'operation' => 'JOIN'
 	];
 	$relation_params[] = [
@@ -81,9 +81,9 @@ function get2Relationships($type, $owner_guid)
 function getInvitation($invite_type, $approve_type, $owner_guid, $reverse = false)
 {
 	$db = SlimDatabase::getInstance();
-	$query = "select * from ossn_relationships r where r.type = '{$invite_type}' AND r.relation_to = {$owner_guid} AND r.relation_from NOT IN (select r1.relation_to from ossn_relationships r1 where r1.type = '{$approve_type}' AND r1.relation_from = {$owner_guid})";
+	$query = "select * from amely_relationships r where r.type = '{$invite_type}' AND r.relation_to = {$owner_guid} AND r.relation_from NOT IN (select r1.relation_to from amely_relationships r1 where r1.type = '{$approve_type}' AND r1.relation_from = {$owner_guid})";
 	if ($reverse) {
-		$query = "select * from ossn_relationships r where r.type = '{$invite_type}' AND r.relation_from = {$owner_guid} AND r.relation_to NOT IN (select r1.relation_from from ossn_relationships r1 where r1.type = '{$approve_type}' AND r1.relation_to = {$owner_guid})";
+		$query = "select * from amely_relationships r where r.type = '{$invite_type}' AND r.relation_from = {$owner_guid} AND r.relation_to NOT IN (select r1.relation_from from amely_relationships r1 where r1.type = '{$approve_type}' AND r1.relation_to = {$owner_guid})";
 	}
 	$invitations = $db->query($query);
 	if (!$invitations) return false;
@@ -206,7 +206,7 @@ function getFriendsGUID($owner_guid)
 
 	$relation_params = null;
 	$relation_params[] = [
-		'key' => 'ossn_relationships r1',
+		'key' => 'amely_relationships r1',
 		'value' => "r.relation_from = r1.relation_to",
 		'operation' => 'JOIN'
 	];
@@ -317,7 +317,7 @@ function checkToken($token)
 		'value' => "= '{$token}'",
 		'operation' => ""
 	];
-	$token = $select->getTokens($conditions, $offset = 0, $limit = 1);
+	$token = $select->getTokens($conditions, 0, 1);
 	if ($token) {
 		session_id($token->session_id);
 		session_reset();
@@ -334,7 +334,7 @@ function checkToken($token)
 		}
 		return true;
 	}
-	return response(false);
+	return false;
 }
 
 function response($result)

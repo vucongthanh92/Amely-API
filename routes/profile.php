@@ -7,15 +7,13 @@ use Slim\Http\Response;
 // $app->get('/authtoken', function (Request $request, Response $response, array $args) {
 $app->get($container['prefix'].'/profile', function (Request $request, Response $response, array $args) {
 	$select = SlimSelect::getInstance();
-	// $likes = new OssnLikes;
-	// $user = null;
 	$params = $request->getQueryParams();
 	$loggedin_user = loggedin_user();
 	$user_params = null;
 
 	if (array_key_exists("guid", $params) && is_numeric($params['guid'])) {
 		$user_params[] = [
-			'key' => 'guid',
+			'key' => 'id',
 			'value' => "= {$params['guid']}",
 			'operation' => ''
 		];
@@ -30,6 +28,8 @@ $app->get($container['prefix'].'/profile', function (Request $request, Response 
 	} else {
 		$user = $loggedin_user;
 	}
+	if (!$user) return response(false);
+
 	if (!array_key_exists("type", $params)) $params['type'] = "default";
 	switch ($params['type']) {
 		case 'notification':
@@ -111,50 +111,5 @@ $app->get($container['prefix'].'/profile', function (Request $request, Response 
 			break;
 	}
 
-	if ($user->guid != $loggedin_user->guid) {
-		$block_list = 0;
-		if (property_exists($loggedin_user, 'blockedusers')) {
-			$block_list = json_decode($loggedin_user->blockedusers);
-		}
-	    if (is_array($block_list) && count($block_list) > 0) {
-		    if (in_array($user->guid, $block_list)) {
-		    	return response([
-					"status"  => false,
-					"error"   => "User is blocked"
-				]);
-		    }
-	    }
-	}
-
 	return response($user);
-	// $feed_params = null;
-	// $feed_params[] = [
-	// 	'key' => 'poster_guid',
-	// 	'value' => "= {$user->guid}",
-	// 	'operation' => ''
-	// ];
-	// $feed_params[] = [
-	// 	'key' => 'access',
-	// 	'value' => "IN (2,3)",
-	// 	'operation' => 'AND'
-	// ];
-	// $feed_params[] = [
-	// 	'key' => 'time_created',
-	// 	'value' => "DESC",
-	// 	'operation' => 'order_by'
-	// ];
-
-	// $feed = (new OssnWall)->getPostOnView($feed_params,0,1);
-	// if ($feed) {
-	//     $thought = json_decode(html_entity_decode($feed->description));
-	//     $user->thought = $thought->post;
-	// 	if (!empty($feed->mood)) {
-	// 		$mood = ossn_get_object($feed->mood);
-	// 		// $mood->icon = market_photo_url($shop_guid, $mood->{'file:mood:icon'}, "mood");
-	// 		// unset($mood->{'file:mood:icon'});
-	// 		$user->mood = $mood;
-	// 	}
-	// }
-
-	// return $user;
 });

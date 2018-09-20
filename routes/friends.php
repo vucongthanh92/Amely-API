@@ -15,10 +15,11 @@ $app->get($container['prefix'].'/friends', function (Request $request, Response 
     		'operation' => ''
     	];
         $user = $select->getUsers($user_params,0,1,false);
-        if (!$user) return response(false);
     } else {
         $user = $loggedin_user;
     }
+    if (!$user) return response(false);
+
     $friends_guid = getFriendsGUID($loggedin_user->guid);
     $friends_guid = implode(",", array_unique($friends_guid));
 	if ($user->guid != $loggedin_user->guid) {
@@ -58,15 +59,6 @@ $app->get($container['prefix'].'/friends', function (Request $request, Response 
 	$friends = $select->getUsers($user_params,0,99999999,false);
 	foreach ($friends as $key => $friend) {
 		if ($friend->guid != $loggedin_user->guid) {
-            if (property_exists($loggedin_user, 'blockedusers')) {
-		    	$block_list = json_decode($loggedin_user->blockedusers);
-			    if (is_array($block_list) && count($block_list) > 0) {
-				    if (in_array($friend->guid, $block_list)) {
-				    	unset($friends[$key]);
-                        continue;
-				    }
-			    }
-            }
             if ($user->guid != $loggedin_user->guid) {
                 if ($friends_requested_guid) {
     			    if (in_array($friend->guid, $friends_requested_guid)) {
@@ -90,5 +82,5 @@ $app->delete($container['prefix'].'/friends', function (Request $request, Respon
     if (!$params['user_guid']) return response(false);
     if (!is_numeric($params['user_guid'])) return response(false);
 
-    return $delete->friend($loggedin_user->guid, $params['user_guid']);
+    return response($delete->friend($loggedin_user->guid, $params['user_guid']));
 });

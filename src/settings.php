@@ -25,7 +25,7 @@ return [
         ],
         'db' => [
             "host" => "localhost",
-            "dbname" => "amely",
+            "dbname" => "amelyV1",
             "user" => "root",
             "pass" => "thinhnez123"
         ],

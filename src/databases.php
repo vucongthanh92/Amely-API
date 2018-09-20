@@ -357,38 +357,47 @@ class SlimDatabase
 		return false;
 	}
 
-	public function insertTable($object, $table)
+	public function saveTable($object, $table, $action, $show_id = true)
 	{
 		if (!$table) return false;
 		$params = null;
 		$params['into']  = $table;
-		$params['names']  = [];
-		$params['values'] = [];
-		foreach ($object->insert as $key => $value) {
-			array_push($params['names'], $key);
-			array_push($params['values'], $value);
+		$query = false;
+		switch ($action) {
+			case 'insert':
+				$params['names']  = [];
+				$params['values'] = [];
+				if (!$object->insert) return false;
+				foreach ($object->insert as $key => $value) {
+					array_push($params['names'], $key);
+					array_push($params['values'], $value);
+				}
+				if(count($params['names']) == count($params['values'])) {
+					$colums = "`" . implode("`, `", $params['names']) . '`';
+					$values = "'" . implode("', '", $params['values']) . "'";
+					$query  = "INSERT INTO {$params['into']} ($colums) VALUES ($values)";
+				}
+				break;
+			case 'update':
+				if (!$object->update) return false;
+				foreach ($object->update as $key => $value) {
+					$params['sets'][] = "`{$key}` = '{$value}'";
+				}
+				if(count($params['sets'])) {
+					$q = implode(',', $params['sets']);
+				}
+				$query = "UPDATE {$params['into']} SET {$q} WHERE {$object->where}";
+				break;
+			default:
+				return false;
+				break;
 		}
-		$params['wheres'] = [$object->where];
-
-		if (!$params) return false;
-		return $this->insert($params);
-	}
-
-	public function updateTable($object, $table)
-	{
-		if (!$table) return false;
-		$params = null;
-		$params['into']  = $table;
-		$params['names']  = [];
-		$params['values'] = [];
-		
-		foreach ($object->update as $key => $value) {
-			$params['set'][] = "`{$keys}` = '{$vals}'";
+		if ($query === false) return false;
+		$this->db->query($query);
+		if ($show_id) {
+			return $this->db->insert_id;
 		}
-		$params['wheres'] = [$object->where];
-
-		if (!$params) return false;
-		return $this->update($params);
+		return true;
 	}
 
 	public function insert($params, $show_id = false )

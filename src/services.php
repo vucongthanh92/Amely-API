@@ -17,6 +17,7 @@ class Services
 
 	public function sendByMobile($mobile, $message = false)
 	{
+		return true;
 		if (!$message) return false;
 		$ch = curl_init();
 		curl_setopt($ch, CURLOPT_URL, SMS);

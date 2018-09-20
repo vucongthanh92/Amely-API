@@ -678,7 +678,7 @@ $app->put($container['prefix'].'/feeds', function (Request $request, Response $r
 	$wallpost['post'] = htmlspecialchars($post, ENT_QUOTES, 'UTF-8');
 	
 	//wall tag a friend , GUID issue #566
-	if(!empty($friends)) {
+	if($friends) {
 		$friend_guids = explode(',', $friends);
 		//reset friends guids
 		$friends      = array();

@@ -6,11 +6,8 @@ use Slim\Http\Response;
 // Routes
 // $app->get('/authtoken', function (Request $request, Response $response, array $args) {
 $app->post($container['prefix'].'/authtoken', function (Request $request, Response $response, array $args) {
-	var_dump($this);
-	die();
+	$db = SlimDatabase::getInstance();
 	$select =  SlimSelect::getInstance();
-	// $shops = getShops($this->db, null, $offset = 0, $limit = 1, $load_more = true);
-	// var_dump($shops);die();
 	
 	$params = $request->getParsedBody();
 	$table = "users";
@@ -38,31 +35,44 @@ $app->post($container['prefix'].'/authtoken', function (Request $request, Respon
 			'operation' => ''
 		];
 	}
+	$test = new User();
+	var_dump($test->getUser($conditions));
+	die();
+	$user = (new User)->getUser($conditions);
+	var_dump($user);
+	die('12345');
 	// $user = getUsers($this->db, $conditions, $offset = 0, $limit = 1, $load_more = true);
 	$user = $select->getUsers($conditions, 0, 1, true, false);
 	if (!$user) return response(false);
 	$salt     = $user->salt;
     $password = md5($params['password'] . $salt);
     if ($password == $user->password) {
-		unset($user->salt);
 		unset($user->password);
+		unset($user->salt);
+		unset($user->verification_code);
+		
     	if($user && $user->activation) {
+			unset($user->activation);
     		$result = [
     			'status' => false,
     			'validation' => $user
     		];
             return response($result);
         }
-        $token = new stdClass;
-        $token->token = md5(($user->username).uniqid());
-		$token->created = time();
-		$token->expried = time()+3600;
-		$token->user_guid = $user->guid;
-		$token->session_id = session_id();
-		$db->saveTableToken($token, $action = "insert", $show_id = false);
-		$_SESSION["OSSN_USER"] = $user;
-		$_SESSION["TOKEN"] = $token->token;
-		return response(["token" => $token->token]);
+        $insert = new stdClass;
+        $insert->token = md5(($user->username).uniqid());
+		$insert->created = time();
+		$insert->expired = time()+3600;
+		$insert->user_guid = $user->id;
+		$insert->session_id = session_id();
+
+		$object = new stdClass;
+		$object->insert = $insert;
+        if ($db->saveTable($object, "amely_usertokens", "insert", false)) {
+			$_SESSION["OSSN_USER"] = $user;
+			$_SESSION["TOKEN"] = $insert->token;
+			return response(["token" => $insert->token]);
+        }
     }
 	return response(false);
 })->setName('authtoken');

@@ -16,7 +16,7 @@ class SlimSelect extends SlimDatabase
 
 	public function getAddress($id, $type)
 	{
-		$table = "ossn_".$type.'s';
+		$table = "amely_".$type.'s';
 		$conditions[] = null;
 		$key = $type."id";
 		$conditions[] = [
@@ -30,20 +30,22 @@ class SlimSelect extends SlimDatabase
 
 	public function getUsers($conditions, $offset = 0, $limit = 10, $getAddr = true, $password = true)
 	{
-		$table = "users";
+		$table = "amely_users";
 		$users = $this->getData($table, $conditions, $offset, $limit);
 		if (!$users) return false;
 		foreach ($users as $key => $user) {
 			if ($password) {
 				unset($user->password);
 				unset($user->salt);
+				unset($user->verification_code);
+				unset($user->activation);
 			}
 			$user->fullname = $user->last_name.' '.$user->first_name;
 			$avatar = str_replace('profile/photo/', '', $user->avatar);
 			$cover = str_replace('profile/cover/', '', $user->cover);
 
-			$avatar_path = "/user/{$user->guid}/profile/photo/"."larger_{$avatar}";
-			$cover_path = "/user/{$user->guid}/profile/cover/"."larger_{$cover}";
+			$avatar_path = "/user/{$user->id}/profile/photo/"."larger_{$avatar}";
+			$cover_path = "/user/{$user->id}/profile/cover/"."larger_{$cover}";
 			if (file_exists(IMAGE_PATH.$avatar_path)) {
 				$user->avatar = IMAGE_URL.$avatar_path;
 			} else {
@@ -55,14 +57,16 @@ class SlimSelect extends SlimDatabase
 				$user->cover = COVER_DEFAULT;
 			}
 			if ($getAddr) {
-				$user_province = $this->getAddress($user->province, 'province');
-				$user_district = $this->getAddress($user->district, 'district');
-				$user_ward = $this->getAddress($user->ward, 'ward');
+				if ($user->province && $user->district && $user->ward) {
+					$user_province = $this->getAddress($user->province, 'province');
+					$user_district = $this->getAddress($user->district, 'district');
+					$user_ward = $this->getAddress($user->ward, 'ward');
 
-			    $user_province = $user_province->type .' '. $user_province->name;
-			    $user_district = $user_district->type .' '. $user_district->name;
-			    $user_ward = $user_ward->type .' '. $user_ward->name;
-			    $user->full_address = $user->address.', '.$user_ward.', '.$user_district.', '.$user_province;
+				    $user_province = $user_province->type .' '. $user_province->name;
+				    $user_district = $user_district->type .' '. $user_district->name;
+				    $user_ward = $user_ward->type .' '. $user_ward->name;
+				    $user->full_address = $user->address.', '.$user_ward.', '.$user_district.', '.$user_province;
+				}
 			}
 
 			$users[$key] = $user;
@@ -75,14 +79,14 @@ class SlimSelect extends SlimDatabase
 
 	public function getShops($conditions, $offset = 0, $limit = 10, $getAddr = true)
 	{
-		$table = "shops";
+		$table = "amely_shops";
 		$shops = $this->getData($table, $conditions, $offset, $limit);
 		if (!$shops) return false;
 		foreach ($shops as $key => $shop) {
 			$avatar = array_pop(explode("/", $shop->avatar));
 			$cover = array_pop(explode("/", $shop->cover));
-			$avatar_path = "/object/{$shop->guid}/avatar/images/"."larger_{$avatar}";
-			$cover_path = "/object/{$shop->guid}/cover/images/"."larger_{$avatar}";
+			$avatar_path = "/object/{$shop->id}/avatar/images/"."larger_{$avatar}";
+			$cover_path = "/object/{$shop->id}/cover/images/"."larger_{$avatar}";
 			if (file_exists(IMAGE_PATH.$avatar_path)) {
 				$shop->avatar = IMAGE_URL.$avatar_path;
 			} else {
@@ -100,34 +104,26 @@ class SlimSelect extends SlimDatabase
 		    $shop->contact = html_entity_decode($shop->contact);
 
 		    if ($getAddr) {
-			    $owner_province = $this->getAddress($shop->owner_province, 'province');
-			    $owner_district = $this->getAddress($shop->owner_district, 'district');
-			    $owner_ward = $this->getAddress($shop->owner_ward, 'ward');
-			    $owner_province = $owner_province->type .' '. $owner_province->name;
-			    $owner_district = $owner_district->type .' '. $owner_district->name;
-			    $owner_ward = $owner_ward->type .' '. $owner_ward->name;
-			    $shop->owner_full_address = $shop->owner_address.', '.$owner_ward.', '.$owner_district.', '.$owner_province;
+		    	if ($shop->owner_province && $shop->owner_district && $shop->owner_ward) {
+				    $owner_province = $this->getAddress($shop->owner_province, 'province');
+				    $owner_district = $this->getAddress($shop->owner_district, 'district');
+				    $owner_ward = $this->getAddress($shop->owner_ward, 'ward');
+				    $owner_province = $owner_province->type .' '. $owner_province->name;
+				    $owner_district = $owner_district->type .' '. $owner_district->name;
+				    $owner_ward = $owner_ward->type .' '. $owner_ward->name;
+				    $shop->owner_full_address = $shop->owner_address.', '.$owner_ward.', '.$owner_district.', '.$owner_province;
+		    	}
 
-			    $shop_province = $this->getAddress($shop->shop_province, 'province');
-			    $shop_district = $this->getAddress($shop->shop_district, 'district');
-			    $shop_ward = $this->getAddress($shop->shop_ward, 'ward');
-			    $shop_province = $shop_province->type .' '. $shop_province->name;
-			    $shop_district = $shop_district->type .' '. $shop_district->name;
-			    $shop_ward = $shop_ward->type .' '. $shop_ward->name;
-			    $shop->full_address = $shop->shop_address.', '.$shop_ward.', '.$shop_district.', '.$shop_province;
+		    	if ($shop->shop_province && $shop->shop_district && $shop->shop_ward) {
+				    $shop_province = $this->getAddress($shop->shop_province, 'province');
+				    $shop_district = $this->getAddress($shop->shop_district, 'district');
+				    $shop_ward = $this->getAddress($shop->shop_ward, 'ward');
+				    $shop_province = $shop_province->type .' '. $shop_province->name;
+				    $shop_district = $shop_district->type .' '. $shop_district->name;
+				    $shop_ward = $shop_ward->type .' '. $shop_ward->name;
+				    $shop->full_address = $shop->shop_address.', '.$shop_ward.', '.$shop_district.', '.$shop_province;
+		    	}
 		    }
-
-
-		   //  if ($shop->files_scan) {
-		   //  	$files_scan = [];
-		   //  	$files = explode(";", $shop->files_scan);
-		   //  	foreach ($files as $kfile_scan => $vfile_scan) {
-		   //  		$photo = str_replace('shop/images/', '', $vfile_scan);
-					// $image_file_scan = market_photo_url($shop->guid, $photo, 'shop', 'large');
-					// array_push($files_scan, $image_file_scan);
-		   //  	}
-		   //  	$shop->files_scan = implode(";", $files_scan);
-		   //  }
 
 		    $shops[$key] = $shop;
 		}
@@ -139,7 +135,7 @@ class SlimSelect extends SlimDatabase
 
 	public function getStores($conditions, $offset = 0, $limit = 10)
 	{
-		$table = "stores";
+		$table = "amely_stores";
 		$stores = $this->getData($table, $conditions, $offset, $limit);
 		if (!$stores) return false;
 		foreach ($stores as $key => $store) {
@@ -163,27 +159,27 @@ class SlimSelect extends SlimDatabase
 
 	public function getRelationships($conditions, $offset = 0, $limit = 10)
 	{
-		$table = "ossn_relationships r";
-		$ossn_relationships = $this->getData($table, $conditions, $offset, $limit);
+		$table = "amely_relationships r";
+		$relationships = $this->getData($table, $conditions, $offset, $limit);
 		if ($limit == 1) {
-			return $ossn_relationships[0];
+			return $relationships[0];
 		}
-		return $ossn_relationships;
+		return $relationships;
 	}
 
 	public function getLikes($conditions, $offset = 0, $limit = 10)
 	{
-		$table = "ossn_likes";
-		$ossn_likes = $this->getData($table, $conditions, $offset, $limit);
+		$table = "amely_likes";
+		$likes = $this->getData($table, $conditions, $offset, $limit);
 		if ($limit == 1) {
-			return $ossn_likes[0];
+			return $likes[0];
 		}
-		return $ossn_likes;
+		return $likes;
 	}
 
 	public function getSiteSettings($conditions, $offset = 0, $limit = 10)
 	{
-		$table = "ossn_site_settings";
+		$table = "amely_site_settings";
 		$settings = $this->getData($table, $conditions, $offset, $limit);
 		if ($limit == 1) {
 			return $settings[0];
@@ -193,7 +189,7 @@ class SlimSelect extends SlimDatabase
 
 	public function getProductGroup($conditions, $offset = 0, $limit = 10)
 	{
-		$table = "product_group";
+		$table = "amely_product_group";
 		$product_groups = $this->getData($table, $conditions, $offset, $limit);
 		if ($limit == 1) {
 			return $product_groups[0];
@@ -203,12 +199,12 @@ class SlimSelect extends SlimDatabase
 
 	public function getGroups($conditions, $offset = 0, $limit = 10)
 	{
-		$table = "groups";
+		$table = "amely_groups";
 		$groups = $this->getData($table, $conditions, $offset, $limit);
 		if (!$groups) return false;
 		foreach ($groups as $key => $group) {
 			$filename = array_pop(explode("/", $group->{"file:avatar"}));
-			$file_path = "object/{$group->guid}/avatar/images/larger_{$filename}";
+			$file_path = "object/{$group->id}/avatar/images/larger_{$filename}";
 			if (file_exists(IMAGE_PATH.$file_path)) {
 				$url = IMAGE_URL.$file_path;
 			} else {
@@ -225,7 +221,7 @@ class SlimSelect extends SlimDatabase
 
 	public function getAnnotations($conditions, $offset = 0, $limit = 10)
 	{
-		$table = "ossn_annotations";
+		$table = "amely_annotations";
 		$annotations = $this->getData($table, $conditions, $offset, $limit);
 		if ($limit == 1) {
 			return $annotations[0];
@@ -235,16 +231,16 @@ class SlimSelect extends SlimDatabase
 
 	public function getFeeds($conditions, $offset = 0, $limit = 10)
 	{
-		$table = "wallphotos_feeds";
+		$table = "amely_wallphotos_feeds";
     	$feeds = $this->getData($table, $conditions, $offset, $limit);
 		if (!$feeds) return false;
 		foreach ($feeds as $key => $feed) {
-			// $feed = ossn_object_cast('OssnWall', $feed);
+			// $feed = object_cast('OssnWall', $feed);
 			if ($feed->images) {
 				$photos = explode(",", $feed->images);
 				foreach ($photos as $kphoto => $photo) {
 					$filename = array_pop(explode("/", $photo));
-					$file_path = "/object/{$feed->guid}/ossnwall/images/"."lgthumb_{$filename}";
+					$file_path = "/object/{$feed->id}/ossnwall/images/"."lgthumb_{$filename}";
 					if (file_exists(IMAGE_PATH.$file_path)) {
 						$url = IMAGE_URL.$file_path;
 					} else {
@@ -270,7 +266,7 @@ class SlimSelect extends SlimDatabase
 	
 	public function getObjects($conditions, $offset = 0, $limit = 10)
 	{
-		$table = "ossn_object";
+		$table = "amely_object";
 		$objects = $this->getData($table, $conditions, $offset, $limit);
 		if ($limit == 1) {
 			return $objects[0];
@@ -280,7 +276,7 @@ class SlimSelect extends SlimDatabase
 
 	public function getLinkPreview($conditions, $offset = 0, $limit = 10)
 	{
-		$table = "feed_linkpreview";
+		$table = "amely_feed_linkpreview";
 		$links = $this->getData($table, $conditions, $offset, $limit);
 		if ($limit == 1) {
 			return $links[0];
@@ -290,7 +286,7 @@ class SlimSelect extends SlimDatabase
 
 	public function getMoods($conditions, $offset = 0, $limit = 10)
 	{
-		$table = "moods";
+		$table = "amely_moods";
 		$moods = $this->getData($table, $conditions, $offset, $limit);
 		if ($limit == 1) {
 			return $moods[0];
@@ -300,7 +296,7 @@ class SlimSelect extends SlimDatabase
 
 	public function getManufacturers($conditions, $offset = 0, $limit = 10)
 	{
-		$table = "manufacturers";
+		$table = "amely_manufacturers";
 		$manufacturers = $this->getData($table, $conditions, $offset, $limit);
 		if ($limit == 1) {
 			return $manufacturers[0];
@@ -310,7 +306,7 @@ class SlimSelect extends SlimDatabase
 
 	public function getTokens($conditions, $offset = 0, $limit = 10)
 	{
-		$table = "ossn_usertokens";
+		$table = "amely_usertokens";
 		$tokens = $this->getData($table, $conditions, $offset, $limit);
 		if ($limit == 1) {
 			return $tokens[0];
@@ -320,12 +316,12 @@ class SlimSelect extends SlimDatabase
 
 	public function getAdvertisements($conditions, $offset = 0, $limit = 10)
 	{
-		$table = "advertisements";
+		$table = "amely_advertisements";
 		$advertisements = $this->getData($table, $conditions, $offset, $limit);
 		if (!$advertisements) return response(false);
 		foreach ($advertisements as $key => $advertise) {
 			$filename = array_pop(explode("/", $advertise->image));
-			$file_path = "/object/{$advertise->guid}/advertise/images/"."{$filename}";
+			$file_path = "/object/{$advertise->id}/advertise/images/"."{$filename}";
 			if (file_exists(IMAGE_PATH.$file_path)) {
 				$image_url = IMAGE_URL.$file_path;
 			} else {
@@ -342,13 +338,13 @@ class SlimSelect extends SlimDatabase
 
 	public function getCategories($conditions, $offset = 0, $limit = 10)
 	{
-		$table = "categories";
+		$table = "amely_categories";
 		$categories = $this->getData($table, $conditions, $offset, $limit);
 		if (!$categories) return false;
 		foreach ($categories as $key => $category) {
 			if ($category->subtype == "shop:category" || $category->subtype == "market:category") {
 				$filename = array_pop(explode("/", $category->logo));
-				$file_path = "/object/{$category->guid}/category/images/"."lgthumb_{$filename}";
+				$file_path = "/object/{$category->id}/category/images/"."lgthumb_{$filename}";
 				if (file_exists(IMAGE_PATH.$file_path)) {
 					$url = IMAGE_URL.$file_path;
 				} else {
@@ -367,7 +363,7 @@ class SlimSelect extends SlimDatabase
 
 	public function getProducts($conditions, $offset = 0, $limit = 10, $currency_code = "VND", $encode = true)
 	{
-		$table = "amely_products";
+		$table = "amely_amely_products";
 		$products = $this->getData($table, $conditions, $offset, $limit);
         if (!$products) return false;
 
@@ -403,7 +399,7 @@ class SlimSelect extends SlimDatabase
                         array_push($entities_guid, $images_entities[$kimage]);
                     } else {
                     	$filename = $image;
-						$file_path = "/object/{$product->guid}/product/images/"."lgthumb_{$filename}";
+						$file_path = "/object/{$product->id}/product/images/"."lgthumb_{$filename}";
 						if (file_exists(IMAGE_PATH.$file_path)) {
 							$url = IMAGE_URL.$file_path;
 						} else {
@@ -437,7 +433,7 @@ class SlimSelect extends SlimDatabase
 
 	public function getOffers($conditions, $offset = 0, $limit = 10)
 	{
-		$table = "offers";
+		$table = "amely_offers";
 		$offers = $this->getData($table, $conditions, $offset, $limit);
 		if (!$offers) return false;
 		foreach ($offers as $key => $offer) {
@@ -454,7 +450,7 @@ class SlimSelect extends SlimDatabase
 
 	public function getSnapshots($conditions = null, $offset = 0, $limit = 10, $currency_code = "VND")
 	{
-		$table = "amely_products_snapshot";
+		$table = "amely_amely_products_snapshot";
         $snapshots = $this->getData($table, $conditions, $offset, $limit);
 		if (!$snapshots) return false;
 
@@ -478,7 +474,7 @@ class SlimSelect extends SlimDatabase
                         $images[$kimage] = $image;
                     } else {
                     	$filename = $image;
-						$file_path = "/object/{$snapshot->guid}/product/images/"."lgthumb_{$filename}";
+						$file_path = "/object/{$snapshot->id}/product/images/"."lgthumb_{$filename}";
 						if (file_exists(IMAGE_PATH.$file_path)) {
 							$url = IMAGE_URL.$file_path;
 						} else {
@@ -509,7 +505,7 @@ class SlimSelect extends SlimDatabase
 
 	public function getCounters($conditions = null, $offset = 0, $limit = 10)
 	{
-		$table = "counter_offers";
+		$table = "amely_counter_offers";
         $counters = $this->getData($table, $conditions, $offset, $limit);
 		if (!$counters) return false;
 		if ($limit == 1) {
@@ -520,7 +516,7 @@ class SlimSelect extends SlimDatabase
 
 	public function getItems($conditions = null, $offset = 0, $limit = 10)
 	{
-		$table = "items";
+		$table = "amely_items";
         $items = $this->getData($table, $conditions, $offset, $limit);
 		if (!$items) return false;
 		if ($limit == 1) {
@@ -531,7 +527,7 @@ class SlimSelect extends SlimDatabase
 
 	public function getItemsInventory($conditions = null, $offset = 0, $limit = 10)
 	{
-		$table = "items_inventory";
+		$table = "amely_items_inventory";
         $items = $this->getData($table, $conditions, $offset, $limit);
 		if (!$items) return false;
 		if ($limit == 1) {
@@ -542,7 +538,7 @@ class SlimSelect extends SlimDatabase
 
 	public function getPages($conditions = null, $offset = 0, $limit = 10)
 	{
-		$table = "business_pages";
+		$table = "amely_business_pages";
         $pages = $this->getData($table, $conditions, $offset, $limit);
 		if (!$pages) return false;
 		if ($limit == 1) {
@@ -553,7 +549,7 @@ class SlimSelect extends SlimDatabase
 
 	public function getProductsMarket($conditions, $offset = 0, $limit = 10, $currency_code = "VND", $encode = true)
 	{
-		$table = "products_market";
+		$table = "amely_products_market";
         $products = $this->getData($table, $conditions, $offset, $limit);
         if (!$products) return false;
 
@@ -578,7 +574,7 @@ class SlimSelect extends SlimDatabase
                         $images[$kimage] = $image;
                     } else {
                     	$filename = $image;
-						$file_path = "/object/{$product->guid}/product/images/"."lgthumb_{$filename}";
+						$file_path = "/object/{$product->id}/product/images/"."lgthumb_{$filename}";
 						if (file_exists(IMAGE_PATH.$file_path)) {
 							$url = IMAGE_URL.$file_path;
 						} else {
@@ -606,7 +602,7 @@ class SlimSelect extends SlimDatabase
 
 	public function getSnapshotsMarket($conditions, $offset = 0, $limit = 10, $currency_code = "VND", $encode = true)
 	{
-		$table = "snapshots_market";
+		$table = "amely_snapshots_market";
         $snapshots = $this->getData($table, $conditions, $offset, $limit);
         if (!$snapshots) return false;
 
@@ -631,7 +627,7 @@ class SlimSelect extends SlimDatabase
                         $images[$kimage] = $image;
                     } else {
                     	$filename = $image;
-						$file_path = "/object/{$snapshot->guid}/product/images/"."lgthumb_{$filename}";
+						$file_path = "/object/{$snapshot->id}/product/images/"."lgthumb_{$filename}";
 						if (file_exists(IMAGE_PATH.$file_path)) {
 							$url = IMAGE_URL.$file_path;
 						} else {
@@ -659,12 +655,12 @@ class SlimSelect extends SlimDatabase
 	
 	public function getEvents($conditions = null, $offset = 0, $limit = 10)
 	{
-		$table = "events";
+		$table = "amely_events";
         $events = $this->getData($table, $conditions, $offset, $limit);
 		if (!$events) return false;
 		foreach ($events as $key => $event) {
 			$filename = array_pop(explode("/", $event->{"file:avatar"}));
-			$file_path = "/object/{$event->guid}/avatar/images/"."larger_{$filename}";
+			$file_path = "/object/{$event->id}/avatar/images/"."larger_{$filename}";
 			if (file_exists(IMAGE_PATH.$file_path)) {
 				$url = IMAGE_URL.$file_path;
 			} else {
