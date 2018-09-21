@@ -6,7 +6,16 @@ use Slim\Http\Response;
 // Routes
 // $app->get('/authtoken', function (Request $request, Response $response, array $args) {
 $app->post($container['prefix'].'/authtoken', function (Request $request, Response $response, array $args) {
-	$db = SlimDatabase::getInstance();
+	
+	$token = new Token();
+	$token->token = md5(("asdsad").uniqid());
+	$token->created = time();
+	$token->expired = time()+3600;
+	$token->user_guid = $user->id;
+	$token->session_id = session_id();
+	$token->test = "abc";
+	var_dump($token->save());
+	die('1');
 	$select =  SlimSelect::getInstance();
 	
 	$params = $request->getParsedBody();

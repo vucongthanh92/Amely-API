@@ -1,6 +1,6 @@
 <?php
 
-class Group
+class GroupService
 {
 	protected static $instance = null;
 

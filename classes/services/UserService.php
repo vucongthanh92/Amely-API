@@ -3,7 +3,7 @@
 /**
 * 
 */
-class User
+class UserService
 {
 	protected static $instance = null;
 
