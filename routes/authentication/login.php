@@ -6,18 +6,18 @@ use Slim\Http\Response;
 // Routes
 // $app->get('/authtoken', function (Request $request, Response $response, array $args) {
 $app->post($container['prefix'].'/authtoken', function (Request $request, Response $response, array $args) {
-	
-	$token = new Token();
-	$token->token = md5(("asdsad").uniqid());
-	$token->created = time();
-	$token->expired = time()+3600;
-	$token->user_guid = $user->id;
-	$token->session_id = session_id();
-	$token->test = "abc";
-	var_dump($token->save());
-	die('1');
+	$db = SlimDatabase::getInstance();
 	$select =  SlimSelect::getInstance();
-	
+	$user_params = null;
+	$user_params[] = [
+		'key' => 'id',
+		'value' => "= 1",
+		'operation' => ''
+	];
+	$user = new User();
+	$test = $user->getUser($user_params);
+	var_dump($test);die('123');
+
 	$params = $request->getParsedBody();
 	$table = "users";
 	$conditions = null;

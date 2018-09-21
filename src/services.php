@@ -15,6 +15,18 @@ class Services
 		return self::$instance;
 	}
 
+	public function saveFirebase($path, $params)
+	{
+		$firebase = new \Geckob\Firebase\Firebase(FIREBASE_KEY);
+		$firebase = $firebase->setPath($path);
+		if ($params) {
+			foreach ($params as $key => $value) {
+				$firebase->set($key, (string)$value);
+			}
+		}
+		return true;
+	}
+
 	public function sendByMobile($mobile, $message = false)
 	{
 		return true;

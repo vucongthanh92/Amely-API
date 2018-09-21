@@ -363,15 +363,17 @@ class SlimDatabase
 		$params = null;
 		$params['into']  = $table;
 		$query = false;
+		$params['names']  = [];
+		$params['values'] = [];
+		if (!$object->data) return false;
+		foreach ($object->data as $key => $value) {
+			$params['sets'][] = "`{$key}` = '{$value}'";
+			array_push($params['names'], $key);
+			array_push($params['values'], $value);
+		}
+
 		switch ($action) {
 			case 'insert':
-				$params['names']  = [];
-				$params['values'] = [];
-				if (!$object->insert) return false;
-				foreach ($object->insert as $key => $value) {
-					array_push($params['names'], $key);
-					array_push($params['values'], $value);
-				}
 				if(count($params['names']) == count($params['values'])) {
 					$colums = "`" . implode("`, `", $params['names']) . '`';
 					$values = "'" . implode("', '", $params['values']) . "'";
@@ -379,14 +381,10 @@ class SlimDatabase
 				}
 				break;
 			case 'update':
-				if (!$object->update) return false;
-				foreach ($object->update as $key => $value) {
-					$params['sets'][] = "`{$key}` = '{$value}'";
-				}
 				if(count($params['sets'])) {
 					$q = implode(',', $params['sets']);
+					$query = "UPDATE {$params['into']} SET {$q} WHERE {$object->where}";
 				}
-				$query = "UPDATE {$params['into']} SET {$q} WHERE {$object->where}";
 				break;
 			default:
 				return false;
@@ -546,7 +544,9 @@ class SlimDatabase
 	        }
 	    }
 	    $result = $this->select($params);
-	    if (count($result) > 0) return $result;
+	    $result = arrayObject($result, get_class($this));
+	    var_dump($result);die();
+	    if (count($result) > 0) return arrayObject($result, get_class($this));
 	    return false;
 	}
 }

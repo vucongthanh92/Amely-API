@@ -17,19 +17,10 @@ function getDirContents($dir, &$results = array()){
 
     return $results;
 }
-function __autoload($className)
-{
-    $path = __DIR__ . '/../classes/bol/';
-    //kiểm tra xem file tồn tại không
-    if(file_exists($path . $className . '.php')){
-        //Nếu tồn tại thì nhúng file vào.
-        include_once $path. $className . '.php';
-    }
-}
 
-$classes = getDirContents(__DIR__ . '/../classes/services');
+$classes = getDirContents(__DIR__ . '/../classes');
 foreach ($classes as $key => $class) {
-    require $class;
+    include_once $class;
 }
 
 $routes = getDirContents(__DIR__ . '/../routes');

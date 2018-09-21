@@ -2,6 +2,25 @@
 
 use Slim\Http\Response;
 
+function arrayObject($array, $class = 'stdClass') {
+    if (empty($array)) {
+        return false;
+    }
+    if ($class=='stdClass')
+        return (object) $array;
+    
+    $object = new $class;
+    foreach ($array as $key => $value) {
+        if (strlen($key)) {
+            if (is_array($value)) {
+                $object->{$key} = arrayObject($value, $class);
+            } else {
+                $object->{$key} = $value;
+            }
+        }
+    }
+    return $object;
+}
 
 function isUsername($username) 
 {
