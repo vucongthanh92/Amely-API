@@ -1,20 +1,15 @@
 <?php
 
-class Token extends Object
+class Relationship
 {
-	private $token;
-	private $time_created;
-	private $expired;
-	private $user_guid;
-	private $session_id;
+	private $relation_from;
+	private $relation_to;
+	private $type;
 
 	public function __construct() 
-	{	
+	{
 		parent::__construct();
-		$this->table = "amely_usertokens";
-		$expired = $this->data->time_created + 3600;
-		$this->expired = $expired;
-		$this->data->expired = $expired;
+        $this->table = "amely_relationships";
 	}
 
 	public function __set($key, $value)
@@ -30,5 +25,4 @@ class Token extends Object
             return $this->$key;
         }
     }
-
 }

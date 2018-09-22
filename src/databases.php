@@ -7,11 +7,6 @@ class SlimDatabase
 {
 	protected static $instance = null;
 
-	public function __construct() {
-		global $db;
-        $this->db = $db;
-    }
-
     public static function getInstance()
 	{
 		if (self::$instance == null) {
@@ -220,26 +215,6 @@ class SlimDatabase
 		return $this->switchAction($params, $action, $show_id = false, "id", property_exists($redeem, 'id')?$redeem->id:false);
 	}
 
-	public function saveTableRelationships($relation, $action = "insert", $show_id = false) 
-	{
-		$params['into'] = "ossn_relationships";
-
-		$params['names']  = array(
-			'relation_id',
-			'relation_from',
-			'relation_to',
-			'type',
-			'time'
-		);
-		$params['values'] = array(
-			$relation->relation_id,
-			$relation->relation_from,
-			$relation->relation_to,
-			$relation->type,
-			time(),
-		);
-		return $this->switchAction($params, $action, $show_id = false, "relation_id", property_exists($relation, 'relation_id')?$relation->relation_id:false);
-	}
 
 	public function saveTableSite($site, $action = "insert", $show_id = false) 
 	{
@@ -256,62 +231,6 @@ class SlimDatabase
 			$site->value,
 		);
 		return $this->switchAction($params, $action, $show_id = false, "setting_id", property_exists($site, 'setting_id')?$site->setting_id:false);
-	}
-
-	public function saveTableUsers($user, $action = "insert", $show_id = false) 
-	{
-		$params['into'] = "ossn_users";
-
-		$params['names']  = array(
-			'type',
-			'username',
-			'email',
-			'password',
-			'salt',
-			'first_name',
-			'last_name',
-			'last_login',
-			'last_activity',
-			'activation',
-			'time_created',
-			'verification_code'
-		);
-		$params['values'] = array(
-			$user->type,
-			$user->username,
-			$user->email,
-			$user->password,
-			$user->salt,
-			$user->first_name,
-			$user->last_name,
-			$user->last_login,
-			$user->last_activity,
-			$user->activation,
-			time(),
-			$user->verification_code
-		);
-		return $this->switchAction($params, $action, $show_id = false, "guid", property_exists($user, 'guid')?$user->guid:false);
-	}
-
-	public function saveTableToken($token, $action = "insert", $show_id = false) 
-	{
-		$params['into'] = "ossn_usertokens";
-
-		$params['names']  = array(
-			'token',
-			'created',
-			'expired',
-			'user_guid',
-			'session_id'
-		);
-		$params['values'] = array(
-			$token->token,
-			$token->created,
-			$token->expried,
-			$token->user_guid,
-			$token->session_id		
-		);
-		return $this->switchAction($params, $action, $show_id = false, "id", property_exists($token, 'id')?$token->id:false);
 	}
 
 	public function switchAction($params, $action, $show_id = false, $key, $value) 
@@ -359,12 +278,14 @@ class SlimDatabase
 
 	public function saveTable($object, $table, $action, $show_id = true)
 	{
+		global $connectDB;
 		if (!$table) return false;
 		$params = null;
 		$params['into']  = $table;
 		$query = false;
 		$params['names']  = [];
 		$params['values'] = [];
+		$params['sets'] = [];
 		if (!$object->data) return false;
 		foreach ($object->data as $key => $value) {
 			$params['sets'][] = "`{$key}` = '{$value}'";
@@ -386,14 +307,19 @@ class SlimDatabase
 					$query = "UPDATE {$params['into']} SET {$q} WHERE {$object->where}";
 				}
 				break;
+			case 'delete':
+				if($object->where) {
+					$query = "DELETE FROM `{$params['into']}` WHERE {$object->where}";
+				}
+				break;
 			default:
 				return false;
 				break;
 		}
 		if ($query === false) return false;
-		$this->db->query($query);
+		$db = $connectDB->query($query);
 		if ($show_id) {
-			return $this->db->insert_id;
+			return $connectDB->insert_id;
 		}
 		return true;
 	}
@@ -413,53 +339,24 @@ class SlimDatabase
 		return false;
 	}
 
-	public function update($params, $show_id = false )
-	{
-		if(count($params['names']) == count($params['values']) && !empty($params['into'])) {
-			$valuec = count($params['names']);
-			$i = 1;
-			foreach($params['names'] as $key => $val) {
-				$data[$val] = $params['values'][$key];
-			}
-			foreach($data as $keys => $vals) {
-				if($i == $valuec) {
-						$valyes[] = "`{$keys}` = '{$vals}'";
-				} else {
-						$valyes[] = "`{$keys}` = '{$vals}',";
-				}
-				$i++;
-			}
-			$q = implode('', $valyes);
-			$params['wheres'] = implode(' ', $params['wheres']);
-			$query = "UPDATE {$params['into']} SET {$q} WHERE {$params['wheres']}";
-
-			// var_dump($query);die('12');
-			$this->db->query($query);
-			if ($show_id) {
-				return $this->db->insert_id;
-			}
-			return true;
-		}
-		return false;
-	}
-
-	public function query($query) 
-	{
-		$db = $this->db->query($query);
-		// var_dump(expression)
-	    // $db->execute();
-	    if (!$db) return false;
-	    if (!property_exists($db, 'num_rows')) return false;
-	    if (!$db->num_rows) return false;
-	    $alldata = [];
-	    while($all = $db->fetch_assoc()) {
-			$alldata[] = (object)$all;
-		}
-		return $alldata;
-	}
+	// public function query($query) 
+	// {
+	// 	$db = $this->db->query($query);
+	// 	// var_dump(expression)
+	//     // $db->execute();
+	//     if (!$db) return false;
+	//     if (!property_exists($db, 'num_rows')) return false;
+	//     if (!$db->num_rows) return false;
+	//     $alldata = [];
+	//     while($all = $db->fetch_assoc()) {
+	// 		$alldata[] = (object)$all;
+	// 	}
+	// 	return $alldata;
+	// }
 
 	public function select($params) 
 	{
+		global $connectDB;
 		if(is_array($params)) {
 			if(!isset($params['params'])) {
 					$parameters = '*';
@@ -495,7 +392,7 @@ class SlimDatabase
 			}
 			$offset = "OFFSET {$params['load_more_offset']}";
 			$query = "SELECT {$parameters} FROM {$params['from']} {$joins} {$wheres} {$order_by} {$group_by} {$limit} {$offset};";
-			$db = $this->db->query($query);
+			$db = $connectDB->query($query);
 			// var_dump(expression)
 		    // $db->execute();
 		    if (!$db) return false;
@@ -544,9 +441,7 @@ class SlimDatabase
 	        }
 	    }
 	    $result = $this->select($params);
-	    $result = arrayObject($result, get_class($this));
-	    var_dump($result);die();
-	    if (count($result) > 0) return arrayObject($result, get_class($this));
+	    if (count($result) > 0) return $result;
 	    return false;
 	}
 }

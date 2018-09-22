@@ -5,7 +5,7 @@ use Slim\Http\Response;
 
 function getDirContents($dir, &$results = array()){
     $files = scandir($dir);
-    $files = array_diff($files, array('.', '..'));
+    $files = array_diff($files, array('.', '..', 'Object.php', 'Services.php'));
     foreach($files as $key => $value){
         $path = realpath($dir.DIRECTORY_SEPARATOR.$value);
         if(is_file($path)) {
@@ -17,10 +17,14 @@ function getDirContents($dir, &$results = array()){
 
     return $results;
 }
+require __DIR__ . '/../classes/bol/Object.php';
+require __DIR__ . '/../classes/services/Services.php';
 
 $classes = getDirContents(__DIR__ . '/../classes');
+
 foreach ($classes as $key => $class) {
-    include_once $class;
+
+    require $class;
 }
 
 $routes = getDirContents(__DIR__ . '/../routes');

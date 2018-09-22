@@ -38,6 +38,6 @@ $container['mail'] = function ($c) {
     return (object)$c->get('settings')['mail'];
 };
 
-global $db, $email;
-$db = $container['db'];
+global $connectDB, $email;
+$connectDB = $container['db'];
 $mail = $container['mail'];

@@ -14,68 +14,6 @@ class SlimSelect extends SlimDatabase
 		return self::$instance;
 	}
 
-	public function getAddress($id, $type)
-	{
-		$table = "amely_".$type.'s';
-		$conditions[] = null;
-		$key = $type."id";
-		$conditions[] = [
-			'key' => $key,
-			'value' => "= '{$id}'",
-			'operation' => ''
-		];
-		$addr = $this->getData($table, $conditions, 0, 1, false);
-		return $addr[0];
-	}
-
-	public function getUsers($conditions, $offset = 0, $limit = 10, $getAddr = true, $password = true)
-	{
-		$table = "amely_users";
-		$users = $this->getData($table, $conditions, $offset, $limit);
-		if (!$users) return false;
-		foreach ($users as $key => $user) {
-			if ($password) {
-				unset($user->password);
-				unset($user->salt);
-				unset($user->verification_code);
-				unset($user->activation);
-			}
-			$user->fullname = $user->last_name.' '.$user->first_name;
-			$avatar = str_replace('profile/photo/', '', $user->avatar);
-			$cover = str_replace('profile/cover/', '', $user->cover);
-
-			$avatar_path = "/user/{$user->id}/profile/photo/"."larger_{$avatar}";
-			$cover_path = "/user/{$user->id}/profile/cover/"."larger_{$cover}";
-			if (file_exists(IMAGE_PATH.$avatar_path)) {
-				$user->avatar = IMAGE_URL.$avatar_path;
-			} else {
-				$user->avatar = AVATAR_DEFAULT;
-			}
-			if (file_exists(IMAGE_PATH.$cover_path)) {
-				$user->cover = IMAGE_URL.$cover_path;	
-			} else {
-				$user->cover = COVER_DEFAULT;
-			}
-			if ($getAddr) {
-				if ($user->province && $user->district && $user->ward) {
-					$user_province = $this->getAddress($user->province, 'province');
-					$user_district = $this->getAddress($user->district, 'district');
-					$user_ward = $this->getAddress($user->ward, 'ward');
-
-				    $user_province = $user_province->type .' '. $user_province->name;
-				    $user_district = $user_district->type .' '. $user_district->name;
-				    $user_ward = $user_ward->type .' '. $user_ward->name;
-				    $user->full_address = $user->address.', '.$user_ward.', '.$user_district.', '.$user_province;
-				}
-			}
-
-			$users[$key] = $user;
-		}
-		if ($limit == 1) {
-			return $users[0];
-		}
-		return $users;
-	}
 
 	public function getShops($conditions, $offset = 0, $limit = 10, $getAddr = true)
 	{

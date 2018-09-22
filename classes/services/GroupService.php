@@ -12,13 +12,12 @@ class GroupService
 		return self::$instance;
 	}
 
-	public function __construct() {
-        $this->db = SlimDatabase::getInstance();
-        $this->select = SlimSelect::getInstance();
-        $this->services = Services::getInstance();
+	public function __construct() 
+	{
+        $this->table = "amely_groups";
     }
 
-	public function get($conditions, $offset = 0, $limit = 1, $load_more = true, $getAddr = true)
+	public function getGroup($conditions, $offset = 0, $limit = 1, $load_more = true, $getAddr = true)
 	{
 		$table = "amely_groups";
 		$groups = $this->db->getData($table, $conditions, $offset, $limit);

@@ -3,9 +3,10 @@
 use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\Exception;
 
-class Services
+class Services extends SlimDatabase
 {
 	protected static $instance = null;
+	protected $table;
 
     public static function getInstance()
 	{
@@ -14,6 +15,20 @@ class Services
 		}
 		return self::$instance;
 	}
+
+
+	
+
+	public function searchObject($conditions, $offest, $limit)
+    {
+    	if (!$this->table) return false;
+    	$result = $this->getData($this->table, $conditions, $offest, $limit);
+    	if (!$result) return false;
+    	if ($limit == 1) {
+    		return $result[0];
+    	}
+    	return $result;
+    }
 
 	public function saveFirebase($path, $params)
 	{

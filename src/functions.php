@@ -2,6 +2,30 @@
 
 use Slim\Http\Response;
 
+function object_cast($destination, $sourceObject)
+{
+    if (is_string($destination)) {
+        $destination = new $destination();
+    }
+
+    $sourceReflection = new \ReflectionObject($sourceObject);
+    $destinationReflection = new \ReflectionObject($destination);
+    $sourceProperties = $sourceReflection->getProperties();
+    foreach ($sourceProperties as $sourceProperty) {
+        $sourceProperty->setAccessible(true);
+        $name = $sourceProperty->getName();
+        $value = $sourceProperty->getValue($sourceObject);
+        if ($destinationReflection->hasProperty($name)) {
+            $propDest = $destinationReflection->getProperty($name);
+            $propDest->setAccessible(true);
+            $propDest->setValue($destination,$value);
+        } else {
+            $destination->$name = $value;
+        }
+    }
+    return $destination;
+}
+
 function arrayObject($array, $class = 'stdClass') {
     if (empty($array)) {
         return false;
@@ -219,44 +243,6 @@ function getGroupsGUID($owner_guid)
     return $groups_guid;
 }
 
-function getFriendsGUID($owner_guid)
-{
-	$select = SlimSelect::getInstance();
-
-	$relation_params = null;
-	$relation_params[] = [
-		'key' => 'amely_relationships r1',
-		'value' => "r.relation_from = r1.relation_to",
-		'operation' => 'JOIN'
-	];
-	$relation_params[] = [
-		'key' => 'r.relation_to',
-		'value' => "= r1.relation_from",
-		'operation' => ''
-	];
-    $relation_params[] = [
-    	'key' => 'r.type',
-    	'value' => "= 'friend:request'",
-    	'operation' => 'AND'
-    ];
-    $relation_params[] = [
-    	'key' => 'r.relation_from',
-    	'value' => "= {$owner_guid}",
-    	'operation' => 'AND'
-    ];
-    $relation_params[] = [
-    	'key' => 'r.relation_to',
-    	'value' => '',
-    	'operation' => 'query_params'
-    ];
-
-    $friends = $select->getRelationships($relation_params,0,99999999);
-    if (!$friends) return false;
-    $friends_guid = array_map(create_function('$o', 'return $o->relation_to;'), $friends);
-    return $friends_guid;
-}
-
-
 function forceObject(&$object) {
     if (!is_object($object) && gettype($object) == 'object'
     )
@@ -326,35 +312,6 @@ function conditionAds()
     return $conditions;
 }
 
-function checkToken($token)
-{
-	$select = SlimSelect::getInstance();
-	
-	$conditions = null;
-	$conditions[] = [
-		'key' => 'token',
-		'value' => "= '{$token}'",
-		'operation' => ""
-	];
-	$token = $select->getTokens($conditions, 0, 1);
-	if ($token) {
-		session_id($token->session_id);
-		session_reset();
-		if ($token->token != $_SESSION["TOKEN"]) {
-			$user_params = null;
-			$user_params[] = [
-				'key' => 'guid',
-				'value' => "= {$token->user_guid}",
-				'operation' => ''
-			];
-			$user = $select->getUsers($user_params, 0, 1, true);
-		    
-		    $_SESSION["OSSN_USER"] = $user;
-		}
-		return true;
-	}
-	return false;
-}
 
 function response($result)
 {

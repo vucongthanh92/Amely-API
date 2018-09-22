@@ -13,7 +13,7 @@ DROP TABLE IF EXISTS `amely_usertokens`;
 CREATE TABLE `amely_usertokens` (
   `id` bigint(255) unsigned NOT NULL AUTO_INCREMENT,
   `token` varchar(32) NOT NULL,
-  `created` bigint(20) unsigned NOT NULL,
+  `time_created` int(11) NOT NULL,
   `expired` bigint(20) unsigned NOT NULL,
   `user_guid` int(10) unsigned NOT NULL,
   `session_id` varchar(255) NOT NULL,
@@ -26,7 +26,7 @@ CREATE TABLE `amely_relationships` (
   `relation_from` bigint(20) NOT NULL,
   `relation_to` bigint(20) NOT NULL,
   `type` varchar(30) NOT NULL,
-  `time` int(11) NOT NULL,
+  `time_created` int(11) NOT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
@@ -39,6 +39,7 @@ CREATE TABLE `amely_redeem_code` (
   `quantity` double(22,0) NOT NULL,
   `type` varchar(20) NOT NULL,
   `guest_guid` bigint(20) NOT NULL,
+  `time_created` int(11) NOT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
@@ -70,7 +71,7 @@ CREATE TABLE `amely_messages` (
   `message_to` bigint(20) NOT NULL,
   `message` text NOT NULL,
   `viewed` varchar(1) DEFAULT NULL,
-  `time` int(11) NOT NULL,
+  `time_created` int(11) NOT NULL,
   `type` varchar(255) NOT NULL DEFAULT 'individual',
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
@@ -81,6 +82,7 @@ CREATE TABLE `amely_likes` (
   `subject_id` bigint(20) NOT NULL,
   `guid` bigint(20) NOT NULL,
   `type` varchar(20) NOT NULL,
+  `time_created` int(11) NOT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
@@ -256,9 +258,9 @@ CREATE TABLE `amely_stores` (
   `phone` text,
   `lat` text,
   `lng` text,
-  `shop_province` text,
-  `shop_district` text,
-  `shop_ward` text,
+  `store_province` text,
+  `store_district` text,
+  `store_ward` text,
   `owner_store` text
  ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
@@ -470,6 +472,7 @@ CREATE TABLE `amely_business_pages` (
   `cover` text
  ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
+
 DROP TABLE IF EXISTS `amely_shops`; 
 CREATE TABLE `amely_shops` (
   `id` bigint(20) NOT NULL AUTO_INCREMENT,
@@ -501,17 +504,6 @@ CREATE TABLE `amely_shops` (
   `introduce` text,
   `policy` text,
   `contact` text,
-  `mobilelogin` text,
-  `birthdate` text,
-  `gender` text,
-  `usercurrency` text,
-  `province` text,
-  `district` text,
-  `ward` text,
-  `address` text,
-  `friends_hidden` text,
-  `birthdate_hidden` text,
-  `mobile_hidden` text,
   `avatar` text,
   `cover` text,
   `files_scan` text

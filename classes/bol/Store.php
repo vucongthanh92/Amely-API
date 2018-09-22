@@ -1,20 +1,25 @@
 <?php
 
-class Token extends Object
+class Store extends Object
 {
-	private $token;
-	private $time_created;
-	private $expired;
-	private $user_guid;
-	private $session_id;
+	private $owner_guid;
+	private $type;
+	private $title;
+	private $description;
+	private $subtype;
+	private $address;
+	private $phone;
+	private $lat;
+	private $lng;
+	private $store_province;
+	private $store_district;
+	private $store_ward;
+	private $owner_store;
 
 	public function __construct() 
 	{	
 		parent::__construct();
-		$this->table = "amely_usertokens";
-		$expired = $this->data->time_created + 3600;
-		$this->expired = $expired;
-		$this->data->expired = $expired;
+		$this->table = "amely_stores";
 	}
 
 	public function __set($key, $value)
@@ -30,5 +35,4 @@ class Token extends Object
             return $this->$key;
         }
     }
-
 }

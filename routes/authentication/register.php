@@ -4,8 +4,8 @@ use Slim\Http\Response;
 
 $app->post($container['prefix'].'/register', function (Request $request, Response $response, array $args) {
 
-	$db = SlimDatabase::getInstance();
-	$select = SlimSelect::getInstance();
+	$userService = UserService::getInstance();
+
 	$params = $request->getParsedBody();
 	if (!$params) $params = [];
 	if (!array_key_exists("username", $params))  	$params["username"] = false;
@@ -25,25 +25,14 @@ $app->post($container['prefix'].'/register', function (Request $request, Respons
 	$email = $params["email"];
 	$password = $params["password"];
 
-	$user_params = null;
-	$user_params[] = [
-		'key' => 'username',
-		'value' => "= '{$username}'",
-		'operation' => ''
-	];
-	$user = $select->getUsers($user_params, 0, 1, false);
+	$user = $userService->getUserByType($username, 'username', false, false);
 	if ($user) return response([
     	"status" => false,
     	"error" => "username_exist"
     ]);
 
 	if ($mobilelogin) {
-		$user_params[] = [
-			'key' => 'mobilelogin',
-			'value' => "= '{$mobilelogin}'",
-			'operation' => 'OR'
-		];
-		$user = $select->getUsers($user_params, 0, 1, false);
+		$user = $userService->getUserByType($mobilelogin, 'mobilelogin', false, false);
 		if ($user) return response([
 	    	"status" => false,
 	    	"error" => "mobile_exist"
@@ -51,45 +40,38 @@ $app->post($container['prefix'].'/register', function (Request $request, Respons
 	}
 
 	if ($email) {
-		$user_params[] = [
-			'key' => 'email',
-			'value' => "= '{$email}'",
-			'operation' => 'OR'
-		];
-		$user = $select->getUsers($user_params, 0, 1, false);
+		$user = $userService->getUserByType($email, 'email', false, false);
 		if ($user) return response([
 	    	"status" => false,
 	    	"error" => "email_exist"
 	    ]);
 	}
-	
+
 	$salt = substr(uniqid(), 5);
 	$activation = md5($password . time() . rand());
 	$password = md5($password . $salt);
 	$code = rand(100000, 999999);
 
-	$insert = new stdClass;
-	$insert->type = "normal";
-	$insert->username = $username;
-	$insert->email = $email;
-	$insert->password = $password;
-	$insert->salt = $salt;
-	$insert->first_name = $params['firstname'];
-	$insert->last_name = $params['lastname'];
-	$insert->last_login = 0;
-	$insert->last_activity = 0;
-	$insert->activation = $activation;
-	$insert->mobilelogin = preg_replace("/^\\+?84/i", "0", $mobilelogin);
-	$insert->verification_code = $code;
-	$insert->time_created = time();
-	$insert->birthdate = "1993-08-03";
-	$insert->gender = "male";
+	$user = new User;
+	$user->data->type = "normal";
+	$user->data->username = $username;
+	$user->data->email = $email;
+	$user->data->password = $password;
+	$user->data->salt = $salt;
+	$user->data->first_name = $params['firstname'];
+	$user->data->last_name = $params['lastname'];
+	$user->data->last_login = 0;
+	$user->data->last_activity = 0;
+	$user->data->activation = $activation;
+	$user->data->mobilelogin = preg_replace("/^\\+?84/i", "0", $mobilelogin);
+	$user->data->verification_code = $code;
+	$user->data->time_created = time();
+	$user->data->birthdate = "1993-08-03";
+	$user->data->gender = "male";
 
-	$object = new stdClass;
-	$object->insert = $insert;
-	$insert_guid = $db->saveTable($object, "amely_users", "insert", true);
+	$insert_guid = $user->insert(true);
 	if ($insert_guid) {
-		return response(Services::getInstance()->sendByMobile($insert->mobilelogin, $code));
+		return response(Services::getInstance()->sendByMobile($user->data->mobilelogin, $code));
 	}
 	return response(false);
 })->setName('register');

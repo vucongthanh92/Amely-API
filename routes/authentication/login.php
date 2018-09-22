@@ -6,53 +6,26 @@ use Slim\Http\Response;
 // Routes
 // $app->get('/authtoken', function (Request $request, Response $response, array $args) {
 $app->post($container['prefix'].'/authtoken', function (Request $request, Response $response, array $args) {
-	$db = SlimDatabase::getInstance();
-	$select =  SlimSelect::getInstance();
-	$user_params = null;
-	$user_params[] = [
-		'key' => 'id',
-		'value' => "= 1",
-		'operation' => ''
-	];
-	$user = new User();
-	$test = $user->getUser($user_params);
-	var_dump($test);die('123');
+	$userService = UserService::getInstance();
 
 	$params = $request->getParsedBody();
-	$table = "users";
-	$conditions = null;
 	if (!array_key_exists("username", $params)) return response(false);
 	if (!array_key_exists("password", $params)) return response(false);
 
+	$type = false;
 	if(strpos($params['username'], '@') !== false) {
-		$conditions[] = [
-			'key' => 'email',
-			'value' => "= '{$params['username']}'",
-			'operation' => ''
-		];
+		$type = 'email';
 	}
 	if (is_numeric($params['username'])) {
-		$conditions[] = [
-			'key' => 'mobilelogin',
-			'value' => "= '{$params['username']}'",
-			'operation' => ''
-		];
+		$type = 'mobilelogin';
 	} else {
-		$conditions[] = [
-			'key' => 'username',
-			'value' => "= '{$params['username']}'",
-			'operation' => ''
-		];
+		$type = 'username';
 	}
-	$test = new User();
-	var_dump($test->getUser($conditions));
-	die();
-	$user = (new User)->getUser($conditions);
-	var_dump($user);
-	die('12345');
-	// $user = getUsers($this->db, $conditions, $offset = 0, $limit = 1, $load_more = true);
-	$user = $select->getUsers($conditions, 0, 1, true, false);
+	$input = $params['username'];
+
+	$user = $userService->getUserByType($input, $type, false, false);
 	if (!$user) return response(false);
+
 	$salt     = $user->salt;
     $password = md5($params['password'] . $salt);
     if ($password == $user->password) {
@@ -68,19 +41,17 @@ $app->post($container['prefix'].'/authtoken', function (Request $request, Respon
     		];
             return response($result);
         }
-        $insert = new stdClass;
-        $insert->token = md5(($user->username).uniqid());
-		$insert->created = time();
-		$insert->expired = time()+3600;
-		$insert->user_guid = $user->id;
-		$insert->session_id = session_id();
+        $token_code = md5(($user->username).uniqid());
 
-		$object = new stdClass;
-		$object->insert = $insert;
-        if ($db->saveTable($object, "amely_usertokens", "insert", false)) {
+        $token = new Token();
+        $token->data->token = $token_code;
+		$token->data->user_guid = $user->id;
+		$token->data->session_id = session_id();
+
+        if ($token->insert()) {
 			$_SESSION["OSSN_USER"] = $user;
-			$_SESSION["TOKEN"] = $insert->token;
-			return response(["token" => $insert->token]);
+			$_SESSION["TOKEN"] = $token_code;
+			return response(["token" => $token_code]);
         }
     }
 	return response(false);

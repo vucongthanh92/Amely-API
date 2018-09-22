@@ -3,8 +3,7 @@ use Slim\Http\Request;
 use Slim\Http\Response;
 
 $app->post($container['prefix'].'/activation', function (Request $request, Response $response, array $args) {
-	$db = SlimDatabase::getInstance();
-	$select = SlimSelect::getInstance();
+	$userService = UserService::getInstance();
 	$params = $request->getParsedBody();
 	if (!$params) $params = [];
 	if (!array_key_exists("username", $params))  	$params["username"] = false;
@@ -13,35 +12,26 @@ $app->post($container['prefix'].'/activation', function (Request $request, Respo
 	if (!array_key_exists("email", $params))  	$params["email"] = false;
 	if (!array_key_exists("mobilelogin", $params))  	$params["mobilelogin"] = false;
 
-	$update = new stdClass;
-	$object = new stdClass;
-	$user_params = null;
-
+	$type = false;
+	$input = false;
 	if ($params['email']) {
-		$user_params[] = [
-			'key' => 'email',
-			'value' => "= '{$params['email']}'",
-			'operation' => ''
-		];
+		$type = 'email';
+		$input = $params['email'];
 	}
 	if ($params['mobilelogin']) {
-		$user_params[] = [
-			'key' => 'mobilelogin',
-			'value' => "= '{$params['mobilelogin']}'",
-			'operation' => ''
-		];
+		$type = 'mobilelogin';
+		$input = $params['mobilelogin'];
 	}
-	if (!$user_params) return response(false);
-
-	$user = $select->getUsers($user_params, 0, 1, false, false);
+	if (!$input || !$type) return response(false);
+	$user = $userService->getUserByType($input, $type, false, false);
+	if (!$user) return response(false);
+	$user = object_cast("User", $user);
 	if ($user->verification_code == $params['code']) {
 		if ($user->activation) {
-			$update->activation = '';
+			$user->data->activation = '';
 		}
-		$update->verification_code = '';
-		$object->where = "id = {$user->id}";
-		$object->update = $update;
-		return response($db->saveTable($object, 'amely_users', 'update', false));
+		$user->data->verification_code = '';
+		return response($user->update());
 	}
 	return response(false);
 })->setName('activation');
@@ -49,51 +39,38 @@ $app->post($container['prefix'].'/activation', function (Request $request, Respo
 $app->put($container['prefix'].'/activation', function (Request $request, Response $response, array $args) {
 
 	$services = Services::getInstance();
-	$db = SlimDatabase::getInstance();
-	$select = SlimSelect::getInstance();
+	$userService = UserService::getInstance();
 	$params = $request->getParsedBody();
 	if (!$params) $params = [];
 	if (!array_key_exists("email", $params))  		$params["email"] = false;
 	if (!array_key_exists("mobilelogin", $params))  $params["mobilelogin"] = false;
 
-	$update = new stdClass;
-	$object = new stdClass;
-	$user_params = null;
-
+	$type = false;
+	$input = false;
 	if ($params['email']) {
-		$user_params[] = [
-			'key' => 'email',
-			'value' => "= '{$params['email']}'",
-			'operation' => ''
-		];
+		$type = 'email';
+		$input = $params['email'];
 	}
 	if ($params['mobilelogin']) {
-		$user_params[] = [
-			'key' => 'mobilelogin',
-			'value' => "= '{$params['mobilelogin']}'",
-			'operation' => ''
-		];
+		$type = 'mobilelogin';
+		$input = $params['mobilelogin'];
 	}
-	$user = $select->getUsers($user_params,0,1,false);
-	if (!$user) return false;
+	if (!$input || !$type) return response(false);
+	$user = $userService->getUserByType($input, $type, false, false);
+	if (!$user) return response(false);
+	$user = object_cast("User", $user);
 	$code = rand(100000, 999999);
-
-	$update = new stdClass;
-	$object = new stdClass;
-	$update->verification_code = $code;
-	$object->update = $update;
-	$object->where = "id = {$user->id}";
-
+	$user->data->verification_code = $code;
 	if ($user) {
 		if ($params['email']) {
 			if ($services->sendByEmail($user->email, "AMELY", $code)) {
-				return response($db->saveTable($object, 'amely_users', 'update', false));
+				return response($user->update());
 			}
 		}
 		if ($params['mobilelogin']) {
 			$mobilelogin = preg_replace("/^\\+?84/i", "0", $user->mobilelogin);
 			if ($services->sendByMobile($mobilelogin, $code)) {
-				return response($db->saveTable($object, 'amely_users', 'update', false));
+				return response($user->update());
 			}
 		}
 	}

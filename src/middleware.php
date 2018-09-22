@@ -21,8 +21,9 @@ class AuthMiddleware
         } else {
 		    $params = $request->getQueryParams();
             if (!array_key_exists("user_token", $params)) return response(false);
+            $tokenService = TokenService::getInstance();
 
-            if (checkToken($params['user_token'])) {
+            if ($tokenService->checkToken($params['user_token'])) {
     			return $next($request, $response);
     		}
     		return response(false);

@@ -2,7 +2,6 @@
 
 class User extends Object
 {
-	protected $table = "amely_users";
 	private $type;
 	private $username;
 	private $email;
@@ -38,6 +37,7 @@ class User extends Object
 	public function __construct() 
 	{
 		parent::__construct();
+		$this->table = "amely_users";
 		$time = time();
 		$this->insert = new stdClass;
 		$activation = md5(time() . rand());
@@ -46,7 +46,7 @@ class User extends Object
 		$this->time_created = $created;
 		$this->activation = $activation;
 
-		$this->data->created = $created;
+		$this->data->time_created = $created;
 		$this->data->activation = $activation;
 	}
 
@@ -63,52 +63,5 @@ class User extends Object
             return $this->$key;
         }
     }
-
-    public function getUser($conditions, $getAddr = true, $password = true)
-	{
-		$users = $this->db->getData($this->table, $conditions,0,1);
-		var_dump($users);
-		die('123');
-		if (!$users) return false;
-		$user = $users[0];
-		var_dump($user);
-		die('123213');
-		if ($password) {
-			unset($user->password);
-			unset($user->salt);
-			unset($user->verification_code);
-			unset($user->activation);
-		}
-		$user->fullname = $user->last_name.' '.$user->first_name;
-		$avatar = str_replace('profile/photo/', '', $user->avatar);
-		$cover = str_replace('profile/cover/', '', $user->cover);
-
-		$avatar_path = "/user/{$user->id}/profile/photo/"."larger_{$avatar}";
-		$cover_path = "/user/{$user->id}/profile/cover/"."larger_{$cover}";
-		if (file_exists(IMAGE_PATH.$avatar_path)) {
-			$user->avatar = IMAGE_URL.$avatar_path;
-		} else {
-			$user->avatar = AVATAR_DEFAULT;
-		}
-		if (file_exists(IMAGE_PATH.$cover_path)) {
-			$user->cover = IMAGE_URL.$cover_path;	
-		} else {
-			$user->cover = COVER_DEFAULT;
-		}
-		if ($getAddr) {
-			if ($user->province && $user->district && $user->ward) {
-				$user_province = $this->select->getAddress($user->province, 'province');
-				$user_district = $this->select->getAddress($user->district, 'district');
-				$user_ward = $this->select->getAddress($user->ward, 'ward');
-
-			    $user_province = $user_province->type .' '. $user_province->name;
-			    $user_district = $user_district->type .' '. $user_district->name;
-			    $user_ward = $user_ward->type .' '. $user_ward->name;
-			    $user->full_address = $user->address.', '.$user_ward.', '.$user_district.', '.$user_province;
-			}
-		}
-		
-		return $this;
-	}
 
 }

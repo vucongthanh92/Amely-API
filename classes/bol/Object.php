@@ -5,24 +5,19 @@ class Object extends SlimDatabase
 	private $token;
 	protected $id;
 	protected $table;
-	protected $data;
-
-	protected $insert;
-	protected $update;
+    protected $data;
 	protected $where;
 
 	public function __construct() 
 	{
-		parent::__construct();
 		$this->data = new stdClass;
-		$this->insert = new stdClass;
-		$this->update = new stdClass;
+        $this->data->time_created = time();
 	}
 
 	public function __set($key, $value)
     {
         if (property_exists($this, $key)) {
-        	$this->insert->$key = $value;
+        	$this->$key = $value;
         }
     }
 
@@ -44,16 +39,30 @@ class Object extends SlimDatabase
         return $this;
     }
 
-    public function save($show_id = false)
+    public function insert($show_id = false)
+    {
+        $this->checkExistKey();
+        if ($this->id) return false;
+        return $this->saveTable($this, $this->table, "insert", $show_id);
+    }
+
+    public function update($show_id = false)
 	{
-		$this->checkExistKey();
-		
-		if ($this->id) {
-			$this->where = "id = {$this->id}";
-			return $this->db->saveTable($this, $this->table, "update", $show_id);
-		} else {
-			return $this->db->saveTable($this, $this->table, "insert", $show_id);
-		}
+        if (!$this->id) return false;
+        if (array_key_exists("time_created", $this->data)) {
+            unset($this->data->time_created);
+        }
+        $this->where = "id = {$this->id}";
+		return $this->saveTable($this, $this->table, "update", $show_id);
 	}
+
+    public function delete()
+    {
+        if (!$this->where) return false;
+        if (array_key_exists("time_created", $this->data)) {
+            unset($this->data->time_created);
+        }
+        return $this->saveTable($this, $this->table, "delete");
+    }
 	
 }
