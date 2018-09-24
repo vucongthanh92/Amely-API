@@ -41,6 +41,19 @@ class UserService extends Services
 		return $user;
 	}
 
+	public function getUsersByType($input, $type ='id', $getAddr = true, $password = true)
+	{	
+		$conditions = null;
+		$conditions[] = [
+			'key' => $type,
+			'value' => "IN ($input)",
+			'operation' => ''
+		];
+		$users = $this->getUsers($conditions, 0, 999999999, $getAddr, $password);
+		if (!$users) return false;
+		return $users;
+	}
+
 	public function getUsers($conditions, $offset = 0, $limit = 10, $getAddr = true, $password = true)
 	{
 		$users = $this->searchObject($conditions, $offset, $limit);

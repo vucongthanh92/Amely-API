@@ -35,27 +35,17 @@ $app->get($container['prefix'].'/profile', function (Request $request, Response 
 			break;
 		default:
 			$shop_params = null;
+			$type = false;
+			$input = false;
 		    if ($user->chain_store) {
-		    	$store_params = null;
-		    	$store_params[] = [
-		    		'key' => 'id',
-		    		'value' => "= {$user->chain_store}",
-		    		'operation' => ''
-		    	];
-		    	$store = $storeService->getStore($store_params);
-		    	$shop_params[] = [
-			    	'key' => 'id',
-			    	'value' => "= {$store->owner_guid}",
-			    	'operation' => ''
-			    ];
+		    	$store = $storeService->getStoreById($user->chain_store);
+		    	$type = 'id';
+		    	$input = $store->owner_guid;
 		    } else {
-			    $shop_params[] = [
-			    	'key' => 'owner_guid',
-			    	'value' => "= {$user->id}",
-			    	'operation' => ''
-			    ];
+		    	$type = 'owner_guid';
+		    	$input = $user->id;
 		    }
-		    $shop = $shopService->getShop($shop_params);
+		    $shop = $shopService->getShopByType($input, $type);
 		    if ($shop) {
 			    $is_liked_shop = $likeService->isLiked($loggedin_user->id, $shop->id, 'shop');
 			    if ($is_liked_shop) {

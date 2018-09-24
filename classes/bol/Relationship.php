@@ -1,6 +1,6 @@
 <?php
 
-class Relationship
+class Relationship extends Object
 {
 	private $relation_from;
 	private $relation_to;

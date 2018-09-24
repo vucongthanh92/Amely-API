@@ -61,7 +61,7 @@ CREATE TABLE `amely_notifications` (
   `viewed` varchar(1) DEFAULT NULL,
   `time_created` int(11) NOT NULL,
   `item_guid` bigint(20) NOT NULL,
-  PRIMARY KEY (`guid`)
+  PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 DROP TABLE IF EXISTS `amely_messages`;
@@ -141,11 +141,9 @@ CREATE TABLE `amely_groups` (
   `time_created` int(11) NOT NULL,
   `title` text NOT NULL,
   `description` longtext NOT NULL,
-  `subtype` text NOT NULL,
-  `membership` text,
-  `membInvite` text,
-  `groupMembership` text,
-  `has_inventory` text,
+  `privacy` int DEFAULT 0,
+  `rule` int DEFAULT 0,
+  `owners` text,
   `avatar` text,
   `cover` text
  ) ENGINE=InnoDB DEFAULT CHARSET=utf8;

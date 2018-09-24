@@ -2,7 +2,7 @@
 use Slim\Http\Request;
 use Slim\Http\Response;
 
-$app->post($container['prefix'].'/register', function (Request $request, Response $response, array $args) {
+$app->put($container['prefix'].'/register', function (Request $request, Response $response, array $args) {
 
 	$userService = UserService::getInstance();
 

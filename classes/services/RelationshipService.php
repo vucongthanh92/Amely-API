@@ -89,9 +89,27 @@ class RelationshipService extends Services
 	public function deleteFriend($from, $to)
 	{
 		$relate = new Relationship;
-    	$relate->where = "(relation_from='{$from}' AND relation_to='{$to}') OR
-						 (relation_from='{$to}' AND relation_to='{$from}')";
+    	$relate->where = "(relation_from='{$from}' AND relation_to='{$to}' AND type='friend:request') OR
+						 (relation_from='{$to}' AND relation_to='{$from}' AND type='friend:request')";
 		return $relate->delete();
+	}
+
+	public function getMembers($input, $type, $offset = 0, $limit = 10)
+	{
+		$relation_params = null;
+	    $relation_params[] = [
+	    	'key' => 'r.type',
+	    	'value' => "= '{$type}:approve'",
+	    	'operation' => 'AND'
+	    ];
+	    $relation_params[] = [
+	    	'key' => 'r.relation_from',
+	    	'value' => "= {$input}",
+	    	'operation' => 'AND'
+	    ];
+	    $members = $this->searchObject($relation_params, $offset, $limit);
+	    if (!$members) return false;
+	    return $members;
 	}
 
 }

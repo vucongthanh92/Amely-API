@@ -1,22 +1,25 @@
 <?php
 
-class Group extends Object
+class Business extends Object
 {
     private $owner_guid;
     private $type;
+    private $time_created;
     private $title;
     private $description;
-    private $privacy;
-    private $rule;
-    private $time_created;
-    private $owners;
+    private $subtype;
+    private $category;
+    private $website;
+    private $phone;
+    private $address;
+    private $inventory_status;
     private $avatar;
     private $cover;
 
 	public function __construct() 
 	{	
 		parent::__construct();
-		$this->table = "amely_groups";
+		$this->table = "amely_business_pages";
 	}
 
 	public function __set($key, $value)

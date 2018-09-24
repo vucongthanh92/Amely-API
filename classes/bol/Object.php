@@ -62,7 +62,7 @@ class Object extends SlimDatabase
         if (array_key_exists("time_created", $this->data)) {
             unset($this->data->time_created);
         }
-        return $this->saveTable($this, $this->table, "delete");
+        return $this->saveTable($this, $this->table, "delete", false);
     }
 	
 }

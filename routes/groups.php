@@ -3,129 +3,140 @@ use Slim\Http\Request;
 use Slim\Http\Response;
 
 $app->get($container['prefix'].'/groups', function (Request $request, Response $response, array $args) {
-	$select = SlimSelect::getInstance();
-	return response(false);
+	$groupService = GroupService::getInstance();
+	$loggedin_user = loggedin_user();
+	$params = $request->getQueryParams();
+	if (!array_key_exists("id", $params)) $params["id"] = false;
+	if (!$params['id']) return response(false);
+	$group = $groupService->getGroupById($params['id']);
+	if (!$group) return response(false);
+
+	return response($group);
 });
 
 $app->post($container['prefix'].'/groups', function (Request $request, Response $response, array $args) {
-	$select = SlimSelect::getInstance();
+	$groupService = GroupService::getInstance();
+	$userService = UserService::getInstance();
+
 	$loggedin_user = loggedin_user();
 	$params = $request->getParsedBody();
 	if (!$params) $params = [];
 	if (!array_key_exists("owner_guid", $params)) $params["owner_guid"] = false;
-	$owner_guid = $params["owner_guid"];
-	if (!is_numeric($owner_guid)) $owner_guid = $loggedin_user->guid;
+	if (!array_key_exists("offset", $params)) $params["offset"] = 0;
+	if (!array_key_exists("limit", $params)) $params["limit"] = 10;
 
-	if (property_exists($loggedin_user, 'blockedusers')) {
-    	$block_list = json_decode($loggedin_user->blockedusers);
-    	if (is_array($block_list) && count($block_list) > 0) {
-			if (in_array($owner_guid, $block_list)) {
-		    	return response([
-					"status"  => false,
-					"error"   => "User is blocked"
-				]);
-		    }
-		}
-	}
+	$owner_guid = $loggedin_user->id;
+	if ($params["owner_guid"]) $owner_guid = $params["owner_guid"];
 
-	$groups_guid = getGroupsGUID($owner_guid);
-	$group_params = null;
-	$group_params[] = [
-		'key' => 'guid',
-		'value' => 'IN ({$groups_guid})',
-		'operation' => ''
-	];
-	$groups = $select->getGroups($group_params,0,9999999);
+	$groups = $groupService->getGroupsByOwner($owner_guid, $params["offset"], $params["limit"]);
 	if (!$groups) return response(false);
-	if ($groups) {
-		$groups_guid = $owners = [];
-		foreach ($groups as $key => $group) {
-			if (!in_array($group->owner_guid, $owners)) {
-				array_push($owners, $group->owner_guid);
-			}
-			if (!in_array($group->guid, $groups_guid)) {
-				array_push($groups_guid, $group->guid);
-			}
-		}
-		$groups_guid = implode(',', array_unique($groups_guid));
-		$members = getMembersGUID('group', $groups_guid);
-
-		$item_params = null;
-		$item_params[] = [
-			'key' => 'owner_guid',
-			'value' => "IN ({$groups_guid})",
-			'operation' => ''
-		];
-		$item_params[] = [
-			'key' => 'quantity',
-			'value' => "> 0",
-			'operation' => 'AND'
-		];
-		$item_params[] = [
-			'key' => 'inventory_type',
-			'value' => "= 'group'",
-			'operation' => 'AND'
-		];
-		$item_params[] = [
-			'key' => '*',
-			'value' => 'count',
-			'operation' => 'count'
-		];
-		$item_params[] = [
-			'key' => 'owner_guid',
-			'value' => "",
-			'operation' => 'query_params'
-		];
-		$item_params[] = [
-			'key' => 'owner_guid',
-			'value' => "",
-			'operation' => 'group_by'
-		];
-
-		$items = $select->getItems($item_params,0,999999999);
-		foreach ($groups as $key => $group) {
-			if ($members) {
-				$count = 0;
-				foreach ($members as $key => $member) {
-					if ($member->relation_from == $group->guid) {
-						$count++;
-						if (!in_array($member->relation_to, $owners)) {
-							array_push($owners, $member->relation_to);
-						}
-					}
-				}
-				$group->members_count = $count;
-			}
-			foreach ($items as $key => $item) {
-				if ($item->owner_guid == $group->guid) {
-					$group->inventory_items = $item->count;
-				}
-			}
-			$groups[$key] = $group;
-		}
-		$owners = implode(',', array_unique($owners));
-		$user_params = null;
-		$user_params[] = [
-			'key' => 'guid',
-			'value' => "IN ({$owners})",
-			'operation' => ''
-		];
-		$users = $select->getUsers($user_params,0,9999999999,false);
-		if ($users) {
-			$user_result = [];
-			foreach ($users as $key => $user) {
-				$user_result[$user->guid] = $user;
-			}
+	$group_owners = [];
+	foreach ($groups as $key => $group) {
+		if ($group->owners) {
+			$owners = explode(',', $group->owners);
+			$group_owners = array_merge((array)$group_owners, (array)$owners);
 		}
 	}
+	$group_owners = array_unique($group_owners);
+	if (!$group_owners) return response(false);
+	$group_owners = implode(',', $group_owners);
+	$group_users = [];
+	$users = $userService->getUsersByType($group_owners, 'id', false);
+	foreach ($users as $key => $user) {
+		$group_users[$user->id] = $user;
+	}		
 
-	return [
+	return response([
 		'groups' => array_values($groups),
-		'owners' => $user_result
-	];
+		'owners' => $group_users
+	]);
 });
 
 $app->put($container['prefix'].'/groups', function (Request $request, Response $response, array $args) {
-	$select = SlimSelect::getInstance();
+	$loggedin_user = loggedin_user();
+	$params = $request->getParsedBody();
+	if (!$params) $params = [];
+	if (!array_key_exists("name", $params)) $params["name"] = false;
+	if (!array_key_exists("description", $params)) $params["description"] = false;
+	if (!array_key_exists("privacy", $params)) $params["privacy"] = 0;
+	if (!array_key_exists("rule", $params)) $params["rule"] = 0;
+	if (!array_key_exists("owners", $params)) $params["owners"] = false;
+
+	$group = new Group;
+	$group->data->owner_guid = $loggedin_user->id;
+	$group->data->type = 'user';
+	$group->data->title = $params["name"];
+	$group->data->description = $params["description"];
+	$group->data->privacy = $params["privacy"];
+	$group->data->rule = $params["rule"];
+	if ($params['owners']) {
+		array_push($params['owners'], $loggedin_user->id);
+		$params['owners'] = array_unique($params['owners']);
+		$owners = implode(',', $params['owners']);
+		$group->data->owners = $owners;
+	}
+	$group_id = $group->insert(true);
+	if ($group_id) {
+		foreach ($params['owners'] as $key => $owner) {
+			$relationship = new Relationship;
+			$relationship->data->relation_from = $owner;
+			$relationship->data->relation_to = $group_id;
+			$relationship->data->type = "group:invite";
+			$relationship->insert();
+
+			$relationship = new Relationship;
+			$relationship->data->relation_from = $group_id;
+			$relationship->data->relation_to = $owner;
+			$relationship->data->type = "group:approve";
+			$relationship->insert();
+
+		}
+		return response(['id' => $group_id]);
+	}
+
+	return response(false);
+});
+
+$app->patch($container['prefix'].'/groups', function (Request $request, Response $response, array $args) {
+	$groupService = GroupService::getInstance();
+	$loggedin_user = loggedin_user();
+	$params = $request->getParsedBody();
+	if (!$params) $params = [];
+	if (!array_key_exists("id", $params)) $params["id"] = false;
+	if (!array_key_exists("name", $params)) $params["name"] = false;
+	if (!array_key_exists("description", $params)) $params["description"] = false;
+	if (!array_key_exists("privacy", $params)) $params["privacy"] = 0;
+	if (!array_key_exists("rule", $params)) $params["rule"] = 0;
+
+	if (!$params['id']) return response(false);
+
+	$group = $groupService->getGroupById($params['id']);
+	$group = object_cast("Group", $group);
+	
+	$group->data->title = $params["name"];
+	$group->data->description = $params["description"];
+	$group->data->privacy = $params["privacy"];
+	$group->data->rule = $params["rule"];
+
+	return response($group->update());
+});
+
+$app->delete($container['prefix'].'/groups', function (Request $request, Response $response, array $args) {
+	$groupService = GroupService::getInstance();
+	$loggedin_user = loggedin_user();
+	$params = $request->getQueryParams();
+	if (!array_key_exists("id", $params)) $params["id"] = false;
+	if (!$params['id']) return response(false);
+	$group = $groupService->getGroupById($params['id']);
+	if (!$group) return response(false);
+	$group = object_cast("Group", $group);
+	$group->where = "id = '{$group->id}'";
+	if ($group->type = 'user') {
+		if ($loggedin_user->id == $group->owner_guid) {
+			if ($groupService->deleteRelationshipGroup($group->id)) {
+				return response($group->delete());
+			}
+		}
+	}
 	return response(false);
 });

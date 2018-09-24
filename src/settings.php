@@ -27,7 +27,7 @@ return [
             "host" => "localhost",
             "dbname" => "amelyV1",
             "user" => "root",
-            "pass" => "root"
+            "pass" => "thinhnez123"
         ],
         'mail' => [
             'mail_SMTPDebug' => 0,
