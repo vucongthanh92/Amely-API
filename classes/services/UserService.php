@@ -75,21 +75,13 @@ class UserService extends Services
 			unset($user->activation);
 		}
 		$user->fullname = $user->last_name.' '.$user->first_name;
-		$avatar = str_replace('profile/photo/', '', $user->avatar);
-		$cover = str_replace('profile/cover/', '', $user->cover);
 
-		$avatar_path = "/user/{$user->id}/profile/photo/"."larger_{$avatar}";
-		$cover_path = "/user/{$user->id}/profile/cover/"."larger_{$cover}";
-		if (file_exists(IMAGE_PATH.$avatar_path)) {
-			$user->avatar = IMAGE_URL.$avatar_path;
-		} else {
-			$user->avatar = AVATAR_DEFAULT;
-		}
-		if (file_exists(IMAGE_PATH.$cover_path)) {
-			$user->cover = IMAGE_URL.$cover_path;	
-		} else {
-			$user->cover = COVER_DEFAULT;
-		}
+		$avatar_path = "/user/{$user->id}/avatar/"."larger_{$user->avatar}";
+		$cover_path = "/user/{$user->id}/cover/"."larger_{$user->cover}";
+
+		$user->avatar = checkPath($avatar_path);
+		$user->cover = checkPath($cover_path,'cover');
+
 		if ($getAddr) {
 			if ($user->province && $user->district && $user->ward) {
 				$addressService = AddressService::getInstance();

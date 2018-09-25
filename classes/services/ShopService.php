@@ -48,21 +48,12 @@ class ShopService extends Services
 		$shops = $this->searchObject($conditions, $offset, $limit);
 		if (!$shops) return false;
 		foreach ($shops as $key => $shop) {
-			$avatar = array_pop(explode("/", $shop->avatar));
-			$cover = array_pop(explode("/", $shop->cover));
-			$avatar_path = "/object/{$shop->id}/avatar/images/"."larger_{$avatar}";
-			$cover_path = "/object/{$shop->id}/cover/images/"."larger_{$avatar}";
-			if (file_exists(IMAGE_PATH.$avatar_path)) {
-				$shop->avatar = IMAGE_URL.$avatar_path;
-			} else {
-				$shop->avatar = AVATAR_DEFAULT;
-			}
-			if (file_exists(IMAGE_PATH.$cover_path)) {
-				$shop->cover = IMAGE_URL.$cover_path;	
-			} else {
-				$shop->cover = COVER_DEFAULT;
-			}
+			$avatar_path = "/shop/{$shop->id}/avatar/"."larger_{$shop->avatar}";
+			$cover_path = "/shop/{$shop->id}/cover/"."larger_{$shop->cover}";
 
+			$shop->avatar = checkPath($avatar_path);
+			$shop->cover = checkPath($avatar_path,'cover');
+			
 		    $shop->description = html_entity_decode($shop->description);
 		    $shop->introduce = html_entity_decode($shop->introduce);
 		    $shop->policy = html_entity_decode($shop->policy);

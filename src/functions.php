@@ -2,6 +2,13 @@
 
 use Slim\Http\Response;
 
+function checkPath($path, $type = 'avatar')
+{
+	if (file_exists(IMAGE_PATH.$path)) return IMAGE_URL.$path;
+	if ($type == 'avatar') return AVATAR_DEFAULT;
+	return COVER_DEFAULT;
+}
+
 function object_cast($destination, $sourceObject)
 {
     if (is_string($destination)) {

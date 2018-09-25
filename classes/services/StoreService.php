@@ -35,7 +35,6 @@ class StoreService extends Services
 
     public function getStore($conditions, $getAddr = true)
 	{
-		$addressService = AddressService::getInstance();
 		$store = $this->searchObject($conditions, 0, 1);
 		if (!$store) return false;
 		$store = $this->changeStructureInfo($store, $getAddr);
@@ -44,7 +43,6 @@ class StoreService extends Services
 
 	public function getStores($conditions, $offset = 0, $limit = 10, $getAddr = true)
 	{
-		$addressService = AddressService::getInstance();
 		$stores = $this->searchObject($conditions, $offset, $limit);
 		if (!$stores) return false;
 		foreach ($stores as $key => $store) {
