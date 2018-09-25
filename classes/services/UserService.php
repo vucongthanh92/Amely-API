@@ -68,6 +68,9 @@ class UserService extends Services
 
 	private function changeStructureInfo($user, $getAddr = true, $password = true)
 	{
+		$addressService = AddressService::getInstance();
+		$imageService = ImageService::getInstance();
+
 		if ($password) {
 			unset($user->password);
 			unset($user->salt);
@@ -76,16 +79,11 @@ class UserService extends Services
 		}
 		$user->fullname = $user->last_name.' '.$user->first_name;
 
-		$avatar_path = "/user/{$user->id}/avatar/"."larger_{$user->avatar}";
-		$cover_path = "/user/{$user->id}/cover/"."larger_{$user->cover}";
-
-		$user->avatar = checkPath($avatar_path);
-		$user->cover = checkPath($cover_path,'cover');
+		$user->avatar = $imageService->showAvatar($user->id, $user->avatar, 'user', 'larger');
+		$user->cover = $imageService->showCover($user->id, $user->cover, 'user', 'larger');
 
 		if ($getAddr) {
 			if ($user->province && $user->district && $user->ward) {
-				$addressService = AddressService::getInstance();
-
 				$user_province = $addressService->getAddress($user->province, 'province');
 				$user_district = $addressService->getAddress($user->district, 'district');
 				$user_ward = $addressService->getAddress($user->ward, 'ward');

@@ -20,50 +20,65 @@ class BusinessService extends Services
         $this->table = "amely_business_pages";
     }
 
-  //   public function getStoreById($id, $getAddr = true)
-  //   {
-  //   	$conditions = null;
-		// $conditions[] = [
-		// 	'key' => 'id',
-		// 	'value' => "= '{$input}'",
-		// 	'operation' => ''
-		// ];
-		// $store = $this->getStore($conditions, $getAddr);
-		// if (!$store) return false;
-		// return $store;
-  //   }
+    public function getPageById($id)
+    {
+    	$conditions = null;
+		$conditions[] = [
+			'key' => 'id',
+			'value' => "= '{$id}'",
+			'operation' => ''
+		];
+		$page = $this->getPage($conditions);
+		if (!$page) return false;
+		return $page;
+    }
 
-    public function getBusiness($conditions, $getAddr = true)
+    public function getPagesLiked($from)
+    {
+    	$likeService = LikeService::getInstance();
+    	$conditions = null;
+	    $conditions[] = [
+	    	'key' => 'guid',
+	    	'value' => "= {$from}",
+	    	'operation' => ''
+	    ];
+	    $conditions[] = [
+	    	'key' => 'type',
+	    	'value' => "= 'business'",
+	    	'operation' => 'AND'
+	    ];
+	    $likes = $likeService->getLikes($conditions,0,99999999);
+	    if (!$likes) return false;
+	    return $likes;
+    }
+
+    public function getPage($conditions)
 	{
-		$addressService = AddressService::getInstance();
-		$store = $this->searchObject($conditions, 0, 1);
-		if (!$store) return false;
-		$store = $this->changeStructureInfo($store, $getAddr);
-		return $store;
+		$page = $this->searchObject($conditions, 0, 1);
+		if (!$page) return false;
+		$page = $this->changeStructureInfo($page);
+		return $page;
 	}
 
-	public function getStores($conditions, $offset = 0, $limit = 10, $getAddr = true)
+	public function getPages($conditions, $offset = 0, $limit = 10)
 	{
-		$addressService = AddressService::getInstance();
-		$stores = $this->searchObject($conditions, $offset, $limit);
-		if (!$stores) return false;
-		foreach ($stores as $key => $store) {
-			$store = $this->changeStructureInfo($store, $getAddr);
-			$stores[$key] = $store;
+		$pages = $this->searchObject($conditions, $offset, $limit);
+		if (!$pages) return false;
+		foreach ($pages as $key => $page) {
+			$page = $this->changeStructureInfo($page);
+			$pages[$key] = $page;
 		}
-		if (!$stores) return false;
-		return array_values($stores);
+		if (!$pages) return false;
+		return array_values($pages);
 	}
 
-	private function changeStructureInfo($store, $getAddr = true)
+	private function changeStructureInfo($page)
 	{
-		if ($page->avatar) {
-			$page->avatar = $page->photoURL("larger");
-		}
-		if ($page->cover){
-			$page->cover = $page->coverURL();
-		}
+		$imageService = ImageService::getInstance();
 
-		return $store;
+		$page->avatar = $imageService->showAvatar($page->id, $page->avatar, 'business', 'larger');
+		$page->cover = $imageService->showCover($page->id, $page->cover, 'business', 'larger');
+		
+		return $page;
 	}
 }

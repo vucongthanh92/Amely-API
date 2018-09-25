@@ -25,7 +25,7 @@ class StoreService extends Services
     	$conditions = null;
 		$conditions[] = [
 			'key' => 'id',
-			'value' => "= '{$input}'",
+			'value' => "= '{$id}'",
 			'operation' => ''
 		];
 		$store = $this->getStore($conditions, $getAddr);

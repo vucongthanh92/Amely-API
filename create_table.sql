@@ -113,6 +113,8 @@ CREATE TABLE `amely_annotations` (
   `subject_guid` bigint(20) NOT NULL,
   `type` varchar(20) NOT NULL,
   `time_created` int(11) NOT NULL,
+  `content` text,
+  `images` text,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
@@ -456,16 +458,14 @@ CREATE TABLE `amely_business_pages` (
   `id` bigint(20) NOT NULL AUTO_INCREMENT,
   PRIMARY KEY (`id`),
   `owner_guid` bigint(20) NOT NULL,
-  `type` varchar(20) NOT NULL,
   `time_created` int(11) NOT NULL,
   `title` text NOT NULL,
   `description` longtext NOT NULL,
   `subtype` text NOT NULL,
-    `category` text,
+  `category` text,
   `website` text,
   `phone` text,
   `address` text,
-  `inventory_status` text,
   `avatar` text,
   `cover` text
  ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
@@ -542,11 +542,11 @@ CREATE TABLE `amely_feeds` (
   `time_created` int(11) NOT NULL,
   `title` text NOT NULL,
   `description` longtext NOT NULL,
-  `subtype` text NOT NULL,
+  `location` text, 
+  `tag` text, 
   `mood_guid` text, 
   `poster_guid` text, 
-  `access` text, 
-  `linkPreview` text, 
+  `privacy` text, 
   `item_type` text, 
   `share_type` text, 
   `item_guid` text, 

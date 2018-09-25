@@ -13,6 +13,7 @@ $app->get($container['prefix'].'/profile', function (Request $request, Response 
 	$relationshipService = RelationshipService::getInstance();
 
 	$params = $request->getQueryParams();
+	if (!$params) $params = [];
 	$loggedin_user = loggedin_user();
 	$user_params = null;
 

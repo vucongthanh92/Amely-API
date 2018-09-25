@@ -43,4 +43,43 @@ class LikeService extends Services
 	    return  true;
     }
 
+    public function countLike($from = false, $to = false, $type)
+    {
+    	$conditions = null;
+    	if ($from !== false) {
+		    $conditions[] = [
+		    	'key' => 'guid',
+		    	'value' => "= {$from}",
+		    	'operation' => ''
+		    ];
+    	}
+	    if ($to !== false) {
+		    $conditions[] = [
+		    	'key' => 'subject_id',
+		    	'value' => "= {$to}",
+		    	'operation' => 'AND'
+		    ];
+	    }
+	    if (!$from && !$to) return false;
+	    $conditions[] = [
+	    	'key' => 'type',
+	    	'value' => "= '{$type}'",
+	    	'operation' => 'AND'
+	    ];
+	    $conditions[] = [
+	    	'key' => '*',
+	    	'value' => "count",
+	    	'operation' => 'count'
+	    ];
+	    $like = $this->searchObject($conditions,0,1);
+	    return $like->count;
+    }
+
+    public function getLikes($conditions, $offset, $limit)
+    {
+	    $likes = $this->searchObject($conditions, $offset, $limit);
+	    if (!$likes) return false;
+	    return $likes;
+    }
+
 }
