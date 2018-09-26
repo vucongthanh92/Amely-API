@@ -269,63 +269,78 @@ $app->post($container['prefix'].'/feeds', function (Request $request, Response $
 });
 
 $app->put($container['prefix'].'/feeds', function (Request $request, Response $response, array $args) {
-	$db = SlimDatabase::getInstance();
 	$loggedin_user = loggedin_user();
 
 	$params = $request->getParsedBody();
 	if (!$params) $params = [];
-	if (!array_key_exists("content", $params)) $params["content"] = false;
-	if (!array_key_exists("friends", $params)) $params["friends"] = false;
-	if (!array_key_exists("location", $params)) $params["location"] = false;
-	if (!array_key_exists("privacy", $params)) $params["privacy"] = "";
-	if (!array_key_exists("images", $params)) $params["images"] = false;
-	if (!array_key_exists("mood", $params)) $params["mood"] = "";
-	if (!array_key_exists("type", $params)) $params["type"] = "user";
-	if (!array_key_exists("owner_guid", $params)) $params["owner_guid"] = $loggedin_user->guid;
+	if (!array_key_exists('owner_guid', $params)) $params['owner_guid'] = $loggedin_user->id;
+	if (!array_key_exists('type', $params)) $params['type'] = 'user';
+	if (!array_key_exists('title', $params)) $params['title'] = $loggedin_user->fullname;
+	if (!array_key_exists('description', $params)) $params['description'] = false;
+	if (!array_key_exists('location', $params)) $params['location'] = false;
+	if (!array_key_exists('tag', $params)) $params['tag'] = false;
+	if (!array_key_exists('mood_id', $params)) $params['mood_id'] = false;
+	if (!array_key_exists('privacy', $params)) $params['privacy'] = 0;
+	if (!array_key_exists('images', $params)) $params['images'] = false;
+	if (!array_key_exists('item_type', $params)) $params['item_type'] = false;
+	if (!array_key_exists('item_id', $params)) $params['item_id'] = false;
 
-	$post     	= $params["content"];
-	$friends  	= $params["friends"];
-	$location 	= $params["location"];
-	$privacy  	= $params["privacy"];
-	$images 	= $params["images"];
-	$mood 		= $params["mood"];
-	$type 		= $params["type"];
-	$owner_guid = $params["owner_guid"];
+	$owner_guid 	=  $params['owner_guid'];
+	$type 			=  $params['type'];
+	$title 			=  $params['title'];
+	$description 	=  $params['description'];
+	$location 		=  $params['location'];
+	$tag 			=  $params['tag'];
+	$mood_id 		=  $params['mood_id'];
+	$poster_id 		=  $loggedin_user->id;
+	$privacy 		=  $params['privacy'];
+	$images 		=  $params['images'];
+	$item_type 		=  $params['item_type'];
+	$item_id 		=  $params['item_id'];
 
-	$path = "users/{$loggedin_user->username}/";
-	$fb_params = [
-		'mood' => (string)$mood
-	];
-	insertFirebase($path, $fb_params);
+	$description = htmlspecialchars($description, ENT_QUOTES, 'UTF-8');
 
-	$post = preg_replace('/\t/', ' ', $post);
-	$post = str_replace("\\n\\r", "", $post);
-	$wallpost['post'] = htmlspecialchars($post, ENT_QUOTES, 'UTF-8');
-	
-	//wall tag a friend , GUID issue #566
-	if($friends) {
-		$friend_guids = explode(',', $friends);
-		//reset friends guids
-		$friends      = array();
-		foreach($friend_guids as $guid) {
-				if(ossn_user_by_guid($guid)) {
-						$friends[] = $guid;
-				}
-		}
-		$wallpost['friend'] = implode(',', $friends);
+	$feed = new Feed();
+	$feed->data->owner_guid = $owner_guid;
+	$feed->data->type 		= $type;
+	$feed->data->title 		= $title;
+	$feed->data->description = $description;
+	if ($location) {
+		$feed->data->location = $location;
 	}
-	if(!empty($location)) {
-		$wallpost['location'] = $location;
+	if ($tag && count($tag) > 0) {
+		$tag = implode(',', $tag);
+		$feed->data->tag = $tag;
 	}
-	//Encode multibyte Unicode characters literally (default is to escape as \uXXXX)
-	$this->description = json_encode($wallpost, JSON_UNESCAPED_UNICODE);
+	if ($mood_id) {
+		$feed->data->mood_id = $mood_id;
+	}
+	$feed->data->poster_id = $poster_id;
+	$feed->data->privacy = $privacy;
+	if ($images) {
+		$images = implode(',', $images);
+		$feed->data->images = $images;
+	}
+	if ($item_type && $item_id) {
+		$feed->data->item_type = $item_type;
+		$feed->data->item_id = $item_id;	
+	}
 
-	$feed = new stdClass;
-	$feed->type = $type;
-	$feed->owner_guid = $owner_guid;
-	$feed->subtype = 'wall';
-	$feed->title = '';
-	$feed->description = '';
-	
-	return insertEAV($object, $show_id = false);
+	$id = $feed->insert(true);
+
+	return response(['id' => $id]);
+});
+
+$app->delete($container['prefix'].'/feeds', function (Request $request, Response $response, array $args) {
+	$feedService = FeedService::getInstance();
+	$loggedin_user = loggedin_user();
+	$params = $request->getQueryParams();
+	if (!array_key_exists("id", $params)) $params["id"] = false;
+	if (!$params['id']) return response(false);
+	$feed = $feedService->getFeedById($params['id']);
+	if (!$feed) return response(false);
+	$feed = object_cast("Feed", $feed);
+	$feed->where = "id = '{$feed->id}'";
+	if ($group->type = 'user') {
+	return response($feed->delete());
 });

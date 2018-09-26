@@ -15,7 +15,7 @@ CREATE TABLE `amely_usertokens` (
   `token` varchar(32) NOT NULL,
   `time_created` int(11) NOT NULL,
   `expired` bigint(20) unsigned NOT NULL,
-  `user_guid` int(10) unsigned NOT NULL,
+  `user_id` int(10) unsigned NOT NULL,
   `session_id` varchar(255) NOT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
@@ -33,12 +33,12 @@ CREATE TABLE `amely_relationships` (
 DROP TABLE IF EXISTS `amely_redeem_code`;
 CREATE TABLE `amely_redeem_code` (
   `id` bigint(255) NOT NULL AUTO_INCREMENT,
-  `item_guid` bigint(255) NOT NULL,
+  `item_id` bigint(255) NOT NULL,
   `code` varchar(100) NOT NULL,
   `expired` bigint(20) NOT NULL,
   `quantity` double(22,0) NOT NULL,
   `type` varchar(20) NOT NULL,
-  `guest_guid` bigint(20) NOT NULL,
+  `guest_id` bigint(20) NOT NULL,
   `time_created` int(11) NOT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
@@ -55,12 +55,12 @@ DROP TABLE IF EXISTS `amely_notifications`;
 CREATE TABLE `amely_notifications` (
   `id` bigint(20) NOT NULL AUTO_INCREMENT,
   `type` text NOT NULL,
-  `poster_guid` bigint(20) NOT NULL,
-  `owner_guid` bigint(20) NOT NULL,
-  `subject_guid` bigint(20) NOT NULL,
+  `poster_id` bigint(20) NOT NULL,
+  `owner_id` bigint(20) NOT NULL,
+  `subject_id` bigint(20) NOT NULL,
   `viewed` varchar(1) DEFAULT NULL,
   `time_created` int(11) NOT NULL,
-  `item_guid` bigint(20) NOT NULL,
+  `item_id` bigint(20) NOT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
@@ -80,7 +80,7 @@ DROP TABLE IF EXISTS `amely_likes`;
 CREATE TABLE `amely_likes` (
   `id` bigint(20) NOT NULL AUTO_INCREMENT,
   `subject_id` bigint(20) NOT NULL,
-  `guid` bigint(20) NOT NULL,
+  `id` bigint(20) NOT NULL,
   `type` varchar(20) NOT NULL,
   `time_created` int(11) NOT NULL,
   PRIMARY KEY (`id`)
@@ -109,8 +109,8 @@ CREATE TABLE `amely_currency_rates` (
 DROP TABLE IF EXISTS `amely_annotations`; 
 CREATE TABLE `amely_annotations` (
   `id` bigint(20) NOT NULL AUTO_INCREMENT,
-  `owner_guid` bigint(20) NOT NULL,
-  `subject_guid` bigint(20) NOT NULL,
+  `owner_id` bigint(20) NOT NULL,
+  `subject_id` bigint(20) NOT NULL,
   `type` varchar(20) NOT NULL,
   `time_created` int(11) NOT NULL,
   `content` text,
@@ -122,7 +122,7 @@ DROP TABLE IF EXISTS `amely_product_group`;
 CREATE TABLE `amely_product_group` (
   `id` bigint(20) NOT NULL AUTO_INCREMENT,
   PRIMARY KEY (`id`),
-  `owner_guid` bigint(20) NOT NULL,
+  `owner_id` bigint(20) NOT NULL,
   `type` varchar(20) NOT NULL,
   `time_created` int(11) NOT NULL,
   `title` text NOT NULL,
@@ -138,7 +138,7 @@ DROP TABLE IF EXISTS `amely_groups`;
 CREATE TABLE `amely_groups` (
   `id` bigint(20) NOT NULL AUTO_INCREMENT,
   PRIMARY KEY (`id`),
-  `owner_guid` bigint(20) NOT NULL,
+  `owner_id` bigint(20) NOT NULL,
   `type` varchar(20) NOT NULL,
   `time_created` int(11) NOT NULL,
   `title` text NOT NULL,
@@ -190,7 +190,7 @@ DROP TABLE IF EXISTS `amely_promotion_items`;
 CREATE TABLE `amely_promotion_items` (
   `id` bigint(20) NOT NULL AUTO_INCREMENT,
   PRIMARY KEY (`id`),
-  `owner_guid` bigint(20) NOT NULL,
+  `owner_id` bigint(20) NOT NULL,
   `type` varchar(20) NOT NULL,
   `time_created` int(11) NOT NULL,
   `title` text NOT NULL,
@@ -208,7 +208,7 @@ DROP TABLE IF EXISTS `amely_promotions`;
 CREATE TABLE `amely_promotions` (
   `id` bigint(20) NOT NULL AUTO_INCREMENT,
   PRIMARY KEY (`id`),
-  `owner_guid` bigint(20) NOT NULL,
+  `owner_id` bigint(20) NOT NULL,
   `type` varchar(20) NOT NULL,
   `time_created` int(11) NOT NULL,
   `title` text NOT NULL,
@@ -224,7 +224,7 @@ DROP TABLE IF EXISTS `amely_transactions`;
 CREATE TABLE `amely_transactions` (
   `id` bigint(20) NOT NULL AUTO_INCREMENT,
   PRIMARY KEY (`id`),
-  `owner_guid` bigint(20) NOT NULL,
+  `owner_id` bigint(20) NOT NULL,
   `type` varchar(20) NOT NULL,
   `time_created` int(11) NOT NULL,
   `title` text NOT NULL,
@@ -234,21 +234,21 @@ CREATE TABLE `amely_transactions` (
   `status` text,
   `currency` text,
   `quantity` text,
-  `order_guid` text,
+  `order_id` text,
   `shipping_fee` text,
-  `do_guid` text,
+  `do_id` text,
   `tax` text,
   `sub_total` text,
   `seller` text,
-  `shop_guid` text,
-  `item_guid` text
+  `shop_id` text,
+  `item_id` text
  ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 DROP TABLE IF EXISTS `amely_stores`; 
 CREATE TABLE `amely_stores` (
   `id` bigint(20) NOT NULL AUTO_INCREMENT,
   PRIMARY KEY (`id`),
-  `owner_guid` bigint(20) NOT NULL,
+  `owner_id` bigint(20) NOT NULL,
   `type` varchar(20) NOT NULL,
   `time_created` int(11) NOT NULL,
   `title` text NOT NULL,
@@ -268,7 +268,7 @@ DROP TABLE IF EXISTS `amely_products`;
 CREATE TABLE `amely_products` (
   `id` bigint(20) NOT NULL AUTO_INCREMENT,
   PRIMARY KEY (`id`),
-  `owner_guid` bigint(20) NOT NULL,
+  `owner_id` bigint(20) NOT NULL,
   `type` varchar(20) NOT NULL,
   `time_created` int(11) NOT NULL,
   `title` text NOT NULL,
@@ -288,7 +288,7 @@ CREATE TABLE `amely_products` (
   `storage_duration` text,
   `is_special` text,
   `product_group` text,
-  `creator_guid` text,
+  `creator_id` text,
   `custom_attributes` text,
   `number_sold` text,
   `download` text,
@@ -314,13 +314,13 @@ DROP TABLE IF EXISTS `amely_delivery_order`;
 CREATE TABLE `amely_delivery_order` (
   `id` bigint(20) NOT NULL AUTO_INCREMENT,
   PRIMARY KEY (`id`),
-  `owner_guid` bigint(20) NOT NULL,
+  `owner_id` bigint(20) NOT NULL,
   `type` varchar(20) NOT NULL,
   `time_created` int(11) NOT NULL,
   `title` text NOT NULL,
   `description` longtext NOT NULL,
   `subtype` text NOT NULL,
-  `so_guid` text, 
+  `so_id` text, 
   `status` text, 
   `product_snapshot` text, 
   `ghtk_result` text, 
@@ -345,14 +345,14 @@ DROP TABLE IF EXISTS `amely_supply_order`;
 CREATE TABLE `amely_supply_order` (
   `id` bigint(20) NOT NULL AUTO_INCREMENT,
   PRIMARY KEY (`id`),
-  `owner_guid` bigint(20) NOT NULL,
+  `owner_id` bigint(20) NOT NULL,
   `type` varchar(20) NOT NULL,
   `time_created` int(11) NOT NULL,
   `title` text NOT NULL,
   `description` longtext NOT NULL,
   `subtype` text NOT NULL,
   `process_status` text, 
-  `shop_guid` text, 
+  `shop_id` text, 
   `shipping_fee` text, 
   `order_item` text, 
   `order_item_snapshot` text
@@ -362,7 +362,7 @@ DROP TABLE IF EXISTS `amely_purchase_order`;
 CREATE TABLE `amely_purchase_order` (
   `id` bigint(20) NOT NULL AUTO_INCREMENT,
   PRIMARY KEY (`id`),
-  `owner_guid` bigint(20) NOT NULL,
+  `owner_id` bigint(20) NOT NULL,
   `type` varchar(20) NOT NULL,
   `time_created` int(11) NOT NULL,
   `title` text NOT NULL,
@@ -396,7 +396,7 @@ DROP TABLE IF EXISTS `amely_products_snapshot`;
 CREATE TABLE `amely_products_snapshot` (
   `id` bigint(20) NOT NULL AUTO_INCREMENT,
   PRIMARY KEY (`id`),
-  `owner_guid` bigint(20) NOT NULL,
+  `owner_id` bigint(20) NOT NULL,
   `type` varchar(20) NOT NULL,
   `time_created` int(11) NOT NULL,
   `title` text NOT NULL,
@@ -416,7 +416,7 @@ CREATE TABLE `amely_products_snapshot` (
   `storage_duration` text,
   `is_special` text,
   `product_group` text,
-  `creator_guid` text,
+  `creator_id` text,
   `custom_attributes` text,
   `number_sold` text,
   `download` text,
@@ -440,24 +440,24 @@ DROP TABLE IF EXISTS `amely_counter_offers`;
 CREATE TABLE `amely_counter_offers` (
   `id` bigint(20) NOT NULL AUTO_INCREMENT,
   PRIMARY KEY (`id`),
-  `owner_guid` bigint(20) NOT NULL,
+  `owner_id` bigint(20) NOT NULL,
   `type` varchar(20) NOT NULL,
   `time_created` int(11) NOT NULL,
   `title` text NOT NULL,
   `description` longtext NOT NULL,
   `subtype` text NOT NULL,
-  `offer_guid` text, 
+  `offer_id` text, 
   `status` text, 
   `product_snapshot` text, 
   `quantity` text, 
-  `so_guid` text
+  `so_id` text
  ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 DROP TABLE IF EXISTS `amely_business_pages`; 
 CREATE TABLE `amely_business_pages` (
   `id` bigint(20) NOT NULL AUTO_INCREMENT,
   PRIMARY KEY (`id`),
-  `owner_guid` bigint(20) NOT NULL,
+  `owner_id` bigint(20) NOT NULL,
   `time_created` int(11) NOT NULL,
   `title` text NOT NULL,
   `description` longtext NOT NULL,
@@ -475,7 +475,7 @@ DROP TABLE IF EXISTS `amely_shops`;
 CREATE TABLE `amely_shops` (
   `id` bigint(20) NOT NULL AUTO_INCREMENT,
   PRIMARY KEY (`id`),
-  `owner_guid` bigint(20) NOT NULL,
+  `owner_id` bigint(20) NOT NULL,
   `type` varchar(20) NOT NULL,
   `time_created` int(11) NOT NULL,
   `title` text NOT NULL,
@@ -511,7 +511,7 @@ DROP TABLE IF EXISTS `amely_offers`;
 CREATE TABLE `amely_offers` (
   `id` bigint(20) NOT NULL AUTO_INCREMENT,
   PRIMARY KEY (`id`),
-  `owner_guid` bigint(20) NOT NULL,
+  `owner_id` bigint(20) NOT NULL,
   `type` varchar(20) NOT NULL,
   `time_created` int(11) NOT NULL,
   `title` text NOT NULL,
@@ -529,7 +529,7 @@ CREATE TABLE `amely_offers` (
   `limit_counter` text,
   `giveaway_approval` text,
   `product_snapshot` text,
-  `so_guid` text,
+  `so_id` text,
   `counter_number` text
  ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
@@ -537,19 +537,18 @@ DROP TABLE IF EXISTS `amely_feeds`;
 CREATE TABLE `amely_feeds` (
   `id` bigint(20) NOT NULL AUTO_INCREMENT,
   PRIMARY KEY (`id`),
-  `owner_guid` bigint(20) NOT NULL,
+  `owner_id` bigint(20) NOT NULL,
   `type` varchar(20) NOT NULL,
   `time_created` int(11) NOT NULL,
   `title` text NOT NULL,
   `description` longtext NOT NULL,
   `location` text, 
   `tag` text, 
-  `mood_guid` text, 
-  `poster_guid` text, 
+  `mood_id` text, 
+  `poster_id` text, 
   `privacy` text, 
   `item_type` text, 
-  `share_type` text, 
-  `item_guid` text, 
+  `item_id` text, 
   `images` text
  ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
@@ -557,7 +556,7 @@ DROP TABLE IF EXISTS `amely_manufacturers`;
 CREATE TABLE `amely_manufacturers` (
   `id` bigint(20) NOT NULL AUTO_INCREMENT,
   PRIMARY KEY (`id`),
-  `owner_guid` bigint(20) NOT NULL,
+  `owner_id` bigint(20) NOT NULL,
   `type` varchar(20) NOT NULL,
   `time_created` int(11) NOT NULL,
   `title` text NOT NULL,
@@ -572,7 +571,7 @@ DROP TABLE IF EXISTS `amely_categories`;
 CREATE TABLE `amely_categories` (
   `id` bigint(20) NOT NULL AUTO_INCREMENT,
   PRIMARY KEY (`id`),
-  `owner_guid` bigint(20) NOT NULL,
+  `owner_id` bigint(20) NOT NULL,
   `type` varchar(20) NOT NULL,
   `time_created` int(11) NOT NULL,
   `title` text NOT NULL,
@@ -581,8 +580,8 @@ CREATE TABLE `amely_categories` (
  `friendly_url` text,
   `sort_order` text,
   `enabled` text,
-  `parent_guid` text,
-  `creator_guid` text,
+  `parent_id` text,
+  `creator_id` text,
   `logo` text
  ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
@@ -590,7 +589,7 @@ DROP TABLE IF EXISTS `amely_items`;
 CREATE TABLE `amely_items` (
   `id` bigint(20) NOT NULL AUTO_INCREMENT,
   PRIMARY KEY (`id`),
-  `owner_guid` bigint(20) NOT NULL,
+  `owner_id` bigint(20) NOT NULL,
   `type` varchar(20) NOT NULL,
   `time_created` int(11) NOT NULL,
   `title` text NOT NULL,
@@ -603,7 +602,7 @@ CREATE TABLE `amely_items` (
   `is_special`text,
   `stored_end`text,
   `end_day`text,
-  `so_guid`text,
+  `so_id`text,
   `wishlist`text,
   `givelist`text,
   `display_price`text
@@ -613,7 +612,7 @@ DROP TABLE IF EXISTS `amely_events`;
 CREATE TABLE `amely_events` (
   `id` bigint(20) NOT NULL AUTO_INCREMENT,
   PRIMARY KEY (`id`),
-  `owner_guid` bigint(20) NOT NULL,
+  `owner_id` bigint(20) NOT NULL,
   `type` varchar(20) NOT NULL,
   `time_created` int(11) NOT NULL,
   `title` text NOT NULL,
@@ -626,7 +625,7 @@ CREATE TABLE `amely_events` (
   `template` text,
   `has_inventory` text,
   `status` text,
-  `creator_guid` text,
+  `creator_id` text,
   `members` text,
   `invites` text,
   `friendly_url` text,
@@ -639,7 +638,7 @@ DROP TABLE IF EXISTS `amely_moods`;
 CREATE TABLE `amely_moods` (
   `id` bigint(20) NOT NULL AUTO_INCREMENT,
   PRIMARY KEY (`id`),
-  `owner_guid` bigint(20) NOT NULL,
+  `owner_id` bigint(20) NOT NULL,
   `type` varchar(20) NOT NULL,
   `time_created` int(11) NOT NULL,
   `title` text NOT NULL,
@@ -652,7 +651,7 @@ DROP TABLE IF EXISTS `amely_advertisements`;
 CREATE TABLE `amely_advertisements` (
   `id` bigint(20) NOT NULL AUTO_INCREMENT,
   PRIMARY KEY (`id`),
-  `owner_guid` bigint(20) NOT NULL,
+  `owner_id` bigint(20) NOT NULL,
   `type` varchar(20) NOT NULL,
   `time_created` int(11) NOT NULL,
   `title` text NOT NULL,
@@ -680,7 +679,7 @@ DROP TABLE IF EXISTS `amely_feed_linkpreview`;
 CREATE TABLE `amely_feed_linkpreview` (
   `id` bigint(20) NOT NULL AUTO_INCREMENT,
   PRIMARY KEY (`id`),
-  `owner_guid` bigint(20) NOT NULL,
+  `owner_id` bigint(20) NOT NULL,
   `type` varchar(20) NOT NULL,
   `time_created` int(11) NOT NULL,
   `title` text NOT NULL,

@@ -16,12 +16,14 @@
     
     @POST("feeds")
     @PUT("feeds")
-    @PUT("contact_update")
-    @PATCH("upload_avatar")
-    @PATCH("upload_cover")
     @PATCH("feeds")
     @DELETE("feeds")
     @GET("feeds")
+    
+    
+    @PUT("contact_update")
+    @PATCH("upload_avatar")
+    @PATCH("upload_cover")
     @POST("mood")
     @GET("mood")
     @PUT("likes")

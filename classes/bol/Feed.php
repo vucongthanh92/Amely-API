@@ -9,18 +9,17 @@ class Feed extends Object
     private $description;
     private $location;
     private $tag;
-    private $mood_guid;
-    private $poster_guid;
+    private $mood_id;
+    private $poster_id;
     private $privacy;
     private $item_type;
-    private $share_type;
-    private $item_guid;
+    private $item_id;
     private $images;
 
 	public function __construct() 
 	{	
 		parent::__construct();
-		$this->table = "amely_groups";
+		$this->table = "amely_feeds";
 	}
 
 	public function __set($key, $value)
