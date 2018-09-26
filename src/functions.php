@@ -2,6 +2,18 @@
 
 use Slim\Http\Response;
 
+function arrayFilter($objects, $searchedValue, $type = 'id')
+{
+	$result = array_filter(
+	    $objects,
+	    function ($e) use (&$searchedValue, $type) {
+	        return $e->$type == $searchedValue;
+	    }
+	);
+	if (!$result) return false;
+	return array_values($result);
+}
+
 function checkPath($path, $type = 'avatar')
 {
 	if (file_exists(IMAGE_PATH.$path)) return IMAGE_URL.$path;
@@ -145,70 +157,6 @@ function getInvitation($invite_type, $approve_type, $owner_guid, $reverse = fals
     return $invitations_guid;
 }
 
-function getMembersGUID($type, $owner_guid, $count = false)
-{
-	$select = SlimSelect::getInstance();
-	$limit = 99999999;
-	$relation_params = null;
-	switch ($type) {
-		case 'group':
-			$relation_params[] = [
-				'key' => 'type',
-				'value' => "IN ('group:join:approve', 'group:invite:approve')",
-				'operation' => ''
-			];
-			break;
-		case 'event':
-			$relation_params[] = [
-				'key' => 'type',
-				'value' => "IN ('event:join:approve', 'event:invite:approve')",
-				'operation' => ''
-			];
-			break;
-		default:
-			return  false;
-			break;
-	}
-	
-	$relation_params[] = [
-		'key' => 'relation_from',
-		'value' => "IN ({$owner_guid})",
-		'operation' => 'AND'
-	];
-	if ($count) {
-		$relation_params[] = [
-			'key' => '*',
-			'value' => "count",
-			'operation' => 'count'
-		];
-		$limit = 1;
-		$relation_params[] = [
-			'key' => 'relation_from',
-			'value' => "",
-			'operation' => 'group_by'
-		];
-	}
-	$relation_params[] = [
-		'key' => 'relation_from',
-		'value' => "",
-		'operation' => 'query_params'
-	];
-	$relation_params[] = [
-		'key' => 'relation_to',
-		'value' => "",
-		'operation' => 'query_params'
-	];
-	
-
-	$relations = $select->getRelationships($relation_params, 0, $limit);
-	if (!$relations) return false;
-	if ($count) {
-		return $relations;
-	}
-
-    // $relations_guid = array_map(create_function('$o', 'return $o->relation_to;'), $relations);
-    return $relations;
-}
 
 function getPagesGUID($owner_guid)
 {

@@ -316,6 +316,7 @@ class SlimDatabase
 				return false;
 				break;
 		}
+		
 		if ($query === false) return false;
 		$db = $connectDB->query($query);
 		if ($show_id) {

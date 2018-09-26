@@ -2,86 +2,65 @@
 use Slim\Http\Request;
 use Slim\Http\Response;
 
-$app->get($container['prefix'].'/invitation', function (Request $request, Response $response, array $args) {
-	$select = SlimSelect::getInstance();
-	return response(false);
-});
-
-$app->post($container['prefix'].'/invitation', function (Request $request, Response $response, array $args) {
-	$select = SlimSelect::getInstance();
+$app->put($container['prefix'].'/invitation', function (Request $request, Response $response, array $args) {
+	$relationshipService = RelationshipService::getInstance();
 	$loggedin_user = loggedin_user();
-	$invitation_type = ["user", "group", "event"];
-	$event_requests = $group_requests = $user_requests = [];
 	$params = $request->getParsedBody();
 	if (!$params) $params = [];
-	if (!array_key_exists('limit', $params))	 	$params['limit'] = 10;
-	if (!array_key_exists('offset', $params))	 	$params['offset'] = 0;
-	$offset = (double)$params['offset'];
-	$limit = (double)$params['limit'];
+	if (!array_key_exists('from_id', $params))  	$params['from_id'] = $loggedin_user->id;
+	if (!array_key_exists('to_id', $params))  		$params['to_id'] = false;
+	if (!array_key_exists('type', $params))  		$params['type'] = false;
 
-	$users = $groups = $events = [];
-	foreach ($invitation_type as $key => $type) {
-		switch ($type) {
-			case 'user':
-				$user_requests = getInvitation("friend:request", "friend:request", $loggedin_user->guid);
-				break;
-			case 'group':
-				$group_requests = getInvitation("group:invite", "group:invite:approve", $loggedin_user->guid, true);
-				break;
-			case 'event':
-				$invite_requests = getInvitation("event:invite", "event:invite:approve", $loggedin_user->guid, true);
-				$member_requests = getInvitation("event:member", "event:member:approve", $loggedin_user->guid, true);
-				break;
-		}
-	}
-	$users_result = [];
-	if ($user_requests) {
-		$user_requests = array_unique($user_requests);
-		$users_guid = implode(',', array_unique($user_requests));
-		$user_params = null;
-		$user_params[] = [
-			'key' => 'guid',
-			'value' => "IN ({$users_guid})",
-			'operation' => ''
-		];
-		$users = $select->getUsers($user_params,0,999999999,false);
-		foreach ($users as $key => $user) {
-			$users_result[$user->guid] = $user;
-		}
-	}
+	if (!$params['from_id'] || !$params['to_id'] || !$params['type']) return response(false);
+	$from = $params['from_id'];
+	$tos = $params['to_id'];
+	$type = $params['type'];
 
-	$groups_result = [];
-	if ($group_requests) {
-		$group_requests = array_unique($group_requests);
-		$groups_guid = implode(',', array_unique($group_requests));
-		$group_params = null;
-		$group_params[] = [
-			'key' => 'guid',
-			'value' => "IN ({$groups_guid})",
-			'operation' => ''
-		];
-		$groups = $select->getGroups($group_params,0,999999999);
-		foreach ($groups as $key => $group) {
-			$groups_result[$group->guid] = $group;
-		}
-	}
+	switch ($type) {
+		case 'user':
+			$from = $loggedin_user->id;
+			foreach ($tos as $key => $to) {
+				if ($relationshipService->getRelationByType($from, $to, 'friend:request')) {
+					if ($relationshipService->getRelationByType($to, $from, 'friend:request')) return response(false);
+					$relationship = new Relationship;
+					$relationship->data->relation_from = $to;
+					$relationship->data->relation_to = $from;
+					$relationship->data->type = 'friend:request';
+					return response($relationship->insert());
+				}
+				$relationship = new Relationship;
+				$relationship->data->relation_from = $from;
+				$relationship->data->relation_to = $to;
+				$relationship->data->type = 'friend:request';
+				return response($relationship->insert());
+			}
+			break;
+		case 'group':
+			foreach ($tos as $key => $to) {
+				
+				$relationship = new Relationship;
+				$relationship->data->relation_from = $from;
+				$relationship->data->relation_to = $to;
+				$relationship->data->type = 'group:invite';
+				$relationship->insert();
 
-	if ($event_requests) {
-		$event_requests = array_unique(array_merge($invite_requests, $member_requests));
-		$event_requests = implode(',', array_unique($event_requests));
-		$event_params = null;
-		$event_params[] = [
-			'key' => 'guid',
-			'value' => "IN ({$event_requests})",
-			'operation' => ''
-		];
-		$events = $select->getEvents($event_params,0,9999999999);
+				$relationship = new Relationship;
+				$relationship->data->relation_from = $to;
+				$relationship->data->relation_to = $from;
+				$relationship->data->type = 'group:approve';
+				$relationship->insert();
+			}
+			return response(false);
+			break;
+		case 'event':
+			# code...
+			break;
+		default:
+			# code...
+			break;
 	}
+});
 
-	return [
-		"users" => array_values($users),
-		"groups" => array_values($groups),
-		"events" => array_values($events)
-	];
-	return response(false);
+$app->delete($container['prefix'].'/invitation', function (Request $request, Response $response, array $args) {
+
 });

@@ -2,7 +2,7 @@
 
 class Store extends Object
 {
-	private $owner_guid;
+	private $owner_id;
 	private $type;
 	private $title;
 	private $description;

@@ -4,7 +4,8 @@ class Relationship extends Object
 {
 	private $relation_from;
 	private $relation_to;
-	private $type;
+    private $type;
+	private $time_created;
 
 	public function __construct() 
 	{

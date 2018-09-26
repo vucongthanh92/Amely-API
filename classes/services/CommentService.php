@@ -32,14 +32,14 @@ class CommentService extends Services
     	$conditions = null;
     	if ($from !== false) {
 		    $conditions[] = [
-		    	'key' => 'owner_guid',
+		    	'key' => 'owner_id',
 		    	'value' => "= {$from}",
 		    	'operation' => ''
 		    ];
     	}
 	    if ($to !== false) {
 		    $conditions[] = [
-		    	'key' => 'subject_guid',
+		    	'key' => 'subject_id',
 		    	'value' => "= {$to}",
 		    	'operation' => 'AND'
 		    ];
@@ -56,6 +56,7 @@ class CommentService extends Services
 	    	'operation' => 'count'
 	    ];
 	    $comment = $this->searchObject($conditions,0,1);
+	    if (!$comment) return false;
 	    return  $comment->count;
     }
 
@@ -64,14 +65,14 @@ class CommentService extends Services
     	$conditions = null;
     	if ($from !== false) {
 		    $conditions[] = [
-		    	'key' => 'owner_guid',
+		    	'key' => 'owner_id',
 		    	'value' => "IN ({$from})",
 		    	'operation' => ''
 		    ];
     	}
 	    if ($to !== false) {
 		    $conditions[] = [
-		    	'key' => 'subject_guid',
+		    	'key' => 'subject_id',
 		    	'value' => "IN ({$to})",
 		    	'operation' => 'AND'
 		    ];
@@ -88,12 +89,12 @@ class CommentService extends Services
 	    	'operation' => 'count'
 	    ];
 	    $comment_params[] = [
-			'key' => 'subject_guid',
+			'key' => 'subject_id',
 			'value' => "",
 			'operation' => 'query_params'
 		];
 		$comment_params[] = [
-			'key' => 'subject_guid',
+			'key' => 'subject_id',
 			'value' => "",
 			'operation' => 'group_by'
 		];

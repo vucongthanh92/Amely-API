@@ -32,11 +32,29 @@ class GroupService extends Services
 		return $group;
 	}
 
+	public function getGroupsById($id, $offset = 0, $limit = 10)
+	{
+		$conditions = null;
+		$conditions[] = [
+			'key' => 'id',
+			'value' => "IN ({$id})",
+			'operation' => ''
+		];
+
+		$groups = $this->searchObject($conditions, $offset, $limit);
+		if (!$groups) return false;
+		foreach ($groups as $key => $group) {
+			$group = $this->changeStructureInfo($group);
+			$groups[$key] = $group;
+		}
+		return $groups;
+	}
+
 	public function getGroupsByOwner($input, $offset = 0, $limit = 10)
 	{
 		$conditions = null;
 		$conditions[] = [
-			'key' => 'owner_guid',
+			'key' => 'owner_id',
 			'value' => "= {$input}",
 			'operation' => ''
 		];
@@ -65,10 +83,19 @@ class GroupService extends Services
 		return array_values($groups);
 	}
 
-	public function getMembers($id, $type = 'group', $offset = 0, $limit = 10)
+	public function getIdGroupsApprove($owner_id, $offset, $limit)
 	{
 		$relationshipService = RelationshipService::getInstance();
-		$members = $relationshipService->getMembers($id, $type, $offset, $limit);
+		$groups_id = $relationshipService->getRelationsByType(false, $owner_id, 'group:approve', $offset, $limit);
+		if (!$groups_id) return false;
+		$groups_id = array_unique(array_map(create_function('$o', 'return $o->relation_from;'), $groups_id));
+		return $groups_id;
+	}
+
+	public function getMembers($group_id, $offset = 0, $limit = 10)
+	{
+		$relationshipService = RelationshipService::getInstance();
+		$members = $relationshipService->getRelationsByType($group_id, false, 'group:approve', $offset, $limit);
 		if (!$members) return false;
 		return $members;
 	}

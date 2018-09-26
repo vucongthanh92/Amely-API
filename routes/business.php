@@ -42,13 +42,13 @@ $app->post($container['prefix'].'/business', function (Request $request, Respons
 		'operation' => ''
 	];
 
-	if ($pages_liked && count($pages_liked) > 1) {
+	if ($pages_liked && count($pages_liked) > 0) {
 		$pages_liked = implode(',', $pages_liked);
 		$page_params = [
 			'key' => 'id',
 			'value' => "IN ($pages_liked)",
 			'operation' => 'AND'
-		]
+		];
 	}
 
 	$pages = $businessService->getPages($page_params, $offset, $limit);

@@ -4,12 +4,16 @@ use Slim\Http\Response;
 
 $app->get($container['prefix'].'/groups', function (Request $request, Response $response, array $args) {
 	$groupService = GroupService::getInstance();
+	$userService = UserService::getInstance();
+
 	$loggedin_user = loggedin_user();
 	$params = $request->getQueryParams();
-	if (!array_key_exists("id", $params)) $params["id"] = false;
-	if (!$params['id']) return response(false);
-	$group = $groupService->getGroupById($params['id']);
+	if (!array_key_exists('group_id', $params)) $params['group_id'] = false;
+	if (!$params['group_id']) return response(false);
+	$group = $groupService->getGroupById($params['group_id']);
 	if (!$group) return response(false);
+	$owners = $userService->getUsersByType($group->owners, 'id', false);
+	$group->owners = $owners;
 
 	return response($group);
 });
@@ -21,35 +25,36 @@ $app->post($container['prefix'].'/groups', function (Request $request, Response 
 	$loggedin_user = loggedin_user();
 	$params = $request->getParsedBody();
 	if (!$params) $params = [];
-	if (!array_key_exists("owner_guid", $params)) $params["owner_guid"] = false;
+	if (!array_key_exists("owner_id", $params)) $params["owner_id"] = $loggedin_user->id;
 	if (!array_key_exists("offset", $params)) $params["offset"] = 0;
 	if (!array_key_exists("limit", $params)) $params["limit"] = 10;
-
-	$owner_guid = $loggedin_user->id;
-	if ($params["owner_guid"]) $owner_guid = $params["owner_guid"];
-
-	$groups = $groupService->getGroupsByOwner($owner_guid, $params["offset"], $params["limit"]);
+	$offset = $params["offset"];
+	$limit = $params["limit"];
+	$owner_id = $params['owner_id'];
+	
+	$groups_id = $groupService->getIdGroupsApprove($owner_id, $offset, $limit);
+	if (!$groups_id) return response(false);
+	$groups_id = implode(',', $groups_id);
+	$groups = $groupService->getGroupsById($groups_id, 0, 99999999);
 	if (!$groups) return response(false);
-	$group_owners = [];
+	$group_owners_id = [];
 	foreach ($groups as $key => $group) {
-		if ($group->owners) {
-			$owners = explode(',', $group->owners);
-			$group_owners = array_merge((array)$group_owners, (array)$owners);
-		}
+		array_push($group_owners_id, $group->owner_id);
 	}
-	$group_owners = array_unique($group_owners);
-	if (!$group_owners) return response(false);
-	$group_owners = implode(',', $group_owners);
-	$group_users = [];
-	$users = $userService->getUsersByType($group_owners, 'id', false);
-	foreach ($users as $key => $user) {
-		$group_users[$user->id] = $user;
-	}		
+	$group_owners_id = array_unique($group_owners_id);
+	if (!$group_owners_id) return response(false);
+	$group_owners_id = implode(',', $group_owners_id);
+	$users = $userService->getUsersByType($group_owners_id, 'id', false);
+	if (!$users) return response(false);
 
-	return response([
-		'groups' => array_values($groups),
-		'owners' => $group_users
-	]);
+	foreach ($groups as $key => $group) {
+		$owner = arrayFilter($users, $group->owner_id);
+		$group->owners = $owner;
+		$groups[$key] = $group;
+	}
+
+	return response(array_values($groups));
+
 });
 
 $app->put($container['prefix'].'/groups', function (Request $request, Response $response, array $args) {
@@ -63,7 +68,7 @@ $app->put($container['prefix'].'/groups', function (Request $request, Response $
 	if (!array_key_exists("owners", $params)) $params["owners"] = false;
 
 	$group = new Group;
-	$group->data->owner_guid = $loggedin_user->id;
+	$group->data->owner_id = $loggedin_user->id;
 	$group->data->type = 'user';
 	$group->data->title = $params["name"];
 	$group->data->description = $params["description"];
@@ -125,14 +130,14 @@ $app->delete($container['prefix'].'/groups', function (Request $request, Respons
 	$groupService = GroupService::getInstance();
 	$loggedin_user = loggedin_user();
 	$params = $request->getQueryParams();
-	if (!array_key_exists("id", $params)) $params["id"] = false;
-	if (!$params['id']) return response(false);
-	$group = $groupService->getGroupById($params['id']);
+	if (!array_key_exists("group_id", $params)) $params["group_id"] = false;
+	if (!$params['group_id']) return response(false);
+	$group = $groupService->getGroupById($params['group_id']);
 	if (!$group) return response(false);
 	$group = object_cast("Group", $group);
 	$group->where = "id = '{$group->id}'";
 	if ($group->type = 'user') {
-		if ($loggedin_user->id == $group->owner_guid) {
+		if ($loggedin_user->id == $group->owner_id) {
 			if ($groupService->deleteRelationshipGroup($group->id)) {
 				return response($group->delete());
 			}

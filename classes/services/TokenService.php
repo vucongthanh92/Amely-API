@@ -32,7 +32,7 @@ class TokenService extends Services
 			if ($token->token != $_SESSION["TOKEN"]) {
 				$userService = UserService::getInstance();
 
-				$user = $userService->getUserByType($token->user_guid, 'id', true);
+				$user = $userService->getUserByType($token->user_id, 'id', true);
 			    
 			    $_SESSION["OSSN_USER"] = $user;
 			}

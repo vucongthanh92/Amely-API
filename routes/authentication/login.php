@@ -45,7 +45,7 @@ $app->post($container['prefix'].'/authtoken', function (Request $request, Respon
 
         $token = new Token();
         $token->data->token = $token_code;
-		$token->data->user_guid = $user->id;
+		$token->data->user_id = $user->id;
 		$token->data->session_id = session_id();
 
         if ($token->insert()) {

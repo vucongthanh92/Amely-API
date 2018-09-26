@@ -24,7 +24,7 @@ class LikeService extends Services
     {
     	$conditions = null;
 	    $conditions[] = [
-	    	'key' => 'guid',
+	    	'key' => 'id',
 	    	'value' => "= {$from}",
 	    	'operation' => ''
 	    ];
@@ -48,7 +48,7 @@ class LikeService extends Services
     	$conditions = null;
     	if ($from !== false) {
 		    $conditions[] = [
-		    	'key' => 'guid',
+		    	'key' => 'id',
 		    	'value' => "= {$from}",
 		    	'operation' => ''
 		    ];
@@ -72,6 +72,7 @@ class LikeService extends Services
 	    	'operation' => 'count'
 	    ];
 	    $like = $this->searchObject($conditions,0,1);
+	    if (!$like) return false;
 	    return $like->count;
     }
 

@@ -17,7 +17,7 @@ class RelationshipService extends Services
 
 	public function __construct() 
 	{
-        $this->table = "amely_relationships r1";
+        $this->table = "amely_relationships r";
     }
 
 
@@ -94,22 +94,60 @@ class RelationshipService extends Services
 		return $relate->delete();
 	}
 
-	public function getMembers($input, $type, $offset = 0, $limit = 10)
+	public function getRelationsByType($from = false, $to = false, $type = false, $offset = 0, $limit = 10)
 	{
 		$relation_params = null;
+		if (!$type) return false;
 	    $relation_params[] = [
 	    	'key' => 'r.type',
-	    	'value' => "= '{$type}:approve'",
-	    	'operation' => 'AND'
+	    	'value' => "= '{$type}'",
+	    	'operation' => ''
 	    ];
+		if ($from !== false) {
+		    $relation_params[] = [
+		    	'key' => 'r.relation_from',
+		    	'value' => "= {$from}",
+		    	'operation' => 'AND'
+		    ];
+		}
+		if ($to !== false) {
+		    $relation_params[] = [
+		    	'key' => 'r.relation_to',
+		    	'value' => "= {$to}",
+		    	'operation' => 'AND'
+		    ];
+		}
+	    $relations = $this->searchObject($relation_params, $offset, $limit);
+	    if (!$relations) return false;
+	    return $relations;
+	}
+
+	public function getRelationByType($from = false, $to = false, $type = false)
+	{
+		$relation_params = null;
+		if (!$type) return false;
 	    $relation_params[] = [
-	    	'key' => 'r.relation_from',
-	    	'value' => "= {$input}",
-	    	'operation' => 'AND'
+	    	'key' => 'r.type',
+	    	'value' => "= '{$type}'",
+	    	'operation' => ''
 	    ];
-	    $members = $this->searchObject($relation_params, $offset, $limit);
-	    if (!$members) return false;
-	    return $members;
+		if ($from !== false) {
+		    $relation_params[] = [
+		    	'key' => 'r.relation_from',
+		    	'value' => "= {$from}",
+		    	'operation' => 'AND'
+		    ];
+		}
+		if ($to !== false) {
+		    $relation_params[] = [
+		    	'key' => 'r.relation_to',
+		    	'value' => "= {$to}",
+		    	'operation' => 'AND'
+		    ];
+		}
+	    $relation = $this->searchObject($relation_params, 0, 1);
+	    if (!$relation) return false;
+	    return $relation;
 	}
 
 }

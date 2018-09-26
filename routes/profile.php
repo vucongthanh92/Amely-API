@@ -17,9 +17,9 @@ $app->get($container['prefix'].'/profile', function (Request $request, Response 
 	$loggedin_user = loggedin_user();
 	$user_params = null;
 
-	if (array_key_exists("guid", $params) && is_numeric($params['guid'])) {
+	if (array_key_exists("id", $params) && is_numeric($params['id'])) {
 		
-		$user = $userService->getUserByType($params['guid'], 'id');
+		$user = $userService->getUserByType($params['id'], 'id');
 
 	} else if (array_key_exists("username", $params) && $params['username'] != null) {
 
@@ -41,9 +41,9 @@ $app->get($container['prefix'].'/profile', function (Request $request, Response 
 		    if ($user->chain_store) {
 		    	$store = $storeService->getStoreById($user->chain_store);
 		    	$type = 'id';
-		    	$input = $store->owner_guid;
+		    	$input = $store->owner_id;
 		    } else {
-		    	$type = 'owner_guid';
+		    	$type = 'owner_id';
 		    	$input = $user->id;
 		    }
 		    $shop = $shopService->getShopByType($input, $type);

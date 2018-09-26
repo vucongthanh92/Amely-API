@@ -30,11 +30,13 @@ class FeedService extends Services
         return $feed;
     }
 
-    public function getFeed($conditions)
+    public function getFeed($conditions, $info = true)
     {
         $feed = $this->searchObject($conditions, 0, 1);
         if (!$feed) return false;
-        $feed = $this->changeStructureInfo($feed);
+        if ($info) {
+            $feed = $this->changeStructureInfo($feed);
+        }
         return $feed;
     }
 
@@ -52,6 +54,7 @@ class FeedService extends Services
     {
         $likeService = LikeService::getInstance();
         $count = $likeService->countLike(false, $feed_id, 'feed');
+        if (!$count) return 0;
         return $count;
     }
 
@@ -59,6 +62,7 @@ class FeedService extends Services
     {
         $commentService = CommentService::getInstance();
         $count = $commentService->countComment(false, $feed_id, 'feed');
+        if (!$count) return 0;
         return $count;
     }
 
@@ -72,7 +76,7 @@ class FeedService extends Services
             'operation' => ''
         ];
         $comment_params[] = [
-            'key' => 'subject_guid',
+            'key' => 'subject_id',
             'value' => "IN ({$feeds_guid})",
             'operation' => 'AND'
         ];
@@ -82,12 +86,12 @@ class FeedService extends Services
             'operation' => 'count'
         ];
         $comment_params[] = [
-            'key' => 'subject_guid',
+            'key' => 'subject_id',
             'value' => "",
             'operation' => 'query_params'
         ];
         $comment_params[] = [
-            'key' => 'subject_guid',
+            'key' => 'subject_id',
             'value' => "",
             'operation' => 'group_by'
         ];

@@ -38,7 +38,7 @@ class BusinessService extends Services
     	$likeService = LikeService::getInstance();
     	$conditions = null;
 	    $conditions[] = [
-	    	'key' => 'guid',
+	    	'key' => 'owner_id',
 	    	'value' => "= {$from}",
 	    	'operation' => ''
 	    ];

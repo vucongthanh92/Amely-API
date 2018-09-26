@@ -5,7 +5,7 @@ class Token extends Object
 	private $token;
 	private $time_created;
 	private $expired;
-	private $user_guid;
+	private $user_id;
 	private $session_id;
 
 	public function __construct() 

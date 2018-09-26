@@ -80,7 +80,7 @@ DROP TABLE IF EXISTS `amely_likes`;
 CREATE TABLE `amely_likes` (
   `id` bigint(20) NOT NULL AUTO_INCREMENT,
   `subject_id` bigint(20) NOT NULL,
-  `id` bigint(20) NOT NULL,
+  `owner_id` bigint(20) NOT NULL,
   `type` varchar(20) NOT NULL,
   `time_created` int(11) NOT NULL,
   PRIMARY KEY (`id`)

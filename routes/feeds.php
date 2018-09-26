@@ -9,49 +9,26 @@ $app->get($container['prefix'].'/feeds', function (Request $request, Response $r
 
 	$loggedin_user = loggedin_user();
 	$params = $request->getQueryParams();
-	if (!array_key_exists("id", $params)) return response(false);
-	$feed = $feedService->getFeedById($params['id']);
+	if (!array_key_exists("feed_id", $params)) return response(false);
+	$feed = $feedService->getFeedById($params['feed_id']);
 	if (!$feed) return response(false);
 	$feed->likes = $feedService->countLike($feed->id);
 	$feed->comments = $feedService->countComment($feed->id);
 	$feed->liked = $likeService->isLiked($loggedin_user->id, $feed->id, 'feed');
 
 	$owner = new stdClass;
-	$owner->id = $feed->owner_guid;
+	$owner->id = $feed->owner_id;
 	$owner->type = $feed->type;
 	$owner->title = $feed->title;
 	$feed->owner = $owner;
 
-	if ($feed->poster_guid == $loggedin_user->id) {
+	if ($feed->poster_id == $loggedin_user->id) {
 		$poster = new stdClass;
 		$poster = $loggedin_user;
 	} else {
-		$poster = $userService->getUserByType($feed->poster_guid, 'id', false);
+		$poster = $userService->getUserByType($feed->poster_id, 'id', false);
 	}
 	$feed->poster = $poster;
-
-	if ($feed->item_type == 'feed') {
-		$feed_share = $feedService->getFeedById($feed->item_guid);
-		if (!$feed_share) return response(false);
-		$feed_share->likes = $feedService->countLike($feed_share->id);
-		$feed_share->comments = $feedService->countComment($feed_share->id);
-		$feed_share->liked = $likeService->isLiked($loggedin_user->id, $feed_share->id, 'feed');
-
-		$owner = new stdClass;
-		$owner->id = $feed_share->owner_guid;
-		$owner->type = $feed_share->type;
-		$owner->title = $feed_share->title;
-		$feed_share->owner = $owner;
-
-		if ($feed_share->poster_guid == $loggedin_user->id) {
-			$poster = new stdClass;
-			$poster = $loggedin_user;
-		} else {
-			$poster = $userService->getUserByType($feed_share->poster_guid, 'id', false);
-		}
-		$feed_share->poster = $poster;
-		$feed->share = $feed_share;
-	}
 
 	return response($feed);
 });
@@ -69,12 +46,12 @@ $app->post($container['prefix'].'/feeds', function (Request $request, Response $
 	if (!array_key_exists("offset", $params)) $params["offset"] = 0;
 	if (!array_key_exists("limit", $params)) $params["limit"] = 10;
 	if (!array_key_exists("owners", $params)) $params["owners"] = false;
-	if (!array_key_exists("owner_guid", $params)) $params["owner_guid"] = $loggedin_user->guid;
+	if (!array_key_exists("owner_id", $params)) $params["owner_id"] = $loggedin_user->id;
 
 	$feeds_type = $params["feeds_type"];
 	$offset = (double) $params["offset"];
 	$limit = (double) $params["limit"];
-	$owner_guid = $params["owner_guid"];
+	$owner_id = $params["owner_id"];
 	
 	$feed_params[] = [
 		'key' => 'time_created',
@@ -86,29 +63,29 @@ $app->post($container['prefix'].'/feeds', function (Request $request, Response $
 		case 'home':
 			$feed_params[] = [
 				'key' => '',
-				'value' => "(poster_guid = {$loggedin_user->guid} AND privacy IN (0,1,2))",
+				'value' => "(poster_id = {$loggedin_user->id} AND privacy IN (0,1,2))",
 				'operation' => ''
 			];
 			if ($params['owners']) {
 				$owners = implode(',', array_unique($params['owners']));
 				$feed_params[] = [
 					'key' => '',
-					'value' => "(privacy <> 0 AND poster_guid IN ({$owners}) )",
+					'value' => "(privacy <> 0 AND poster_id IN ({$owners}) )",
 					'operation' => 'OR'
 				];
 			}
 			break;
 		case 'user':
-			if ($loggedin_user->guid == $owner_guid) {
+			if ($loggedin_user->id == $owner_id) {
 				$feed_params[] = [
 					'key' => '',
-					'value' => "(poster_guid = {$loggedin_user->guid} AND privacy IN (0,1,2))",
+					'value' => "(poster_id = {$loggedin_user->id} AND privacy IN (0,1,2))",
 					'operation' => ''
 				];
 			} else {
 				$feed_params[] = [
 					'key' => '',
-					'value' => "(poster_guid = {$owner_guid} AND privacy IN (1,2))",
+					'value' => "(poster_id = {$owner_id} AND privacy IN (1,2))",
 					'operation' => ''
 				];
 			}			
@@ -120,8 +97,8 @@ $app->post($container['prefix'].'/feeds', function (Request $request, Response $
 				'operation' => ''
 			];
 			$feed_params[] = [
-				'key' => 'owner_guid',
-				'value' => "= {$owner_guid}",
+				'key' => 'owner_id',
+				'value' => "= {$owner_id}",
 				'operation' => 'AND'
 			];
 			break;
@@ -132,20 +109,20 @@ $app->post($container['prefix'].'/feeds', function (Request $request, Response $
 				'operation' => ''
 			];
 			$feed_params[] = [
-				'key' => 'owner_guid',
-				'value' => "= {$owner_guid}",
+				'key' => 'owner_id',
+				'value' => "= {$owner_id}",
 				'operation' => 'AND'
 			];
 			break;
-		case 'business'
+		case 'business':
 			$feed_params[] = [
 				'key' => 'type',
 				'value' => "= 'business'",
 				'operation' => ''
 			];
 			$feed_params[] = [
-				'key' => 'owner_guid',
-				'value' => "= {$owner_guid}",
+				'key' => 'owner_id',
+				'value' => "= {$owner_id}",
 				'operation' => 'AND'
 			];
 			break;
@@ -155,70 +132,28 @@ $app->post($container['prefix'].'/feeds', function (Request $request, Response $
 	}
 	$feeds = $feedService->getFeeds($feed_params, $offset, $limit);
 	if (!$feeds) return false;
-	$feeds_users = $feeds_guid = $shares = $feeds_share_guid = $users_guid = $mood_guids = [];
+	$feeds_users = $feeds_id  = $users_id = $mood_ids = [];
 
 	foreach ($feeds as $key => $feed) {
-		if (!in_array($feed->guid, $feeds_guid)) {
-			array_push($feeds_guid, $feed->guid);
+		if (!in_array($feed->id, $feeds_id)) {
+			array_push($feeds_id, $feed->id);
 		}
-		if ($feed->type == 'user') {
-			if (!in_array($feed->owner_guid, $users_guid)) {
-				array_push($users_guid, $feed->owner_guid);
-			}
-		}
-		if (!in_array($feed->owner_guid, $users_guid)) {
-			array_push($users_guid, $feed->poster_guid);
-		}
-		if ($feed->item_type == 'feed') {
-			if (!in_array($feed->item_guid, $feeds_share_guid)) {
-				array_push($feeds_share_guid, $feed->item_guid);
-			}
+		if (!in_array($feed->poster_id, $users_id)) {
+			array_push($users_id, $feed->poster_id);
 		}
 	}
 
-	if ($feeds_share_guid && count($feeds_share_guid) > 0) {
-		$feeds_share_guid = implode(',', $feeds_share_guid);
-		$feed_params = null;
-		$feed_params[] = [
-			'key' => 'id',
-			'value' => "IN ({$feeds_share_guid})",
-			'operation' => ''
-		];
-		$feeds_share = $feedService->getFeeds($feed_params, 0, 999999999);
-		if (!$feeds_share) return response(false);
-		foreach ($feeds_share as $key => $feed_share) {
-			if (!in_array($feed_share->guid, $feeds_guid)) {
-				array_push($feeds_guid, $feed_share->guid);
-			}
-			if ($feed_share->type == 'user') {
-				if (!in_array($feed_share->owner_guid, $users_guid)) {
-					array_push($users_guid, $feed_share->owner_guid);
-				}
-			}
-			if (!in_array($feed_share->owner_guid, $users_guid)) {
-				array_push($users_guid, $feed_share->poster_guid);
-			}
+	$feeds_id = array_unique($feeds_id);
+	$feeds_id = implode(',', array_unique($feeds_id));
 
-			$owner = new stdClass;
-			$owner->id = $feed_share->owner_guid;
-			$owner->type = $feed_share->type;
-			$owner->title = $feed_share->title;
-			$feed_share->owner = $owner;
-			$shares[$feed_share->id] = $feed_share;
-		}
-	}
-
-	$feeds_guid = array_unique($feeds_guid);
-	$feeds_guid = implode(',', array_unique($feeds_guid));
-
-	$feeds_likes = $feedService->getFeedsCountLike($feeds_guid);
-	$feeds_liked = $feedService->getFeedsLiked($loggedin_user->id, $feeds_guid);
-	$feeds_comments = $feedService->getFeedsCountComment($feeds_guid);
+	$feeds_likes = $feedService->getFeedsCountLike($feeds_id);
+	$feeds_liked = $feedService->getFeedsLiked($loggedin_user->id, $feeds_id);
+	$feeds_comments = $feedService->getFeedsCountComment($feeds_id);
 
 
-	if (is_array($users_guid) && count($users_guid) > 0) {
-		$users_guid = implode(",", array_unique($users_guid));
-		$users = $userService->getUsersByType($users_guid, 'id', false);
+	if (is_array($users_id) && count($users_id) > 0) {
+		$users_id = implode(",", array_unique($users_id));
+		$users = $userService->getUsersByType($users_id, 'id', false);
 		if (!$users) return response(false);
 		foreach ($users as $key => $user) {
 			$feeds_users[$user->id] = $user;
@@ -229,15 +164,15 @@ $app->post($container['prefix'].'/feeds', function (Request $request, Response $
 		$feed->likes = 0;
 		if ($feeds_likes) {
 			foreach ($feeds_likes as $feed_likes) {
-				if ($feed_likes->subject_id == $feed->guid) {
+				if ($feed_likes->subject_id == $feed->id) {
 					$feed->likes = $feed_likes->count;
 				}
 			}
 		}
 		$feed->liked = false;
-		if ($liked_feed) {
+		if ($feeds_liked) {
 			foreach ($feeds_liked as $feed_liked) {
-				if ($feed_liked->subject_id == $feed->guid) {
+				if ($feed_liked->subject_id == $feed->id) {
 					$feed->liked = true;
 				}
 			}
@@ -245,22 +180,18 @@ $app->post($container['prefix'].'/feeds', function (Request $request, Response $
 		$feed->comments = 0;
 		if ($feeds_comments) {
 			foreach ($feeds_comments as $feed_comments) {
-				if ($feed_comments->subject_guid == $feed->guid) {
+				if ($feed_comments->subject_id == $feed->id) {
 					$feed->comments = $feed_comments->count;
 				}
 			}
 		}
 
 		$owner = new stdClass;
-		$owner->id = $feed->owner_guid;
+		$owner->id = $feed->owner_id;
 		$owner->type = $feed->type;
 		$owner->title = $feed->title;
 		$feed->owner = $owner;
-		$feed->poster = $feeds_users[$feed->poster_guid];
-		if ($feed->item_type == 'feed') {
-			$feed->share = $shares[$feed->item_guid];
-			$feed->share->poster = $feeds_users[$feed->share->poster_guid];
-		}
+		$feed->poster = $feeds_users[$feed->poster_id];
 		
 		$feeds[$key] = $feed;
 	}
@@ -273,7 +204,7 @@ $app->put($container['prefix'].'/feeds', function (Request $request, Response $r
 
 	$params = $request->getParsedBody();
 	if (!$params) $params = [];
-	if (!array_key_exists('owner_guid', $params)) $params['owner_guid'] = $loggedin_user->id;
+	if (!array_key_exists('owner_id', $params)) $params['owner_id'] = $loggedin_user->id;
 	if (!array_key_exists('type', $params)) $params['type'] = 'user';
 	if (!array_key_exists('title', $params)) $params['title'] = $loggedin_user->fullname;
 	if (!array_key_exists('description', $params)) $params['description'] = false;
@@ -285,7 +216,7 @@ $app->put($container['prefix'].'/feeds', function (Request $request, Response $r
 	if (!array_key_exists('item_type', $params)) $params['item_type'] = false;
 	if (!array_key_exists('item_id', $params)) $params['item_id'] = false;
 
-	$owner_guid 	=  $params['owner_guid'];
+	$owner_id 		=  $params['owner_id'];
 	$type 			=  $params['type'];
 	$title 			=  $params['title'];
 	$description 	=  $params['description'];
@@ -301,7 +232,7 @@ $app->put($container['prefix'].'/feeds', function (Request $request, Response $r
 	$description = htmlspecialchars($description, ENT_QUOTES, 'UTF-8');
 
 	$feed = new Feed();
-	$feed->data->owner_guid = $owner_guid;
+	$feed->data->owner_id = $owner_id;
 	$feed->data->type 		= $type;
 	$feed->data->title 		= $title;
 	$feed->data->description = $description;
@@ -335,12 +266,32 @@ $app->delete($container['prefix'].'/feeds', function (Request $request, Response
 	$feedService = FeedService::getInstance();
 	$loggedin_user = loggedin_user();
 	$params = $request->getQueryParams();
-	if (!array_key_exists("id", $params)) $params["id"] = false;
-	if (!$params['id']) return response(false);
-	$feed = $feedService->getFeedById($params['id']);
+	if (!array_key_exists('feed_id', $params)) $params['feed_id'] = false;
+	if (!$params['feed_id']) return response(false);
+	$feed = $feedService->getFeedById($params['feed_id']);
 	if (!$feed) return response(false);
+	if ($feed->poster_id != $loggedin_user->id) return response(false);
 	$feed = object_cast("Feed", $feed);
 	$feed->where = "id = '{$feed->id}'";
-	if ($group->type = 'user') {
+	if (!$feed->item_id) {
+		$feed_params = null;
+		$feed_params[] = [
+			'key' => 'item_id',
+			'value' => "= {$feed->id}",
+			'operation' => ''
+		];
+		$feed_params[] = [
+			'key' => 'item_type',
+			'value' => "= 'feed'",
+			'operation' => 'AND'
+		];
+		$feeds_share = $feedService->getFeeds($feed_params,0,9999999);
+		foreach ($feeds_share as $key => $feed_share) {
+			$feed_share = object_cast("Feed", $feed_share);
+			$feed_share->where = "id = '{$feed_share->id}'";
+			$feed_share->delete();
+		}
+	}
+
 	return response($feed->delete());
 });
