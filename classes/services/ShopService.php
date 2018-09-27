@@ -89,21 +89,10 @@ class ShopService extends Services
 	private function changeStructureInfo($shop, $getAddr = true)
 	{
 		$addressService = AddressService::getInstance();
+		$imageService = ImageService::getInstance();
 
-		$avatar = array_pop(explode("/", $shop->avatar));
-		$cover = array_pop(explode("/", $shop->cover));
-		$avatar_path = "/object/{$shop->id}/avatar/images/"."larger_{$avatar}";
-		$cover_path = "/object/{$shop->id}/cover/images/"."larger_{$avatar}";
-		if (file_exists(IMAGE_PATH.$avatar_path)) {
-			$shop->avatar = IMAGE_URL.$avatar_path;
-		} else {
-			$shop->avatar = AVATAR_DEFAULT;
-		}
-		if (file_exists(IMAGE_PATH.$cover_path)) {
-			$shop->cover = IMAGE_URL.$cover_path;	
-		} else {
-			$shop->cover = COVER_DEFAULT;
-		}
+		$shop->avatar = $imageService->showAvatar($shop->id, $shop->avatar, 'shop', 'larger');
+		$shop->cover = $imageService->showCover($shop->id, $shop->cover, 'shop', 'larger');
 
 	    $shop->description = html_entity_decode($shop->description);
 	    $shop->introduce = html_entity_decode($shop->introduce);

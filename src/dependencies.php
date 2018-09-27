@@ -2,7 +2,6 @@
 // DIC configuration
 
 $container = $app->getContainer();
-
 // view renderer
 $container['renderer'] = function ($c) {
     $settings = $c->get('settings')['renderer'];
@@ -38,6 +37,7 @@ $container['mail'] = function ($c) {
     return (object)$c->get('settings')['mail'];
 };
 
-global $connectDB, $email;
+global $settings, $connectDB, $email;
+$settings = $container['settings'];
 $connectDB = $container['db'];
 $mail = $container['mail'];

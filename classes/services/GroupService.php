@@ -110,20 +110,11 @@ class GroupService extends Services
 
 	private function changeStructureInfo($group)
 	{
-		$avatar_path = "/group/{$group->id}/avatar/"."larger_{$group->avatar}";
-		$cover_path = "/group/{$group->id}/cover/"."larger_{$group->cover}";
-		if (file_exists(IMAGE_PATH.$avatar_path)) {
-			$group->avatar = IMAGE_URL.$avatar_path;
-		} else {
-			$group->avatar = AVATAR_DEFAULT;
-		}
-		if (file_exists(IMAGE_PATH.$cover_path)) {
-			$group->cover = IMAGE_URL.$cover_path;	
-		} else {
-			$group->cover = COVER_DEFAULT;
-		}
+		$imageService = ImageService::getInstance();
+
+		$group->avatar = $imageService->showAvatar($group->id, $group->avatar, 'group', 'larger');
+		$group->cover = $imageService->showCover($group->id, $group->cover, 'group', 'larger');
 
 		return $group;
-
 	}
 }

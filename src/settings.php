@@ -1,10 +1,4 @@
 <?php
-define("IMAGE_URL", "https://userdata.amely.com");
-define("IMAGE_PATH", "/home/thinhnez/ossn_userdata");
-define("AVATAR_DEFAULT", "https://i1.wp.com/grueneroadpharmacy.com/wp-content/uploads/2017/02/user-placeholder-1.jpg");
-define("COVER_DEFAULT", "https://i1.wp.com/grueneroadpharmacy.com/wp-content/uploads/2017/02/user-placeholder-1.jpg");
-define("DOMAIN_NAME", "amely.com");
-define("SMS", "http://sms.amely.com");
 
 return [
     'settings' => [
@@ -39,6 +33,20 @@ return [
             'mail_Sitename' => 'AMELY',
             'mail_SMTPSecure' => 'tls',
             'mail_Port' => 25
+        ],
+        'fb' => [
+            'key' => 'amely-f8329ed3e753.json'
+        ],
+        'nodejs' => [
+            'host' => 'localhost',
+            'port' => 16444
+        ],
+        'sms' => 'http://sms.amely.com',
+        'image' => [
+            'url' => 'https://userdata.amely.com',
+            'path' => '/home/thinhnez/api_userdata',
+            'avatar' => 'https://i1.wp.com/grueneroadpharmacy.com/wp-content/uploads/2017/02/user-placeholder-1.jpg',
+            'cover' => 'https://i1.wp.com/grueneroadpharmacy.com/wp-content/uploads/2017/02/user-placeholder-1.jpg'
         ],
         'url' => "https://amely.com",
         'prefix' => "/ws/v1",

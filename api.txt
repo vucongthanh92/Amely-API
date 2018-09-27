@@ -16,18 +16,21 @@ v    @POST("feeds")
 v    @PUT("feeds")
 v    @DELETE("feeds")
 v    @PUT("contact_update")
+v    @PATCH("upload_avatar")
+v    @PATCH("upload_cover")
+    @PUT("likes")
+    @DELETE("likes")
 
     @POST("business")
     @GET("business")
     
     
     
-    @PATCH("upload_avatar")
-    @PATCH("upload_cover")
+    
     @POST("mood")
     @GET("mood")
-    @PUT("likes")
-    @DELETE("likes")
+
+    
     @POST("comments")
     @PUT("comments")
     @DELETE("comments")

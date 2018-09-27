@@ -16,9 +16,6 @@ class Services extends SlimDatabase
 		return self::$instance;
 	}
 
-
-	
-
 	public function searchObject($conditions, $offest, $limit)
     {
     	if (!$this->table) return false;
@@ -28,6 +25,17 @@ class Services extends SlimDatabase
     		return $result[0];
     	}
     	return $result;
+    }
+
+    public function connectServer($action, $obj)
+    {
+    	global $settings;
+		$f = fsockopen($settings['nodejs']['host'], $settings['nodejs']['port'], $errno, $errstr, 30);
+		$obj->action = $action;
+		$jsonData = json_encode($obj);
+		fwrite($f, $jsonData);
+		fclose($f);
+		return true;
     }
 
 	public function saveFirebase($path, $params)
@@ -44,10 +52,11 @@ class Services extends SlimDatabase
 
 	public function sendByMobile($mobile, $message = false)
 	{
+		global $settings;
 		return true;
 		if (!$message) return false;
 		$ch = curl_init();
-		curl_setopt($ch, CURLOPT_URL, SMS);
+		curl_setopt($ch, CURLOPT_URL, $settings['sms']);
 		curl_setopt($ch, CURLOPT_POST, 1);
 		$phone = preg_replace("/^0/i", "84", $mobile);
 		curl_setopt($ch, CURLOPT_POSTFIELDS,
