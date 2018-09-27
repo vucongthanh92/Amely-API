@@ -18,6 +18,7 @@ v    @DELETE("feeds")
 v    @PUT("contact_update")
 v    @PATCH("upload_avatar")
 v    @PATCH("upload_cover")
+
     @PUT("likes")
     @DELETE("likes")
 
@@ -34,6 +35,7 @@ v    @PATCH("upload_cover")
     @POST("comments")
     @PUT("comments")
     @DELETE("comments")
+    
     @POST("categories")
     @POST("products")
     @GET("products")

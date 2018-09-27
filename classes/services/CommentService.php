@@ -24,6 +24,10 @@ class CommentService extends Services
     {
     	$comments = $this->searchObject($conditions, $offset, $limit);
 	    if (!$comments) return false;
+	    foreach ($comments as $key => $comment) {
+	    	$comment = $this->changeStructureInfo($comment);
+	    	$comments[$key] = $comment;
+	    }
 	    return $comments;
     }
 
@@ -102,5 +106,19 @@ class CommentService extends Services
 	    if (!$comments) return false;
 	    return  $comments;
     }
+
+    private function changeStructureInfo($comment)
+	{
+		$imageService = ImageService::getInstance();
+		if ($comment->images) {
+			$images = explode(',', $comment->images);
+			foreach ($images as $key => $image) {
+				$images[$key] = $imageService->showImage($comment->id, $image, 'comment', 'large');
+			}
+			$comment->images = $images;
+		}
+
+		return $comment;
+	}
 
 }
