@@ -42,13 +42,13 @@ $app->post($container['prefix'].'/feeds', function (Request $request, Response $
 	$params = $request->getParsedBody();
 	if (!$params) $params = [];
 
-	if (!array_key_exists("feeds_type", $params)) $params["feeds_type"] = "home";
+	if (!array_key_exists("type", $params)) $params["type"] = "home";
 	if (!array_key_exists("offset", $params)) $params["offset"] = 0;
 	if (!array_key_exists("limit", $params)) $params["limit"] = 10;
 	if (!array_key_exists("owners", $params)) $params["owners"] = false;
 	if (!array_key_exists("owner_id", $params)) $params["owner_id"] = $loggedin_user->id;
 
-	$feeds_type = $params["feeds_type"];
+	$type = $params["type"];
 	$offset = (double) $params["offset"];
 	$limit = (double) $params["limit"];
 	$owner_id = $params["owner_id"];
@@ -59,7 +59,7 @@ $app->post($container['prefix'].'/feeds', function (Request $request, Response $
 		'operation' => 'order_by'
 	];	
 
-	switch ($feeds_type) {
+	switch ($type) {
 		case 'home':
 			$feed_params[] = [
 				'key' => '',
