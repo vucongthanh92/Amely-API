@@ -283,7 +283,8 @@ function response($result)
 	}
 	if (is_numeric($result)) {
 		return $response->withJson([
-			'guid' => $result
+			'status' => true,
+			'id' => $result
 		]);
 	}
     

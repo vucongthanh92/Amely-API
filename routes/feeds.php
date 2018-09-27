@@ -259,7 +259,7 @@ $app->put($container['prefix'].'/feeds', function (Request $request, Response $r
 
 	$id = $feed->insert(true);
 
-	return response(['id' => $id]);
+	return response($id);
 });
 
 $app->delete($container['prefix'].'/feeds', function (Request $request, Response $response, array $args) {
