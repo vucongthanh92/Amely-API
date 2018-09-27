@@ -3,7 +3,6 @@ use Slim\Http\Request;
 use Slim\Http\Response;
 
 $app->put($container['prefix'].'/register', function (Request $request, Response $response, array $args) {
-
 	$userService = UserService::getInstance();
 
 	$params = $request->getParsedBody();

@@ -131,7 +131,7 @@ $app->post($container['prefix'].'/feeds', function (Request $request, Response $
 			break;
 	}
 	$feeds = $feedService->getFeeds($feed_params, $offset, $limit);
-	if (!$feeds) return false;
+	if (!$feeds) return response(false);
 	$feeds_users = $feeds_id  = $users_id = $mood_ids = [];
 
 	foreach ($feeds as $key => $feed) {
@@ -141,6 +141,10 @@ $app->post($container['prefix'].'/feeds', function (Request $request, Response $
 		if (!in_array($feed->poster_id, $users_id)) {
 			array_push($users_id, $feed->poster_id);
 		}
+		if ($feed->tag) {
+			$tag = explode(',', $feed->tag);
+			$users_id = array_merge((array)$users_id, (array)$tag);
+		}
 	}
 
 	$feeds_id = array_unique($feeds_id);
@@ -149,7 +153,6 @@ $app->post($container['prefix'].'/feeds', function (Request $request, Response $
 	$feeds_likes = $feedService->getFeedsCountLike($feeds_id);
 	$feeds_liked = $feedService->getFeedsLiked($loggedin_user->id, $feeds_id);
 	$feeds_comments = $feedService->getFeedsCountComment($feeds_id);
-
 
 	if (is_array($users_id) && count($users_id) > 0) {
 		$users_id = implode(",", array_unique($users_id));
@@ -186,6 +189,21 @@ $app->post($container['prefix'].'/feeds', function (Request $request, Response $
 			}
 		}
 
+		if ($feed->tag) {
+			$tags = [];
+			$list_tag = explode(',', $feed->tag);
+			foreach ($list_tag as $tag) {
+				if (is_numeric($tag)) {
+					if ($feeds_users[$tag]) {
+						array_push($tags, $feeds_users[$tag]);
+					}
+				}
+			}
+			if ($tags && count($tags) > 0) {
+				$feed->tags = array_values($tags);
+			}
+		}
+
 		$owner = new stdClass;
 		$owner->id = $feed->owner_id;
 		$owner->type = $feed->type;
@@ -205,8 +223,8 @@ $app->put($container['prefix'].'/feeds', function (Request $request, Response $r
 	$params = $request->getParsedBody();
 	if (!$params) $params = [];
 	if (!array_key_exists('owner_id', $params)) $params['owner_id'] = $loggedin_user->id;
-	if (!array_key_exists('type', $params)) $params['type'] = 'user';
-	if (!array_key_exists('title', $params)) $params['title'] = $loggedin_user->fullname;
+	if (!array_key_exists('owner_type', $params)) $params['owner_type'] = 'user';
+	if (!array_key_exists('owner_title', $params)) $params['owner_title'] = $loggedin_user->fullname;
 	if (!array_key_exists('description', $params)) $params['description'] = false;
 	if (!array_key_exists('location', $params)) $params['location'] = false;
 	if (!array_key_exists('tag', $params)) $params['tag'] = false;
@@ -217,8 +235,8 @@ $app->put($container['prefix'].'/feeds', function (Request $request, Response $r
 	if (!array_key_exists('item_id', $params)) $params['item_id'] = false;
 
 	$owner_id 		=  $params['owner_id'];
-	$type 			=  $params['type'];
-	$title 			=  $params['title'];
+	$type 			=  $params['owner_type'];
+	$title 			=  $params['owner_title'];
 	$description 	=  $params['description'];
 	$location 		=  $params['location'];
 	$tag 			=  $params['tag'];
@@ -231,6 +249,16 @@ $app->put($container['prefix'].'/feeds', function (Request $request, Response $r
 
 	$description = htmlspecialchars($description, ENT_QUOTES, 'UTF-8');
 
+	// check rule of user when post feed
+	// switch ($type) {
+	// 	case 'group':
+			
+	// 		break;
+		
+	// 	default:
+	// 		# code...
+	// 		break;
+	// }
 	$feed = new Feed();
 	$feed->data->owner_id = $owner_id;
 	$feed->data->type 		= $type;
@@ -286,6 +314,7 @@ $app->delete($container['prefix'].'/feeds', function (Request $request, Response
 			'operation' => 'AND'
 		];
 		$feeds_share = $feedService->getFeeds($feed_params,0,9999999);
+		if (!$feeds_share) return response(false);
 		foreach ($feeds_share as $key => $feed_share) {
 			$feed_share = object_cast("Feed", $feed_share);
 			$feed_share->where = "id = '{$feed_share->id}'";
