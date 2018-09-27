@@ -66,7 +66,7 @@ $app->post($container['prefix'].'/feeds', function (Request $request, Response $
 				'value' => "(poster_id = {$loggedin_user->id} AND privacy IN (0,1,2))",
 				'operation' => ''
 			];
-			if ($params['owners']) {
+			if ($params['owners'] && count($params['owners']) > 1) {
 				$owners = implode(',', array_unique($params['owners']));
 				$feed_params[] = [
 					'key' => '',
