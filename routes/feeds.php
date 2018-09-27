@@ -16,6 +16,13 @@ $app->get($container['prefix'].'/feeds', function (Request $request, Response $r
 	$feed->comments = $feedService->countComment($feed->id);
 	$feed->liked = $likeService->isLiked($loggedin_user->id, $feed->id, 'feed');
 
+	if ($feed->tag) {
+		$tags = $userService->getUsersByType($feed->tag, 'id', false);
+		if ($tags && count($tags) > 0) {
+			$feed->tags = array_values($tags);
+		}
+	}
+
 	$owner = new stdClass;
 	$owner->id = $feed->owner_id;
 	$owner->type = $feed->type;
@@ -301,26 +308,27 @@ $app->delete($container['prefix'].'/feeds', function (Request $request, Response
 	if ($feed->poster_id != $loggedin_user->id) return response(false);
 	$feed = object_cast("Feed", $feed);
 	$feed->where = "id = '{$feed->id}'";
-	if (!$feed->item_id) {
-		$feed_params = null;
-		$feed_params[] = [
-			'key' => 'item_id',
-			'value' => "= {$feed->id}",
-			'operation' => ''
-		];
-		$feed_params[] = [
-			'key' => 'item_type',
-			'value' => "= 'feed'",
-			'operation' => 'AND'
-		];
-		$feeds_share = $feedService->getFeeds($feed_params,0,9999999);
-		if (!$feeds_share) return response(false);
-		foreach ($feeds_share as $key => $feed_share) {
-			$feed_share = object_cast("Feed", $feed_share);
-			$feed_share->where = "id = '{$feed_share->id}'";
-			$feed_share->delete();
-		}
-	}
+	// if (!$feed->item_id) {
+	// 	$feed_params = null;
+	// 	$feed_params[] = [
+	// 		'key' => 'item_id',
+	// 		'value' => "= {$feed->id}",
+	// 		'operation' => ''
+	// 	];
+	// 	$feed_params[] = [
+	// 		'key' => 'item_type',
+	// 		'value' => "= 'feed'",
+	// 		'operation' => 'AND'
+	// 	];
+	// 	$feeds_share = $feedService->getFeeds($feed_params,0,9999999);
+	// 	if ($feeds_share) {
+	// 		foreach ($feeds_share as $key => $feed_share) {
+	// 			$feed_share = object_cast("Feed", $feed_share);
+	// 			$feed_share->where = "id = '{$feed_share->id}'";
+	// 			$feed_share->delete();
+	// 		}
+	// 	}
+	// }
 
 	return response($feed->delete());
 });
