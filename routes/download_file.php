@@ -65,5 +65,6 @@ $app->post($container['prefix'].'/download_file', function (Request $request, Re
 			# code...
 			break;
 	}
+	return response(false);
 
 })->setName('download_file');

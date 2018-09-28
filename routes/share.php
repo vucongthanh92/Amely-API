@@ -33,14 +33,26 @@ $app->put($container['prefix'].'/share', function (Request $request, Response $r
 			$share->data->type 			= $feed->type;
 			$share->data->title 		= $feed->title;
 			$share->data->description 	= $feed->description;
-			$share->data->location 		= $feed->location;
-			$share->data->tag 			= $feed->tag;
-			$share->data->mood_id 		= $feed->mood_id;
-			$share->data->poster_id 	= $loggedin_user->id;
-			$share->data->privacy 		= $feed->privacy;
-			$share->data->images 		= $feed->images;
-			$share->data->item_type 	= $item_type;
-			$share->data->item_id 		= $item_id;
+			$share->data->poster_id = $loggedin_user->id;
+			$share->data->privacy 	= $feed->privacy;
+			if ($feed->location) {
+				$share->data->location 	= $feed->location;
+			}
+			if ($feed->tag) {
+				$share->data->tag 		= $feed->tag;
+			}
+			if ($feed->mood_id) {
+				$share->data->mood_id 	= $feed->mood_id;
+			}
+			if ($feed->images) {
+				$share->data->images = $feed->images;
+			}
+			if ($feed->item_type) {
+				$share->data->item_type = $item_type;
+			}
+			if ($feed->item_id) {
+				$share->data->item_id = $item_id;
+			}
 			$id = $share->insert(true);
 			if ($id) {
 				global $settings;
