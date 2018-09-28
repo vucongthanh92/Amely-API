@@ -3,21 +3,19 @@ use Slim\Http\Request;
 use Slim\Http\Response;
 
 $app->post($container['prefix'].'/categories', function (Request $request, Response $response, array $args) {
-
-	$select = SlimSelect::getInstance();
+	$categoryService = CategoryService::getInstance();
 	$params = $request->getParsedBody();
 	if (!$params) $params = [];
-	if (!array_key_exists("is_shop", $params)) $params["is_shop"] = false;
-	if (!array_key_exists("offset", $params)) $params["offset"] = 0;
-	if (!array_key_exists("limit", $params)) $params["limit"] = 10;
-	if (!array_key_exists("shop_guid", $params)) $params["shop_guid"] = false;
-	if (!array_key_exists("type", $params)) $params["type"] = 0;
-	if (!array_key_exists("get_all", $params)) $params["get_all"] = false;
+	if (!array_key_exists('offset', $params)) $params['offset'] = 0;
+	if (!array_key_exists('limit', $params)) $params['limit'] = 10;
+	if (!array_key_exists('shop_id', $params)) $params['shop_id'] = false;
+	// type ['voucher','ticket','market']
+	if (!array_key_exists('type', $params)) $params['type'] = 0;
 
-	$is_shop = $params["is_shop"];
-	$offset = (double)$params["offset"];
-	$limit = (double)$params["limit"];
-	$shop_guid = $params["shop_guid"];
+	$offset = (double)$params['offset'];
+	$limit = (double)$params['limit'];
+	$shop_id = $params['shop_id'];
+	$type = $params['type'];
 
 	$category_params[] = [
 		'key' => 'CAST(`sort_order` AS SIGNED)',
@@ -25,70 +23,44 @@ $app->post($container['prefix'].'/categories', function (Request $request, Respo
 		'operation' => 'order_by'
 	];
 
-	if (is_numeric($shop_guid)) {
+	if ($shop_id) {
 		$category_params[] = [
-			'key' => 'owner_guid',
-			'value' => "= {$shop_guid}",
+			'key' => 'owner_id',
+			'value' => "= {$shop_id}",
 			'operation' => ''
 		];
 		$category_params[] = [
-			'key' => 'subtype',
-			'value' => "= 'shop:category'",
+			'key' => 'type',
+			'value' => "= 'shop'",
 			'operation' => 'AND'
 		];
 	} else {
-		$type = (int)$params["type"];
 		switch ($type) {
-			case 2:
+			case 'voucher':
 				$category_params[] = [
 					'key' => 'subtype',
-					'value' => "= 'market:voucher_category'",
+					'value' => "= 'voucher'",
 					'operation' => ''
 				];
 				break;
-			case 3:
+			case 'ticket':
 				$category_params[] = [
 					'key' => 'subtype',
-					'value' => "= 'market:ticket_category'",
+					'value' => "= 'ticket'",
 					'operation' => ''
 				];
 				break;
 			default:
 				$category_params[] = [
 					'key' => 'subtype',
-					'value' => "= 'market:category'",
+					'value' => "= 'market'",
 					'operation' => ''
 				];
 				break;
 		}
 	}
 
-	if ($params["get_all"]) {
-		$category_params[] = [
-			'key' => 'enabled',
-			'value' => "= 'true'",
-			'operation' => 'AND'
-		];
-	}
-	$categories = $select->getCategories($category_params, $offset, $limit);
-	
-	foreach ($categories as $key => $category) {
-		if ($is_shop) {
-			$product_params = null;
-			$product_params[] = [
-				'key' => "FIND_IN_SET({$category->guid}, category)",
-				'value' => '',
-				'operation' => ''
-			];
-			$product_params[] = [
-				'key' => '*',
-				'value' => 'count',
-				'operation' => 'count'
-			];
-
-			$products = $select->getProducts($product_params, 0, 1);
-	        $category->total_product = $products->count;
-		}
-	}
+	$categories = $categoryService->getCategories($category_params, $offset, $limit);
+	if (!$categories) return response(false);
 	return response($categories);
 });

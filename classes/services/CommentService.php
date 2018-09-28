@@ -20,6 +20,20 @@ class CommentService extends Services
         $this->table = "amely_annotations";
     }
 
+    public function getCommentById($id)
+    {	
+    	$conditions = null;
+    	$conditions[] = [
+    		'key' => 'id',
+    		'value' => "= {$id}",
+    		'operation' => ''
+    	];
+    	$comment = $this->searchObject($conditions, 0, 1);
+	    if (!$comment) return false;
+    	$comment = $this->changeStructureInfo($comment);
+	    return $comment;
+    }
+
     public function getComments($conditions, $offset, $limit)
     {
     	$comments = $this->searchObject($conditions, $offset, $limit);

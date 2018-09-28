@@ -37,6 +37,7 @@ $app->post($container['prefix'].'/comments', function (Request $request, Respons
 
 $app->put($container['prefix'].'/comments', function (Request $request, Response $response, array $args) {
 	$commentService = CommentService::getInstance();
+	$services = Services::getInstance();
 	$loggedin_user = loggedin_user();
 	$params = $request->getParsedBody();
 	if (!$params) $params = [];
@@ -44,34 +45,39 @@ $app->put($container['prefix'].'/comments', function (Request $request, Response
 	if (!array_key_exists('type', $params)) return response(false);
 	if (!array_key_exists('content', $params)) $params['content'] = false;
 	if (!array_key_exists('images', $params)) $params['images'] = false;
-
 	if (!in_array($params['type'], ['feed', 'business'])) return response(false);
 
 	$comment = new Annotation();
 	$comment->data->owner_id = $loggedin_user->id;
 	$comment->data->subject_id = $params['subject_id'];
 	$comment->data->type = $params['type'];
-	$comment->data->content = "";
-	$comment->data->images = "";
+	if ($params['content']) {
+		$comment->data->content = $params['content'];
+	}
+	$id = $comment->insert(true);
+	if ($id) {
+		$obj = new stdClass;
+		$obj->image_type = 'images';
+		$obj->images = $params['images'];
+		$obj->owner_id = $id;
+		$obj->owner_type = 'comment';
+		$services->connectServer("uploads", $obj);
+	}
 
-	return response($comment->insert());
+	return response(false);
 });
 
 $app->delete($container['prefix'].'/comments', function (Request $request, Response $response, array $args) {
+	$commentService = CommentService::getInstance();
 	$loggedin_user = loggedin_user();
 	$params = $request->getQueryParams();
 	if (!$params) $params = [];
-	if (!array_key_exists('subject_id', $params)) return response(false);
-	if (!array_key_exists('type', $params)) return response(false);
-
-	$from = $loggedin_user->id;
-	$to = $subject_id;
-	$type = $params['type'];
-	$subject_id = $params['subject_id'];
-	if (!in_array($type, ['feed', 'business'])) return response(false);
-
-	$like = new Like();
-	$like->where = "owner_id = {$loggedin_user->id} AND subject_id = {$subject_id} AND type ='{$type}'";
-	return response($like->delete());
+	if (!array_key_exists('comment_id', $params)) return response(false);
+	$comment = $commentService->getCommentById($params['comment_id']);
+	if (!$comment) return response(false);
+	$comment = object_cast("Annotation", $comment);	
+	if ($loggedin_user->id != $comment->owner_id) return response(false);
+	$comment->where = "id = {$comment->id}";
+	return response($comment->delete());
 
 });

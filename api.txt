@@ -1,3 +1,5 @@
+#    @POST("mood")
+#    @GET("mood")
 v    @POST("authtoken")
 v    @POST("password_security")
 v    @PUT("register")
@@ -18,28 +20,22 @@ v    @DELETE("feeds")
 v    @PUT("contact_update")
 v    @PATCH("upload_avatar")
 v    @PATCH("upload_cover")
+v    @POST("comments")
+v    @PUT("comments")
+v    @DELETE("comments")
+     @POST("categories")
+     @PUT("likes")
+     @DELETE("likes")
+     @POST("business")
+     @GET("business")
+     @POST("products")
+     @GET("products")  
+    
 
-    @PUT("likes")
-    @DELETE("likes")
 
-    @POST("business")
-    @GET("business")
-    
-    
-    
-    
-    @POST("mood")
-    @GET("mood")
-
-    
-    @POST("comments")
-    @PUT("comments")
-    @DELETE("comments")
-    
-    @POST("categories")
-    @POST("products")
-    @GET("products")
     @PUT("redeem")
+
+
     @GET("shops")
     @POST("shops")
     @GET("item_inventory")
