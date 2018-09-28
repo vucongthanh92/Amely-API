@@ -35,6 +35,8 @@ $app->put($container['prefix'].'/share', function (Request $request, Response $r
 			$share->data->description 	= $feed->description;
 			$share->data->poster_id = $loggedin_user->id;
 			$share->data->privacy 	= $feed->privacy;
+			$share->data->item_type = $item_type;
+			$share->data->item_id = $item_id;
 			if ($feed->location) {
 				$share->data->location 	= $feed->location;
 			}
@@ -46,12 +48,6 @@ $app->put($container['prefix'].'/share', function (Request $request, Response $r
 			}
 			if ($feed->images) {
 				$share->data->images = $feed->images;
-			}
-			if ($feed->item_type) {
-				$share->data->item_type = $item_type;
-			}
-			if ($feed->item_id) {
-				$share->data->item_id = $item_id;
 			}
 			$id = $share->insert(true);
 			if ($id) {
