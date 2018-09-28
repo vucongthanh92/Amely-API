@@ -225,6 +225,7 @@ $app->post($container['prefix'].'/feeds', function (Request $request, Response $
 });
 
 $app->put($container['prefix'].'/feeds', function (Request $request, Response $response, array $args) {
+	$services = Services::getInstance();
 	$loggedin_user = loggedin_user();
 
 	$params = $request->getParsedBody();
@@ -293,8 +294,19 @@ $app->put($container['prefix'].'/feeds', function (Request $request, Response $r
 	}
 
 	$id = $feed->insert(true);
+	if ($id) {
+		if ($images) {
+			$obj = new stdClass;
+			$obj->image_type = 'images';
+			$obj->images = $params['images'];
+			$obj->owner_id = $id;
+			$obj->owner_type = 'feed';
+			$services->connectServer("uploads", $obj);
+		}
+		return response($id);
+	}
+	return response(false);
 
-	return response($id);
 });
 
 $app->delete($container['prefix'].'/feeds', function (Request $request, Response $response, array $args) {

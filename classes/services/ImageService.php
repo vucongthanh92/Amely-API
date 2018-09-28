@@ -25,7 +25,7 @@ class ImageService extends Services
         );
     }
 
-    public function showAvatar($id, $image, $type = 'user',$size = 'larger')
+    public function showAvatar($id, $image, $type = 'user',$size = 'large')
     {
         global $settings;
     	$path = "/{$type}/{$id}/avatar/"."{$size}_{$image}";
@@ -33,7 +33,7 @@ class ImageService extends Services
 		return $settings['image']['avatar'];
     }
 
-    public function showCover($id, $image, $type = 'user',$size = 'larger')
+    public function showCover($id, $image, $type = 'user',$size = 'large')
     {
         global $settings;
     	$path = "/{$type}/{$id}/cover/"."{$size}_{$image}";
@@ -41,10 +41,10 @@ class ImageService extends Services
     	return $settings['image']['cover'];
     }
 
-    public function showImage($id, $image, $type = 'feed',$size = 'larger')
+    public function showImage($id, $image, $type = 'feed',$size = 'large')
     {
         global $settings;
-        $path = "/{$type}/{$id}/image/"."{$size}_{$image}";
+        $path = "/{$type}/{$id}/images/"."{$size}_{$image}";
         if (file_exists($settings['image']['path'].$path)) return $settings['image']['url'].$path;
         return $settings['image']['cover'];
     }

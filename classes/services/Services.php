@@ -95,4 +95,26 @@ class Services extends SlimDatabase
 		}
 		return false;
 	}
+
+	public function recurse_copy($source,$dest)
+	{ 
+		if (!is_dir($source)) mkdir($source, 0777, true);
+		if (!is_dir($dest)) mkdir($dest, 0777, true);
+		
+		foreach (
+			$iterator = new \RecursiveIteratorIterator(
+			new \RecursiveDirectoryIterator($source, \RecursiveDirectoryIterator::SKIP_DOTS),
+			\RecursiveIteratorIterator::SELF_FIRST) as $item
+		) {
+			if ($item->isDir()) {
+				mkdir($dest . DIRECTORY_SEPARATOR . $iterator->getSubPathName());
+			} else {
+				copy($item, $dest . DIRECTORY_SEPARATOR . $iterator->getSubPathName());
+			}
+		}
+
+		return true;
+	}
+
+	// UPDATE amely_feeds SET description = REPLACE(description,',1',''), description = REPLACE(description,'1,',''),description = REPLACE(description,'1','') where id = 1;
 }

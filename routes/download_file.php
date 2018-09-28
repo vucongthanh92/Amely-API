@@ -19,7 +19,7 @@ $app->post($container['prefix'].'/download_file', function (Request $request, Re
 	$image_type = $params['image_type'];
 	$urls = $params['images'];
 
-	if (!in_array($image_type, ['avatar','cover','image'])) return response(false);
+	if (!in_array($image_type, ['avatar','cover','images'])) return response(false);
 	
 	$path = "/{$owner_type}/{$owner_id}/{$image_type}";
 	$dir = $settings['image']['path'].$path;
@@ -54,6 +54,12 @@ $app->post($container['prefix'].'/download_file', function (Request $request, Re
 			$user->id = $owner_id;
 			$user->data->$image_type = $filenames;
 			return response($user->update());
+			break;
+		case 'comment':
+			$comment = new Annotation();
+			$comment->id = $owner_id;
+			$comment->data->images = $filenames;
+			return response($comment->update());
 			break;
 		default:
 			# code...

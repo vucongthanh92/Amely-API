@@ -3,6 +3,7 @@ use Slim\Http\Request;
 use Slim\Http\Response;
 
 $app->put($container['prefix'].'/share', function (Request $request, Response $response, array $args) {
+	$services = Services::getInstance();
 	$feedService = FeedService::getInstance();
 	$loggedin_user = loggedin_user();
 	$params = $request->getParsedBody();
@@ -40,7 +41,15 @@ $app->put($container['prefix'].'/share', function (Request $request, Response $r
 			$share->data->images 		= $feed->images;
 			$share->data->item_type 	= $item_type;
 			$share->data->item_id 		= $item_id;
-			return response($share->insert());
+			$id = $share->insert(true);
+			if ($id) {
+				global $settings;
+				$source = $settings['image']['path']."/feed/{$feed->id}";
+				$dest = $settings['image']['path']."/feed/{$id}";
+				$services->recurse_copy($source, $dest);
+				return response(true);
+			}
+
 			break;
 		case 'product':
 			return response(false);
