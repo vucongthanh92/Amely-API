@@ -273,9 +273,8 @@ CREATE TABLE `amely_products` (
   `time_created` int(11) NOT NULL,
   `title` text NOT NULL,
   `description` longtext NOT NULL,
+  `number_sold` text,
   `tax` text,
-  `price` text,
-  `quantity` text,
   `friendly_url` text,
   `sku` text,
   `weight` text,
@@ -288,10 +287,8 @@ CREATE TABLE `amely_products` (
   `product_group` text,
   `creator_id` text,
   `custom_attributes` text,
-  `number_sold` text,
   `download` text,
   `featured` text,
-  `sale_price` text,
   `duration` text,
   `begin_day` text,
   `end_day` text,
@@ -305,6 +302,27 @@ CREATE TABLE `amely_products` (
   `shop_category` text,
   `market_category` text,
   `category` text,
+  `images` text
+ ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+DROP TABLE IF EXISTS `amely_sub_products`; 
+CREATE TABLE `amely_sub_products` (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT,
+  PRIMARY KEY (`id`),
+  `owner_id` bigint(20) NOT NULL,
+  `type` varchar(20) NOT NULL,
+  `time_created` int(11) NOT NULL,
+  `title` text NOT NULL,
+  `description` longtext NOT NULL,
+  `price` text,
+  `quantity` text,
+  `sku` text,
+  `creator_id` text,
+  `number_sold` text,
+  `sale_price` text,
+  `current_snapshot` text,
+  `approved` text,
+  `enabled` text,
   `images` text
  ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 

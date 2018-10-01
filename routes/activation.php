@@ -6,11 +6,11 @@ $app->post($container['prefix'].'/activation', function (Request $request, Respo
 	$userService = UserService::getInstance();
 	$params = $request->getParsedBody();
 	if (!$params) $params = [];
-	if (!array_key_exists("username", $params))  	$params["username"] = false;
-	if (!array_key_exists("password", $params))  	$params["password"] = false;
-	if (!array_key_exists("code", $params))  	$params["code"] = false;
-	if (!array_key_exists("email", $params))  	$params["email"] = false;
-	if (!array_key_exists("mobilelogin", $params))  	$params["mobilelogin"] = false;
+	if (!array_key_exists('username', $params))  	$params['username'] = false;
+	if (!array_key_exists('password', $params))  	$params['password'] = false;
+	if (!array_key_exists('code', $params))  	$params['code'] = false;
+	if (!array_key_exists('email', $params))  	$params['email'] = false;
+	if (!array_key_exists('mobilelogin', $params))  	$params['mobilelogin'] = false;
 
 	$type = false;
 	$input = false;
@@ -42,8 +42,8 @@ $app->put($container['prefix'].'/activation', function (Request $request, Respon
 	$userService = UserService::getInstance();
 	$params = $request->getParsedBody();
 	if (!$params) $params = [];
-	if (!array_key_exists("email", $params))  		$params["email"] = false;
-	if (!array_key_exists("mobilelogin", $params))  $params["mobilelogin"] = false;
+	if (!array_key_exists('email', $params))  		$params['email'] = false;
+	if (!array_key_exists('mobilelogin', $params))  $params['mobilelogin'] = false;
 
 	$type = false;
 	$input = false;

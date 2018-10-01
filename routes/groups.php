@@ -12,6 +12,7 @@ $app->get($container['prefix'].'/groups', function (Request $request, Response $
 	if (!$params['group_id']) return response(false);
 	$group = $groupService->getGroupById($params['group_id']);
 	if (!$group) return response(false);
+	$group->inventory_items = 0;
 	$owners = $userService->getUsersByType($group->owners, 'id', false);
 	$group->owners = $owners;
 
@@ -50,6 +51,7 @@ $app->post($container['prefix'].'/groups', function (Request $request, Response 
 	foreach ($groups as $key => $group) {
 		$owner = arrayFilter($users, $group->owner_id);
 		$group->owners = $owner;
+		$group->inventory_items = 0;
 		$groups[$key] = $group;
 	}
 
