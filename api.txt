@@ -23,8 +23,10 @@ v    @PATCH("upload_cover")
 v    @POST("comments")
 v    @PUT("comments")
 v    @DELETE("comments")
+v    @GET("shops")
+v    @POST("shops")
+v    @PUT("likes")
      @POST("categories")
-     @PUT("likes")
      @DELETE("likes")
      @POST("business")
      @GET("business")
@@ -46,9 +48,28 @@ v    @DELETE("comments")
 
     @PUT("redeem")
 
+    private $sku;
+private $tax;
+private $friendly_url;
+private $weight;
+private $expiry_type;
+private $currency;
+private $origin;
+private $storage_duration;
+private $is_special;
+private $product_group;
+private $creator_id;
+private $custom_attributes;
+private $duration;
+private $begin_day;
+private $end_day;
+private $manufacturer;
+private $unit;
+private $adjourn_price;
+private $images;
 
-    @GET("shops")
-    @POST("shops")
+
+
     @GET("item_inventory")
     @PATCH("item_inventory")
     @GET("temp_order")

@@ -32,10 +32,9 @@ $app->delete($container['prefix'].'/likes', function (Request $request, Response
 	if (!array_key_exists('type', $params)) return response(false);
 
 	$from = $loggedin_user->id;
-	$to = $subject_id;
-	$type = $params['type'];
 	$subject_id = $params['subject_id'];
-	if (!in_array($type, ['feed', 'business'])) return response(false);
+	$type = $params['type'];
+	if (!in_array($type, ['feed', 'business', 'shop'])) return response(false);
 
 	$like = new Like();
 	$like->where = "owner_id = {$loggedin_user->id} AND subject_id = {$subject_id} AND type ='{$type}'";

@@ -7,11 +7,10 @@ class Product extends Object
 	private $time_created;
 	private $title;
 	private $description;
-	private $tax;
-	private $price;
-	private $quantity;
-	private $friendly_url;
 	private $sku;
+	private $number_sold;
+	private $tax;
+	private $friendly_url;
 	private $weight;
 	private $expiry_type;
 	private $currency;
@@ -22,10 +21,8 @@ class Product extends Object
 	private $product_group;
 	private $creator_id;
 	private $custom_attributes;
-	private $number_sold;
 	private $download;
 	private $featured;
-	private $sale_price;
 	private $duration;
 	private $begin_day;
 	private $end_day;
@@ -36,9 +33,10 @@ class Product extends Object
 	private $enabled;
 	private $voucher_category;
 	private $ticket_category;
-	private $market_category;
 	private $shop_category;
+	private $market_category;
 	private $category;
+	private $adjourn_price;
 	private $images;
 
 	public function __construct() 

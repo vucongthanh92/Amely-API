@@ -183,3 +183,24 @@ $app->post($container['prefix'].'/products', function (Request $request, Respons
 
 	return response(array_values($products));
 });
+
+$app->put($container['prefix'].'/products', function (Request $request, Response $response, array $args) {
+	$productService = ProductService::getInstance();
+	$loggedin_user = loggedin_user();
+	$params = $request->getParsedBody();
+	if (!$params) $params = [];
+	if (!array_key_exists('shop_guid', $params)) 		$params['shop_id'] = false;
+
+	$product = new Product();
+	$product->data->owner_id = 1;
+	$product->data->type = "store";
+	$product->data->title = "product 1";
+	$product->data->description = "p1";
+	$product->data->sku = "sku-p1";
+	$product->data->friendly_url = "product-1";
+	$product->data->creator_id = $loggedin_user->id;
+	$product_id = $product->insert();
+
+	
+
+});
