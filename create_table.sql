@@ -767,6 +767,19 @@ CREATE TABLE `amely_feed_linkpreview` (
   `linkPreviewImage` text
  ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
+DROP TABLE IF EXISTS `amely_wallets`; 
+CREATE TABLE `amely_wallets` (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT,
+  PRIMARY KEY (`id`),
+  `owner_id` bigint(20) NOT NULL,
+  `type` varchar(20) NOT NULL,
+  `time_created` int(11) NOT NULL,
+  `title` text,
+  `description` longtext,
+  `balance` text,
+  `currency` text
+ ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
 
 DROP VIEW IF EXISTS `amely_current_ads`;
 CREATE OR REPLACE VIEW `amely_current_ads` as SELECT *, (ad.budget*1 - ad.amount*1) as balance FROM amely_advertisements ad
