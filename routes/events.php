@@ -209,3 +209,26 @@ $app->post($container['prefix'].'/events', function (Request $request, Response 
 		"users" => $users_result
 	];
 });
+
+$app->put($container['prefix'].'/events', function (Request $request, Response $response, array $args) {
+	$eventService = EventService::getInstance();
+	$loggedin_user = loggedin_user();
+
+	$params = $request->getParsedBody();
+	if (!$params) $params = [];
+	if (!array_key_exists('title', $params))	 	$params['title'] = 10;
+	if (!array_key_exists('description', $params))	 	$params['description'] = 10;
+	if (!array_key_exists('start_date', $params))	 	$params['start_date'] = 10;
+	if (!array_key_exists('end_date', $params))	 	$params['end_date'] = 10;
+	if (!array_key_exists('country', $params))	 	$params['country'] = 10;
+	if (!array_key_exists('location', $params))	 	$params['location'] = 10;
+	if (!array_key_exists('template', $params))	 	$params['template'] = 10;
+	if (!array_key_exists('has_inventory', $params))	 	$params['has_inventory'] = 10;
+	if (!array_key_exists('status', $params))	 	$params['status'] = 10;
+	if (!array_key_exists('event_type', $params))	 	$params['event_type'] = 10;
+	if (!array_key_exists('owners', $params))	 	$params['owners'] = 10;
+	if (!array_key_exists('members', $params))	 	$params['members'] = 10;
+	if (!array_key_exists('invites', $params))	 	$params['invites'] = 10;
+
+
+});

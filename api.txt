@@ -28,9 +28,20 @@ v    @DELETE("comments")
      @DELETE("likes")
      @POST("business")
      @GET("business")
+
+     @DELETE("events")
+    @POST("events")
+    @POST("events")
+    @GET("events")
+    @PUT("events")
+    @PATCH("events")
+    
+
      @POST("products")
      @GET("products")  
     
+    @GET("inventory")
+    @POST("inventory")
 
 
     @PUT("redeem")
