@@ -24,7 +24,7 @@ class LikeService extends Services
     {
     	$conditions = null;
 	    $conditions[] = [
-	    	'key' => 'id',
+	    	'key' => 'owner_id',
 	    	'value' => "= {$from}",
 	    	'operation' => ''
 	    ];

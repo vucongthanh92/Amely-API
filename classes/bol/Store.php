@@ -4,17 +4,16 @@ class Store extends Object
 {
 	private $owner_id;
 	private $type;
+	private $time_created;
 	private $title;
 	private $description;
-	private $subtype;
-	private $address;
-	private $phone;
 	private $lat;
 	private $lng;
+	private $store_phone;
+	private $store_address;
 	private $store_province;
 	private $store_district;
 	private $store_ward;
-	private $owner_store;
 
 	public function __construct() 
 	{	

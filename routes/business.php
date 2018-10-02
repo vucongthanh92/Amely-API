@@ -32,7 +32,7 @@ $app->post($container['prefix'].'/business', function (Request $request, Respons
 	$offset = (double)$params['offset'];
 	$limit = (double)$params['limit'];
 
-	$pages_liked = $likeService->getPagesLiked($loggedin_user->id);
+	$pages_liked = $businessService->getPagesLiked($loggedin_user->id);
 	$pages_liked = array_map(create_function('$o', 'return $o->subject_id;'), $pages_liked);
 
 	$page_params = null;

@@ -11,10 +11,10 @@ $app->put($container['prefix'].'/likes', function (Request $request, Response $r
 	if (!array_key_exists('type', $params)) return response(false);
 
 	$from = $loggedin_user->id;
+	$subject_id = $params['subject_id'];
 	$to = $subject_id;
 	$type = $params['type'];
-	$subject_id = $params['subject_id'];
-	if (!in_array($type, ['feed', 'business'])) return response(false);
+	if (!in_array($type, ['feed', 'business', 'shop'])) return response(false);
 	if ($likeService->isLiked($from, $to, $type)) return response(false);
 
 	$like = new Like();

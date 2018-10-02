@@ -244,25 +244,6 @@ CREATE TABLE `amely_transactions` (
   `item_id` text
  ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
-DROP TABLE IF EXISTS `amely_stores`; 
-CREATE TABLE `amely_stores` (
-  `id` bigint(20) NOT NULL AUTO_INCREMENT,
-  PRIMARY KEY (`id`),
-  `owner_id` bigint(20) NOT NULL,
-  `type` varchar(20) NOT NULL,
-  `time_created` int(11) NOT NULL,
-  `title` text NOT NULL,
-  `description` longtext NOT NULL,
-  `subtype` text NOT NULL,
-  `address` text,
-  `phone` text,
-  `lat` text,
-  `lng` text,
-  `store_province` text,
-  `store_district` text,
-  `store_ward` text,
-  `owner_store` text
- ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 DROP TABLE IF EXISTS `amely_products`; 
 CREATE TABLE `amely_products` (
@@ -301,6 +282,7 @@ CREATE TABLE `amely_products` (
   `shop_category` text,
   `market_category` text,
   `category` text,
+  `adjourn_price` text,
   `images` text
  ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
@@ -343,6 +325,7 @@ CREATE TABLE `amely_products_snapshot` (
   `manufacturer` text,
   `unit` text,
   `images` text,
+  `adjourn_price` text,
   `key` text
  ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
@@ -561,12 +544,6 @@ CREATE TABLE `amely_shops` (
   `time_created` int(11) NOT NULL,
   `title` text NOT NULL,
   `description` longtext NOT NULL,
-  `subtype` text NOT NULL,
-  `shop_phone` text,
-  `shop_address` text,
-  `shop_province` text,
-  `shop_district` text,
-  `shop_ward` text,
   `shop_bidn` text,
   `friendly_url` text,
   `shipping_method` text,
@@ -577,8 +554,6 @@ CREATE TABLE `amely_shops` (
   `owner_district` text,
   `owner_ward` text,
   `owner_ssn` text,
-  `adjourn_price` text,
-  `currency` text,
   `status` text,
   `introduce` text,
   `policy` text,
@@ -587,6 +562,25 @@ CREATE TABLE `amely_shops` (
   `cover` text,
   `files_scan` text
  ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+DROP TABLE IF EXISTS `amely_stores`; 
+CREATE TABLE `amely_stores` (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT,
+  PRIMARY KEY (`id`),
+  `owner_id` bigint(20) NOT NULL,
+  `type` varchar(20) NOT NULL,
+  `time_created` int(11) NOT NULL,
+  `title` text NOT NULL,
+  `description` longtext NOT NULL,
+  `lat` text,
+  `lng` text,
+  `store_phone` text,
+  `store_address` text,
+  `store_province` text,
+  `store_district` text,
+  `store_ward` text
+ ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
 
 DROP TABLE IF EXISTS `amely_offers`; 
 CREATE TABLE `amely_offers` (

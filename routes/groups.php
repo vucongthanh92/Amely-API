@@ -13,8 +13,18 @@ $app->get($container['prefix'].'/groups', function (Request $request, Response $
 	$group = $groupService->getGroupById($params['group_id']);
 	if (!$group) return response(false);
 	$group->inventory_items = 0;
+
+
 	$owners = $userService->getUsersByType($group->owners, 'id', false);
 	$group->owners = $owners;
+
+	$members = $groupService->getMembers($group_id, $offset = 0, $limit = 10);
+	if ($members) {
+		$members = array_map(create_function('$o', 'return $o->relation_to;'), $members);
+		$members = implode(',', $members);
+		$members = $userService->getUsersByType($members, 'id', false);
+		$group->members = $members;
+	}
 
 	return response($group);
 });

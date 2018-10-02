@@ -4,14 +4,9 @@ class Shop extends Object
 {
 	private $owner_id;
 	private $type;
+	private $time_created;
 	private $title;
 	private $description;
-	private $subtype;
-	private $shop_phone;
-	private $shop_address;
-	private $shop_province;
-	private $shop_district;
-	private $shop_ward;
 	private $shop_bidn;
 	private $friendly_url;
 	private $shipping_method;
@@ -22,8 +17,6 @@ class Shop extends Object
 	private $owner_district;
 	private $owner_ward;
 	private $owner_ssn;
-	private $adjourn_price;
-	private $currency;
 	private $status;
 	private $introduce;
 	private $policy;

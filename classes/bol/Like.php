@@ -3,8 +3,9 @@
 class Like extends Object
 {
     private $subject_id;
-    private $guid;
+    private $owner_id;
     private $type;
+    private $time_created;
 
 	public function __construct() 
 	{	

@@ -65,7 +65,7 @@ class StoreService extends Services
 			    $store_province = $store_province->type .' '. $store_province->name;
 			    $store_district = $store_district->type .' '. $store_district->name;
 			    $store_ward = $store_ward->type .' '. $store_ward->name;
-			    $store->full_address = $store->address.' '.$store_ward.' '.$store_district.' '.$store_province;
+			    $store->full_address = $store->store_address.' '.$store_ward.' '.$store_district.' '.$store_province;
 			}
 		}
 
