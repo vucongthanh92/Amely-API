@@ -50,9 +50,10 @@ $app->put($container['prefix'].'/invitation', function (Request $request, Respon
 					$relationship->data->type = 'group:approve';
 					$relationship->insert();
 				}
+
 				continue;
 			}
-			return response(false);
+			return response(true);
 			break;
 		case 'event':
 			# code...

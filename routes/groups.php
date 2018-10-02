@@ -18,7 +18,7 @@ $app->get($container['prefix'].'/groups', function (Request $request, Response $
 	$owners = $userService->getUsersByType($group->owners, 'id', false);
 	$group->owners = $owners;
 
-	$members = $groupService->getMembers($group_id, 0, 99999999);
+	$members = $groupService->getMembers($group->id, 0, 99999999);
 	if ($members) {
 		$members = array_map(create_function('$o', 'return $o->relation_to;'), $members);
 		$members = implode(',', $members);
