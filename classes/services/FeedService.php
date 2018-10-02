@@ -72,7 +72,7 @@ class FeedService extends Services
         $comment_params = null;
         $comment_params[] = [
             'key' => 'type',
-            'value' => "= 'comments:post'",
+            'value' => "= 'feed'",
             'operation' => ''
         ];
         $comment_params[] = [

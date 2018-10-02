@@ -34,19 +34,15 @@ $app->post($container['prefix'].'/comments', function (Request $request, Respons
 	if (!$comments) return response(false);
 	$owners_id = [];
 	foreach ($comments as $key => $comment) {
-		if ($comment->type == 'user') {
-			array_push($owners_id, $comment->owner_id);
-		}
+		array_push($owners_id, $comment->owner_id);
 	}
 	if (!$owners_id) return response(false);
 	$owners_id = array_unique($owners_id);
 	$owners_id = implode(',', $owners_id);
 	$users = $userService->getUsersByType($owners_id, 'id', 0, 9999999, false);
 	foreach ($comments as $key => $comment) {
-		if ($comment->type == 'user') {
-			$owner = arrayFilter($users, $comment->owner_id);
-			$comment->owners = $owner;
-		}
+		$owner = arrayFilter($users, $comment->owner_id);
+		$comment->owners = $owner;
 		$comments[$key] = $comment;
 	}
 	return response($comments);
