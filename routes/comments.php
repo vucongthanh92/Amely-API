@@ -4,6 +4,7 @@ use Slim\Http\Response;
 
 $app->post($container['prefix'].'/comments', function (Request $request, Response $response, array $args) {
 	$commentService = CommentService::getInstance();
+	$userService = UserService::getInstance();
 	$loggedin_user = loggedin_user();
 	$params = $request->getParsedBody();
 	if (!$params) $params = [];
@@ -31,6 +32,23 @@ $app->post($container['prefix'].'/comments', function (Request $request, Respons
 	];
 	$comments = $commentService->getComments($comment_params, $offset, $limit);
 	if (!$comments) return response(false);
+	$owners_id = [];
+	foreach ($comments as $key => $comment) {
+		if ($comment->type == 'user') {
+			array_push($owners_id, $comment->owner_id);
+		}
+	}
+	if (!$owners_id) return response(false);
+	$owners_id = array_unique($owners_id);
+	$owners_id = implode(',', $owners_id);
+	$users = $userService->getUsersByType($owners_id, 'id', 0, 9999999, false);
+	foreach ($comments as $key => $comment) {
+		if ($comment->type == 'user') {
+			$owner = arrayFilter($users, $comment->owner_id);
+			$comment->owners = $owner;
+		}
+		$comments[$key] = $comment;
+	}
 	return response($comments);
 
 });
@@ -56,12 +74,15 @@ $app->put($container['prefix'].'/comments', function (Request $request, Response
 	}
 	$id = $comment->insert(true);
 	if ($id) {
-		$obj = new stdClass;
-		$obj->image_type = 'images';
-		$obj->images = $params['images'];
-		$obj->owner_id = $id;
-		$obj->owner_type = 'comment';
-		$services->connectServer("uploads", $obj);
+		if ($params['images']) {
+			$obj = new stdClass;
+			$obj->image_type = 'images';
+			$obj->images = $params['images'];
+			$obj->owner_id = $id;
+			$obj->owner_type = 'comment';
+			$services->connectServer("uploads", $obj);
+		}
+		return response($id);
 	}
 
 	return response(false);
