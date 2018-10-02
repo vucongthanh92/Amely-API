@@ -37,18 +37,20 @@ $app->put($container['prefix'].'/invitation', function (Request $request, Respon
 			break;
 		case 'group':
 			foreach ($tos as $key => $to) {
-				
-				$relationship = new Relationship;
-				$relationship->data->relation_from = $from;
-				$relationship->data->relation_to = $to;
-				$relationship->data->type = 'group:invite';
-				$relationship->insert();
+				if (!$relationshipService->getRelationByType($to, $from, 'group:approve')) {
+					$relationship = new Relationship;
+					$relationship->data->relation_from = $from;
+					$relationship->data->relation_to = $to;
+					$relationship->data->type = 'group:invite';
+					$relationship->insert();
 
-				$relationship = new Relationship;
-				$relationship->data->relation_from = $to;
-				$relationship->data->relation_to = $from;
-				$relationship->data->type = 'group:approve';
-				$relationship->insert();
+					$relationship = new Relationship;
+					$relationship->data->relation_from = $to;
+					$relationship->data->relation_to = $from;
+					$relationship->data->type = 'group:approve';
+					$relationship->insert();
+				}
+				continue;
 			}
 			return response(false);
 			break;
