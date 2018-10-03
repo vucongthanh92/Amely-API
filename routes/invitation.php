@@ -11,7 +11,10 @@ $app->post($container['prefix'].'/invitation', function (Request $request, Respo
 	if (!array_key_exists('offset', $params))  	$params['offset'] = 0;
 	if (!array_key_exists('limit', $params))  	$params['limit'] = 10;
 
-	$relationships = $relationshipService->getRelationsByType(false, $loggedin_user->id, 'friend:request');
+	$offset = $params['offset'];
+	$limit = $params['limit'];
+
+	$relationships = $relationshipService->getRelationsByType(false, $loggedin_user->id, 'friend:request', $offset, $limit);
 	if (!$relationships) return response(false);
 	foreach ($relationships as $key => $relationship) {
 		if ($relationshipService->getRelationByType($relationship->relation_to, $relationship->relation_from, 'friend:request')) unset($relationships[$key]);
