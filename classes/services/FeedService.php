@@ -66,7 +66,7 @@ class FeedService extends Services
         return $count;
     }
 
-    public function getFeedsCountComment($feeds_guid)
+    public function getFeedsCountComment($feeds_id)
     {
         $commentService = CommentService::getInstance();
         $comment_params = null;
@@ -77,7 +77,7 @@ class FeedService extends Services
         ];
         $comment_params[] = [
             'key' => 'subject_id',
-            'value' => "IN ({$feeds_guid})",
+            'value' => "IN ({$feeds_id})",
             'operation' => 'AND'
         ];
         $comment_params[] = [
@@ -100,14 +100,14 @@ class FeedService extends Services
         return $comments;
     }
 
-    public function getFeedsCountLike($feeds_guid)
+    public function getFeedsCountLike($feeds_id)
     {
         $likeService = LikeService::getInstance();
 
         $like_params = null;
         $like_params[] = [
             'key' => 'subject_id',
-            'value' => "IN ({$feeds_guid})",
+            'value' => "IN ({$feeds_id})",
             'operation' => ''
         ];
         $like_params[] = [
@@ -134,14 +134,14 @@ class FeedService extends Services
         if (!$likes) return false;
         return $likes; 
     }
-    public function getFeedsLiked($owner_guid, $feeds_guid)
+    public function getFeedsLiked($owner_id, $feeds_id)
     {
         $likeService = LikeService::getInstance();
 
         $like_params = null;
         $like_params[] = [
             'key' => 'subject_id',
-            'value' => "IN ({$feeds_guid})",
+            'value' => "IN ({$feeds_id})",
             'operation' => ''
         ];
         $like_params[] = [
@@ -150,8 +150,8 @@ class FeedService extends Services
             'operation' => 'AND'
         ];
         $like_params[] = [
-            'key' => 'guid',
-            'value' => "= {$owner_guid}",
+            'key' => 'owner_id',
+            'value' => "= {$owner_id}",
             'operation' => 'AND'
         ];
         $like_params[] = [
