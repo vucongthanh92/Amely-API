@@ -94,6 +94,14 @@ class RelationshipService extends Services
 		return $relate->delete();
 	}
 
+	public function deleteMemberGroup($from, $to)
+	{
+		$relate = new Relationship;
+    	$relate->where = "(relation_from='{$from}' AND relation_to='{$to}' AND type='group:invite') OR
+						 (relation_from='{$to}' AND relation_to='{$from}' AND type='group:approve')";
+		return $relate->delete();
+	}
+
 	public function getRelationsByType($from = false, $to = false, $type = false, $offset = 0, $limit = 10)
 	{
 		$relation_params = null;
