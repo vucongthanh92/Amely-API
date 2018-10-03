@@ -2,6 +2,29 @@
 use Slim\Http\Request;
 use Slim\Http\Response;
 
+$app->post($container['prefix'].'/invitation', function (Request $request, Response $response, array $args) {
+	$relationshipService = RelationshipService::getInstance();
+	$userService = UserService::getInstance();
+	$loggedin_user = loggedin_user();
+	$params = $request->getParsedBody();
+	if (!$params) $params = [];
+	if (!array_key_exists('offset', $params))  	$params['offset'] = 0;
+	if (!array_key_exists('limit', $params))  	$params['limit'] = 10;
+
+	$relationships = $relationshipService->getRelationsByType(false, $loggedin_user->id, 'friend:request');
+	if (!$relationships) return response(false);
+	foreach ($relationships as $key => $relationship) {
+		if ($relationshipService->getRelationByType($relationship->relation_to, $relationship->relation_from, 'friend:request')) unset($relationships[$key]);
+	}
+
+	if (!$relationships) return response(false);
+	$users_id = array_map(create_function('$o', 'return $o->relation_from;'), array_values($relationships));
+	$users_id = implode(',', $users_id);
+	$users = $userService->getUsersByType($users_id, 'id', false);
+
+	return response($users);
+});
+
 $app->put($container['prefix'].'/invitation', function (Request $request, Response $response, array $args) {
 	$relationshipService = RelationshipService::getInstance();
 	$loggedin_user = loggedin_user();
