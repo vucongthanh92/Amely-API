@@ -39,7 +39,7 @@ $app->get($container['prefix'].'/profile', function (Request $request, Response 
 			$type = false;
 			$input = false;
 		    if ($user->chain_store) {
-		    	$store = $storeService->getStoreById($user->chain_store);
+		    	$store = $storeService->getStoreByType($user->chain_store, 'id');
 		    	$type = 'id';
 		    	$input = $store->owner_id;
 		    } else {

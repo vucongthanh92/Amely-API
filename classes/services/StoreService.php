@@ -20,12 +20,12 @@ class StoreService extends Services
         $this->table = "amely_stores";
     }
 
-    public function getStoreById($id, $getAddr = true)
+    public function getStoreByType($input, $type ='id', $getAddr = true)
     {
     	$conditions = null;
 		$conditions[] = [
-			'key' => 'id',
-			'value' => "= '{$id}'",
+			'key' => $type,
+			'value' => "= '{$input}'",
 			'operation' => ''
 		];
 		$store = $this->getStore($conditions, $getAddr);

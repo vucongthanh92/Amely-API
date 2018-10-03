@@ -4,34 +4,39 @@ use Slim\Http\Response;
 
 $app->get($container['prefix'].'/products', function (Request $request, Response $response, array $args) {
 	$productService = ProductService::getInstance();
+	$subProductService = SubProductService::getInstance();
 	$shopService = ShopService::getInstance();
+	$storeService = StoreService::getInstance();
 	$categoryService = CategoryService::getInstance();
 	
 	$params = $request->getQueryParams();
 	if (!$params) $params = [];
 	if (!array_key_exists('id', $params)) $params['id'] = false;
 	if (!array_key_exists('qrcode', $params)) $params['qrcode'] = false;
-
-	if ($params['id'] || $params['qrcode']) return response(false);
-
-	$id = $params["id"];
-	$qrcode = $params["qrcode"];
 	$input = $type = false;
-
-	if ($qrcode) {
-		$input = array_pop(explode("/", $qrcode));
+	if ($params['qrcode']) {
+		$input = $friendly_url;
 		$type = 'friendly_url';
-	}
-	if ($id) {
+	} else {
+		$input = $params['id'];
 		$type = 'id';
-		$input = $id;
 	}
-	if ($input && $type) return response(false);
-	$product = $productService->getProductByType($input, $type);
+	if (!$input && !$type) return response(false);
+	$sproduct = $subProductService->getSubProductByType($input, $type);
+	if (!$sproduct) return response(false);
+	$product = $productService->getProductByType($sproduct->owner_id, 'id');
 	if (!$product) return response(false);
-	$shop = $shopService->getShopByType($product->owner_guid, 'id');
-	if (!$shop) return response(false);
+	$product = (object) array_merge((array) $sproduct, (array) $product);
 	
+	// $store = $storeService->getStoreByType($product->owner_id, 'id');
+	// if (!$store) return response(false);
+
+	$shop = $shopService->getShopByType($product->owner_id, 'id');
+	if (!$shop) return response(false);
+	// $shop = (object) array_merge((array) $store, (array) $shop);
+
+
+
 	$product->shop = $shop;
 	if ($product->category) {
 		$categories_guid = implode(",", $product->category);
@@ -53,13 +58,16 @@ $app->get($container['prefix'].'/products', function (Request $request, Response
 
 $app->post($container['prefix'].'/products', function (Request $request, Response $response, array $args) {
 	$productService = ProductService::getInstance();
+	$subProductService = SubProductService::getInstance();
+	$shopService = ShopService::getInstance();
+	$storeService = StoreService::getInstance();
 	$categoryService = CategoryService::getInstance();
 	$loggedin_user = loggedin_user();
 	$params = $request->getParsedBody();
 	if (!$params) $params = [];
-	if (!array_key_exists('shop_guid', $params)) 		$params['shop_id'] = false;
-	if (!array_key_exists('type_product', $params)) 	$params['type_product'] = false;
-	if (!array_key_exists('category_guid', $params)) 	$params['category_id'] = false;
+	if (!array_key_exists('shop_id', $params)) 		$params['shop_id'] = false;
+	if (!array_key_exists('type_product', $params)) 	$params['type_product'] = 'default';
+	if (!array_key_exists('category_id', $params)) 	$params['category_id'] = false;
 	if (!array_key_exists('product_filter', $params)) 	$params['product_filter'] = false;
 	if (!array_key_exists('offset', $params)) 			$params['offset'] = 0;
 	if (!array_key_exists('limit', $params)) 			$params['limit'] = 10;
@@ -72,7 +80,7 @@ $app->post($container['prefix'].'/products', function (Request $request, Respons
 	$limit = $params['limit'];
 
 	$product_params[] = [
-		'key' => 'guid',
+		'key' => 'id',
 		'value' => 'DESC',
 		'operation' => 'order_by'
 	];
@@ -97,7 +105,7 @@ $app->post($container['prefix'].'/products', function (Request $request, Respons
 		];
 
 		$product_params[] = [
-			'key' => "FIND_IN_SET({$category_guid}, category)",
+			'key' => "FIND_IN_SET({$category_id}, category)",
 			'value' => '',
 			'operation' => 'AND'
 		];
@@ -148,37 +156,33 @@ $app->post($container['prefix'].'/products', function (Request $request, Respons
 		default:
 			break;
 	}
-	
 	$products = $productService->getProducts($product_params, $offset, $limit);
 	if (!$products) return response(false);
 	$categories_id = [];
 	foreach ($products as $key => $product) {
-		$arr = explode(',', $product->category);
-		$categories_id = array_merge((array)$categories_id, (array)$arr);
+		if ($product->category) {
+			$arr = explode(',', $product->category);
+			$categories_id = array_merge((array)$categories_id, (array)$arr);
+		}
 	}
 
-	$categories = [];
-	$categories_id = array_unique($categories_id);
 	if ($categories_id) {
-		$categories_id = implode(',', $categories_id);
-		$category_params = null;
-		$category_params[] = [
-			'key' => 'id',
-			'value' => "IN ({$categories_id})",
-			'operation' => ''
-		];
-		$categories = $select->getCategories($category_params,0,99999999);
-		foreach ($categories as $key => $category) {
-			$categories[$category->guid] = $category;
+		$categories = [];
+		$categories_id = array_unique($categories_id);
+		if ($categories_id) {
+			$categories_id = implode(',', $categories_id);
+			$category_params = null;
+			$category_params[] = [
+				'key' => 'id',
+				'value' => "IN ({$categories_id})",
+				'operation' => ''
+			];
+			$categories = $select->getCategories($category_params,0,99999999);
+			foreach ($products as $key => $product) {
+				$product->categories = $categories;
+				$products[$key] = $product;
+			}
 		}
-	}
-	foreach ($products as $key => $product) {
-		$list_category = [];
-		$categories_id = explode(',', $product->category);
-		foreach ($categories_id as $category_id) {
-			array_push($list_category, $categories[$category_id]);
-		}
-		$product->categories = array_values($list_category);
 	}
 
 	return response(array_values($products));
@@ -186,21 +190,80 @@ $app->post($container['prefix'].'/products', function (Request $request, Respons
 
 $app->put($container['prefix'].'/products', function (Request $request, Response $response, array $args) {
 	$productService = ProductService::getInstance();
+	$subProductService = SubProductService::getInstance();
+
+	$snapshotService = SnapshotService::getInstance();
 	$loggedin_user = loggedin_user();
 	$params = $request->getParsedBody();
 	if (!$params) $params = [];
-	if (!array_key_exists('shop_guid', $params)) 		$params['shop_id'] = false;
 
 	$product = new Product();
 	$product->data->owner_id = 1;
-	$product->data->type = "store";
+	$product->data->type = "shop";
 	$product->data->title = "product 1";
 	$product->data->description = "p1";
 	$product->data->sku = "sku-p1";
 	$product->data->friendly_url = "product-1";
+	$product->data->is_special = 0;
 	$product->data->creator_id = $loggedin_user->id;
-	$product_id = $product->insert();
+	$product->data->enabled = 1;
+	$product->data->approved = time();
 
-	
+	$product_id = $product->insert(true);
+
+	$p = $productService->getProductByType($product_id, 'id', false);
+	$key = $snapshotService->generateSnapshotKey($p, 'product');
+	$snapshot = $snapshotService->checkExistKey($key, 'product');
+	if ($snapshot) {
+		$snapshot_id = $snapshot->id;
+	} else {
+		$snapshot = new Snapshot();
+		foreach ($p as $pkey => $pvalue) {
+			$snapshot->data->$pkey = $pvalue;
+		}
+		unset($snapshot->data->id);
+		$snapshot->data->code = $key;
+		$snapshot_id = $snapshot->insert(true);
+	}
+	$product = new Product();
+	$product->id = $product_id;
+	$product->data->current_snapshot = $snapshot_id;
+	$product->update();
+
+	$subp = new SubProduct();
+	$subp->data->owner_id = $product_id;
+	$subp->data->type = 'product';
+	$subp->data->title = "sub p 1";
+	$subp->data->description = "sub p 1";
+	$subp->data->price = 15000;
+	$subp->data->quantity = 100;
+	$subp->data->sku = "sku-sub-p1";
+	$subp->data->creator_id = $loggedin_user->id;
+	$subp->data->enabled = 1;
+	$subp->data->approved = time();
+	$subp_id = $subp->insert(true);
+
+	$sp = $subProductService->getSubProductByType($subp_id, 'id', false);
+	$key = $snapshotService->generateSnapshotKey($sp, 'sub');
+	$snapshot = $snapshotService->checkExistKey($key, 'sub');
+	if ($snapshot) {
+		$subsnapshot_id = $snapshot->id;
+	} else {
+		$subsnapshot = new SubSnapshot();
+		foreach ($sp as $spkey => $spvalue) {
+			$subsnapshot->data->$spkey = $spvalue;
+		}
+		unset($subsnapshot->data->id);
+		$subsnapshot->data->owner_id = $subp_id;
+		$subsnapshot->data->type = "product_snapshot";
+		$subsnapshot->data->code = $key;
+		$subsnapshot_id = $subsnapshot->insert(true);
+		
+	}
+	$subp = new SubProduct();
+	$subp->id = $subp_id;
+	$subp->data->current_sub_snapshot = $subsnapshot_id;
+	$subp->where = "id = $subp_id";
+	return response($subp->update());
 
 });

@@ -50,6 +50,7 @@ $app->post($container['prefix'].'/shops', function (Request $request, Response $
 });
 
 $app->put($container['prefix'].'/shops', function (Request $request, Response $response, array $args) {
+	$shopService = ShopService::getInstance();
 	$loggedin_user = loggedin_user();
 	$params = $request->getParsedBody();
 	if (!$params) $params = [];
@@ -71,6 +72,8 @@ $app->put($container['prefix'].'/shops', function (Request $request, Response $r
 	if (!array_key_exists('files_scan', $params)) 		$params['files_scan'] = false;
 
 	if (!$params['shop_bidn']) return response(false);
+
+	if ($shopService->getShopByType($loggedin_user->id, 'owner_id', false)) return response(false);
 
 	$shop = new Shop();
 	$shop->data->owner_id = $params['owner_id'];

@@ -255,6 +255,8 @@ CREATE TABLE `amely_products` (
   `title` text NOT NULL,
   `description` longtext NOT NULL,
   `sku` text,
+  `model` text,
+  `tag` text,
   `number_sold` text,
   `tax` text,
   `friendly_url` text,
@@ -283,24 +285,8 @@ CREATE TABLE `amely_products` (
   `shop_category` text,
   `market_category` text,
   `category` text,
-  `adjourn_price` text,
-  `images` text
+  `adjourn_price` text
  ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-
-`number_sold` text,
-`friendly_url` text,
-`product_order` text,
-`download` text,
-`featured` text,
-`current_snapshot` text,
-`approved` text,
-`enabled` text,
-`voucher_category` text,
-`ticket_category` text,
-`shop_category` text,
-`market_category` text,
-`category` text,
-`time_created` int(11) NOT NULL,
 
 DROP TABLE IF EXISTS `amely_products_snapshot`;
 CREATE TABLE `amely_products_snapshot` (
@@ -311,6 +297,7 @@ CREATE TABLE `amely_products_snapshot` (
   `title` text NOT NULL,
   `description` longtext NOT NULL,
   `sku` text,
+  `model` text,
   `tax` text,
   `weight` text,
   `expiry_type` text,
@@ -326,17 +313,10 @@ CREATE TABLE `amely_products_snapshot` (
   `end_day` text,
   `manufacturer` text,
   `unit` text,
-  `images` text,
   `adjourn_price` text,
-  `key` text
+  `code` text
  ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
-`time_created` int(11) NOT NULL,
-`quantity` text,
-`number_sold` text,
-`approved` text,
-`enabled` text,
-`current_snapshot` text,
 
 DROP TABLE IF EXISTS `amely_sub_products_snapshot`; 
 CREATE TABLE `amely_sub_products_snapshot` (
@@ -351,7 +331,7 @@ CREATE TABLE `amely_sub_products_snapshot` (
   `creator_id` text,
   `sale_price` text,
   `images` text,
-  `key` text
+  `code` text
  ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 
@@ -370,7 +350,7 @@ CREATE TABLE `amely_sub_products` (
   `creator_id` text,
   `number_sold` text,
   `sale_price` text,
-  `current_snapshot` text,
+  `current_sub_snapshot` text,
   `approved` text,
   `enabled` text,
   `images` text
@@ -458,49 +438,6 @@ CREATE TABLE `amely_purchase_order` (
   `order_item_snapshot` text
  ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
-DROP TABLE IF EXISTS `amely_products_snapshot`; 
-CREATE TABLE `amely_products_snapshot` (
-  `id` bigint(20) NOT NULL AUTO_INCREMENT,
-  PRIMARY KEY (`id`),
-  `owner_id` bigint(20) NOT NULL,
-  `type` varchar(20) NOT NULL,
-  `time_created` int(11) NOT NULL,
-  `title` text NOT NULL,
-  `description` longtext NOT NULL,
-  `subtype` text NOT NULL,
-  `tax` text,
-  `price` text,
-  `quantity` text,
-  `weight` text,
-  `expiry_type` text,
-  `friendly_url` text,
-  `currency` text,
-  `origin` text,
-  `product_order` text,
-  `enabled` text,
-  `sku` text,
-  `storage_duration` text,
-  `is_special` text,
-  `product_group` text,
-  `creator_id` text,
-  `custom_attributes` text,
-  `number_sold` text,
-  `download` text,
-  `featured` text,
-  `sale_price` text,
-  `duration` text,
-  `begin_day` text,
-  `end_day` text,
-  `manufacturer` text,
-  `approved` text,
-  `current_snapshot` text,
-  `voucher_category` text,
-  `ticket_category` text,
-  `shop_category` text,
-  `market_category` text,
-  `category` text,
-  `images` text
- ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 DROP TABLE IF EXISTS `amely_counter_offers`; 
 CREATE TABLE `amely_counter_offers` (

@@ -316,7 +316,7 @@ class SlimDatabase
 				return false;
 				break;
 		}
-		
+
 		if ($query === false) return false;
 		$db = $connectDB->query($query);
 		if ($show_id) {
@@ -396,6 +396,8 @@ class SlimDatabase
 			$db = $connectDB->query($query);
 			// var_dump(expression)
 		    // $db->execute();
+
+		    
 		    if (!$db) return false;
 		    if (!property_exists($db, 'num_rows')) return false;
 		    if (!$db->num_rows) return false;

@@ -3,7 +3,7 @@
 /**
 * 
 */
-class ProductService extends Services
+class SubProductService extends Services
 {
 	protected static $instance = null;
 
@@ -17,10 +17,10 @@ class ProductService extends Services
 
 	public function __construct() 
 	{
-        $this->table = "amely_products";
+        $this->table = "amely_sub_products";
     }
 
-    public function getProductByType($input, $type ='id', $changeStructure = true)
+    public function getSubProductByType($input, $type ='id', $changeStructure = true)
     {
     	$conditions = null;
 		$conditions[] = [
@@ -28,12 +28,12 @@ class ProductService extends Services
 			'value' => "= '{$input}'",
 			'operation' => ''
 		];
-		$product = $this->getProduct($conditions, $changeStructure);
+		$product = $this->getSubProduct($conditions, $changeStructure);
 		if (!$product) return false;
 		return $product;
     }
 
-    public function getProduct($conditions, $changeStructure = true)
+    public function getSubProduct($conditions, $changeStructure = true)
 	{
 		$product = $this->searchObject($conditions, 0, 1);
 		if (!$product) return false;
@@ -43,7 +43,7 @@ class ProductService extends Services
 		return $product;
 	}
 
-	public function getProducts($conditions, $offset = 0, $limit = 10)
+	public function getSubProducts($conditions, $offset = 0, $limit = 10)
 	{
 		$products = $this->searchObject($conditions, $offset, $limit);
 		if (!$products) return false;
@@ -66,15 +66,15 @@ class ProductService extends Services
 	{
 		$imageService = ImageService::getInstance();
         $product->description = html_entity_decode($product->description);
-        // $images = [];
-        // if ($product->images) {
-        // 	foreach (explode(",", $product->images) as $key => $image) {
-        // 		array_push($images, $imageService->showImage($product->id, $image, 'product', 'large'));
-        // 	}
-        // }
-        // if ($images) {
-        // 	$product->images = $images;
-        // }
+        $images = [];
+        if ($product->images) {
+        	foreach (explode(",", $product->images) as $key => $image) {
+        		array_push($images, $imageService->showImage($product->id, $image, 'product', 'large'));
+        	}
+        }
+        if ($images) {
+        	$product->images = $images;
+        }
         return $product;
         // $product->display_price = $this->getPrice($product);
         // $product->display_currency = $product->currency;

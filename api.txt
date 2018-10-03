@@ -26,6 +26,9 @@ v    @DELETE("comments")
 v    @GET("shops")
 v    @POST("shops")
 v    @PUT("likes")
+v    @POST("products")
+v    @GET("products")  
+
      @POST("categories")
      @DELETE("likes")
      @POST("business")
@@ -39,8 +42,6 @@ v    @PUT("likes")
     @PATCH("events")
     
 
-     @POST("products")
-     @GET("products")  
     
     @GET("inventory")
     @POST("inventory")
@@ -48,7 +49,7 @@ v    @PUT("likes")
 
     @PUT("redeem")
 
-    private $sku;
+    private $sku;  
 private $tax;
 private $friendly_url;
 private $weight;
