@@ -47,4 +47,18 @@ $app->put($container['prefix'].'/approval', function (Request $request, Response
 
 $app->delete($container['prefix'].'/approval', function (Request $request, Response $response, array $args) {
 
+	$relationshipService = RelationshipService::getInstance();
+	$loggedin_user = loggedin_user();
+	$params = $request->getQueryParams();
+	if (!array_key_exists('to_id', $params)) $params['to_id'] = false;
+	if (!array_key_exists('type', $params)) $params['type'] = false;
+
+	if (!$params['to_id'] || !$params['type']) return response(false);
+
+	if ($params['type'] == 'user') {
+    	return response($relationshipService->deleteFriend($loggedin_user->id, $params['to_id']));
+	}
+
+	return response(false);
+
 });
