@@ -28,6 +28,57 @@ foreach ($classes as $key => $class) {
 }
 
 $routes = getDirContents(__DIR__ . '/../routes');
+
+$shippingService = ShippingService::getInstance();
+$shippingService->registerMethod([
+    'filename' => 'sq/storage',
+    'component' => 'Amely',
+    'classname' => 'SQ\\Storage',
+    'displayname' => "Kho của tôi",
+    'capacity' => ['process', 'redeem']
+]);
+
+$shippingService->registerMethod([
+    'filename' => 'sq/pickup',
+    'component' => 'Amely',
+    'classname' => 'SQ\\Pickup',
+    'displayname' => "Nhận tại cửa hàng",
+    'capacity' => ['redeem']
+]);
+
+$shippingService->registerMethod([
+    'filename' => 'sq/express',
+    'component' => 'Amely',
+    'classname' => 'SQ\\Express',
+    'displayname' => "Giao hàng tiết kiệm",
+    'capacity' => ['process']
+]);
+
+$paymentsService = PaymentsService::getInstance();
+$paymentsService->registerMethod([
+    'filename' => 'paypal/standard',
+    'component' => 'Amely',
+    'classname' => 'Paypal\\Standard',
+    'displayname' => "Tài khoản Paypal",
+    'capacity' => ['process','deposit','withdraw']
+]);
+
+$paymentsService->registerMethod([
+    'filename' => 'onepay/opatm',
+    'component' => 'Amely',
+    'classname' => 'OnePay\\OPATM',
+    'displayname' => "OnePay thẻ ATM nội địa",
+    'capacity' => ['process','deposit']
+]);
+
+$paymentsService->registerMethod([
+    'filename' => 'onepay/opcreditcard',
+    'component' => 'Amely',
+    'classname' => 'OnePay\\OPCreditCard',
+    'displayname' => "OnePay thẻ quốc tế Visa/Master",
+    'capacity' => ['process','deposit']
+]);
+
 foreach ($routes as $key => $route) {
     require $route;
 }

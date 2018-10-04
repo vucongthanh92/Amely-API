@@ -20,12 +20,9 @@ class CartService extends Services
 		
     }
 
-    public function saveItems($items)
+    public function saveItems($item)
     {
-    	$this->clearCart();
-    	foreach ($items as $key => $item) {
-    		$_SESSION['cart']['items'][] = $item;
-    	}
+		$_SESSION['cart']['items'][] = $item;
     }
 
     public function saveTotal($total)

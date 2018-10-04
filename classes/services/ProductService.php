@@ -33,6 +33,19 @@ class ProductService extends Services
 		return $product;
     }
 
+    public function getProductsByType($input, $type ='id', $changeStructure = true)
+    {
+    	$conditions = null;
+		$conditions[] = [
+			'key' => $type,
+			'value' => "IN ({$input})",
+			'operation' => ''
+		];
+		$products = $this->getProducts($conditions, 0, 99999999);
+		if (!$products) return false;
+		return $products;
+    }
+
     public function getProduct($conditions, $changeStructure = true)
 	{
 		$product = $this->searchObject($conditions, 0, 1);
