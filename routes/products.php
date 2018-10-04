@@ -158,13 +158,49 @@ $app->post($container['prefix'].'/products', function (Request $request, Respons
 	}
 	$products = $productService->getProducts($product_params, $offset, $limit);
 	if (!$products) return response(false);
-	$categories_id = [];
+	$products_id = $categories_id = [];
 	foreach ($products as $key => $product) {
 		if ($product->category) {
 			$arr = explode(',', $product->category);
 			$categories_id = array_merge((array)$categories_id, (array)$arr);
 		}
+		if (!in_array($product->id, $products_id)) {
+			array_push($products_id, $product->id);
+		}
 	}
+
+	if (!$products_id) return response(false);
+	$products_id = implode(',', $products_id);
+	$sub_params = null;
+	$sub_params[] = [
+		'key' => 'time_created',
+		'value' => "DESC",
+		'operation' => 'order_by'
+	];
+	$sub_params[] = [
+		'key' => 'enabled',
+		'value' => "= 1",
+		'operation' => ''
+	];
+	$sub_params[] = [
+		'key' => 'owner_id',
+		'value' => "IN ($products_id)",
+		'operation' => 'AND'
+	];
+	$subproducts = $subProductService->getSubProducts($sub_params, 0, 999999999);
+	if (!$subproducts) return response(false);
+
+	$responses = [];
+	foreach ($subproducts as $subproduct) {
+		foreach ($products as $product) {
+			if ($subproduct->owner_id == $product->id) {
+				$product = (object) array_merge((array) $subproduct, (array) $product);
+				$responses[] = $product;
+			}
+		}
+	}
+
+
 
 	if ($categories_id) {
 		$categories = [];
@@ -178,14 +214,14 @@ $app->post($container['prefix'].'/products', function (Request $request, Respons
 				'operation' => ''
 			];
 			$categories = $select->getCategories($category_params,0,99999999);
-			foreach ($products as $key => $product) {
-				$product->categories = $categories;
-				$products[$key] = $product;
+			foreach ($responses as $key => $response) {
+				$response->categories = $categories;
+				$responses[$key] = $response;
 			}
 		}
 	}
 
-	return response(array_values($products));
+	return response(array_values($responses));
 });
 
 $app->put($container['prefix'].'/products', function (Request $request, Response $response, array $args) {
