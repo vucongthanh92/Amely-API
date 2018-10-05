@@ -5,7 +5,7 @@ use Slim\Http\Response;
 $app->get($container['prefix'].'/shops', function (Request $request, Response $response, array $args) {
 	$shopService = ShopService::getInstance();
 	$storeService = StoreService::getInstance();
-
+	$loggedin_user = loggedin_user();
 
 	$params = $request->getQueryParams();
 	if (!$params) $params = [];
@@ -13,6 +13,9 @@ $app->get($container['prefix'].'/shops', function (Request $request, Response $r
 	if (!$params['shop_id']) return response(false);
 	$shop = $shopService->getShopByType($params['shop_id'], 'id');
 	if (!$shop) return response(false);
+	$shop->liked = false;
+	$shops_liked = $shopService->getShopsLiked($loggedin_user->id);
+	if ($shops_liked) $shop->liked = true;
 
 	$store_params = null;
 	$store_params[] = [

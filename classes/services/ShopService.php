@@ -62,10 +62,10 @@ class ShopService extends Services
 			$shop = $this->changeStructureInfo($shop, $getAddr);
 			$shops[$key] = $shop;
 		}
-		return $shop;
+		return $shops;
 	}
 
-	public function getShopsLiked($from)
+	public function getShopsLiked($from, $to = false)
     {
     	$likeService = LikeService::getInstance();
     	$conditions = null;
@@ -74,6 +74,13 @@ class ShopService extends Services
 	    	'value' => "= {$from}",
 	    	'operation' => ''
 	    ];
+	    if ($to) {
+	    	$conditions[] = [
+		    	'key' => 'subject_id',
+		    	'value' => "= {$to}",
+		    	'operation' => 'AND'
+		    ];	
+	    }
 	    $conditions[] = [
 	    	'key' => 'type',
 	    	'value' => "= 'shop'",
