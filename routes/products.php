@@ -39,12 +39,12 @@ $app->get($container['prefix'].'/products', function (Request $request, Response
 
 	$product->shop = $shop;
 	if ($product->category) {
-		$categories_guid = implode(",", $product->category);
-		if ($categories_guid) {
+		$categories_id = implode(",", $product->category);
+		if ($categories_id) {
 			$category_params = null;
 			$category_params[] = [
-				'key' => 'guid',
-				'value' => "IN ({$categories_guid})",
+				'key' => 'id',
+				'value' => "IN ({$categories_id})",
 				'operation' => ''
 			];
 			$categories = $categoryService->getCategories($category_params, 0, 99999999);
@@ -118,7 +118,7 @@ $app->post($container['prefix'].'/products', function (Request $request, Respons
 				'operation' => ''
 			];
 			$product_params[] = [
-				'key' => 'owner_guid',
+				'key' => 'owner_id',
 				'value' => "= {$shop_id}",
 				'operation' => 'AND'
 			];
