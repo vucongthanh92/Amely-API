@@ -243,6 +243,8 @@ $app->put($container['prefix'].'/products', function (Request $request, Response
 	$product->data->is_special = 0;
 	$product->data->creator_id = $loggedin_user->id;
 	$product->data->enabled = 1;
+	$product->data->category = "1,2,3,4,5,6";
+
 	$product->data->approved = time();
 
 	$product_id = $product->insert(true);
