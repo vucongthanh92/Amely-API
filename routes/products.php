@@ -115,7 +115,7 @@ $app->post($container['prefix'].'/products', function (Request $request, Respons
 			$product_params[] = [
 				'key' => 'approved',
 				'value' => "REGEXP '^[0-9]+$'",
-				'operation' => ''
+				'operation' => 'AND'
 			];
 			$product_params[] = [
 				'key' => 'owner_id',
