@@ -33,6 +33,9 @@ $app->get($container['prefix'].'/products', function (Request $request, Response
 
 	$shop = $shopService->getShopByType($product->owner_id, 'id');
 	if (!$shop) return response(false);
+
+	$stores = $storeService->getStoresByType($shop->id, 'owner_id');
+	$shop->stores = $stores;
 	// $shop = (object) array_merge((array) $store, (array) $shop);
 
 
