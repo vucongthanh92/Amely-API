@@ -11,7 +11,7 @@ class AuthMiddleware
 
     public function __invoke($request, $response, $next)
     {
-    	$user_token_ignore = ["appupdate", "register", "authtoken", "activation", "resize", "download_file", "forgot_password", "services"];
+    	$user_token_ignore = ["appupdate", "register", "authtoken", "activation", "resize", "download_file", "forgot_password", "services", "payment_response"];
 
     	$route = $request->getAttribute('route');
         if (!$route) return response(false);

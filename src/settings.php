@@ -48,7 +48,7 @@ return [
             'avatar' => 'https://i1.wp.com/grueneroadpharmacy.com/wp-content/uploads/2017/02/user-placeholder-1.jpg',
             'cover' => 'https://i1.wp.com/grueneroadpharmacy.com/wp-content/uploads/2017/02/user-placeholder-1.jpg'
         ],
-        'url' => "https://amely.com",
+        'url' => "http://api.local",
         'prefix' => "/ws/v1",
 
     ],

@@ -1,3 +1,38 @@
+DROP TABLE IF EXISTS `amely_onepay_response`;
+CREATE TABLE `amely_onepay_response` (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT,
+  PRIMARY KEY (`id`),
+  `owner_id` bigint(20) NOT NULL,
+  `type` varchar(20) NOT NULL,
+  `time_created` int(11) NOT NULL,
+  `request` text,
+  `response` text
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+DROP TABLE IF EXISTS `amely_temp_order`;
+CREATE TABLE `amely_temp_order` (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT,
+  PRIMARY KEY (`id`),
+  `owner_id` bigint(20) NOT NULL,
+  `type` varchar(20) NOT NULL,
+  `time_created` int(11) NOT NULL,
+  `target_id` bigint(20),
+  `target_type` varchar(20),
+  `payment_method` text,
+  `shipping_method` text,
+  `status` text,
+  `note` text,
+  `shipping_fullname` text, 
+  `shipping_phone` text, 
+  `shipping_address` text, 
+  `shipping_province` text, 
+  `shipping_district` text, 
+  `shipping_ward` text, 
+  `shipping_note` text, 
+  `shipping_fee` text,
+  `order_items` text
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
 DROP TABLE IF EXISTS `amely_provinces`;
 CREATE TABLE `amely_provinces` (
   `provinceid` varchar(5) NOT NULL,
@@ -416,28 +451,11 @@ CREATE TABLE `amely_purchase_order` (
   `time_created` int(11) NOT NULL,
   `title` text NOT NULL,
   `description` longtext NOT NULL,
-  `subtype` text NOT NULL,
-  `process_status` text,
-  `paymented` text,
-  `fullname` text,
-  `phone` text,
-  `address` text,
-  `province` text,
-  `district` text,
-  `ward` text,
   `note` text,
-  `payment` text,
-  `shipping_shop` text,
-  `shipping_fullname` text,
-  `shipping_phone` text,
-  `shipping_address` text,
-  `shipping_province` text,
-  `shipping_district` text,
-  `shipping_ward` text,
-  `shipping_note` text,
+  `payment_method` text,
   `shipping_method` text,
-  `shipping_fee` text,
-  `order_item` text,
+  `status` text,
+  `payment` text,
   `order_item_snapshot` text
  ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
@@ -593,7 +611,6 @@ CREATE TABLE `amely_categories` (
   `time_created` int(11) NOT NULL,
   `title` text NOT NULL,
   `description` longtext NOT NULL,
-  `subtype` text NOT NULL,
  `friendly_url` text,
   `sort_order` text,
   `enabled` text,

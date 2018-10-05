@@ -2,6 +2,32 @@
 
 use Slim\Http\Response;
 
+function null2unknown($data)
+{
+    if ($data == "") {
+        return "No Value Returned";
+    } else {
+        return $data;
+    }
+}
+
+function getRealIpAddr()
+{
+    if (!empty($_SERVER['HTTP_CLIENT_IP']))   //check ip from share internet
+    {
+      $ip=$_SERVER['HTTP_CLIENT_IP'];
+    }
+    elseif (!empty($_SERVER['HTTP_X_FORWARDED_FOR']))   //to check ip is pass from proxy
+    {
+      $ip=$_SERVER['HTTP_X_FORWARDED_FOR'];
+    }
+    else
+    {
+      $ip=$_SERVER['REMOTE_ADDR'];
+    }
+    return $ip;
+}
+
 function arrayFilter($objects, $searchedValue, $type = 'id')
 {
 	$result = array_filter(
