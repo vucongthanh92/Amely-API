@@ -20,6 +20,19 @@ class CategoryService extends Services
         $this->table = "amely_categories";
     }
 
+    public function getCategoriesByType($input, $type ='id')
+    {
+    	$conditions = null;
+		$conditions[] = [
+			'key' => $type,
+			'value' => "IN ({$input})",
+			'operation' => ''
+		];
+		$categories = $this->getCategories($conditions, 0, 99999999);
+		if (!$categories) return false;
+		return $categories;
+    }
+
     public function getCategoryByType($input, $type ='id')
     {
     	$conditions = null;

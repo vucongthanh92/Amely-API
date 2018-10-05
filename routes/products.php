@@ -207,15 +207,9 @@ $app->post($container['prefix'].'/products', function (Request $request, Respons
 		$categories_id = array_unique($categories_id);
 		if ($categories_id) {
 			$categories_id = implode(',', $categories_id);
-			$category_params = null;
-			$category_params[] = [
-				'key' => 'id',
-				'value' => "IN ({$categories_id})",
-				'operation' => ''
-			];
-			$categories = $select->getCategories($category_params,0,99999999);
+			$categories = $categoryService->getCategoriesByType($categories_id, 'id');
 			foreach ($responses as $key => $response) {
-				$response->categories = $categories;
+				if ($categories) $response->categories = $categories;
 				$responses[$key] = $response;
 			}
 		}
