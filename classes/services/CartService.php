@@ -20,6 +20,38 @@ class CartService extends Services
 		
     }
 
+    public function checkCart($owner_id, $type, $status)
+    {
+        $this->table = "amely_cart";
+        $conditions = null;
+        $conditions[] = [
+            'key' => 'owner_id',
+            'value' => "= {$owner_id}",
+            'operation' => ''
+        ];
+        $conditions[] = [
+            'key' => 'type',
+            'value' => "= '{$type}'",
+            'operation' => 'AND'
+        ];
+        $conditions[] = [
+            'key' => 'status',
+            'value' => "= '{$status}'",
+            'operation' => 'AND'
+        ];
+
+        $cart = $this->getCart($conditions);
+        if (!$cart) return false;
+        return $cart;
+    }
+
+    public function getCart($conditions)
+    {
+        $cart = $this->searchObject($conditions, 0, 1);
+        if (!$cart) return false;
+        return $cart;
+    }
+
     public function getCart()
     {
         return $_SESSION['cart'];

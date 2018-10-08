@@ -20,6 +20,29 @@ class ProductStoreService extends Services
         $this->table = "amely_product_store";
     }
 
+    public function checkQuantityInStore($product_id, $store_id, $quantity)
+    {
+    	$conditions = null;
+    	$conditions[] = [
+    		'key' => 'product_id',
+    		'value' => "= '{$product_id}'",
+    		'operation' => ''
+    	];
+    	$conditions[] = [
+    		'key' => 'store_id',
+    		'value' => "= '{$store_id}'",
+    		'operation' => 'AND'
+    	];
+    	$conditions[] = [
+    		'key' => 'quantity',
+    		'value' => ">= {$quantity}",
+    		'operation' => 'AND'
+    	];
+    	$store_quantity = $this->getQuantityProduct($conditions);
+		if (!$store_quantity) return false;
+		return true;
+    }
+
     public function getQuantityByType($input, $type = 'id', $offset = 0, $limit = 10)
     {
     	$conditions = null;
