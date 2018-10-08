@@ -7,42 +7,20 @@ class Product extends Object
 	private $time_created;
 	private $title;
 	private $description;
+	private $price;
 	private $sku;
-	private $number_sold;
-	private $tax;
-	private $friendly_url;
-	private $weight;
-	private $expiry_type;
-	private $currency;
-	private $origin;
-	private $product_order;
-	private $storage_duration;
-	private $is_special;
-	private $product_group;
 	private $creator_id;
-	private $custom_attributes;
-	private $download;
-	private $featured;
-	private $duration;
-	private $begin_day;
-	private $end_day;
-	private $manufacturer;
-	private $current_snapshot;
-	private $unit;
+	private $number_sold;
+	private $sale_price;
+	private $product_snapshot;
 	private $approved;
 	private $enabled;
-	private $voucher_category;
-	private $ticket_category;
-	private $shop_category;
-	private $market_category;
-	private $category;
-	private $adjourn_price;
 	private $images;
 
 	public function __construct() 
 	{	
 		parent::__construct();
-		$this->table = "amely_products";
+		$this->table = "amely_product";
 	}
 
 	public function __set($key, $value)

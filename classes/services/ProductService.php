@@ -17,7 +17,7 @@ class ProductService extends Services
 
 	public function __construct() 
 	{
-        $this->table = "amely_products";
+        $this->table = "amely_product";
     }
 
     public function getProductByType($input, $type ='id', $changeStructure = true)
@@ -28,9 +28,9 @@ class ProductService extends Services
 			'value' => "= '{$input}'",
 			'operation' => ''
 		];
-		$product = $this->getProduct($conditions, $changeStructure);
-		if (!$product) return false;
-		return $product;
+		$subproduct = $this->getProduct($conditions, $changeStructure);
+		if (!$subproduct) return false;
+		return $subproduct;
     }
 
     public function getProductsByType($input, $type ='id', $changeStructure = true)
@@ -41,58 +41,60 @@ class ProductService extends Services
 			'value' => "IN ({$input})",
 			'operation' => ''
 		];
-		$products = $this->getProducts($conditions, 0, 99999999);
-		if (!$products) return false;
-		return $products;
+		$subproducts = $this->getProducts($conditions, 0, 999999999);
+		if (!$subproducts) return false;
+		return $subproducts;
     }
 
     public function getProduct($conditions, $changeStructure = true)
 	{
-		$product = $this->searchObject($conditions, 0, 1);
-		if (!$product) return false;
+		$subproduct = $this->searchObject($conditions, 0, 1);
+		if (!$subproduct) return false;
 		if ($changeStructure) {
-			$product = $this->changeStructureInfo($product);
+			$subproduct = $this->changeStructureInfo($subproduct);
 		}
-		return $product;
+		return $subproduct;
 	}
 
 	public function getProducts($conditions, $offset = 0, $limit = 10)
 	{
-		$products = $this->searchObject($conditions, $offset, $limit);
-		if (!$products) return false;
-		foreach ($products as $key => $product) {
-			$product = $this->changeStructureInfo($product);
-			$products[$key] = $product;
+		$subproducts = $this->searchObject($conditions, $offset, $limit);
+		if (!$subproducts) return false;
+		foreach ($subproducts as $key => $subproduct) {
+			$subproduct = $this->changeStructureInfo($subproduct);
+			$subproducts[$key] = $subproduct;
 		}
-		return array_values($products);
+		return array_values($subproducts);
 	}
 
-	public function getPrice($product)
+	public function getPrice($subproduct)
 	{
-		if ($product->sale_price) {
-			return $product->sale_price;
+		if ($subproduct->sale_price) {
+			return $subproduct->sale_price;
 		}
-		return $product->price;
+		return $subproduct->price;
 	}
 
-	private function changeStructureInfo($product)
+	private function changeStructureInfo($subproduct)
 	{
 		$imageService = ImageService::getInstance();
-        $product->description = html_entity_decode($product->description);
-        // $images = [];
-        // if ($product->images) {
-        // 	foreach (explode(",", $product->images) as $key => $image) {
-        // 		array_push($images, $imageService->showImage($product->id, $image, 'product', 'large'));
-        // 	}
-        // }
-        // if ($images) {
-        // 	$product->images = $images;
-        // }
-        return $product;
-        // $product->display_price = $this->getPrice($product);
-        // $product->display_currency = $product->currency;
-        // if ($product->sale_price) {
-        // 	$product->display_old_price = $product->price;
-        // }
+        $subproduct->description = html_entity_decode($subproduct->description);
+        $images = [];
+        if ($subproduct->images) {
+        	foreach (explode(",", $subproduct->images) as $key => $image) {
+        		array_push($images, $imageService->showImage($subproduct->id, $image, 'product', 'large'));
+        	}
+        } else {
+        	array_push($images, $imageService->showImage($subproduct->id, "default", 'product', 'large'));
+        }
+        if ($images) {
+        	$subproduct->images = $images;
+        }
+        $subproduct->display_price = $this->getPrice($subproduct);
+        $subproduct->display_currency = "VND";
+        if ($subproduct->sale_price) {
+        	$subproduct->display_old_price = $subproduct->price;
+        }
+        return $subproduct;
 	}
 }

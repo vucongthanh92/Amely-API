@@ -4,8 +4,8 @@ use Slim\Http\Response;
 
 $app->post($container['prefix'].'/cart', function (Request $request, Response $response, array $args) {
 	$cartService = CartService::getInstance();
-	$productService = ProductService::getInstance();
-	$subProductService = SubProductService::getInstance();
+	$productService = ProductDetailService::getInstance();
+	$subProductDetailService = SubProductDetailService::getInstance();
 	$tax = $total = 0;
 	$params = $request->getParsedBody();
     	
@@ -24,7 +24,7 @@ $app->post($container['prefix'].'/cart', function (Request $request, Response $r
 	}
 	if (!$subproducts_id) return response(false);
 	$subproducts_id = implode(',', $subproducts_id);
-	$subproducts = $subProductService->getSubProductsByType($subproducts_id, 'id');
+	$subproducts = $subProductDetailService->getSubProductsByType($subproducts_id, 'id');
 	if (!$subproducts) return response(false);
 
 	$cart = [];
@@ -33,6 +33,8 @@ $app->post($container['prefix'].'/cart', function (Request $request, Response $r
 			array_push($products_id, $subproduct->owner_id);
 		}
 		foreach ($items as $key => $item) {
+			if ($subproduct->current_sub_snapshot != $item['snapshot']) return response(false);
+			if ($subproduct->quantity < $item['quantity']) return response(false);
 			if (!in_array($item['id'], $subproducts_id)) {
 				array_push($subproducts_id, $item['id']);
 			}
@@ -41,8 +43,10 @@ $app->post($container['prefix'].'/cart', function (Request $request, Response $r
 			}
 		}
 
-		$price = $subProductService->getPrice($subproduct);
+		$price = $subProductDetailService->getPrice($subproduct);
 		$total += $price;
+		$subproduct->redeem_quantity = $item['redeem_quantity'];
+		$subproduct->store = $item['store'];
 		$cartService->saveItems($subproduct);
 	}
 
@@ -57,6 +61,17 @@ $app->post($container['prefix'].'/cart', function (Request $request, Response $r
 	$cartService->saveTotal($total);
 	$cartService->saveTax($tax);
 
-	return response($_SESSION['cart']);
+	return response($cartService->getCart());
+
+});
+
+$app->put($container['prefix'].'/cart', function (Request $request, Response $response, array $args) {
+	$cartService = CartService::getInstance();
+	$productService = ProductDetailService::getInstance();
+	$subProductDetailService = SubProductDetailService::getInstance();
+
+	$params = $request->getParsedBody();
+	if (!$params) $params = [];
+	if (!array_key_exists('items', $params))  	$params['items'] = false;
 
 });

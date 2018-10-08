@@ -116,11 +116,5 @@ $app->put($container['prefix'].'/shops', function (Request $request, Response $r
 });
 
 $app->patch($container['prefix'].'/shops', function (Request $request, Response $response, array $args) {
-	// $productService = ProductService::getInstance();
-	// $categoryService = CategoryService::getInstance();
-	// $loggedin_user = loggedin_user();
-	// $params = $request->getParsedBody();
-	// if (!$params) $params = [];
-	// if (!array_key_exists('shop_guid', $params)) 		$params['shop_id'] = false;
-
+	
 });

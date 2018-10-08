@@ -3,11 +3,13 @@ use Slim\Http\Request;
 use Slim\Http\Response;
 
 $app->get($container['prefix'].'/products', function (Request $request, Response $response, array $args) {
+	$productDetailService = ProductDetailService::getInstance();
 	$productService = ProductService::getInstance();
-	$subProductService = SubProductService::getInstance();
 	$shopService = ShopService::getInstance();
 	$storeService = StoreService::getInstance();
 	$categoryService = CategoryService::getInstance();
+	$productStoreService = ProductStoreService::getInstance();
+
 	
 	$params = $request->getQueryParams();
 	if (!$params) $params = [];
@@ -22,27 +24,33 @@ $app->get($container['prefix'].'/products', function (Request $request, Response
 		$type = 'id';
 	}
 	if (!$input && !$type) return response(false);
-	$sproduct = $subProductService->getSubProductByType($input, $type);
-	if (!$sproduct) return response(false);
-	$product = $productService->getProductByType($sproduct->owner_id, 'id');
+	$product = $productService->getProductByType($input, $type);
 	if (!$product) return response(false);
-	$product = (object) array_merge((array) $sproduct, (array) $product);
+	$product_detail = $productDetailService->getDetailProductByType($product->owner_id, 'id');
+	if (!$product_detail) return response(false);
+	$product_display = (object) array_merge((array) $product, (array) $product_detail);
 	
-	// $store = $storeService->getStoreByType($product->owner_id, 'id');
-	// if (!$store) return response(false);
+	$product_stores = $productStoreService->getQuantityByType($product->id, 'product_id');
+	$stores = array_map(create_function('$o', 'return $o->store_id;'), $product_stores);
+	$stores = implode(',', $stores);
 
-	$shop = $shopService->getShopByType($product->owner_id, 'id');
+	$shop = $shopService->getShopByType($product_detail->owner_id, 'id');
 	if (!$shop) return response(false);
 
-	$stores = $storeService->getStoresByType($shop->id, 'owner_id');
+	$stores = $storeService->getStoresByType($stores, 'id');
+	foreach ($stores as $key => $store) {
+		foreach ($product_stores as $product_store) {
+			if ($product_store->store_id == $store->id) {
+				$store->quantity = $product_store->quantity;
+			}
+		}
+		$stores[$key] = $store;
+	}
 	$shop->stores = $stores;
-	// $shop = (object) array_merge((array) $store, (array) $shop);
 
-
-
-	$product->shop = $shop;
-	if ($product->category) {
-		$categories_id = implode(",", $product->category);
+	$product_display->shop = $shop;
+	if ($product_display->category) {
+		$categories_id = $product_display->category;
 		if ($categories_id) {
 			$category_params = null;
 			$category_params[] = [
@@ -52,16 +60,16 @@ $app->get($container['prefix'].'/products', function (Request $request, Response
 			];
 			$categories = $categoryService->getCategories($category_params, 0, 99999999);
 			if (!$categories) return response(false);
-			$product->categories = $categories;
+			$product_display->categories = $categories;
 		}
 	}
-	if (!$product) response(false);
-	return response($product);
+	if (!$product_display) response(false);
+	return response($product_display);
 });
 
 $app->post($container['prefix'].'/products', function (Request $request, Response $response, array $args) {
-	$productService = ProductService::getInstance();
-	$subProductService = SubProductService::getInstance();
+	$productService = ProductDetailService::getInstance();
+	$subProductDetailService = SubProductDetailService::getInstance();
 	$shopService = ShopService::getInstance();
 	$storeService = StoreService::getInstance();
 	$categoryService = CategoryService::getInstance();
@@ -190,7 +198,7 @@ $app->post($container['prefix'].'/products', function (Request $request, Respons
 		'value' => "IN ($products_id)",
 		'operation' => 'AND'
 	];
-	$subproducts = $subProductService->getSubProducts($sub_params, 0, 999999999);
+	$subproducts = $subProductDetailService->getSubProducts($sub_params, 0, 999999999);
 	if (!$subproducts) return response(false);
 
 	$responses = [];
@@ -222,83 +230,100 @@ $app->post($container['prefix'].'/products', function (Request $request, Respons
 });
 
 $app->put($container['prefix'].'/products', function (Request $request, Response $response, array $args) {
+	$productDetailService = ProductDetailService::getInstance();
 	$productService = ProductService::getInstance();
-	$subProductService = SubProductService::getInstance();
-
+	$productStoreService = ProductStoreService::getInstance();
 	$snapshotService = SnapshotService::getInstance();
+	$storeService = StoreService::getInstance();
+
+
 	$loggedin_user = loggedin_user();
 	$params = $request->getParsedBody();
 	if (!$params) $params = [];
+	$num = rand();
+	$pdetail = new ProductDetail();
+	$pdetail->data->owner_id = 1;
+	$pdetail->data->type = "shop";
+	$pdetail->data->title = "product detail ".$num;
+	$pdetail->data->sku = "sku-p".$num;
+	$pdetail->data->friendly_url = "product-detail-".$num;
+	$pdetail->data->is_special = 0;
+	$pdetail->data->creator_id = $loggedin_user->id;
+	$pdetail->data->enabled = 1;
+	$pdetail->data->category = "1,2,3,4,5,6";
+	$pdetail->data->approved = time();
+	$pdetail_id = $pdetail->insert(true);
+	$productDetailSnapshot_id = false;
+	if (!$pdetail_id) return response(['pdetail_id' => false]);
+	$pdetail = $productDetailService->getDetailProductByType($pdetail_id, 'id', false);
+	if (!$pdetail) return response(['pdetail' => false]);
+	$key = $snapshotService->generateSnapshotKey($pdetail, 'detail');
+	$snapshot = $snapshotService->checkExistKey($key, 'detail');
+	if ($snapshot) {
+		$productDetailSnapshot_id = $snapshot->id;
+	} else {
+		$productDetailSnapshot = new ProductDetailSnapshot();
+		foreach ($pdetail as $pkey => $pvalue) {
+			$productDetailSnapshot->data->$pkey = $pvalue;
+		}
+		unset($productDetailSnapshot->data->id);
+		$productDetailSnapshot->data->code = $key;
+		$productDetailSnapshot_id = $productDetailSnapshot->insert(true);
+	}
+	
+	if (!$productDetailSnapshot_id) return response(['productDetailSnapshot_id' => false]);
+	$pdetail = new ProductDetail();
+	$pdetail->id = $productDetailSnapshot_id;
+	$pdetail->data->pdetail_snapshot = $productDetailSnapshot_id;
+	$pdetail->update();
 
 	$product = new Product();
-	$product->data->owner_id = 1;
-	$product->data->type = "shop";
-	$product->data->title = "product 1";
-	$product->data->description = "p1";
-	$product->data->sku = "sku-p1";
-	$product->data->friendly_url = "product-1";
-	$product->data->is_special = 0;
+	$product->data->owner_id = $pdetail_id;
+	$product->data->type = 'product_detail';
+	$product->data->title = "product".$num;
+	$product->data->description = "product".$num;
+	$product->data->price = 15000;
+	$product->data->sku = "sku-sub-p1";
 	$product->data->creator_id = $loggedin_user->id;
 	$product->data->enabled = 1;
-	$product->data->category = "1,2,3,4,5,6";
-
 	$product->data->approved = time();
-
 	$product_id = $product->insert(true);
-
-	$p = $productService->getProductByType($product_id, 'id', false);
-	$key = $snapshotService->generateSnapshotKey($p, 'product');
+	$product_snapshot_id = false;
+	if (!$product_id) return response(['product_id' => false]);
+	$product = $productService->getProductByType($product_id, 'id', false);
+	if (!$product) return response(['product' => false]);
+	$key = $snapshotService->generateSnapshotKey($product, 'product');
 	$snapshot = $snapshotService->checkExistKey($key, 'product');
 	if ($snapshot) {
-		$snapshot_id = $snapshot->id;
+		$product_snapshot_id = $snapshot->id;
 	} else {
-		$snapshot = new Snapshot();
-		foreach ($p as $pkey => $pvalue) {
-			$snapshot->data->$pkey = $pvalue;
+		$productSnapshot = new ProductSnapshot();
+		foreach ($product as $spkey => $spvalue) {
+			$productSnapshot->data->$spkey = $spvalue;
 		}
-		unset($snapshot->data->id);
-		$snapshot->data->code = $key;
-		$snapshot_id = $snapshot->insert(true);
+		unset($productSnapshot->data->id);
+		$productSnapshot->data->owner_id = $productDetailSnapshot_id;
+		$productSnapshot->data->type = "pdetail_snapshot";
+		$productSnapshot->data->code = $key;
+		$product_snapshot_id = $productSnapshot->insert(true);
+		
 	}
 	$product = new Product();
 	$product->id = $product_id;
-	$product->data->current_snapshot = $snapshot_id;
+	$product->data->product_snapshot = $product_snapshot_id;
+	$product->where = "id = $product_id";
 	$product->update();
 
-	$subp = new SubProduct();
-	$subp->data->owner_id = $product_id;
-	$subp->data->type = 'product';
-	$subp->data->title = "sub p 1";
-	$subp->data->description = "sub p 1";
-	$subp->data->price = 15000;
-	$subp->data->quantity = 100;
-	$subp->data->sku = "sku-sub-p1";
-	$subp->data->creator_id = $loggedin_user->id;
-	$subp->data->enabled = 1;
-	$subp->data->approved = time();
-	$subp_id = $subp->insert(true);
+	$store = $storeService->getStoreByType(1, 'owner_id');
+	$product_store = new ProductStore();
+	$product_store->data->owner_id = 1;
+	$product_store->data->type = 'shop';
+	$product_store->data->store_id = 1;
+	$product_store->data->product_id = $product_id;
+	$product_store->data->creator_id = $loggedin_user->id;
+	$product_store->data->quantity = 100;
+	$product_store->insert();
 
-	$sp = $subProductService->getSubProductByType($subp_id, 'id', false);
-	$key = $snapshotService->generateSnapshotKey($sp, 'sub');
-	$snapshot = $snapshotService->checkExistKey($key, 'sub');
-	if ($snapshot) {
-		$subsnapshot_id = $snapshot->id;
-	} else {
-		$subsnapshot = new SubSnapshot();
-		foreach ($sp as $spkey => $spvalue) {
-			$subsnapshot->data->$spkey = $spvalue;
-		}
-		unset($subsnapshot->data->id);
-		$subsnapshot->data->owner_id = $subp_id;
-		$subsnapshot->data->type = "product_snapshot";
-		$subsnapshot->data->code = $key;
-		$subsnapshot_id = $subsnapshot->insert(true);
-		
-	}
-	$subp = new SubProduct();
-	$subp->id = $subp_id;
-	$subp->data->current_sub_snapshot = $subsnapshot_id;
-	$subp->where = "id = $subp_id";
-	return response($subp->update());
+	return response(true);
 
 });

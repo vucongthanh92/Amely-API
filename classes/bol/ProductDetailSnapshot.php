@@ -1,6 +1,6 @@
 <?php
 
-class Snapshot extends Object
+class ProductDetailSnapshot extends Object
 {
     private $owner_id;
     private $type;
@@ -29,7 +29,7 @@ class Snapshot extends Object
 	public function __construct() 
 	{	
 		parent::__construct();
-		$this->table = "amely_products_snapshot";
+		$this->table = "amely_pdetail_snapshot";
 	}
 
 	public function __set($key, $value)

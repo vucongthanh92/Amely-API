@@ -23,10 +23,10 @@ class SnapshotService extends Services
     public function checkExistKey($key, $type = 'product')
     {
     	if ($type == 'product') {
-    		$this->table = "amely_products_snapshot";
+    		$this->table = "amely_product_snapshot";
     	}
-    	if ($type == 'sub') {
-    		$this->table = "amely_sub_products_snapshot";
+    	if ($type == 'detail') {
+    		$this->table = "amely_pdetail_snapshot";
     	}
     	$snapshot = $this->getSnapshotByType($key, 'code', false);
     	if (!$snapshot) return false;
@@ -62,10 +62,10 @@ class SnapshotService extends Services
     public function generateSnapshotKey($obj, $type = 'product')
     {
     	if ($type == 'product') {
-			$keys = ['sku','tax','friendly_url','weight','expiry_type','currency','origin','storage_duration','is_special','product_group','creator_id','custom_attributes','duration','begin_day','end_day','manufacturer','unit','adjourn_price','images'];
+			$keys = ['owner_id','type','title','description','price','sku','creator_id','sale_price','images'];
     	}
-    	if ($type == 'sub') {
-			$keys = ['owner_id','type','title','description','price','quantity','sku','creator_id','sale_price','images'];
+    	if ($type == 'detail') {
+			$keys = ['sku','tax','friendly_url','weight','expiry_type','currency','origin','storage_duration','is_special','product_group','creator_id','custom_attributes','duration','begin_day','end_day','manufacturer','unit','adjourn_price','images'];
     	}
 
     	$arr = [];

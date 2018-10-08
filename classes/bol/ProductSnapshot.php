@@ -1,27 +1,22 @@
 <?php
 
-class SubProduct extends Object
+class ProductSnapshot extends Object
 {
 	private $owner_id;
 	private $type;
-	private $time_created;
 	private $title;
 	private $description;
 	private $price;
-	private $quantity;
 	private $sku;
 	private $creator_id;
-	private $number_sold;
 	private $sale_price;
-	private $current_snapshot;
-	private $approved;
-	private $enabled;
 	private $images;
+	private $code;
 
 	public function __construct() 
 	{	
 		parent::__construct();
-		$this->table = "amely_sub_products";
+		$this->table = "amely_product_snapshot";
 	}
 
 	public function __set($key, $value)

@@ -20,6 +20,11 @@ class CartService extends Services
 		
     }
 
+    public function getCart()
+    {
+        return $_SESSION['cart'];
+    }
+
     public function saveItems($item)
     {
 		$_SESSION['cart']['items'][] = $item;
