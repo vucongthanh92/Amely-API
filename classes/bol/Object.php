@@ -48,11 +48,10 @@ class Object extends SlimDatabase
 
     public function update($show_id = false)
 	{
-        if (!$this->id) return false;
+        if (!$this->where) return false;
         if (array_key_exists("time_created", $this->data)) {
             unset($this->data->time_created);
         }
-        $this->where = "id = {$this->id}";
 		return $this->saveTable($this, $this->table, "update", $show_id);
 	}
 

@@ -271,8 +271,8 @@ $app->put($container['prefix'].'/products', function (Request $request, Response
 	
 	if (!$productDetailSnapshot_id) return response(['productDetailSnapshot_id' => false]);
 	$pdetail = new ProductDetail();
-	$pdetail->id = $productDetailSnapshot_id;
 	$pdetail->data->pdetail_snapshot = $productDetailSnapshot_id;
+	$pdetail->where = "id = '{$productDetailSnapshot_id}'";
 	$pdetail->update();
 
 	$product = new Product();

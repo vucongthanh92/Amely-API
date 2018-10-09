@@ -20,10 +20,8 @@ $app->put($container['prefix'].'/orders', function (Request $request, Response $
 	$subProductDetailService = SubProductDetailService::getInstance();
 	$snapshotService = SnapshotService::getInstance();
 
-	$cart = $cartService->getCart();
-	var_dump($cart);die('1');
-	$pm = $paymentsService->getMethod('onepay/opcreditcard');
-	var_dump($pm->process());
+	$cart_items = $cartService->getCartItems($cart->id);
+	// $pm = $paymentsService->getMethod('onepay/opcreditcard');
 
 	if (!array_key_exists('payment_fullname', $params))	 $params['payment_fullname'] = false;
 	if (!array_key_exists('payment_phone', $params))	 $params['payment_phone'] = false;
@@ -44,8 +42,10 @@ $app->put($container['prefix'].'/orders', function (Request $request, Response $
 	if (!array_key_exists('shipping_fee', $params))		 $params['shipping_fee'] = false;
 
 	if (!$params['payment_method']) return response(false);
+
 	$order_item_snapshot = [];
-	foreach ($cart['items'] as $key => $item) {
+	foreach ($cart_items as $key => $cart_item) {
+		$
 		$sp = $subProductDetailService->getSubProductByType($item->id, 'id');
 		if ($sp->current_sub_snapshot != $item->current_sub_snapshot) return response(false);
 		if ($sp->quantity < $item->display_quantity) return response(false);

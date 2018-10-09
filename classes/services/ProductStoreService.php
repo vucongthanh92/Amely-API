@@ -33,14 +33,9 @@ class ProductStoreService extends Services
     		'value' => "= '{$store_id}'",
     		'operation' => 'AND'
     	];
-    	$conditions[] = [
-    		'key' => 'quantity',
-    		'value' => ">= {$quantity}",
-    		'operation' => 'AND'
-    	];
     	$store_quantity = $this->getQuantityProduct($conditions);
 		if (!$store_quantity) return false;
-		return true;
+		return $store_quantity;
     }
 
     public function getQuantityByType($input, $type = 'id', $offset = 0, $limit = 10)

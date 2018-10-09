@@ -40,14 +40,10 @@ class User extends Object
 		$this->table = "amely_users";
 		$time = time();
 		$this->insert = new stdClass;
-		$activation = md5(time() . rand());
 
 		$created = $time;
 		$this->time_created = $created;
-		$this->activation = $activation;
-
 		$this->data->time_created = $created;
-		$this->data->activation = $activation;
 	}
 
 	public function __set($key, $value)

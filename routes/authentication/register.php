@@ -67,6 +67,7 @@ $app->put($container['prefix'].'/register', function (Request $request, Response
 	$user->data->time_created = time();
 	$user->data->birthdate = "1993-08-03";
 	$user->data->gender = "male";
+	$user->data->usercurrency = "VND";
 
 	$insert_guid = $user->insert(true);
 	if ($insert_guid) {
