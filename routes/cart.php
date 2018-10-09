@@ -179,3 +179,37 @@ $app->put($container['prefix'].'/cart', function (Request $request, Response $re
 
 });
 
+$app->delete($container['prefix'].'/cart', function (Request $request, Response $response, array $args) {
+	$cartService = CartService::getInstance();
+	$loggedin_user = loggedin_user();
+	$params = $request->getQueryParams();
+	if (!$params) $params = [];
+	if (!array_key_exists('type', $params))  $params['type'] = 'user';
+	if (!array_key_exists('product_id', $params))  $params['product_id'] = false;
+
+	$type = 'user';
+	$owner_id = $loggedin_user->id;
+	if ($params['type'] == 'shop') {
+		$type = 'store';
+		$owner_id = $loggedin_user->chain_store;
+	}
+
+	$cart = $cartService->checkCart($owner_id, $type, $loggedin_user->id, 0);
+	if (!$cart) return response(false);
+
+
+	$type = 'user';
+	$owner_id = $loggedin_user->id;
+
+	$cart_item = new CartItem();
+	$where = "owner_id = {$cart->id}";
+	if ($params['type'] == 'shop') {
+		$where .= " AND store_id = {$loggedin_user->chain_store}";
+	}
+	if ($params['product_id']) {
+		$where .= " AND product_id = {$params['product_id']}";
+	}
+	$cart_item->where = $where;
+	return response($cart_item->delete());
+});
+
