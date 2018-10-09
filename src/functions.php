@@ -2,6 +2,13 @@
 
 use Slim\Http\Response;
 
+function convertPrefixOrder($prefix, $order_id)
+{
+	date_default_timezone_set('Asia/Ho_Chi_Minh');
+	$display_order = $prefix."-".date("ymdHis")."-".$order_id;
+	return $display_order;	
+}
+
 function null2unknown($data)
 {
     if ($data == "") {

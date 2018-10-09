@@ -173,6 +173,7 @@ $app->put($container['prefix'].'/cart', function (Request $request, Response $re
 	if (!$params) $params = [];
 	if (!array_key_exists('type', $params))  			$params['type'] = 'user';
 	if (!array_key_exists('product_id', $params))  		$params['product_id'] = false;
+	if (!array_key_exists('snapshot_id', $params))  	$params['snapshot_id'] = false;
 	if (!array_key_exists('store_id', $params))  		$params['store_id'] = false;
 	if (!array_key_exists('quantity', $params))  		$params['quantity'] = 0;
 	if (!array_key_exists('redeem_quantity', $params))  $params['redeem_quantity'] = 0;
@@ -180,6 +181,7 @@ $app->put($container['prefix'].'/cart', function (Request $request, Response $re
 	if (!$params['product_id'] || !$params['store_id']) return response(false);
 
 	$product_id = $params['product_id'];
+	$snapshot_id = $params['snapshot_id'];
 	$store_id = $params['store_id'] ;
 	$quantity = $params['quantity'];
 	$redeem_quantity = $params['redeem_quantity'];
@@ -222,6 +224,7 @@ $app->put($container['prefix'].'/cart', function (Request $request, Response $re
 		$cart_item->data->owner_id = $cart_id;
 		$cart_item->data->type = 'cart';
 		$cart_item->data->product_id = $product_id;
+		$cart_item->data->snapshot_id = $snapshot_id;
 		$cart_item->data->store_id = $store_id;
 		$cart_item->data->quantity = $quantity;
 		$cart_item->data->redeem_quantity = $redeem_quantity;

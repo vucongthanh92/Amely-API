@@ -56,14 +56,14 @@ class OPCreditCard extends \Object implements \Amely\Payment\IPaymentMethod
 	{
 		global $settings;
 		$return_url = $settings['url'].$settings['prefix'].'/payment_response';
+		$creator = $this->creator;
 
-		$loggedin_user = loggedin_user();
-		$this->vpc_MerchTxnRef = rand();
-		$this->vpc_OrderInfo = time();
-		$this->vpc_Amount = 1000000;
-		$this->AVS_Street01 = $loggedin_user->address;
-		$this->AVS_City = $loggedin_user->province;
-		$this->AVS_StateProv = $loggedin_user->district;
+		$this->vpc_MerchTxnRef = $this->po_id;
+		$this->vpc_OrderInfo = $this->description;
+		$this->vpc_Amount = $this->amount*100;
+		$this->AVS_Street01 = $creator->address;
+		$this->AVS_City = $creator->province;
+		$this->AVS_StateProv = $creator->district;
 		$this->AVS_Country = "VN";
 
 		$vpcURL = $this->virtualPaymentClientURL . "?";

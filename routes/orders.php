@@ -14,14 +14,15 @@ $app->post($container['prefix'].'/orders', function (Request $request, Response 
 });
 
 $app->put($container['prefix'].'/orders', function (Request $request, Response $response, array $args) {
-	$loggedin_user = loggedin_user();
 	$cartService = CartService::getInstance();
 	$paymentsService = PaymentsService::getInstance();
-	$subProductDetailService = SubProductDetailService::getInstance();
+	$productDetailService = ProductDetailService::getInstance();
+	$productService = ProductService::getInstance();
 	$snapshotService = SnapshotService::getInstance();
+	$productStoreService = ProductStoreService::getInstance();
 
-	$cart_items = $cartService->getCartItems($cart->id);
-	// $pm = $paymentsService->getMethod('onepay/opcreditcard');
+	$loggedin_user = loggedin_user();
+
 
 	if (!array_key_exists('payment_fullname', $params))	 $params['payment_fullname'] = false;
 	if (!array_key_exists('payment_phone', $params))	 $params['payment_phone'] = false;
@@ -40,24 +41,28 @@ $app->put($container['prefix'].'/orders', function (Request $request, Response $
 	if (!array_key_exists('shipping_note', $params))	 $params['shipping_note'] = false;
 	if (!array_key_exists('shipping_method', $params))	 $params['shipping_method'] = false;
 	if (!array_key_exists('shipping_fee', $params))		 $params['shipping_fee'] = false;
+	if (!array_key_exists('cart_id', $params))		 	 $params['cart_id'] = false;
 
-	if (!$params['payment_method']) return response(false);
+	if (!$params['payment_method'] || !$params['cart_id']) return response(false);
 
+	$cart_items = $cartService->getCartItems($params['cart_id']);
 	$order_item_snapshot = [];
+	$total = 0;
 	foreach ($cart_items as $key => $cart_item) {
-		$
-		$sp = $subProductDetailService->getSubProductByType($item->id, 'id');
-		if ($sp->current_sub_snapshot != $item->current_sub_snapshot) return response(false);
-		if ($sp->quantity < $item->display_quantity) return response(false);
+		$product = $productService->getProductByType($cart_item->product_id, 'id');
+		if ($product->product_snapshot != $cart_item->snapshot_id) return response(false);
+		$store_quantity = $productStoreService->checkQuantityInStore($product->id, $cart_item->store_id, $cart_item->quantity);
+		if (!$store_quantity) return response(false);
+		if ($store_quantity->quantity < $cart_item->quantity) return response(false);
+		$total += $product->display_price * $cart_item->quantity;
 		$order_item_snapshot[] = [
-			'id' => $sp->id,
-			'snapshot' => $item->current_sub_snapshot,
-			'store' => $item->store,
-			'quantity' => $item->display_quantity,
-			'redeem_quantity' => $item->redeem_quantity
+			'id' => $product->id,
+			'snapshot' => $product->product_snapshot,
+			'store' => $cart_item->store_id,
+			'quantity' => $cart_item->quantity,
+			'redeem_quantity' => $cart_item->redeem_quantity
 		];
 	}
-
 
 	$po = new PurchaseOrder;
 	$po->data->owner_id = $loggedin_user->id;
@@ -75,7 +80,13 @@ $app->put($container['prefix'].'/orders', function (Request $request, Response $
 	$po->data->order_item_snapshot = serialize($order_item_snapshot);
 	$po_id = $po->insert(true);
 	if ($po_id) {
-		
+		$display_order = convertPrefixOrder("HD", $po_id);
+		$pm = $paymentsService->getMethod($params['payment_method']);
+		$pm->po_id = $display_order;
+		$pm->amount = $total;
+		$pm->description = $display_order;
+		$pm->creator = $loggedin_user;
+		return response(["url" => $pm->process()]);
 	}
 
 	die('1234');

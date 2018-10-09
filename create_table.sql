@@ -425,6 +425,7 @@ CREATE TABLE `amely_cart_items` (
   `type` varchar(20) NOT NULL,
   `time_created` int(11) NOT NULL,
   `product_id` bigint(20),
+  `snapshot_id` bigint(20),
   `store_id` bigint(20),
   `quantity` bigint(20),
   `redeem_quantity` bigint(20)

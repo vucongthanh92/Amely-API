@@ -6,6 +6,7 @@ class CartItem extends Object
     private $type;
     private $time_created;
     private $product_id;
+    private $snapshot_id;
     private $store_id;
     private $quantity;
     private $redeem_quantity;
