@@ -68,8 +68,8 @@ $app->get($container['prefix'].'/products', function (Request $request, Response
 });
 
 $app->post($container['prefix'].'/products', function (Request $request, Response $response, array $args) {
-	$productService = ProductDetailService::getInstance();
-	$subProductDetailService = SubProductDetailService::getInstance();
+	$productService = ProductService::getInstance();
+	$productDetailService = ProductDetailService::getInstance();
 	$shopService = ShopService::getInstance();
 	$storeService = StoreService::getInstance();
 	$categoryService = CategoryService::getInstance();
@@ -167,21 +167,21 @@ $app->post($container['prefix'].'/products', function (Request $request, Respons
 		default:
 			break;
 	}
-	$products = $productService->getProducts($product_params, $offset, $limit);
-	if (!$products) return response(false);
-	$products_id = $categories_id = [];
-	foreach ($products as $key => $product) {
-		if ($product->category) {
-			$arr = explode(',', $product->category);
+	$pdetails = $productDetailService->getDetailProducts($product_params, $offset, $limit);
+	if (!$pdetails) return response(false);
+	$pdetails_id = $categories_id = [];
+	foreach ($pdetails as $key => $pdetail) {
+		if ($pdetail->category) {
+			$arr = explode(',', $pdetail->category);
 			$categories_id = array_merge((array)$categories_id, (array)$arr);
 		}
-		if (!in_array($product->id, $products_id)) {
-			array_push($products_id, $product->id);
+		if (!in_array($pdetail->id, $pdetails_id)) {
+			array_push($pdetails_id, $pdetail->id);
 		}
 	}
 
-	if (!$products_id) return response(false);
-	$products_id = implode(',', $products_id);
+	if (!$pdetails_id) return response(false);
+	$pdetails_id = implode(',', $pdetails_id);
 	$sub_params = null;
 	$sub_params[] = [
 		'key' => 'time_created',
@@ -195,23 +195,21 @@ $app->post($container['prefix'].'/products', function (Request $request, Respons
 	];
 	$sub_params[] = [
 		'key' => 'owner_id',
-		'value' => "IN ($products_id)",
+		'value' => "IN ($pdetails_id)",
 		'operation' => 'AND'
 	];
-	$subproducts = $subProductDetailService->getSubProducts($sub_params, 0, 999999999);
-	if (!$subproducts) return response(false);
+	$products = $productService->getProducts($sub_params, 0, 999999999);
+	if (!$products) return response(false);
 
 	$responses = [];
-	foreach ($subproducts as $subproduct) {
-		foreach ($products as $product) {
-			if ($subproduct->owner_id == $product->id) {
-				$product = (object) array_merge((array) $subproduct, (array) $product);
-				$responses[] = $product;
+	foreach ($products as $product) {
+		foreach ($pdetails as $pdetail) {
+			if ($product->owner_id == $pdetail->id) {
+				$pdetail = (object) array_merge((array) $product, (array) $pdetail);
+				$responses[] = $pdetail;
 			}
 		}
 	}
-
-
 
 	if ($categories_id) {
 		$categories = [];

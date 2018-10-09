@@ -73,3 +73,39 @@ $app->get($container['prefix'].'/profile', function (Request $request, Response 
 
 	return response($user);
 });
+
+$app->path($container['prefix'].'/profile', function (Request $request, Response $response, array $args) {
+
+	$loggedin_user = loggedin_user();
+	$params = $request->getParsedBody();
+	if (!$params) $params = [];
+	if (!array_key_exists('firstname', $params) 		$params['firstname'] = false;
+	if (!array_key_exists('lastname', $params) 			$params['lastname'] = false;
+	if (!array_key_exists('gender', $params) 			$params['gender'] = false;
+	if (!array_key_exists('birthdate', $params) 		$params['birthdate'] = false;
+	if (!array_key_exists('usercurrency', $params) 		$params['usercurrency'] = "VND";
+	if (!array_key_exists('friends_hidden', $params) 	$params['friends_hidden'] = 0;
+	if (!array_key_exists('birthdate_hidden', $params) 	$params['birthdate_hidden'] = 0;
+	if (!array_key_exists('mobile_hidden', $params) 	$params['mobile_hidden'] = 0;
+	if (!array_key_exists('province', $params) 			$params['province'] = false;
+	if (!array_key_exists('district', $params) 			$params['district'] = false;
+	if (!array_key_exists('ward', $params) 				$params['ward'] = false;
+	if (!array_key_exists('address', $params) 			$params['address'] = false;
+
+	$user = new User();
+	$user->id = $loggedin_user->id;
+	$user->data->first_name = $params['firstname'];
+	$user->data->last_name = $params['lastname'];
+	$user->data->gender = $params['gender'];
+	$user->data->birthdate = $params['birthdate'];
+	$user->data->usercurrency = $params['usercurrency'];
+	$user->data->friends_hidden = $params['friends_hidden'];
+	$user->data->birthdate_hidden = $params['birthdate_hidden'];
+	$user->data->mobile_hidden = $params['mobile_hidden'];
+	$user->data->province = $params['province'];
+	$user->data->district = $params['district'];
+	$user->data->ward = $params['ward'];
+	$user->data->address = $params['address'];
+
+	return response($user->update());
+});
