@@ -5,8 +5,8 @@ class CartItem extends Object
     private $owner_id;
     private $type;
     private $time_created;
-    private $product;
-    private $store;
+    private $product_id;
+    private $store_id;
     private $quantity;
     private $redeem_quantity;
 

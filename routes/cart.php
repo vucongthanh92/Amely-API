@@ -4,11 +4,50 @@ use Slim\Http\Response;
 
 $app->get($container['prefix'].'/cart', function (Request $request, Response $response, array $args) {
 	$cartService = CartService::getInstance();
+	$productService = ProductService::getInstance();
+	$productDetailService = ProductDetailService::getInstance();
 	$loggedin_user = loggedin_user();
 	$params = $request->getQueryParams();
+	$carts = [];
 	if (!$params) $params = [];
 	if (!array_key_exists('type', $params))  			$params['type'] = 'user';
-	
+	$type = $params['type'];
+	$owner_id = $loggedin_user->id;
+	if ($params['type'] == 'shop') {
+		$type = 'store';
+		$owner_id = $loggedin_user->chain_store;
+	}
+	$creator_id = $loggedin_user->id;
+
+	$cart = $cartService->checkCart($owner_id, $type, $loggedin_user->id, 0);
+	if (!$cart) return response($carts);
+	$cart_items = $cartService->getCartItems($cart->id);
+	if (!$cart_items) return response($carts);
+	$pdetail = [];
+	$total = 0;
+	foreach ($cart_items as $key => $cart_item) {
+		$product = $productService->getProductByType($cart_item->product_id, 'id');
+		if (!in_array($product->owner_id, $pdetail)) {
+			array_push($pdetail, $product->owner_id);
+		}
+		$product->display_quantity = $cart_item->quantity;
+		$product->redeem_quantity = $cart_item->redeem_quantity;
+		$price = $product->price;
+		if ($product->sale_price) $price = $product->sale_price;
+		$total += $price*$product->display_quantity;
+		$carts['items'][] = $product;
+	}
+	if (!$pdetail) return response(false);
+	$pdetail = implode(',', $pdetail);
+	$pdetails = $productDetailService->getDetailProductsByType($pdetail, 'id');
+	if (!$pdetails) return response(false);
+	$tax = 0;
+	foreach ($pdetails as $key => $pdetail) {
+		$tax += $pdetail->tax;
+	}
+	$carts['tax'] = $tax;
+	$carts['total'] = $total;
+	return response($carts);
 });
 
 $app->post($container['prefix'].'/cart', function (Request $request, Response $response, array $args) {
@@ -91,21 +130,21 @@ $app->put($container['prefix'].'/cart', function (Request $request, Response $re
 	if (!array_key_exists('redeem_quantity', $params))  $params['redeem_quantity'] = 0;
 
 	if (!$params['product_id'] || !$params['store_id']) return response(false);
-	if ($params['quantity'] > 0)  return response(false);
 
-	$type = $params['type'];
 	$product_id = $params['product_id'];
 	$store_id = $params['store_id'] ;
 	$quantity = $params['quantity'];
 	$redeem_quantity = $params['redeem_quantity'];
-
 	$owner_id = $loggedin_user->id;
-	if ($type == 'shop') {
+	$type = 'user';
+	if ($params['type'] == 'shop') {
+		if ($loggedin_user->chain_store != $store_id) return response(false);
+		$type = 'store';
 		$owner_id = $store_id;
 	}
 	$store_quantity = $productStoreService->checkQuantityInStore($product_id, $store_id, $quantity);
-
-	$cart = $cartService->checkCart($owner_id, $type, 0);
+	if (!$store_quantity) return response(false);
+	$cart = $cartService->checkCart($owner_id, $type, $loggedin_user->id, 0);
 	$cart_id = false;
 	if ($cart) {
 		$cart_id = $cart->id;
@@ -118,14 +157,25 @@ $app->put($container['prefix'].'/cart', function (Request $request, Response $re
 		$cart_id = $cart->insert(true);
 	}
 
-	$cart_item = new CartItem();
-	$cart_item->data->owner_id = $cart_id;
-	$cart_item->data->type = 'cart';
-	$cart_item->data->product = $product_id;
-	$cart_item->data->store = $store_id;
-	$cart_item->data->quantity = $quantity;
-	$cart_item->data->redeem_quantity = $redeem_quantity;
-	$cart_item->insert();
+	$cart_item_exist = $cartService->checkItemInCart($product_id, $cart_id);
+	if ($cart_item_exist) {
+		$cart_item = new CartItem();
+		$cart_item->id = $cart_item_exist->id;
+		$cart_item->data->quantity = $cart_item_exist->quantity + $quantity;
+		$cart_item->update();
+	} else {
+		$cart_item = new CartItem();
+		$cart_item->data->owner_id = $cart_id;
+		$cart_item->data->type = 'cart';
+		$cart_item->data->product_id = $product_id;
+		$cart_item->data->store_id = $store_id;
+		$cart_item->data->quantity = $quantity;
+		$cart_item->data->redeem_quantity = $redeem_quantity;
+		$cart_item->insert();
+	}
+
+
+	return response(true);
 
 });
 

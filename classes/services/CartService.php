@@ -20,7 +20,9 @@ class CartService extends Services
 		
     }
 
-    public function checkCart($owner_id, $type, $status)
+    
+
+    public function checkCart($owner_id, $type, $creator_id, $status)
     {
         $this->table = "amely_cart";
         $conditions = null;
@@ -32,6 +34,11 @@ class CartService extends Services
         $conditions[] = [
             'key' => 'type',
             'value' => "= '{$type}'",
+            'operation' => 'AND'
+        ];
+        $conditions[] = [
+            'key' => 'creator_id',
+            'value' => "= '{$creator_id}'",
             'operation' => 'AND'
         ];
         $conditions[] = [
@@ -47,15 +54,56 @@ class CartService extends Services
 
     public function getCart($conditions)
     {
+        $this->table = "amely_cart";
         $cart = $this->searchObject($conditions, 0, 1);
         if (!$cart) return false;
         return $cart;
     }
 
-    public function getCart()
+    public function checkItemInCart($product_id, $cart_id)
     {
-        return $_SESSION['cart'];
+        $conditions = null;
+        $conditions[] = [
+            'key' => 'type',
+            'value' => "= 'cart'",
+            'operation' => ''
+        ];
+        $conditions[] = [
+            'key' => 'owner_id',
+            'value' => "= {$cart_id}",
+            'operation' => 'AND'
+        ];
+        $conditions[] = [
+            'key' => 'product_id',
+            'value' => "= {$product_id}",
+            'operation' => 'AND'
+        ];
+        
+        $this->table = "amely_cart_items";
+        $cart_item = $this->searchObject($conditions, 0, 1);
+        if (!$cart_item) return false;
+        return $cart_item;
     }
+
+    public function getCartItems($cart_id)
+    {
+        $conditions = null;
+        $conditions[] = [
+            'key' => 'type',
+            'value' => "= 'cart'",
+            'operation' => ''
+        ];
+        $conditions[] = [
+            'key' => 'owner_id',
+            'value' => "= {$cart_id}",
+            'operation' => 'AND'
+        ];
+        $this->table = "amely_cart_items";
+        $cart_items = $this->searchObject($conditions, 0, 999999999);
+        if (!$cart_items) return false;
+        return $cart_items;
+    }    
+
 
     public function saveItems($item)
     {

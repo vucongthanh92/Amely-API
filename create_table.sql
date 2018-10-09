@@ -424,8 +424,8 @@ CREATE TABLE `amely_cart_items` (
   `owner_id` bigint(20) NOT NULL,
   `type` varchar(20) NOT NULL,
   `time_created` int(11) NOT NULL,
-  `product` bigint(20),
-  `store` bigint(20),
+  `product_id` bigint(20),
+  `store_id` bigint(20),
   `quantity` bigint(20),
   `redeem_quantity` bigint(20)
  ) ENGINE=InnoDB DEFAULT CHARSET=utf8;

@@ -10,20 +10,47 @@ $app->post($container['prefix'].'/authtoken', function (Request $request, Respon
 
 	$params = $request->getParsedBody();
 	if (!array_key_exists("username", $params)) return response(false);
-	if (!array_key_exists("password", $params)) return response(false);
+	if (!array_key_exists("password", $params)) return response(false); 
+	if (!array_key_exists("type", $params)) $params['type'] = 'user';
 
 	$type = false;
+	$user_params = null;
 	if(strpos($params['username'], '@') !== false) {
 		$type = 'email';
+		$user_params[] = [
+			'key' => 'email',
+			'value' => "= '{$params['username']}'",
+			'operation' => ''
+		];
 	}
 	if (is_numeric($params['username'])) {
 		$type = 'mobilelogin';
+		$user_params[] = [
+			'key' => 'mobilelogin',
+			'value' => "= '{$params['username']}'",
+			'operation' => ''
+		];
 	} else {
 		$type = 'username';
+		$user_params[] = [
+			'key' => 'username',
+			'value' => "= '{$params['username']}'",
+			'operation' => ''
+		];
 	}
 	$input = $params['username'];
+	if ($params['type'] == 'shop') {
+		$user_params[] = [
+			'key' => 'chain_store',
+			'value' => "<> ''",
+			'operation' => 'AND'
+		];
+	}
+	
+	$user = $userService->getUser($user_params, true, false);
+	// $user = $userService->getUserByType($input, $type, false, false);
 
-	$user = $userService->getUserByType($input, $type, false, false);
+
 	if (!$user) return response(false);
 
 	$salt     = $user->salt;

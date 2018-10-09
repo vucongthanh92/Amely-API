@@ -109,7 +109,13 @@ $app->put($container['prefix'].'/shops', function (Request $request, Response $r
 		$store->data->store_province = $params['shop_province'];
 		$store->data->store_district = $params['shop_district'];
 		$store->data->store_ward = $params['shop_ward'];
-		return response($store->insert());
+		$store_id = $store->insert(true);
+
+		$user = new User();
+		$user->id = $loggedin_user->id;
+		$user->data->chain_store = $store_id;
+		return response($user);
+		
 	}
 	return response(false);
 
