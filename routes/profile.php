@@ -74,7 +74,7 @@ $app->get($container['prefix'].'/profile', function (Request $request, Response 
 	return response($user);
 });
 
-$app->path($container['prefix'].'/profile', function (Request $request, Response $response, array $args) {
+$app->patch($container['prefix'].'/profile', function (Request $request, Response $response, array $args) {
 
 	$loggedin_user = loggedin_user();
 	$params = $request->getParsedBody();
