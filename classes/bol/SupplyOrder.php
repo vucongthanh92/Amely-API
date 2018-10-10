@@ -11,6 +11,8 @@ class SupplyOrder extends Object
     private $store_id;
     private $shipping_fee;
     private $order_item_snapshot;
+    private $total;
+    private $quantity;
 
 	public function __construct() 
 	{	

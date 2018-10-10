@@ -55,6 +55,7 @@ class PaymentsService extends Services
 
 	public function processOrder($order_id, $order_type = 'HD')
 	{
+		$productService = ProductService::getInstance();
 		if ($order_type == 'HD') {
 			$purchaseOrderService = PurchaseOrderService::getInstance();
 			$order = $purchaseOrderService->getPOByType($order_id, 'id');
@@ -73,7 +74,11 @@ class PaymentsService extends Services
 			if ($items_sos) {
 				foreach ($items_sos as $kitems_so => $items_so) {
 					$order_item_snapshot = null;
+					$total = 0;
+					$quantity = 0;
 					foreach ($items_so as $kitem_so => $item_so) {
+						$product = $productService->getProductByType($kitem_so, 'id');
+						if ($product->product_snapshot != $item_so['snapshot_id']) return false;
 						$order_item_snapshot[] = [
 							'product_id' => $kitem_so,
 							'snapshot_id' => $item_so['snapshot_id'],
@@ -81,6 +86,8 @@ class PaymentsService extends Services
 							'quantity' => $item_so['quantity'],
 							'redeem_quantity' => $item_so['redeem_quantity']
 						];
+						$quantity += $item_so['quantity'];
+						$total += $product->display_price * $item_so['quantity'];
 					}
 					$so = new SupplyOrder();
 					$so->data->owner_id = $order->id;
@@ -89,14 +96,13 @@ class PaymentsService extends Services
 					$so->data->store_id = $kitems_so;
 					$so->data->shipping_fee = 0;
 					$so->data->order_item_snapshot = serialize($order_item_snapshot);
+					$so->data->total = $total;
+					$so->data->quantity = $quantity;
 					$so->insert();
 				}
-				return response(true);
+				return true;
 			}
-
-
-
 		}
-		die('2');
+		return false;
 	}
 }

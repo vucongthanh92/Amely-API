@@ -472,10 +472,12 @@ CREATE TABLE `amely_supply_order` (
   `time_created` int(11) NOT NULL,
   `title` text NOT NULL,
   `description` longtext NOT NULL,
-  `status` text, 
-  `store_id` text, 
-  `shipping_fee` text, 
-  `order_item_snapshot` text
+  `status` text,
+  `store_id` text,
+  `shipping_fee` text,
+  `order_item_snapshot` text,
+  `total` text,
+  `quantity` text
  ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 DROP TABLE IF EXISTS `amely_purchase_order`; 
