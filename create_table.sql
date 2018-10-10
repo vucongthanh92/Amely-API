@@ -1,10 +1,11 @@
-DROP TABLE IF EXISTS `amely_onepay_response`;
-CREATE TABLE `amely_onepay_response` (
+DROP TABLE IF EXISTS `amely_payment`;
+CREATE TABLE `amely_payment` (
   `id` bigint(20) NOT NULL AUTO_INCREMENT,
   PRIMARY KEY (`id`),
   `owner_id` bigint(20) NOT NULL,
   `type` varchar(20) NOT NULL,
   `time_created` int(11) NOT NULL,
+  `payment_method` text,
   `request` text,
   `response` text
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
@@ -471,11 +472,9 @@ CREATE TABLE `amely_supply_order` (
   `time_created` int(11) NOT NULL,
   `title` text NOT NULL,
   `description` longtext NOT NULL,
-  `subtype` text NOT NULL,
-  `process_status` text, 
-  `shop_id` text, 
+  `status` text, 
+  `store_id` text, 
   `shipping_fee` text, 
-  `order_item` text, 
   `order_item_snapshot` text
  ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
@@ -498,7 +497,9 @@ CREATE TABLE `amely_purchase_order` (
   `payment_district` text,
   `payment_ward` text,
   `note` text,
-  `order_item_snapshot` text
+  `order_item_snapshot` text,
+  `total` text,
+  `quantity` text
  ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 

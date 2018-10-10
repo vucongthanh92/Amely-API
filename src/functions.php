@@ -2,10 +2,11 @@
 
 use Slim\Http\Response;
 
-function convertPrefixOrder($prefix, $order_id)
+function convertPrefixOrder($prefix, $order_id, $timestamp)
 {
 	date_default_timezone_set('Asia/Ho_Chi_Minh');
-	$display_order = $prefix."-".date("ymdHis")."-".$order_id;
+	$date = date('dmyHis', $timestamp);
+	$display_order = $prefix."-".$date."-".$order_id;
 	return $display_order;	
 }
 

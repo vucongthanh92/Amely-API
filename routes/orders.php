@@ -22,14 +22,14 @@ $app->put($container['prefix'].'/orders', function (Request $request, Response $
 	$productStoreService = ProductStoreService::getInstance();
 
 	$loggedin_user = loggedin_user();
-
-
-	if (!array_key_exists('payment_fullname', $params))	 $params['payment_fullname'] = false;
-	if (!array_key_exists('payment_phone', $params))	 $params['payment_phone'] = false;
-	if (!array_key_exists('payment_address', $params))	 $params['payment_address'] = false;
-	if (!array_key_exists('payment_province', $params))	 $params['payment_province'] = false;
-	if (!array_key_exists('payment_district', $params))	 $params['payment_district'] = false;
-	if (!array_key_exists('payment_ward', $params))		 $params['payment_ward'] = false;
+	$params = $request->getParsedBody();
+	if (!$params) $params = [];
+	if (!array_key_exists('payment_fullname', $params))	 $params['payment_fullname'] = $loggedin_user->fullname;
+	if (!array_key_exists('payment_phone', $params))	 $params['payment_phone'] = $loggedin_user->mobilelogin;
+	if (!array_key_exists('payment_address', $params))	 $params['payment_address'] = $loggedin_user->address;
+	if (!array_key_exists('payment_province', $params))	 $params['payment_province'] = $loggedin_user->province;
+	if (!array_key_exists('payment_district', $params))	 $params['payment_district'] = $loggedin_user->district;
+	if (!array_key_exists('payment_ward', $params))		 $params['payment_ward'] = $loggedin_user->ward;
 	if (!array_key_exists('payment_note', $params))		 $params['payment_note'] = false;
 	if (!array_key_exists('payment_method', $params))	 $params['payment_method'] = false;
 	if (!array_key_exists('shipping_fullname', $params)) $params['shipping_fullname'] = false;
@@ -48,17 +48,19 @@ $app->put($container['prefix'].'/orders', function (Request $request, Response $
 	$cart_items = $cartService->getCartItems($params['cart_id']);
 	$order_item_snapshot = [];
 	$total = 0;
+	$quantity = 0;
 	foreach ($cart_items as $key => $cart_item) {
 		$product = $productService->getProductByType($cart_item->product_id, 'id');
 		if ($product->product_snapshot != $cart_item->snapshot_id) return response(false);
 		$store_quantity = $productStoreService->checkQuantityInStore($product->id, $cart_item->store_id, $cart_item->quantity);
 		if (!$store_quantity) return response(false);
 		if ($store_quantity->quantity < $cart_item->quantity) return response(false);
+		$quantity += $cart_item->quantity;
 		$total += $product->display_price * $cart_item->quantity;
 		$order_item_snapshot[] = [
-			'id' => $product->id,
-			'snapshot' => $product->product_snapshot,
-			'store' => $cart_item->store_id,
+			'product_id' => $product->id,
+			'snapshot_id' => $product->product_snapshot,
+			'store_id' => $cart_item->store_id,
 			'quantity' => $cart_item->quantity,
 			'redeem_quantity' => $cart_item->redeem_quantity
 		];
@@ -78,16 +80,19 @@ $app->put($container['prefix'].'/orders', function (Request $request, Response $
 	$po->data->payment_ward = $params['payment_ward'];
 	$po->data->note = $params['payment_note'];
 	$po->data->order_item_snapshot = serialize($order_item_snapshot);
+	$po->data->total = $total;
+	$po->data->quantity = $quantity;
 	$po_id = $po->insert(true);
 	if ($po_id) {
-		$display_order = convertPrefixOrder("HD", $po_id);
 		$pm = $paymentsService->getMethod($params['payment_method']);
-		$pm->po_id = $display_order;
+		$pm->order_id = $po_id;
 		$pm->amount = $total;
-		$pm->description = $display_order;
 		$pm->creator = $loggedin_user;
-		return response(["url" => $pm->process()]);
+		$pm->order_type = "HD";
+		$pm->payment_method = $params['payment_method'];
+		$url = $pm->process();
+		if (!$url) return response(false);
+		return response(["url" => $url]);
 	}
-
-	die('1234');
+	return response(false);
 });

@@ -1,5 +1,17 @@
 <?php
+/* status
+ 0 chua thanh toan
+ 1 da nhap kho
+ 2 that bai
+ 3 thanh cong
+ 4 tra hang
+ 5 dang cho giao hang
 
+
+ dang xu ly
+ da xu ly
+
+*/
 return [
     'settings' => [
         'determineRouteBeforeAppMiddleware' => true,

@@ -88,9 +88,13 @@ class UserService extends Services
 				$user_district = $addressService->getAddress($user->district, 'district');
 				$user_ward = $addressService->getAddress($user->ward, 'ward');
 
+			    $user->province = $user_province->name;
+			    $user->district = $user_district->name;
+			    $user->ward = $user_ward->name;
 			    $user_province = $user_province->type .' '. $user_province->name;
 			    $user_district = $user_district->type .' '. $user_district->name;
 			    $user_ward = $user_ward->type .' '. $user_ward->name;
+
 			    $user->full_address = $user->address.', '.$user_ward.', '.$user_district.', '.$user_province;
 			}
 		}

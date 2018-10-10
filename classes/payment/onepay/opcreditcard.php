@@ -15,26 +15,15 @@ class OPCreditCard extends \Object implements \Amely\Payment\IPaymentMethod
 	public $vpc_Command;
 	public $vpc_Locale;
 	public $vpc_TicketNo;
-
-
-	public $vpc_MerchTxnRef;
-	public $vpc_OrderInfo;
-	public $vpc_Amount;
-	public $vpc_ReturnURL;
-	
-	public $vpc_SHIP_Street01;
-	public $vpc_SHIP_Provice;
-	public $vpc_SHIP_City;
-	public $vpc_SHIP_Country;
-	public $vpc_Customer_Phone;
-	public $vpc_Customer_Email;
-	public $vpc_Customer_Id;
-	public $AVS_Street01;
-	public $AVS_City;
-	public $AVS_StateProv;
-	public $AVS_PostCode;
-	public $AVS_Country;
 	public $display;
+
+
+	public $order_id;
+	public $description;
+	public $amount;
+	public $creator;
+	public $order_type;
+	public $payment_method;
 
 	function __construct()
 	{
@@ -55,51 +44,57 @@ class OPCreditCard extends \Object implements \Amely\Payment\IPaymentMethod
 	public function process()
 	{
 		global $settings;
+
 		$return_url = $settings['url'].$settings['prefix'].'/payment_response';
+		$order_id = $this->order_id;
+		$order_type = $this->order_type;
 		$creator = $this->creator;
-
-		$this->vpc_MerchTxnRef = $this->po_id;
-		$this->vpc_OrderInfo = $this->description;
-		$this->vpc_Amount = $this->amount*100;
-		$this->AVS_Street01 = $creator->address;
-		$this->AVS_City = $creator->province;
-		$this->AVS_StateProv = $creator->district;
-		$this->AVS_Country = "VN";
-
+		if ($order_type == "HD") {
+			$purchaseOrderService = \PurchaseOrderService::getInstance();
+			$order = $purchaseOrderService->getPOByType($order_id);
+		}
+		$display_order = convertPrefixOrder($order_type, $order->id, $order->time_created);
+		$country = "VN";
+		$amout = $this->amount*100;
+		$address = $creator->address;
+		$province = $creator->province;
+		$district = $creator->district;
+		$email = $creator->email;
+		$username = $creator->username;
+		$mobilelogin = $creator->mobilelogin;
 		$vpcURL = $this->virtualPaymentClientURL . "?";
-		unset($this->virtualPaymentClientURL); 
+		unset($this->virtualPaymentClientURL);
 
 		$md5HashData = "";
 		$time = time();
 		$requests = [
-			"AVS_City" => "Hanoi",
-			"AVS_Country" => "VN",
+			"AVS_City" => $province,
+			"AVS_Country" => $country,
 			"AVS_PostCode" => 10000,
-			"AVS_StateProv" => "Hoan Kiem",
-			"AVS_Street01" => "194 Tran Quang Khai",
+			"AVS_StateProv" => $district,
+			"AVS_Street01" => $address,
 			"AgainLink" => urlencode($return_url),
 			"Title" => "Thanh Toan ONEPAY",
 			"display" => "mobile",
 			"vpc_AccessCode" => $this->vpc_AccessCode,
-			"vpc_Amount" => 1000000,
+			"vpc_Amount" => $amout,
 			"vpc_Command" => $this->vpc_Command,
-			"vpc_Customer_Email" => "support@onepay.vn",
-			"vpc_Customer_Id" => "thanhvt",
-			"vpc_Customer_Phone" => "840904280949",
+			"vpc_Customer_Email" => $email,
+			"vpc_Customer_Id" => $username,
+			"vpc_Customer_Phone" => $mobilelogin,
 			"vpc_Locale" => $this->vpc_Locale,
-			"vpc_MerchTxnRef" => $time,
+			"vpc_MerchTxnRef" => $display_order,
 			"vpc_Merchant" => $this->vpc_Merchant,
-			"vpc_OrderInfo" => $time,
+			"vpc_OrderInfo" => $order_type,
 			"vpc_ReturnURL" => $return_url,
-			"vpc_SHIP_City" => "Ha Noi",
-			"vpc_SHIP_Country" => "Viet Nam",
-			"vpc_SHIP_Provice" => "Hoan Kiem",
-			"vpc_SHIP_Street01" => "39A Ngo Quyen",
-			"vpc_TicketNo" => "127.0.0.1",
-			"vpc_Version" => 2
+			"vpc_SHIP_City" => "",
+			"vpc_SHIP_Country" => "",
+			"vpc_SHIP_Provice" => "",
+			"vpc_SHIP_Street01" => "",
+			"vpc_TicketNo" => $this->vpc_TicketNo,
+			"vpc_Version" => $this->vpc_Version
 		];
 		$appendAmp = 0;
-
 		foreach($requests as $key => $value) {
 
 		    // create the md5 input and URL leaving out any fields that have no value
@@ -127,17 +122,28 @@ class OPCreditCard extends \Object implements \Amely\Payment\IPaymentMethod
 		    // Thay hàm mã hóa dữ liệu
 		    $vpcURL .= "&vpc_SecureHash=" . strtoupper(hash_hmac('SHA256', $md5HashData, pack('H*',$this->secure_secret)));
 		}
-		return $vpcURL;
+
+		$payment = new \Payment();
+		$payment->data->owner_id = $order->id;
+		$payment->data->type = $this->order_type;
+		$payment->data->payment_method = $this->payment_method;
+		$payment->data->request = serialize($requests);
+		if ($payment->insert()) {
+			return $vpcURL;
+		}
+		return false;
 	}
 
 	public function getResult()
 	{
 		$SECURE_SECRET = $this->secure_secret;
 
-		// get and remove the vpc_TxnResponseCode code from the response fields as we
-		// do not want to include this field in the hash calculation
 		$vpc_Txn_Secure_Hash = $_GET["vpc_SecureHash"];
 		$vpc_MerchTxnRef = $_GET["vpc_MerchTxnRef"];
+
+		$order_arr = explode("-", $vpc_MerchTxnRef);
+		$order_id = $order_arr[2];
+		$order_type = $order_arr[0];
 		$vpc_AcqResponseCode = $_GET["vpc_AcqResponseCode"];
 		unset($_GET["vpc_SecureHash"]);
 		// set a flag to indicate if hash has been validated
@@ -150,6 +156,11 @@ class OPCreditCard extends \Object implements \Amely\Payment\IPaymentMethod
 		    //khởi tạo chuỗi mã hóa rỗng
 		    $md5HashData = "";
 		    // sort all the incoming vpc response fields and leave out any with no value
+		    $payment = new \Payment();
+		    $payment->data->response = serialize($_GET);
+		    $payment->where = "owner_id = '{$order_id}' AND type = '{$order_type}'";
+		    $payment->update();
+
 		    foreach ($_GET as $key => $value) {
 		//        if ($key != "vpc_SecureHash" or strlen($value) > 0) {
 		//            $md5HashData .= $value;
@@ -239,6 +250,8 @@ class OPCreditCard extends \Object implements \Amely\Payment\IPaymentMethod
 		$transStatus = "";
 		if($hashValidated=="CORRECT" && $txnResponseCode=="0"){
 			$transStatus = "Giao dịch thành công";
+			$paymentsService= \PaymentsService::getInstance();
+			$paymentsService->processOrder($order_id, $order_type);
 		}elseif ($hashValidated=="INVALID HASH" && $txnResponseCode=="0"){
 			$transStatus = "Giao dịch Pendding";
 		}else {

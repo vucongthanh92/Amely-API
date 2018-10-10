@@ -134,6 +134,7 @@ $app->patch($container['prefix'].'/cart', function (Request $request, Response $
 	if (!$params) $params = [];
 	if (!array_key_exists('cart_id', $params))  		$params['cart_id'] = false;
 	if (!array_key_exists('product_id', $params))  		$params['product_id'] = false;
+	if (!array_key_exists('snapshot_id', $params))  	$params['snapshot_id'] = false;
 	if (!array_key_exists('store_id', $params))  		$params['store_id'] = false;
 	if (!array_key_exists('quantity', $params))  		$params['quantity'] = 0;
 
