@@ -20,8 +20,6 @@ class CartService extends Services
 		
     }
 
-    
-
     public function checkCart($owner_id, $type, $creator_id, $status)
     {
         $this->table = "amely_cart";

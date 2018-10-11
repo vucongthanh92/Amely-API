@@ -1,5 +1,11 @@
 <?php
 
+/**
+* status
+    0 cho thanh toan
+    1 da thanh toan
+    2 huy
+*/
 class Cart extends Object
 {
     private $owner_id;

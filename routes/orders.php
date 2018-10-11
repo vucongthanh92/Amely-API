@@ -44,8 +44,9 @@ $app->put($container['prefix'].'/orders', function (Request $request, Response $
 	if (!array_key_exists('cart_id', $params))		 	 $params['cart_id'] = false;
 
 	if (!$params['payment_method'] || !$params['cart_id']) return response(false);
-
+	$cart = $cartService->getCart($params['cart_id']);
 	$cart_items = $cartService->getCartItems($params['cart_id']);
+	if ($cart->status == 1) return response(false);
 	$order_items_snapshot = [];
 	$total = 0;
 	$quantity = 0;
@@ -86,6 +87,10 @@ $app->put($container['prefix'].'/orders', function (Request $request, Response $
 	$po->data->quantity = $quantity;
 	$po_id = $po->insert(true);
 	if ($po_id) {
+		$cart = object_cast('cart', $cart);
+		$cart->data->status = 1;
+		$cart->where = "id = {$cart->id}";
+		$cart->update();
 		$pm = $paymentsService->getMethod($params['payment_method']);
 		$pm->order_id = $po_id;
 		$pm->amount = $total;
