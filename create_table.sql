@@ -450,7 +450,7 @@ CREATE TABLE `amely_delivery_order` (
   `ghtk_status_text` text, 
   `item` text, 
   `quantity` text, 
-  `order_item_snapshot` text, 
+  `order_items_snapshot` text, 
   `ghtk_success` text, 
   `shipping_fullname` text, 
   `shipping_phone` text, 
@@ -475,7 +475,7 @@ CREATE TABLE `amely_supply_order` (
   `status` text,
   `store_id` text,
   `shipping_fee` text,
-  `order_item_snapshot` text,
+  `order_items_snapshot` text,
   `total` text,
   `quantity` text
  ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
@@ -499,7 +499,7 @@ CREATE TABLE `amely_purchase_order` (
   `payment_district` text,
   `payment_ward` text,
   `note` text,
-  `order_item_snapshot` text,
+  `order_items_snapshot` text,
   `total` text,
   `quantity` text
  ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
@@ -673,18 +673,18 @@ CREATE TABLE `amely_items` (
   `time_created` int(11) NOT NULL,
   `title` text NOT NULL,
   `description` longtext NOT NULL,
-  `subtype` text NOT NULL,
- `inventory_type`text,
-  `quantity`text,
-  `product_snapshot`text,
-  `expiry_type`text,
-  `is_special`text,
-  `stored_end`text,
-  `end_day`text,
-  `so_id`text,
-  `wishlist`text,
-  `givelist`text,
-  `display_price`text
+  `quantity` text,
+  `product_snapshot` text,
+  `store_id` text,
+  `price` text,
+  `expiry_type` text,
+  `is_special` text,
+  `stored_end` text,
+  `end_day` text,
+  `so_id` text,
+  `wishlist` text,
+  `givelist` text,
+  `status` text
  ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 DROP TABLE IF EXISTS `amely_events`; 

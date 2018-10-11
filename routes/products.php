@@ -260,7 +260,7 @@ $app->put($container['prefix'].'/products', function (Request $request, Response
 	if ($snapshot) {
 		$productDetailSnapshot_id = $snapshot->id;
 	} else {
-		$productDetailSnapshot = new ProductDetailSnapshot();
+		$productDetailSnapshot = new SnapshotProductDetail();
 		foreach ($pdetail as $pkey => $pvalue) {
 			$productDetailSnapshot->data->$pkey = $pvalue;
 		}
@@ -295,7 +295,7 @@ $app->put($container['prefix'].'/products', function (Request $request, Response
 	if ($snapshot) {
 		$product_snapshot_id = $snapshot->id;
 	} else {
-		$productSnapshot = new ProductSnapshot();
+		$productSnapshot = new SnapshotProduct();
 		foreach ($product as $spkey => $spvalue) {
 			$productSnapshot->data->$spkey = $spvalue;
 		}

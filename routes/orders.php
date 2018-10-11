@@ -46,7 +46,7 @@ $app->put($container['prefix'].'/orders', function (Request $request, Response $
 	if (!$params['payment_method'] || !$params['cart_id']) return response(false);
 
 	$cart_items = $cartService->getCartItems($params['cart_id']);
-	$order_item_snapshot = [];
+	$order_items_snapshot = [];
 	$total = 0;
 	$quantity = 0;
 	foreach ($cart_items as $key => $cart_item) {
@@ -57,8 +57,10 @@ $app->put($container['prefix'].'/orders', function (Request $request, Response $
 		if ($store_quantity->quantity < $cart_item->quantity) return response(false);
 		$quantity += $cart_item->quantity;
 		$total += $product->display_price * $cart_item->quantity;
-		$order_item_snapshot[] = [
+		$order_items_snapshot[] = [
 			'product_id' => $product->id,
+			'price' => $product->display_price,
+			'pdetail_id' => $product->owner_id,
 			'snapshot_id' => $product->product_snapshot,
 			'store_id' => $cart_item->store_id,
 			'quantity' => $cart_item->quantity,
@@ -79,7 +81,7 @@ $app->put($container['prefix'].'/orders', function (Request $request, Response $
 	$po->data->payment_district = $params['payment_district'];
 	$po->data->payment_ward = $params['payment_ward'];
 	$po->data->note = $params['payment_note'];
-	$po->data->order_item_snapshot = serialize($order_item_snapshot);
+	$po->data->order_items_snapshot = serialize($order_items_snapshot);
 	$po->data->total = $total;
 	$po->data->quantity = $quantity;
 	$po_id = $po->insert(true);

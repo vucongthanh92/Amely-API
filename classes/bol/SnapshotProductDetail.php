@@ -1,6 +1,6 @@
 <?php
 
-class ProductDetailSnapshot extends Object
+class SnapshotProductDetail extends Object
 {
     private $owner_id;
     private $type;

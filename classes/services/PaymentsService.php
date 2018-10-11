@@ -56,11 +56,14 @@ class PaymentsService extends Services
 	public function processOrder($order_id, $order_type = 'HD')
 	{
 		$productService = ProductService::getInstance();
+		$productDetailService = ProductDetailService::getInstance();
+		$snapshotService = SnapshotService::getInstance();
+		$inventoryService = InventoryService::getInstance();
 		if ($order_type == 'HD') {
 			$purchaseOrderService = PurchaseOrderService::getInstance();
 			$order = $purchaseOrderService->getPOByType($order_id, 'id');
 			if (!$order) return false;
-			$order_items = unserialize($order->order_item_snapshot);
+			$order_items = unserialize($order->order_items_snapshot);
 			if (!$order_items) return false;
 			$items_sos = [];
 			foreach ($order_items as $key => $order_item) {
@@ -73,14 +76,16 @@ class PaymentsService extends Services
 
 			if ($items_sos) {
 				foreach ($items_sos as $kitems_so => $items_so) {
-					$order_item_snapshot = null;
-					$total = 0;
-					$quantity = 0;
-					foreach ($items_so as $kitem_so => $item_so) {
-						$product = $productService->getProductByType($kitem_so, 'id');
+					$order_items_snapshot = null;
+					$total = $quantity = 0;
+					foreach ($items_so as $kproduct_id => $item_so) {
+						$product = $productService->getProductByType($kproduct_id, 'id');
 						if ($product->product_snapshot != $item_so['snapshot_id']) return false;
-						$order_item_snapshot[] = [
-							'product_id' => $kitem_so,
+						
+						$order_items_snapshot[] = [
+							'product_id' => $kproduct_id,
+							'price' => $product->display_price,
+							'pdetail_id' => $product->owner_id,
 							'snapshot_id' => $item_so['snapshot_id'],
 							'store_id' => $kitems_so,
 							'quantity' => $item_so['quantity'],
@@ -89,16 +94,23 @@ class PaymentsService extends Services
 						$quantity += $item_so['quantity'];
 						$total += $product->display_price * $item_so['quantity'];
 					}
+					
 					$so = new SupplyOrder();
 					$so->data->owner_id = $order->id;
 					$so->data->type = $order_type;
 					$so->data->status = 0;
 					$so->data->store_id = $kitems_so;
 					$so->data->shipping_fee = 0;
-					$so->data->order_item_snapshot = serialize($order_item_snapshot);
+					$so->data->order_items_snapshot = serialize($order_items_snapshot);
 					$so->data->total = $total;
 					$so->data->quantity = $quantity;
-					$so->insert();
+					$so_id = $so->insert(true);
+					if ($so_id) {
+						$time = time();
+						foreach ($order_items_snapshot as $order_item_snapshot) {
+							$inventoryService->saveItem($order->owner_id, 'user', $order_item_snapshot, $so_id);
+						}
+					}
 				}
 				return true;
 			}

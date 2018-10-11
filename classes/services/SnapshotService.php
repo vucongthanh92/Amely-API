@@ -49,14 +49,41 @@ class SnapshotService extends Services
 		return $snapshot;
 	}
 
+	public function getProductsSnapshot($conditions, $offset = 0, $limit = 10, $changeStructure = true)
+	{
+		$this->table = "amely_product_snapshot";
+		$snapshots = $this->getSnapshots($conditions, $offset, $limit, $changeStructure);
+		return $snapshots;
+	}
+
+	public function getPdetailsSnapshot($conditions, $offset = 0, $limit = 10, $changeStructure = true)
+	{
+		$this->table = "amely_pdetail_snapshot";
+		$snapshots = $this->getSnapshots($conditions, $offset = 0, $limit = 10, $changeStructure = true);
+		return $snapshots;
+	}
+
     public function getSnapshot($conditions, $changeStructure = true)
 	{
-		$product = $this->searchObject($conditions, 0, 1);
-		if (!$product) return false;
+		$snapshot = $this->searchObject($conditions, 0, 1);
+		if (!$snapshot) return false;
 		if ($changeStructure) {
-			$product = $this->changeStructureInfo($product);
+			$snapshot = $this->changeStructureInfo($snapshot);
 		}
-		return $product;
+		return $snapshot;
+	}
+
+	public function getSnapshots($conditions, $offset = 0, $limit = 10, $changeStructure = true)
+	{
+		$snapshots = $this->searchObject($conditions, $offset, $limit);
+		if (!$snapshots) return false;
+		if ($changeStructure) {
+			foreach ($snapshots as $key => $snapshot) {
+				$snapshot = $this->changeStructureInfo($snapshot);
+				$snapshots[$key] = $snapshot;
+			}
+		}
+		return $snapshots;
 	}
 
     public function generateSnapshotKey($obj, $type = 'product')
@@ -77,6 +104,14 @@ class SnapshotService extends Services
 		return md5(serialize($arr));
     }
 
+    public function getPrice($snapshot)
+	{
+		if ($snapshot->sale_price) {
+			return $snapshot->sale_price;
+		}
+		return $snapshot->price;
+	}
+
     private function changeStructureInfo($snapshot)
 	{
 		$imageService = ImageService::getInstance();
@@ -86,6 +121,8 @@ class SnapshotService extends Services
         	foreach (explode(",", $snapshot->images) as $key => $image) {
         		array_push($images, $imageService->showImage($snapshot->id, $image, 'snapshot', 'large'));
         	}
+        } else {
+        	array_push($images, $imageService->showImage($snapshot->id, "default", 'snapshot', 'large'));
         }
         if ($images) {
         	$snapshot->images = $images;

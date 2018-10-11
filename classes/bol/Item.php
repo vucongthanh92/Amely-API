@@ -1,30 +1,29 @@
 <?php
 
-class PurchaseOrder extends Object
+class Item extends Object
 {
     private $owner_id;
     private $type;
     private $time_created;
     private $title;
     private $description;
-    private $payment_method;
-    private $shipping_method;
-    private $status;
-    private $payment_fullname;
-    private $payment_phone;
-    private $payment_address;
-    private $payment_province;
-    private $payment_district;
-    private $payment_ward;
-    private $note;
-    private $order_items_snapshot;
-    private $total;
     private $quantity;
+    private $product_snapshot;
+    private $store_id;
+    private $price;
+    private $expiry_type;
+    private $is_special;
+    private $stored_end;
+    private $end_day;
+    private $so_id;
+    private $wishlist;
+    private $givelist;
+    private $status;
 
 	public function __construct() 
 	{	
 		parent::__construct();
-		$this->table = "amely_purchase_order";
+		$this->table = "amely_items";
 	}
 
 	public function __set($key, $value)

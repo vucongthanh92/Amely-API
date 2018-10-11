@@ -3,75 +3,58 @@ use Slim\Http\Request;
 use Slim\Http\Response;
 
 $app->get($container['prefix'].'/inventory', function (Request $request, Response $response, array $args) {
-	$select = SlimSelect::getInstance();
+	$inventoryService = InventoryService::getInstance();
+	$snapshotService = SnapshotService::getInstance();
 	$loggedin_user = loggedin_user();
-	$time = time();
-	$current_time_before_24hour = $time - (24*60*60);
 	$params = $request->getQueryParams();
 	if (!$params) $params = [];
-	if (!array_key_exists('inventory_type', $params)) 	$params['inventory_type'] = "user";
-	if (!array_key_exists('owner_guid', $params))	 	$params['owner_guid'] = $loggedin_user->guid;
-
-	$inventory_type = $params['inventory_type'];
-	$owner_guid = $params['owner_guid'];
+	if (!array_key_exists('type', $params)) 		$params['type'] = "user";
+	if (!array_key_exists('owner_id', $params))	 	$params['owner_id'] = $loggedin_user->id;
 	
+	$type = $params['type'];
+	$owner_id = $params['owner_id'];
+
+	$count = [
+		'new' => 0,
+		'wishlist' => 0,
+		'givelist' => 0,
+		'expired' => 0,
+		'expiry' => 0,
+		'non_expiry' => 0,
+		'voucher' => 0,
+		'ticket' => 0,
+		'stored' => 0,
+		'nearly_expiry' => 0,
+		'nearly_stored' => 0
+	];
+	
+	$result['count'] = $count;
+	$result['total_price'] = 0;
+	$result['total_quantity'] = 0;
+
+
+	$time = time();
+	$current_time_before_24hour = $time - (24*60*60);
+
 	$item_params = null;
 	$item_params[] = [
-		'key' => "owner_guid",
-		'value' => "= {$owner_guid}",
+		'key' => 'owner_id',
+		'value' => "= {$owner_id}",
 		'operation' => ''
 	];
 	$item_params[] = [
-		'key' => "inventory_type",
-		'value' => "= '{$inventory_type}'",
+		'key' => 'type',
+		'value' => "= '{$type}'",
 		'operation' => 'AND'
 	];
-	$item_params[] = [
-		'key' => "quantity",
-		'value' => "> 0",
-		'operation' => 'AND'
-	];
-	$item_params[] = [
-		'key' => "product_snapshot",
-		'value' => "<> ''",
-		'operation' => 'AND'
-	];
-	$item_params[] = [
-		'key' => "guid",
-		'value' => "DESC",
-		'operation' => 'order_by'
-	];
-	$items = $select->getItems($item_params, 0, 99999999);
-	if (!$items) {
-		$count = [
-			'new' => 0,
-			'wishlist' => 0,
-			'givelist' => 0,
-			'expired' => 0,
-			'expiry' => 0,
-			'non_expiry' => 0,
-			'voucher' => 0,
-			'ticket' => 0,
-			'stored' => 0,
-			'nearly_expiry' => 0,
-			'nearly_stored' => 0
-		];
-		
-		$result['count'] = $count;
-		$result['total_price'] = 0;
-		$result['total_type'] = 0;
-		$result['total_quantity'] = 0;
-		return response($result);
-	}
+	$items = $inventoryService->getItems($item_params, 0, 9999999999);
+	if (!$items) return response($result);
 
 	$total_type = $total_price = $total_quantity = $new_count = $wishlist_count = $givelist_count = $expired_count = $expiry_count = $non_expiry_count = $voucher_count = $ticket_count = $stored_count = $nearly_expiry_count = $nearly_stored_count = 0;
 	$products_snapshot = [];
 	foreach ($items as $key => $item) {
-		if (!in_array($item->product_snapshot, $products_snapshot)) {
-			array_push($products_snapshot, $item->product_snapshot);
-		}
-
-		$total_quantity = $total_quantity + $item->quantity;
+		
+		$total_quantity += $item->quantity;
 		// new
 		if ($item->time_created >= $current_time_before_24hour) {
 			$new_count = $new_count + $item->quantity;
@@ -128,11 +111,8 @@ $app->get($container['prefix'].'/inventory', function (Request $request, Respons
 		if ($time >= $item->end_day && $item->end_day != 0) {
 			$item->used = true;
 		}
-		$price = $item->display_price * $item->quantity;
-		$total_price += $price;
+		$total_price += $item->price * $item->quantity;
 	}
-
-	$total_type = count($products_snapshot);
 
 	$count = [
 		'new' => $new_count,
@@ -150,40 +130,43 @@ $app->get($container['prefix'].'/inventory', function (Request $request, Respons
 
 	$result['count'] = $count;
 	$result['total_price'] = $total_price;
-	$result['total_type'] = $total_type;
 	$result['total_quantity'] = $total_quantity;
 
 	return response($result);
+
 });
 
 $app->post($container['prefix'].'/inventory', function (Request $request, Response $response, array $args) {
-	$select = SlimSelect::getInstance();
+
+	$inventoryService = InventoryService::getInstance();
+	$snapshotService = SnapshotService::getInstance();
+
 	$loggedin_user = loggedin_user();
 	$current_time = time();
 	$current_time_before_24hour = $current_time - (24*60*60);
 	$params = $request->getParsedBody();
 	if (!$params) $params = [];
-	if (!array_key_exists('inventory_type', $params)) 	$params['inventory_type'] = "user";
-	if (!array_key_exists('item_type', $params))	 	$params['item_type'] = "new";
-	if (!array_key_exists('owner_guid', $params))	 	$params['owner_guid'] = $loggedin_user->guid;
+	if (!array_key_exists('type', $params)) 		$params['type'] = "user";
+	if (!array_key_exists('owner_id', $params))	 	$params['owner_id'] = $loggedin_user->guid;
+	if (!array_key_exists('item_type', $params))	$params['item_type'] = "new";
 	if (!array_key_exists('limit', $params))	 	$params['limit'] = 10;
 	if (!array_key_exists('offset', $params))	 	$params['offset'] = 0;
 
 	$offset = (double)$params['offset'];
 	$limit = (double)$params['limit'];
-	$inventory_type = $params['inventory_type'];
+	$type = $params['type'];
 	$item_type = $params['item_type'];
-	$owner_guid = $params['owner_guid'];
+	$owner_id = $params['owner_id'];
 
 	$item_params = null;
 	$item_params[] = [
-		'key' => "owner_guid",
-		'value' => "= {$owner_guid}",
+		'key' => "owner_id",
+		'value' => "= {$owner_id}",
 		'operation' => ''
 	];
 	$item_params[] = [
-		'key' => "inventory_type",
-		'value' => "= '{$inventory_type}'",
+		'key' => "type",
+		'value' => "= '{$type}'",
 		'operation' => 'AND'
 	];
 	$item_params[] = [
@@ -407,11 +390,11 @@ $app->post($container['prefix'].'/inventory', function (Request $request, Respon
 			break;
 	}
 
-	$items = $select->getItems($item_params, $offset, $limit);
+	$items = $inventoryService->getItems($item_params, $offset, $limit);
 	if (!$items) return response(false);
-	$snapshots_guid = [];
+	$snapshots_id = [];
 	foreach ($items as $key => $item) {
-		array_push($snapshots_guid, $item->product_snapshot);
+		array_push($snapshots_id, $item->product_snapshot);
 		// $item->product_snapshot = $product_snapshot;
 		if (($item->stored_end*1 - 259200) <= $current_time && ($item->stored_end*1) >= $current_time && $item->stored_end != 0) {
 			$item->nearly_stored_expried = true;
@@ -423,22 +406,22 @@ $app->post($container['prefix'].'/inventory', function (Request $request, Respon
 			$item->used = true;
 		}
 	}
-	$snapshots_guid = implode(",", array_unique($snapshots_guid));
+	$snapshots_id = implode(",", array_unique($snapshots_id));
 	$snapshot_params = null;
 	$snapshot_params[] = [
-		'key' => 'guid',
-		'value' => "IN ({$snapshots_guid})",
+		'key' => 'id',
+		'value' => "IN ($snapshots_id)",
 		'operation' => ''
 	];
 
-	$product_snapshots = $select->getSnapshots($snapshot_params, 0, 999999999999);
+	$product_snapshots = $snapshotService->getProductsSnapshot($snapshot_params, 0, 99999999);
 	if (!$product_snapshots) return response(false);
 	foreach ($items as $key => $item) {
 		$searchedValue = $item->product_snapshot;
 		$product_snapshot = array_filter(
 		    $product_snapshots,
 		    function ($e) use (&$searchedValue) {
-		        return $e->guid == $searchedValue;
+		        return $e->id == $searchedValue;
 		    }
 		);
 		if ($product_snapshot) {

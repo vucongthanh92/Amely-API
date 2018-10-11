@@ -10,7 +10,7 @@ class SupplyOrder extends Object
     private $status;
     private $store_id;
     private $shipping_fee;
-    private $order_item_snapshot;
+    private $order_items_snapshot;
     private $total;
     private $quantity;
 
