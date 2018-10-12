@@ -68,7 +68,7 @@ class CategoryService extends Services
 	private function changeStructureInfo($category)
 	{
 		$imageService = ImageService::getInstance();
-		$category->logo = $imageService->showImage($category->id, $category->image, 'category', 'medium');
+		$category->logo = $imageService->showImage($category->id, $category->logo, 'category', 'medium');
 		return $category;
 	}
 }

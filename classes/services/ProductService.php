@@ -17,10 +17,17 @@ class ProductService extends Services
 
 	public function __construct() 
 	{
-        $this->table = "amely_product";
+        $this->table = "amely_products";
     }
 
-    public function getProductByType($input, $type ='id', $changeStructure = true)
+    public function getPropertyProduct($conditions)
+    {
+    	$product = $this->searchObject($conditions, 0, 1);
+		if (!$product) return false;
+		return $product;
+    }
+
+    public function getProductByType($input, $type ='id')
     {
     	$conditions = null;
 		$conditions[] = [
@@ -28,12 +35,12 @@ class ProductService extends Services
 			'value' => "= '{$input}'",
 			'operation' => ''
 		];
-		$subproduct = $this->getProduct($conditions, $changeStructure);
-		if (!$subproduct) return false;
-		return $subproduct;
+		$product = $this->getProduct($conditions);
+		if (!$product) return false;
+		return $product;
     }
 
-    public function getProductsByType($input, $type ='id', $changeStructure = true)
+    public function getProductsByType($input, $type ='id')
     {
     	$conditions = null;
 		$conditions[] = [
@@ -41,60 +48,58 @@ class ProductService extends Services
 			'value' => "IN ({$input})",
 			'operation' => ''
 		];
-		$subproducts = $this->getProducts($conditions, 0, 999999999);
-		if (!$subproducts) return false;
-		return $subproducts;
+		$products = $this->getProducts($conditions, 0, 999999999);
+		if (!$products) return false;
+		return $products;
     }
 
-    public function getProduct($conditions, $changeStructure = true)
+    public function getProduct($conditions)
 	{
-		$subproduct = $this->searchObject($conditions, 0, 1);
-		if (!$subproduct) return false;
-		if ($changeStructure) {
-			$subproduct = $this->changeStructureInfo($subproduct);
-		}
-		return $subproduct;
+		$product = $this->searchObject($conditions, 0, 1);
+		if (!$product) return false;
+		$product = $this->changeStructureInfo($product);
+		return $product;
 	}
 
 	public function getProducts($conditions, $offset = 0, $limit = 10)
 	{
-		$subproducts = $this->searchObject($conditions, $offset, $limit);
-		if (!$subproducts) return false;
-		foreach ($subproducts as $key => $subproduct) {
-			$subproduct = $this->changeStructureInfo($subproduct);
-			$subproducts[$key] = $subproduct;
+		$products = $this->searchObject($conditions, $offset, $limit);
+		if (!$products) return false;
+		foreach ($products as $key => $product) {
+			$product = $this->changeStructureInfo($product);
+			$products[$key] = $product;
 		}
-		return array_values($subproducts);
+		return array_values($products);
 	}
 
-	public function getPrice($subproduct)
+	public function getPrice($product)
 	{
-		if ($subproduct->sale_price) {
-			return $subproduct->sale_price;
+		if ($product->sale_price) {
+			return $product->sale_price;
 		}
-		return $subproduct->price;
+		return $product->price;
 	}
 
-	private function changeStructureInfo($subproduct)
+	private function changeStructureInfo($product)
 	{
 		$imageService = ImageService::getInstance();
-        $subproduct->description = html_entity_decode($subproduct->description);
+        $product->description = html_entity_decode($product->description);
         $images = [];
-        if ($subproduct->images) {
-        	foreach (explode(",", $subproduct->images) as $key => $image) {
-        		array_push($images, $imageService->showImage($subproduct->id, $image, 'product', 'large'));
+        if ($product->images) {
+        	foreach (explode(",", $product->images) as $key => $image) {
+        		array_push($images, $imageService->showImage($product->id, $image, 'product', 'large'));
         	}
         } else {
-        	array_push($images, $imageService->showImage($subproduct->id, "default", 'product', 'large'));
+        	array_push($images, $imageService->showImage($product->id, "default", 'product', 'large'));
         }
         if ($images) {
-        	$subproduct->images = $images;
+        	$product->images = $images;
         }
-        $subproduct->display_price = $this->getPrice($subproduct);
-        $subproduct->display_currency = "VND";
-        if ($subproduct->sale_price) {
-        	$subproduct->display_old_price = $subproduct->price;
+        $product->display_price = $this->getPrice($product);
+        $product->display_currency = "VND";
+        if ($product->sale_price) {
+        	$product->display_old_price = $product->price;
         }
-        return $subproduct;
+        return $product;
 	}
 }

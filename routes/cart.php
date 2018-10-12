@@ -7,7 +7,6 @@ use Slim\Http\Response;
 $app->get($container['prefix'].'/cart', function (Request $request, Response $response, array $args) {
 	$cartService = CartService::getInstance();
 	$productService = ProductService::getInstance();
-	$productDetailService = ProductDetailService::getInstance();
 	$storeService = StoreService::getInstance();
 	$loggedin_user = loggedin_user();
 	$params = $request->getQueryParams();
@@ -31,29 +30,17 @@ $app->get($container['prefix'].'/cart', function (Request $request, Response $re
 	$carts['cart'] = $cart;
 	$cart_items = $cartService->getCartItems($cart->id);
 	if (!$cart_items) return response($carts);
-	$pdetail = [];
-	$total = 0;
-	$quantity = 0;
+	$total = $tax = $quantity = 0;
 	foreach ($cart_items as $key => $cart_item) {
 		$product = $productService->getProductByType($cart_item->product_id, 'id');
-		if (!in_array($product->owner_id, $pdetail)) {
-			array_push($pdetail, $product->owner_id);
-		}
 		$store = $storeService->getStoreByType($cart_item->store_id, 'id');
 		$product->store = $store;
 		$product->display_quantity = $cart_item->quantity;
 		$product->redeem_quantity = $cart_item->redeem_quantity;
 		$quantity += $cart_item->quantity;
 		$total += $product->display_price*$product->display_quantity;
+		$tax += $product->tax;
 		$carts['items'][] = $product;
-	}
-	if (!$pdetail) return response(false);
-	$pdetail = implode(',', $pdetail);
-	$pdetails = $productDetailService->getDetailProductsByType($pdetail, 'id');
-	if (!$pdetails) return response(false);
-	$tax = 0;
-	foreach ($pdetails as $key => $pdetail) {
-		$tax += $pdetail->tax;
 	}
 	$carts['quantity'] = $quantity;
 	$carts['tax'] = $tax;
@@ -68,7 +55,6 @@ $app->post($container['prefix'].'/cart', function (Request $request, Response $r
 
 $app->patch($container['prefix'].'/cart', function (Request $request, Response $response, array $args) {
 	$cartService = CartService::getInstance();
-	$productDetailService = ProductDetailService::getInstance();
 	$productStoreService = ProductStoreService::getInstance();
 	$productService = ProductService::getInstance();
 	$loggedin_user = loggedin_user();
@@ -89,7 +75,7 @@ $app->patch($container['prefix'].'/cart', function (Request $request, Response $
 	$store_id = $params['store_id'];
 	$quantity = $params['quantity'];
 
-	$store_quantity = $productStoreService->checkQuantityInStore($product_id, $store_id, $quantity);
+	$store_quantity = $productStoreService->checkQuantityInStore($product_id, $store_id);
 	if (!$store_quantity) return response(false);
 	if ($store_quantity->quantity < $quantity) {
 	 	return response([
@@ -106,11 +92,9 @@ $app->patch($container['prefix'].'/cart', function (Request $request, Response $
 
 $app->put($container['prefix'].'/cart', function (Request $request, Response $response, array $args) {
 	$cartService = CartService::getInstance();
-	$productDetailService = ProductDetailService::getInstance();
 	$productStoreService = ProductStoreService::getInstance();
 	$productService = ProductService::getInstance();
 	$loggedin_user = loggedin_user();
-
 
 	$params = $request->getParsedBody();
 	if (!$params) $params = [];
@@ -135,7 +119,7 @@ $app->put($container['prefix'].'/cart', function (Request $request, Response $re
 		$type = 'store';
 		$owner_id = $store_id;
 	}
-	$store_quantity = $productStoreService->checkQuantityInStore($product_id, $store_id, $quantity);
+	$store_quantity = $productStoreService->checkQuantityInStore($product_id, $store_id);
 	if (!$store_quantity) return response(false);
 	if ($store_quantity->quantity < $quantity) {
 	 	return response([

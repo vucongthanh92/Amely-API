@@ -48,7 +48,8 @@ class Object extends SlimDatabase
 
     public function update($show_id = false)
 	{
-        if (!$this->where) return false;
+        if (!$this->id && !$this->where) return false;
+        if ($this->id) $this->where = "id = {$this->id}";
         if (array_key_exists("time_created", $this->data)) {
             unset($this->data->time_created);
         }
@@ -57,7 +58,8 @@ class Object extends SlimDatabase
 
     public function delete()
     {
-        if (!$this->where) return false;
+        if (!$this->id && !$this->where) return false;
+        if ($this->id) $this->where = "id = {$this->id}";
         if (array_key_exists("time_created", $this->data)) {
             unset($this->data->time_created);
         }

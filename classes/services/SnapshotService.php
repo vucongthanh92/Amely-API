@@ -17,23 +17,35 @@ class SnapshotService extends Services
 
 	public function __construct() 
 	{
-        
+        $this->table = "amely_snapshots";
+    }
+
+    public function save(array $data)
+    {
+    	
     }
 
     public function checkExistKey($key, $type = 'product')
     {
-    	if ($type == 'product') {
-    		$this->table = "amely_product_snapshot";
-    	}
-    	if ($type == 'detail') {
-    		$this->table = "amely_pdetail_snapshot";
-    	}
-    	$snapshot = $this->getSnapshotByType($key, 'code', false);
+    	$conditions = null;
+    	$conditions[] = [
+    		'key' => 'code',
+    		'value' => "= '{$key}'",
+    		'operation' => ''
+    	];
+    	$snapshot = $this->getPropertySnapshot($conditions);
     	if (!$snapshot) return false;
     	return $snapshot;
     }
 
-    public function getSnapshotByType($input, $type, $changeStructure = true)
+    public function getPropertySnapshot($conditions)
+    {
+    	$snapshot = $this->searchObject($conditions, 0, 1);
+		if (!$snapshot) return false;
+		return $snapshot;
+    }
+
+    public function getSnapshotByType($input, $type)
 	{
 		$conditions = null;
 		$conditions[] = [
@@ -43,65 +55,52 @@ class SnapshotService extends Services
 		];
 		$snapshot = $this->searchObject($conditions, 0, 1);
 		if (!$snapshot) return false;
-		if ($changeStructure) {
-			$snapshot = $this->changeStructureInfo($snapshot);
-		}
+		$snapshot = $this->changeStructureInfo($snapshot);
 		return $snapshot;
 	}
 
-	public function getProductsSnapshot($conditions, $offset = 0, $limit = 10, $changeStructure = true)
+	public function getProductsSnapshot($conditions, $offset = 0, $limit = 10)
 	{
 		$this->table = "amely_product_snapshot";
-		$snapshots = $this->getSnapshots($conditions, $offset, $limit, $changeStructure);
+		$snapshots = $this->getSnapshots($conditions, $offset, $limit);
 		return $snapshots;
 	}
 
-	public function getPdetailsSnapshot($conditions, $offset = 0, $limit = 10, $changeStructure = true)
+	public function getPdetailsSnapshot($conditions, $offset = 0, $limit = 10)
 	{
 		$this->table = "amely_pdetail_snapshot";
-		$snapshots = $this->getSnapshots($conditions, $offset = 0, $limit = 10, $changeStructure = true);
+		$snapshots = $this->getSnapshots($conditions, $offset = 0, $limit = 10);
 		return $snapshots;
 	}
 
-    public function getSnapshot($conditions, $changeStructure = true)
+    public function getSnapshot($conditions)
 	{
 		$snapshot = $this->searchObject($conditions, 0, 1);
 		if (!$snapshot) return false;
-		if ($changeStructure) {
-			$snapshot = $this->changeStructureInfo($snapshot);
-		}
+		$snapshot = $this->changeStructureInfo($snapshot);
 		return $snapshot;
 	}
 
-	public function getSnapshots($conditions, $offset = 0, $limit = 10, $changeStructure = true)
+	public function getSnapshots($conditions, $offset = 0, $limit = 10)
 	{
 		$snapshots = $this->searchObject($conditions, $offset, $limit);
 		if (!$snapshots) return false;
-		if ($changeStructure) {
-			foreach ($snapshots as $key => $snapshot) {
-				$snapshot = $this->changeStructureInfo($snapshot);
-				$snapshots[$key] = $snapshot;
-			}
+		foreach ($snapshots as $key => $snapshot) {
+			$snapshot = $this->changeStructureInfo($snapshot);
+			$snapshots[$key] = $snapshot;
 		}
 		return $snapshots;
 	}
 
-    public function generateSnapshotKey($obj, $type = 'product')
+    public function generateSnapshotKey($obj)
     {
-    	if ($type == 'product') {
-			$keys = ['owner_id','type','title','description','price','sku','creator_id','sale_price','images'];
-    	}
-    	if ($type == 'detail') {
-			$keys = ['sku','tax','friendly_url','weight','expiry_type','currency','origin','storage_duration','is_special','product_group','creator_id','custom_attributes','duration','begin_day','end_day','manufacturer','unit','adjourn_price','images'];
-    	}
-
-    	$arr = [];
-		foreach ($keys as $key) {
-			if (!array_key_exists($key, (array)$obj)) $obj->$key = "";
-			$arr[$key] = $obj->$key;
+    	$keys_except = ['owner_id','type','time_created','description','tag','number_sold','friendly_url','product_order','downoad','featured','approved','enabled','voucher_category','ticket_category','shop_category','market_categry','category','images','parent_id'];
+		foreach ($keys_except as $key) {
+			unset($obj->$key);
 		}
-
-		return md5(serialize($arr));
+		$keys = (array)$obj;
+		ksort($keys);
+		return md5(serialize($keys));
     }
 
     public function getPrice($snapshot)

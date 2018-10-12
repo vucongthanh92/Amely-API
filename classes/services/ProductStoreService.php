@@ -20,7 +20,7 @@ class ProductStoreService extends Services
         $this->table = "amely_product_store";
     }
 
-    public function checkQuantityInStore($product_id, $store_id, $quantity)
+    public function checkQuantityInStore($product_id, $store_id)
     {
     	$conditions = null;
     	$conditions[] = [

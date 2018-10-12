@@ -16,7 +16,6 @@ $app->post($container['prefix'].'/orders', function (Request $request, Response 
 $app->put($container['prefix'].'/orders', function (Request $request, Response $response, array $args) {
 	$cartService = CartService::getInstance();
 	$paymentsService = PaymentsService::getInstance();
-	$productDetailService = ProductDetailService::getInstance();
 	$productService = ProductService::getInstance();
 	$snapshotService = SnapshotService::getInstance();
 	$productStoreService = ProductStoreService::getInstance();
@@ -48,11 +47,10 @@ $app->put($container['prefix'].'/orders', function (Request $request, Response $
 	$cart_items = $cartService->getCartItems($params['cart_id']);
 	if ($cart->status == 1) return response(false);
 	$order_items_snapshot = [];
-	$total = 0;
-	$quantity = 0;
+	$total = $quantity = 0;
 	foreach ($cart_items as $key => $cart_item) {
 		$product = $productService->getProductByType($cart_item->product_id, 'id');
-		if ($product->product_snapshot != $cart_item->snapshot_id) return response(false);
+		if ($product->snapshot != $cart_item->snapshot_id) return response(false);
 		$store_quantity = $productStoreService->checkQuantityInStore($product->id, $cart_item->store_id, $cart_item->quantity);
 		if (!$store_quantity) return response(false);
 		if ($store_quantity->quantity < $cart_item->quantity) return response(false);
@@ -62,7 +60,7 @@ $app->put($container['prefix'].'/orders', function (Request $request, Response $
 			'product_id' => $product->id,
 			'price' => $product->display_price,
 			'pdetail_id' => $product->owner_id,
-			'snapshot_id' => $product->product_snapshot,
+			'snapshot_id' => $product->snapshot,
 			'store_id' => $cart_item->store_id,
 			'quantity' => $cart_item->quantity,
 			'redeem_quantity' => $cart_item->redeem_quantity
