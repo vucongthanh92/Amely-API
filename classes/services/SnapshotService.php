@@ -25,7 +25,7 @@ class SnapshotService extends Services
     	
     }
 
-    public function checkExistKey($key, $type = 'product')
+    public function checkExistKey($key)
     {
     	$conditions = null;
     	$conditions[] = [
@@ -57,20 +57,6 @@ class SnapshotService extends Services
 		if (!$snapshot) return false;
 		$snapshot = $this->changeStructureInfo($snapshot);
 		return $snapshot;
-	}
-
-	public function getProductsSnapshot($conditions, $offset = 0, $limit = 10)
-	{
-		$this->table = "amely_product_snapshot";
-		$snapshots = $this->getSnapshots($conditions, $offset, $limit);
-		return $snapshots;
-	}
-
-	public function getPdetailsSnapshot($conditions, $offset = 0, $limit = 10)
-	{
-		$this->table = "amely_pdetail_snapshot";
-		$snapshots = $this->getSnapshots($conditions, $offset = 0, $limit = 10);
-		return $snapshots;
 	}
 
     public function getSnapshot($conditions)

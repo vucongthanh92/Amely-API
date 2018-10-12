@@ -8,7 +8,7 @@ class Item extends Object
     private $title;
     private $description;
     private $quantity;
-    private $product_snapshot;
+    private $snapshot;
     private $store_id;
     private $price;
     private $expiry_type;

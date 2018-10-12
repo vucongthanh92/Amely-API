@@ -55,14 +55,15 @@ class PaymentsService extends Services
 
 	public function processOrder($order_id, $order_type = 'HD')
 	{
+		$shippingService = ShippingService::getInstance();
 		$productService = ProductService::getInstance();
-		$productDetailService = ProductDetailService::getInstance();
 		$snapshotService = SnapshotService::getInstance();
-		$inventoryService = InventoryService::getInstance();
+		$itemService = ItemService::getInstance();
 		if ($order_type == 'HD') {
 			$purchaseOrderService = PurchaseOrderService::getInstance();
 			$order = $purchaseOrderService->getPOByType($order_id, 'id');
 			if (!$order) return false;
+			$createtor
 			$order_items = unserialize($order->order_items_snapshot);
 			if (!$order_items) return false;
 			$items_sos = [];
@@ -80,7 +81,7 @@ class PaymentsService extends Services
 					$total = $quantity = 0;
 					foreach ($items_so as $kproduct_id => $item_so) {
 						$product = $productService->getProductByType($kproduct_id, 'id');
-						if ($product->product_snapshot != $item_so['snapshot_id']) return false;
+						if ($product->snapshot != $item_so['snapshot_id']) return false;
 						
 						$order_items_snapshot[] = [
 							'product_id' => $kproduct_id,
@@ -108,7 +109,11 @@ class PaymentsService extends Services
 					if ($so_id) {
 						$time = time();
 						foreach ($order_items_snapshot as $order_item_snapshot) {
-							$inventoryService->saveItem($order->owner_id, 'user', $order_item_snapshot, $so_id);
+							$sp = $shippingService->getMethod($order->shipping_method);
+							$sp->so_id = $so_id;
+							$sp->creator_id = $order->owner_id;
+							$sp->process();
+							
 						}
 					}
 				}

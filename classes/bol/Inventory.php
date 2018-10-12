@@ -3,16 +3,16 @@
 class Inventory extends Object
 {
     private $owner_id;
-    private $subject_id;
     private $type;
+    private $creator;
     private $time_created;
-    private $content;
-    private $images;
+    private $salt;
+    private $password;
 
 	public function __construct() 
 	{	
 		parent::__construct();
-		$this->table = "amely_items";
+		$this->table = "amely_inventories";
 	}
 
 	public function __set($key, $value)

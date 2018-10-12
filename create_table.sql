@@ -285,78 +285,6 @@ CREATE TABLE `amely_transactions` (
  ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 
-DROP TABLE IF EXISTS `amely_pdetail`; 
-CREATE TABLE `amely_pdetail` (
-  `id` bigint(20) NOT NULL AUTO_INCREMENT,
-  PRIMARY KEY (`id`),
-  `owner_id` bigint(20) NOT NULL,
-  `type` varchar(20) NOT NULL,
-  `time_created` int(11) NOT NULL,
-  `title` text NOT NULL,
-  `description` longtext NOT NULL,
-  `sku` text,
-  `model` text,
-  `tag` text,
-  `number_sold` text,
-  `tax` text,
-  `friendly_url` text,
-  `weight` text,
-  `expiry_type` text,
-  `currency` text,
-  `origin` text,
-  `product_order` text,
-  `storage_duration` text,
-  `is_special` text,
-  `product_group` text,
-  `creator_id` text,
-  `custom_attributes` text,
-  `download` text,
-  `featured` text,
-  `duration` text,
-  `begin_day` text,
-  `end_day` text,
-  `manufacturer` text,
-  `pdetail_snapshot` text,
-  `unit` text,
-  `approved` text,
-  `enabled` text,
-  `voucher_category` text,
-  `ticket_category` text,
-  `shop_category` text,
-  `market_category` text,
-  `category` text,
-  `adjourn_price` text
- ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-
-DROP TABLE IF EXISTS `amely_pdetail_snapshot`;
-CREATE TABLE `amely_pdetail_snapshot` (
-  `id` bigint(20) NOT NULL AUTO_INCREMENT,
-  PRIMARY KEY (`id`),
-  `owner_id` bigint(20) NOT NULL,
-  `type` varchar(20) NOT NULL,
-  `title` text NOT NULL,
-  `description` longtext NOT NULL,
-  `sku` text,
-  `model` text,
-  `tax` text,
-  `weight` text,
-  `expiry_type` text,
-  `currency` text,
-  `origin` text,
-  `storage_duration` text,
-  `is_special` text,
-  `product_group` text,
-  `creator_id` text,
-  `custom_attributes` text,
-  `duration` text,
-  `begin_day` text,
-  `end_day` text,
-  `manufacturer` text,
-  `unit` text,
-  `adjourn_price` text,
-  `code` text
- ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-
 DROP TABLE IF EXISTS `amely_products`; 
 CREATE TABLE `amely_products` (
   `id` bigint(20) NOT NULL AUTO_INCREMENT,
@@ -711,6 +639,18 @@ CREATE TABLE `amely_categories` (
   `logo` text
  ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
+DROP TABLE IF EXISTS `amely_inventories`;
+CREATE TABLE `amely_inventories` (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT,
+  PRIMARY KEY (`id`),
+  `owner_id` bigint(20) NOT NULL,
+  `type` varchar(20) NOT NULL,
+  `time_created` int(11) NOT NULL,
+  `creator` text,
+  `password` text,
+  `salt` text
+ ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
 DROP TABLE IF EXISTS `amely_items`; 
 CREATE TABLE `amely_items` (
   `id` bigint(20) NOT NULL AUTO_INCREMENT,
@@ -721,7 +661,7 @@ CREATE TABLE `amely_items` (
   `title` text NOT NULL,
   `description` longtext NOT NULL,
   `quantity` text,
-  `product_snapshot` text,
+  `snapshot` text,
   `store_id` text,
   `price` text,
   `expiry_type` text,

@@ -17,7 +17,7 @@ class CartService extends Services
 
 	public function __construct() 
 	{
-		
+		$this->table = "amely_cart";
     }
 
     public function checkCart($owner_id, $type, $creator_id, $status)
@@ -46,6 +46,20 @@ class CartService extends Services
         ];
 
         $cart = $this->getCart($conditions);
+        if (!$cart) return false;
+        return $cart;
+    }
+
+    public function getCartByType($input, $type)
+    {
+        $conditions = null;
+        $conditions[] = [
+            'key' => $type,
+            'value' => "= {$input}",
+            'operation' => ''
+        ];
+        
+        $cart = $this->searchObject($conditions, 0, 1);
         if (!$cart) return false;
         return $cart;
     }

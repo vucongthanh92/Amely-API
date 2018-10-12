@@ -30,7 +30,7 @@ class ShippingService extends Services
 		$method_component = $this->methods[$name]['component'];
 		$method_classname = $this->methods[$name]['classname'];
 
-		$classname  = $method_component.'\\Payment\\'.$method_classname;
+		$classname  = $method_component.'\\Shipping\\'.$method_classname;
 
 		$obj = new $classname();
 		return object_cast($classname,$obj);

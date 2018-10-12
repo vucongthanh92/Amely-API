@@ -20,6 +20,11 @@ $app->put($container['prefix'].'/orders', function (Request $request, Response $
 	$snapshotService = SnapshotService::getInstance();
 	$productStoreService = ProductStoreService::getInstance();
 
+$shippingService = ShippingService::getInstance();
+$sp = $shippingService->getMethod('sq/storage');
+$sp->process();
+die();
+
 	$loggedin_user = loggedin_user();
 	$params = $request->getParsedBody();
 	if (!$params) $params = [];
@@ -43,7 +48,7 @@ $app->put($container['prefix'].'/orders', function (Request $request, Response $
 	if (!array_key_exists('cart_id', $params))		 	 $params['cart_id'] = false;
 
 	if (!$params['payment_method'] || !$params['cart_id']) return response(false);
-	$cart = $cartService->getCart($params['cart_id']);
+	$cart = $cartService->getCartByType($params['cart_id'], 'id');
 	$cart_items = $cartService->getCartItems($params['cart_id']);
 	if ($cart->status == 1) return response(false);
 	$order_items_snapshot = [];

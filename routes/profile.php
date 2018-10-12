@@ -106,6 +106,6 @@ $app->patch($container['prefix'].'/profile', function (Request $request, Respons
 	$user->data->district = $params['district'];
 	$user->data->ward = $params['ward'];
 	$user->data->address = $params['address'];
-
+	$user->where = "id = {$loggedin_user->id}";
 	return response($user->update());
 });

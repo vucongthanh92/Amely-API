@@ -4,6 +4,8 @@ use Slim\Http\Response;
 
 $app->get($container['prefix'].'/inventory', function (Request $request, Response $response, array $args) {
 	$inventoryService = InventoryService::getInstance();
+	$itemService = ItemService::getInstance();
+
 	$snapshotService = SnapshotService::getInstance();
 	$loggedin_user = loggedin_user();
 	$params = $request->getQueryParams();
