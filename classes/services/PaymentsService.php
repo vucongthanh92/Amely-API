@@ -63,7 +63,6 @@ class PaymentsService extends Services
 			$purchaseOrderService = PurchaseOrderService::getInstance();
 			$order = $purchaseOrderService->getPOByType($order_id, 'id');
 			if (!$order) return false;
-			$createtor
 			$order_items = unserialize($order->order_items_snapshot);
 			if (!$order_items) return false;
 			$items_sos = [];
@@ -81,13 +80,12 @@ class PaymentsService extends Services
 					$total = $quantity = 0;
 					foreach ($items_so as $kproduct_id => $item_so) {
 						$product = $productService->getProductByType($kproduct_id, 'id');
-						if ($product->snapshot != $item_so['snapshot_id']) return false;
+						if ($product->snapshot_id != $item_so['snapshot_id']) return false;
 						
 						$order_items_snapshot[] = [
 							'product_id' => $kproduct_id,
 							'price' => $product->display_price,
-							'pdetail_id' => $product->owner_id,
-							'snapshot_id' => $item_so['snapshot_id'],
+							'snapshot_id' => $product->snapshot_id,
 							'store_id' => $kitems_so,
 							'quantity' => $item_so['quantity'],
 							'redeem_quantity' => $item_so['redeem_quantity']
@@ -97,6 +95,7 @@ class PaymentsService extends Services
 					}
 					
 					$so = new SupplyOrder();
+					$so->data->time_created = $order->time_created;
 					$so->data->owner_id = $order->id;
 					$so->data->type = $order_type;
 					$so->data->status = 0;
@@ -112,6 +111,7 @@ class PaymentsService extends Services
 							$sp = $shippingService->getMethod($order->shipping_method);
 							$sp->so_id = $so_id;
 							$sp->creator_id = $order->owner_id;
+							$sp->item = $order_item_snapshot;
 							$sp->process();
 							
 						}

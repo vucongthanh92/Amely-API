@@ -34,34 +34,6 @@ CREATE TABLE `amely_temp_order` (
   `order_items` text
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
-DROP TABLE IF EXISTS `amely_provinces`;
-CREATE TABLE `amely_provinces` (
-  `provinceid` varchar(5) NOT NULL,
-  `name` varchar(100) NOT NULL,
-  `type` varchar(30) NOT NULL,
-  PRIMARY KEY (`provinceid`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-
-DROP TABLE IF EXISTS `amely_districts`;
-CREATE TABLE `amely_districts` (
-  `districtid` varchar(5) NOT NULL,
-  `name` varchar(100) NOT NULL,
-  `type` varchar(30) NOT NULL,
-  `location` varchar(30) NOT NULL,
-  `provinceid` varchar(5) NOT NULL,
-  PRIMARY KEY (`districtid`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-
-DROP TABLE IF EXISTS `amely_wards`;
-CREATE TABLE `amely_wards` (
-  `wardid` varchar(5) NOT NULL,
-  `name` varchar(100) NOT NULL,
-  `type` varchar(30) NOT NULL,
-  `location` varchar(30) NOT NULL,
-  `districtid` varchar(5) NOT NULL,
-  PRIMARY KEY (`wardid`),
-  UNIQUE KEY `wardid` (`wardid`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 DROP TABLE IF EXISTS `amely_usertokens`;
 CREATE TABLE `amely_usertokens` (
@@ -295,7 +267,7 @@ CREATE TABLE `amely_products` (
   `title` text NOT NULL,
   `description` longtext NOT NULL,
   `sku` text,
-  `snapshot` text,
+  `snapshot_id` text,
   `price` text,
   `sale_price` text,
   `model` text,
@@ -359,10 +331,7 @@ CREATE TABLE `amely_snapshots` (
   `manufacturer` text,
   `price` text,
   `sale_price` text,
-  `snapshot` text,
   `unit` text,
-  `approved` text,
-  `enabled` text,
   `adjourn_price` text,
   `code` text,
   `parent_id` text
@@ -571,21 +540,15 @@ CREATE TABLE `amely_offers` (
   `time_created` int(11) NOT NULL,
   `title` text NOT NULL,
   `description` longtext NOT NULL,
-  `subtype` text NOT NULL,
   `target` text,
   `duration` text,
-  `quantity` text,
   `offer_type` text,
-  `location_lat` text,
-  `location_lng` text,
   `expried` text,
   `status` text,
-  `random_expiration` text,
+  `option` text,
   `limit_counter` text,
-  `giveaway_approval` text,
-  `product_snapshot` text,
-  `so_id` text,
-  `counter_number` text
+  `item_id` text,
+  `note` text
  ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 DROP TABLE IF EXISTS `amely_feeds`; 
@@ -646,7 +609,7 @@ CREATE TABLE `amely_inventories` (
   `owner_id` bigint(20) NOT NULL,
   `type` varchar(20) NOT NULL,
   `time_created` int(11) NOT NULL,
-  `creator` text,
+  `creator_id` text,
   `password` text,
   `salt` text
  ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
@@ -661,7 +624,7 @@ CREATE TABLE `amely_items` (
   `title` text NOT NULL,
   `description` longtext NOT NULL,
   `quantity` text,
-  `snapshot` text,
+  `snapshot_id` text,
   `store_id` text,
   `price` text,
   `expiry_type` text,
@@ -769,6 +732,35 @@ CREATE TABLE `amely_wallets` (
   `currency` text
  ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
+
+DROP TABLE IF EXISTS `amely_provinces`;
+CREATE TABLE `amely_provinces` (
+  `provinceid` varchar(5) NOT NULL,
+  `name` varchar(100) NOT NULL,
+  `type` varchar(30) NOT NULL,
+  PRIMARY KEY (`provinceid`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+DROP TABLE IF EXISTS `amely_districts`;
+CREATE TABLE `amely_districts` (
+  `districtid` varchar(5) NOT NULL,
+  `name` varchar(100) NOT NULL,
+  `type` varchar(30) NOT NULL,
+  `location` varchar(30) NOT NULL,
+  `provinceid` varchar(5) NOT NULL,
+  PRIMARY KEY (`districtid`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+DROP TABLE IF EXISTS `amely_wards`;
+CREATE TABLE `amely_wards` (
+  `wardid` varchar(5) NOT NULL,
+  `name` varchar(100) NOT NULL,
+  `type` varchar(30) NOT NULL,
+  `location` varchar(30) NOT NULL,
+  `districtid` varchar(5) NOT NULL,
+  PRIMARY KEY (`wardid`),
+  UNIQUE KEY `wardid` (`wardid`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 DROP VIEW IF EXISTS `amely_current_ads`;
 CREATE OR REPLACE VIEW `amely_current_ads` as SELECT *, (ad.budget*1 - ad.amount*1) as balance FROM amely_advertisements ad

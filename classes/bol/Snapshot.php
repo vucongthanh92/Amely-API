@@ -25,10 +25,7 @@ class Snapshot extends Object
 	private $manufacturer;
 	private $price;
 	private $sale_price;
-	private $snapshot;
 	private $unit;
-	private $approved;
-	private $enabled;
 	private $adjourn_price;
 	private $code;
 	private $parent_id;

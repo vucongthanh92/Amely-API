@@ -4,7 +4,7 @@ class Inventory extends Object
 {
     private $owner_id;
     private $type;
-    private $creator;
+    private $creator_id;
     private $time_created;
     private $salt;
     private $password;

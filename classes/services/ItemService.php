@@ -20,57 +20,63 @@ class ItemService extends Services
         $this->table = "amely_items";
     }
 
-    public function saveItem($owner_id, $type, $order_item_snapshot, $so_id)
+	public function save($data)
 	{
-		$productDetailService = ProductDetailService::getInstance();
+		$productService = ProductService::getInstance();
+		$product = $productService->getProductByType($data['product_id'], 'id');
 		$time = time();
-		$pdetail = $productDetailService->getDetailProductByType($order_item_snapshot['pdetail_id'], 'id');
 
 		$item = new Item();
-		$item->data->owner_id = $owner_id;
-		$item->data->type = $type;
+		$item->data->owner_id = $data['inventory_id'];
+		$item->data->type = 'inventory';
 		$item->data->title = "";
 		$item->data->description = "";
-		$item->data->quantity = $order_item_snapshot['quantity'];
-		$item->data->snapshot = $order_item_snapshot['snapshot_id'];
-		$item->data->store_id = $order_item_snapshot['store_id'];
-		$item->data->price = $order_item_snapshot['price'];
-		$item->data->expiry_type = $pdetail->expiry_type;
-		$item->data->is_special = $pdetail->is_special;
-		$item->data->stored_end = strtotime("+{$pdetail->storage_duration} days", $time);
-		switch ((double)$pdetail->expiry_type) {
+		$item->data->quantity = $data['quantity'];
+		$item->data->snapshot_id = $data['snapshot_id'];
+		$item->data->store_id = $data['store_id'];
+		$item->data->price = $data['price'];
+		$item->data->expiry_type = $product->expiry_type;
+		$item->data->is_special = $product->is_special;
+		$item->data->stored_end = strtotime("+{$product->storage_duration} days", $time);
+		switch ((double)$product->expiry_type) {
 		    case 0:
 		        $item->data->end_day = 0;
 		        break;
 		    case 1:
-		        $item->data->end_day = strtotime("+{$pdetail->duration} days", $time);
+		        $item->data->end_day = strtotime("+{$product->duration} days", $time);
 		        break;
 		    case 2:
-		        $item->data->end_day = $pdetail->end_day;
+		        $item->data->end_day = $product->end_day;
 		        break;
 		}
-		$item->data->so_id = $so_id;
+		$item->data->so_id = $data['so_id'];
 		$item->data->wishlist = 0;
 		$item->data->givelist = 0;
 		$item->data->status = 1;
 		return $item->insert();
-	}
+	}    
 
-
-    public function separateItem($item_id)
+    public function separateItem($item_id, $quantity)
     {
-    	$conditions = null;
-		$conditions[] = [
-			'key' => 'id',
-			'value' => "= '{$item_id}'",
-			'operation' => ''
-		];
-		$item = $this->getItem($item);
+		$item = $this->getItemByType($item_id, 'id');
 		if (!$item) return false;
-
-    	$item = object_cast("Item", $item);
-    	unset($item->id);
-    	return $item->insert(true);
+		if ($item->quantity == $quantity) return $item->id;
+		if ($item->quantity < $quantity) return false;
+		if ($item->quantity > $quantity) {
+			$properties = get_object_vars($item);
+    		$item = object_cast("Item", $item);
+    		$item->data->quantity = $item->quantity - $quantity;
+    		$item->where = "id = {$item_id}";
+    		if ($item->update()) {
+	    		$new_item = new Item();
+				foreach ($properties as $key => $property) {
+					$new_item->data->$key = $property;
+				}
+				$new_item->data->quantity = $quantity;
+	    		return $new_item->insert(true);
+    		}
+		}
+		return false;
 
     }
 

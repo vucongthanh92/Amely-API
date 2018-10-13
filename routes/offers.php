@@ -151,22 +151,26 @@ $app->get($container['prefix'].'/offers', function (Request $request, Response $
 });
 
 $app->post($container['prefix'].'/offers', function (Request $request, Response $response, array $args) {
-	$select = SlimSelect::getInstance();
+	$offerService = OfferService::getInstance();
+	$userService = UserService::getInstance();
+	$itemService = ItemService::getInstance();
+	$snapshotService = SnapshotService::getInstance();
+
 	$loggedin_user = loggedin_user();
 	$params = $request->getParsedBody();
 	$time = time();
 
 	$users = [];
 
-	$loggedin_user = loggedin_user();
-	if ($loggedin_user->usercurrency)
-		$currency_code = $loggedin_user->usercurrency;
-
-	if (!array_key_exists('location_lat', $params)) $params['location_lat'] = false;
-	if (!array_key_exists('location_lng', $params)) $params['location_lng'] = false;
+	$params = $request->getParsedBody();
+	$time = time();
+	if (!$params) $params = [];
+	if (!array_key_exists('owner_id', $params)) $params['owner_id'] = $loggedin_user->id;
 	if (!array_key_exists('offset', $params)) 		$params['offset'] = 0;
 	if (!array_key_exists('limit', $params)) 		$params['limit'] = 10;
-	if (!array_key_exists('target', $params)) 		$params['target'] = "default";
+	if (!array_key_exists('target', $params)) 		$params['target'] = 0;
+	if (!array_key_exists('friends', $params)) 		$params['friends'] = false;
+
 	
 	$offset = $params['offset'];
 	$limit = $params['limit'];
@@ -174,194 +178,119 @@ $app->post($container['prefix'].'/offers', function (Request $request, Response 
 	$offer_params = null;
 	$offer_params[] = [
 		'key' => 'status',
-		'value' => "= 'open'",
+		'value' => "= 0",
 		'operation' => ''
 	];
 	$offer_params[] = [
-		'key' => 'quantity',
-		'value' => ">= 1",
+		'key' => 'target',
+		'value' => "= {$params['target']}",
 		'operation' => 'AND'
 	];
 	$offer_params[] = [
-		'key' => 'product_snapshot',
-		'value' => "<> ''",
+		'key' => 'owner_id',
+		'value' => "<> {$loggedin_user->id}",
 		'operation' => 'AND'
 	];
 	switch ($params['target']) {
-		case 'public':
-			return response(false);
+		case 0:
 			break;
-		case 'location':
-			return response(false);
+		case 2:
 			break;
-		case 'friends':
-			$friends_guid = getFriendsGUID($loggedin_user->guid);
-			if (!$friends_guid) return response(false);
-			$friends_guid = implode(',', array_unique($friends_guid));
-			$offer_params[] = [
-				'key' => 'owner_guid',
-				'value' => "IN ({$friends_guid})",
-				'operation' => 'AND'
-			];
-			$offer_params[] = [
-				'key' => 'target',
-				'value' => "= 'friends'",
-				'operation' => 'AND'
-			];
-			$user_params = null;
-			$user_params[] = [
-				'key' => 'guid',
-				'value' => "IN ({$friends_guid})",
-				'operation' => ''
-			];
-			$users = $select->getUsers($user_params,0,999999999,false);
+		case 1:
+			if ($params['friends']) {
+				$friends_id = implode(',', array_unique($params['friends']));
+				$offer_params[] = [
+					'key' => 'owner_id',
+					'value' => "IN ({$friends_id})",
+					'operation' => 'AND'
+				];
+			}
 			
 			break;
 		default:
-			$offer_params[] = [
-				'key' => 'owner_guid',
-				'value' => "= {$loggedin_user->guid}",
-				'operation' => 'AND'
-			];
+			
 			
 			break;
 	}
 
-	$offers = $select->getOffers($offer_params, $offset, $limit);
+	$offers = $offerService->getOffers($offer_params, $offset, $limit);
 	if (!$offers) return response(false);
 
-	$snapshots_guid = $offers_guid = [];
-	if (is_array($offers)) {
-		foreach ($offers as $key => $offer) {
-			if (!in_array($offer->product_snapshot, $snapshots_guid)) {
-				array_push($snapshots_guid, $offer->product_snapshot);
-			}
-			if (!in_array($offer->guid, $offers_guid)) {
-				array_push($offers_guid, $offer->guid);
-			}
-		}
+	foreach ($offers as $key => $offer) {
+		$owner = $userService->getUserByType($offer->owner_id, 'id', false);
+		$offer->owner = $owner;
+		$item = $itemService->getItemByType($offer->item_id, 'id');
+		$snapshot = $snapshotService->getSnapshotByType($item->snapshot_id, 'id');
+		$offer->snapshot = $snapshot;
+
+
+			// if ($offer->duration < 1) {
+			// 	$hour = $offer->duration*24;
+			// 	$time_end = strtotime("+{$hour} hours", $offer->time_created);
+			// } else {
+			// 	$time_end = strtotime("+{$offer->duration} days", $offer->time_created);
+			// }
+
+			// $offer->current_time = $time;
+			// $offer->time_end = $time_end;
+			// $offers[$key] = $offer;
+
 	}
 
-	$snapshots_guid = implode(',', array_unique($snapshots_guid));
-	$snapshot_params = null;
-	$snapshot_params[] = [
-		'key' => 'guid',
-		'value' => "IN ({$snapshots_guid})",
-		'operation' => ''
-	];
-	$snapshots = $select->getSnapshotsMarket($snapshot_params, $offset, $limit);
-	if (!$snapshots) return response(false);
-	
-	$offers_guid = implode(',', array_unique($offers_guid));
-	$relation_params = null;
-	$relation_params[] = [
-		'key' => 'relation_from',
-		'value' => "= {$loggedin_user->guid}",
-		'operation' => ''
-	];
-	$relation_params[] = [
-		'key' => 'relation_to',
-		'value' => "IN ({$offers_guid})",
-		'operation' => 'AND'
-	];
-	$relation_params[] = [
-		'key' => 'type',
-		'value' => "= 'bookmark:offer'",
-		'operation' => 'AND'
-	];
-	$bookmarks = $select->getRelationships($relation_params,0,9999999);
-
-	$counter_params = null;
-	$counter_params[] = [
-		'key' => 'offer_guid',
-		'value' => "IN ({$offers_guid})",
-		'operation' => ''
-	];
-	$counter_params[] = [
-		'key' => 'status',
-		'value' => "= 'pending'",
-		'operation' => 'AND'
-	];
-	$counter_params[] = [
-		'key' => 'offer_guid',
-		'value' => "= 'count'",
-		'operation' => 'count'
-	];
-	$counter_params[] = [
-		'key' => 'offer_guid',
-		'value' => "",
-		'operation' => 'query_params'
-	];
-	$counter_params[] = [
-		'key' => 'offer_guid',
-		'value' => "= ''",
-		'operation' => 'group_by'
-	];
-
-	$counters = $select->getCounters($counter_params, 0, 99999999999999);
-	if (is_array($offers)) {
-		foreach ($offers as $key => $offer) {
-			if ($offer->owner_guid == $loggedin_user->guid) {
-				$offer->owner = $loggedin_user;
-			} else {
-				if (!$users) return response(false);
-				foreach ($users as $key => $user) {
-					if ($offer->owner_guid == $user->guid) {
-						$offer->owner = $user;
-					}
-				}
-			}
-			if (!is_object($offer->owner)) {
-				unset($offers[$key]);
-				continue;
-			}
-
-			if ($snapshots) {
-				foreach ($snapshots as $key => $snapshot) {
-					if ($snapshot->guid == $offer->product_snapshot) {
-						$offer->product_snapshot = $snapshot;
-					}
-				}
-			}
-
-			if (!is_object($offer->product_snapshot)) {
-				unset($offers[$key]);
-				continue;
-			}
-
-			if ($offer->owner_guid == $loggedin_user->guid) {
-				$offer->offered = true;
-			}
-			$offer->bookmarked = 0;
-			if ($bookmarks) {
-				foreach ($bookmarks as $key => $bookmark) {
-					if ($bookmark->relation_to == $offer->guid) {
-						$offer->bookmarked = 1;
-					}
-				}
-			}
-			$offer->counter_offers_number = 0;
-			if ($counters) {
-				foreach ($counters as $key => $counter) {
-					if ($counter->offer_guid == $offer->guid) {
-						$offer->counter_offers_number = $counter->count;
-					}
-				}
-			}
-
-			if ($offer->duration < 1) {
-				$hour = $offer->duration*24;
-				$time_end = strtotime("+{$hour} hours", $offer->time_created);
-			} else {
-				$time_end = strtotime("+{$offer->duration} days", $offer->time_created);
-			}
-
-			$offer->current_time = $time;
-			$offer->time_end = $time_end;
-			$offers[$key] = $offer;
-		}
-	}
-	if (!$offers) return response(false);
 	return response(array_values($offers));
 
+});
+
+$app->put($container['prefix'].'/offers', function (Request $request, Response $response, array $args) {
+	$offerService = OfferService::getInstance();
+	$itemService = ItemService::getInstance();
+	$loggedin_user = loggedin_user();
+	$params = $request->getParsedBody();
+	$time = time();
+	if (!$params) $params = [];
+	if (!array_key_exists('owner_id', $params)) $params['owner_id'] = $loggedin_user->id;
+	if (!array_key_exists('type', $params)) $params['type'] = 'user';
+	if (!array_key_exists('target', $params)) $params['target'] = 0;
+	if (!array_key_exists('duration', $params)) $params['duration'] = 0;
+	if (!array_key_exists('offer_type', $params)) $params['offer_type'] = 0;
+	if (!array_key_exists('status', $params)) $params['status'] = 0;
+	if (!array_key_exists('option', $params)) $params['option'] = 0;
+	if (!array_key_exists('limit_counter', $params)) $params['limit_counter'] = 1;
+	if (!array_key_exists('item_id', $params)) $params['item_id'] = false;
+	if (!array_key_exists('note', $params)) $params['note'] = "";
+	if (!array_key_exists('quantity', $params)) $params['quantity'] = 0;
+
+	if (!$params['item_id'] || !$params['quantity']) return response(false);
+	switch ($params['offer_type']) {
+		case 0:
+			# code...
+			break;
+		case 1:
+			# code...
+			break;
+		case 2:
+			if ($params['option']) {
+				$params['limit_counter'] = 10;
+			} else {
+				$params['limit_counter'] = $params['quantity'];
+			}
+			break;
+		
+		default:
+			# code...
+			break;
+	}
+
+	$item_id = $itemService->separateItem($params['item_id'], $params['quantity']);
+
+	$data = [];
+	$data['owner_id'] = $loggedin_user->id;
+	$data['target'] = $params['target'];
+	$data['duration'] = $params['duration'];
+	$data['offer_type'] = $params['offer_type'];
+	$data['limit_counter'] = $params['limit_counter'];
+	$data['item_id'] = $item_id;
+	$data['note'] = $params['note'];
+	$data['option'] = $params['option'];
+	return response($offerService->save($data));
 });

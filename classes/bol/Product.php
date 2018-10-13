@@ -9,7 +9,7 @@ class Product extends Object
 	private $description;
 	private $sku;
 	private $price;
-	private $snapshot;
+	private $snapshot_id;
 	private $model;
 	private $tag;
 	private $number_sold;

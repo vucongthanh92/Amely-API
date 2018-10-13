@@ -20,13 +20,29 @@ class InventoryService extends Services
         $this->table = "amely_inventories";
     }
 
-    public function getInventoryByType($input, $type ='id')
+    public function save(array $data)
+    {
+    	$inventory = new Inventory();
+    	$inventory->data->owner_id = $data['owner_id'];
+		$inventory->data->type = $data['type'];
+		$inventory->data->creator_id = $data['creator_id'];
+		$inventory->data->salt = "";
+		$inventory->data->password = "";
+		return $inventory->insert(true);
+    }
+
+    public function getInventoryByType($input, $type ='user')
     {
     	$conditions = null;
-		$conditions[] = [
-			'key' => $type,
+    	$conditions[] = [
+			'key' => 'owner_id',
 			'value' => "= '{$input}'",
 			'operation' => ''
+		];
+		$conditions[] = [
+			'key' => 'type',
+			'value' => "= '{$type}'",
+			'operation' => 'AND'
 		];
 		$inventory = $this->getInventory($conditions);
 		if (!$inventory) return false;

@@ -20,11 +20,6 @@ $app->put($container['prefix'].'/orders', function (Request $request, Response $
 	$snapshotService = SnapshotService::getInstance();
 	$productStoreService = ProductStoreService::getInstance();
 
-$shippingService = ShippingService::getInstance();
-$sp = $shippingService->getMethod('sq/storage');
-$sp->process();
-die();
-
 	$loggedin_user = loggedin_user();
 	$params = $request->getParsedBody();
 	if (!$params) $params = [];
@@ -55,7 +50,7 @@ die();
 	$total = $quantity = 0;
 	foreach ($cart_items as $key => $cart_item) {
 		$product = $productService->getProductByType($cart_item->product_id, 'id');
-		if ($product->snapshot != $cart_item->snapshot_id) return response(false);
+		if ($product->snapshot_id != $cart_item->snapshot_id) return response(false);
 		$store_quantity = $productStoreService->checkQuantityInStore($product->id, $cart_item->store_id, $cart_item->quantity);
 		if (!$store_quantity) return response(false);
 		if ($store_quantity->quantity < $cart_item->quantity) return response(false);
@@ -65,7 +60,7 @@ die();
 			'product_id' => $product->id,
 			'price' => $product->display_price,
 			'pdetail_id' => $product->owner_id,
-			'snapshot_id' => $product->snapshot,
+			'snapshot_id' => $product->snapshot_id,
 			'store_id' => $cart_item->store_id,
 			'quantity' => $cart_item->quantity,
 			'redeem_quantity' => $cart_item->redeem_quantity

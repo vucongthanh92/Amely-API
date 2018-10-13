@@ -205,7 +205,7 @@ $app->put($container['prefix'].'/products', function (Request $request, Response
 	$product->data->description = "product ".$num;
 	$product->data->sku = "sku ".$num;
 	$product->data->price = 15000;
-	$product->data->snapshot = 0;
+	$product->data->snapshot_id = 0;
 	$product->data->is_special = 0;
 	$product->data->creator_id = $loggedin_user->id;
 	$product->data->enabled = 1;
@@ -236,17 +236,17 @@ $app->put($container['prefix'].'/products', function (Request $request, Response
 		$snapshot_id = $snapshot->insert(true);
 	}
 	$product = new Product();
-	$product->data->snapshot = $snapshot_id;
+	$product->data->snapshot_id = $snapshot_id;
 	$product->where = "id = {$product_id}";
 	$product->update();
 
 	$product_store = $productStoreService->checkQuantityInStore($product_id, 1);
 
 	$store = $storeService->getStoreByType(1, 'owner_id');
-	$product_store = new ProductStore();
 	if ($product_store) {
 
 	} else {
+		$product_store = new ProductStore();
 		$product_store->data->owner_id = 1;
 		$product_store->data->type = 'shop';
 		$product_store->data->store_id = 1;

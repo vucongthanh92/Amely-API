@@ -1,29 +1,41 @@
 <?php
+/**
+    * status
+        0 cho trao doi
+        1 thanh cong
+        2 huy
 
-class Item extends Object
+    * offer_type
+        0 normal
+        1 random
+        2 giveaway
+
+    * target
+        0 public
+        1 friends
+        2 location
+*/
+class Offer extends Object
 {
     private $owner_id;
     private $type;
     private $time_created;
     private $title;
     private $description;
-    private $quantity;
-    private $snapshot_id;
-    private $store_id;
-    private $price;
-    private $expiry_type;
-    private $is_special;
-    private $stored_end;
-    private $end_day;
-    private $so_id;
-    private $wishlist;
-    private $givelist;
+    private $target;
+    private $duration;
+    private $offer_type;
+    private $expried;
     private $status;
+    private $option;
+    private $limit_counter;
+    private $item_id;
+    private $note;
 
 	public function __construct() 
 	{	
 		parent::__construct();
-		$this->table = "amely_items";
+		$this->table = "amely_offers";
 	}
 
 	public function __set($key, $value)

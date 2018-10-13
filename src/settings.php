@@ -32,8 +32,8 @@ return [
         'db' => [
             "host" => "localhost",
             "dbname" => "amelyV1",
-            "user" => "root",
-            "pass" => "thinhnez123"
+            "user" => "amely",
+            "pass" => "AMELY1703"
         ],
         'mail' => [
             'mail_SMTPDebug' => 0,
@@ -56,7 +56,7 @@ return [
         'sms' => 'http://sms.amely.com',
         'image' => [
             'url' => 'https://userdata.amely.com',
-            'path' => '/home/thinhnez/api_userdata',
+            'path' => '/home/thinhn/api_userdata',
             'avatar' => 'https://i1.wp.com/grueneroadpharmacy.com/wp-content/uploads/2017/02/user-placeholder-1.jpg',
             'cover' => 'https://i1.wp.com/grueneroadpharmacy.com/wp-content/uploads/2017/02/user-placeholder-1.jpg'
         ],
