@@ -458,12 +458,9 @@ CREATE TABLE `amely_counter_offers` (
   `time_created` int(11) NOT NULL,
   `title` text NOT NULL,
   `description` longtext NOT NULL,
-  `subtype` text NOT NULL,
-  `offer_id` text, 
-  `status` text, 
-  `product_snapshot` text, 
-  `quantity` text, 
-  `so_id` text
+  `creator_id` text, 
+  `item_id` text, 
+  `status` text
  ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 DROP TABLE IF EXISTS `amely_business_pages`; 
