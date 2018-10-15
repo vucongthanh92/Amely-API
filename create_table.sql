@@ -10,31 +10,6 @@ CREATE TABLE `amely_payment` (
   `response` text
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
-DROP TABLE IF EXISTS `amely_temp_order`;
-CREATE TABLE `amely_temp_order` (
-  `id` bigint(20) NOT NULL AUTO_INCREMENT,
-  PRIMARY KEY (`id`),
-  `owner_id` bigint(20) NOT NULL,
-  `type` varchar(20) NOT NULL,
-  `time_created` int(11) NOT NULL,
-  `target_id` bigint(20),
-  `target_type` varchar(20),
-  `payment_method` text,
-  `shipping_method` text,
-  `status` text,
-  `note` text,
-  `shipping_fullname` text, 
-  `shipping_phone` text, 
-  `shipping_address` text, 
-  `shipping_province` text, 
-  `shipping_district` text, 
-  `shipping_ward` text, 
-  `shipping_note` text, 
-  `shipping_fee` text,
-  `order_items` text
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-
-
 DROP TABLE IF EXISTS `amely_usertokens`;
 CREATE TABLE `amely_usertokens` (
   `id` bigint(255) unsigned NOT NULL AUTO_INCREMENT,
@@ -69,8 +44,6 @@ CREATE TABLE `amely_redeem_code` (
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
-
-
 DROP TABLE IF EXISTS `amely_notifications`;
 CREATE TABLE `amely_notifications` (
   `id` bigint(20) NOT NULL AUTO_INCREMENT,
@@ -84,18 +57,6 @@ CREATE TABLE `amely_notifications` (
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
-DROP TABLE IF EXISTS `amely_messages`;
-CREATE TABLE `amely_messages` (
-  `id` bigint(20) NOT NULL AUTO_INCREMENT,
-  `message_from` bigint(20) NOT NULL,
-  `message_to` bigint(20) NOT NULL,
-  `message` text NOT NULL,
-  `viewed` varchar(1) DEFAULT NULL,
-  `time_created` int(11) NOT NULL,
-  `type` varchar(255) NOT NULL DEFAULT 'individual',
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-
 DROP TABLE IF EXISTS `amely_likes`;
 CREATE TABLE `amely_likes` (
   `id` bigint(20) NOT NULL AUTO_INCREMENT,
@@ -105,7 +66,6 @@ CREATE TABLE `amely_likes` (
   `time_created` int(11) NOT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-
 
 DROP TABLE IF EXISTS `amely_currency_rates`;
 CREATE TABLE `amely_currency_rates` (
@@ -129,7 +89,6 @@ CREATE TABLE `amely_annotations` (
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
-
 DROP TABLE IF EXISTS `amely_product_group`; 
 CREATE TABLE `amely_product_group` (
   `id` bigint(20) NOT NULL AUTO_INCREMENT,
@@ -139,7 +98,6 @@ CREATE TABLE `amely_product_group` (
   `time_created` int(11) NOT NULL,
   `title` text NOT NULL,
   `description` longtext NOT NULL,
-  `subtype` text NOT NULL,
   `percent` text,
   `price` text,
   `currency` text,
@@ -213,7 +171,6 @@ CREATE TABLE `amely_promotion_items` (
   `promotion_price` text,
   `promotion_currency` text,
   `promotion_product` text
-
  ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 DROP TABLE IF EXISTS `amely_promotions`; 
@@ -385,10 +342,8 @@ CREATE TABLE `amely_delivery_order` (
   `time_created` int(11) NOT NULL,
   `title` text NOT NULL,
   `description` longtext NOT NULL,
-  `subtype` text NOT NULL,
   `so_id` text, 
   `status` text, 
-  `product_snapshot` text, 
   `ghtk_result` text, 
   `ghtk_status` text, 
   `ghtk_status_text` text, 
@@ -471,7 +426,6 @@ CREATE TABLE `amely_business_pages` (
   `time_created` int(11) NOT NULL,
   `title` text NOT NULL,
   `description` longtext NOT NULL,
-  `subtype` text NOT NULL,
   `category` text,
   `website` text,
   `phone` text,
@@ -576,7 +530,6 @@ CREATE TABLE `amely_manufacturers` (
   `time_created` int(11) NOT NULL,
   `title` text NOT NULL,
   `description` longtext NOT NULL,
-  `subtype` text NOT NULL,
   `friendly_url` text,
   `featured` text,
   `logo` text
@@ -591,7 +544,7 @@ CREATE TABLE `amely_categories` (
   `time_created` int(11) NOT NULL,
   `title` text NOT NULL,
   `description` longtext NOT NULL,
- `friendly_url` text,
+  `friendly_url` text,
   `sort_order` text,
   `enabled` text,
   `parent_id` text,
@@ -643,7 +596,6 @@ CREATE TABLE `amely_events` (
   `time_created` int(11) NOT NULL,
   `title` text NOT NULL,
   `description` longtext NOT NULL,
-  `subtype` text NOT NULL,
   `start_date` text,
   `end_date` text,
   `country` text,
@@ -660,19 +612,6 @@ CREATE TABLE `amely_events` (
   `cover` text
  ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
-DROP TABLE IF EXISTS `amely_moods`; 
-CREATE TABLE `amely_moods` (
-  `id` bigint(20) NOT NULL AUTO_INCREMENT,
-  PRIMARY KEY (`id`),
-  `owner_id` bigint(20) NOT NULL,
-  `type` varchar(20) NOT NULL,
-  `time_created` int(11) NOT NULL,
-  `title` text NOT NULL,
-  `description` longtext NOT NULL,
-  `subtype` text NOT NULL,
-  `mood_icon` text
- ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-
 DROP TABLE IF EXISTS `amely_advertisements`; 
 CREATE TABLE `amely_advertisements` (
   `id` bigint(20) NOT NULL AUTO_INCREMENT,
@@ -682,7 +621,6 @@ CREATE TABLE `amely_advertisements` (
   `time_created` int(11) NOT NULL,
   `title` text NOT NULL,
   `description` longtext NOT NULL,
-  `subtype` text NOT NULL,
   `advertise_type` text,
   `item` text,
   `image` text,
@@ -699,21 +637,6 @@ CREATE TABLE `amely_advertisements` (
   `approved` text,
   `admin_created` text
    
- ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-
-DROP TABLE IF EXISTS `amely_feed_linkpreview`; 
-CREATE TABLE `amely_feed_linkpreview` (
-  `id` bigint(20) NOT NULL AUTO_INCREMENT,
-  PRIMARY KEY (`id`),
-  `owner_id` bigint(20) NOT NULL,
-  `type` varchar(20) NOT NULL,
-  `time_created` int(11) NOT NULL,
-  `title` text NOT NULL,
-  `description` longtext NOT NULL,
-  `subtype` text NOT NULL,
-  `link_full` text,
-  `linkPreviewType` text,
-  `linkPreviewImage` text
  ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 DROP TABLE IF EXISTS `amely_wallets`; 

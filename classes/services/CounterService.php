@@ -19,14 +19,14 @@ class CounterService extends Services
 
 	public function save($data)
 	{
-		$counter = new CounterOffer();
+		$counter = new Counter();
 		$counter->data->owner_id = $data['offer_id'];
 	    $counter->data->type = 'offer';
 	    $counter->data->title = "";
 	    $counter->data->description = "";
 	    $counter->data->creator_id = $data['creator_id'];
 	    $counter->data->item_id = $data['item_id'];
-	    $counter->data->status = 0;
+	    $counter->data->status = $data['status'];
 
 		return $counter->insert(true);
 	}    

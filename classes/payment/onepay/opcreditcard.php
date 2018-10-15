@@ -57,8 +57,8 @@ class OPCreditCard extends \Object implements \Amely\Payment\IPaymentMethod
 		$country = "VN";
 		$amout = $this->amount*100;
 		$address = $creator->address;
-		$province = $creator->province;
-		$district = $creator->district;
+		$province = $creator->province_name;
+		$district = $creator->district_name;
 		$email = $creator->email;
 		$username = $creator->username;
 		$mobilelogin = $creator->mobilelogin;

@@ -1,18 +1,25 @@
 <?php
-
-class TempOrder extends Object
+/**
+    * status
+        0 cho trao doi
+        1 thanh cong
+        2 huy
+*/
+class Counter extends Object
 {
     private $owner_id;
-    private $subject_id;
     private $type;
     private $time_created;
-    private $content;
-    private $images;
+    private $title;
+    private $description;
+    private $creator_id;
+    private $item_id;
+    private $status;
 
 	public function __construct() 
 	{	
 		parent::__construct();
-		$this->table = "amely_annotations";
+		$this->table = "amely_counter_offers";
 	}
 
 	public function __set($key, $value)

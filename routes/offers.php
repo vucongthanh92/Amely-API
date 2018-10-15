@@ -129,6 +129,68 @@ $app->post($container['prefix'].'/offers', function (Request $request, Response 
 
 });
 
+$app->patch($container['prefix'].'/offers', function (Request $request, Response $response, array $args) {
+	$offerService = OfferService::getInstance();
+	$counterService = CounterService::getInstance();
+	$itemService = ItemService::getInstance();
+	$loggedin_user = loggedin_user();
+	$params = $request->getParsedBody();
+	$time = time();
+	if (!$params) $params = [];
+	if (!array_key_exists('offer_id', $params)) $params['offer_id'] = false;
+	if (!array_key_exists('counter_id', $params)) $params['counter_id'] = false;
+
+	if (!$params['offer_id'] || !$params['counter_id']) return response(false);
+	$offer = $offerService->getOfferByType($params['offer_id'], 'id');
+	$counter = $counterService->getCounterByType($params['counter_id'], 'id');
+	
+	$item = new Item();
+	$item->data->owner_id = $counter->creator_id;
+	$item->data->status = 1;
+	$item->where = "id = {$offer->item_id}";
+	$item->update();
+
+	$item = new Item();
+	$item->data->owner_id = $offer->owner_id;
+	$item->data->status = 1;
+	$item->where = "id = {$counter->item_id}";
+	$item->update();
+
+	$offer = object_cast("Offer", $offer);
+	$offer->data->status = 1;
+	$offer->where = "id = {$offer->id}";
+	$offer->update();
+
+	$counter = object_cast("Counter", $counter);
+	$counter->data->status = 1;
+	$counter->where = "id = {$counter->id}";
+	$counter->update();
+
+	$counter_params = null;
+	$counter_params[] = [
+		'key' => 'status',
+		'value' => "= 0",
+		'operation' => ''
+	];
+	$counter_params[] = [
+		'key' => 'owner_id',
+		'value' => "= {$offer->id}",
+		'operation' => 'AND'
+	];
+	$counters = $counterService->getCounters($counter_params, 0, 99999999);
+	if ($counters) {
+		foreach ($counters as $key => $counter) {
+			$item = new Item();
+			$item->data->owner_id = $counter->creator_id;
+			$item->data->status = 1;
+			$item->where = "id = {$counter->item_id}";
+			$item->update();
+		}
+	}
+	return response(true);
+
+});
+
 $app->put($container['prefix'].'/offers', function (Request $request, Response $response, array $args) {
 	$offerService = OfferService::getInstance();
 	$itemService = ItemService::getInstance();

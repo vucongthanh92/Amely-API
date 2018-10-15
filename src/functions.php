@@ -2,6 +2,26 @@
 
 use Slim\Http\Response;
 
+function joiner_shuffle($counters)
+{
+	$counters_id = $counters_item = [];
+	foreach ($counters as $key => $counter) {
+		array_push($counters_id, $counter->id);
+		array_push($counters_item, $counter->item_id);
+	}
+	shuffle($counters_id);
+	foreach ($counters_id as $k => $counter_id) {
+		$item_id = $counters_item[$key];
+		foreach ($counters as $key => $counter) {
+			if ($counter->id == $counter_id) {
+				$counter->item_id = $item_id;
+				$counters[$key] = $counter;
+			}
+		}
+	}
+	return $counters;
+}
+
 function convertPrefixOrder($prefix, $order_id, $timestamp)
 {
 	date_default_timezone_set('Asia/Ho_Chi_Minh');
