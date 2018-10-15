@@ -404,19 +404,7 @@ CREATE TABLE `amely_purchase_order` (
  ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 
-DROP TABLE IF EXISTS `amely_counter_offers`; 
-CREATE TABLE `amely_counter_offers` (
-  `id` bigint(20) NOT NULL AUTO_INCREMENT,
-  PRIMARY KEY (`id`),
-  `owner_id` bigint(20) NOT NULL,
-  `type` varchar(20) NOT NULL,
-  `time_created` int(11) NOT NULL,
-  `title` text NOT NULL,
-  `description` longtext NOT NULL,
-  `creator_id` text, 
-  `item_id` text, 
-  `status` text
- ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
 
 DROP TABLE IF EXISTS `amely_business_pages`; 
 CREATE TABLE `amely_business_pages` (
@@ -501,6 +489,21 @@ CREATE TABLE `amely_offers` (
   `item_id` text,
   `note` text
  ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+DROP TABLE IF EXISTS `amely_counter_offers`; 
+CREATE TABLE `amely_counter_offers` (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT,
+  PRIMARY KEY (`id`),
+  `owner_id` bigint(20) NOT NULL,
+  `type` varchar(20) NOT NULL,
+  `time_created` int(11) NOT NULL,
+  `title` text NOT NULL,
+  `description` longtext NOT NULL,
+  `creator_id` text, 
+  `item_id` text, 
+  `status` text
+ ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
 
 DROP TABLE IF EXISTS `amely_feeds`; 
 CREATE TABLE `amely_feeds` (

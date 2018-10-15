@@ -22,7 +22,7 @@ $app->get($container['prefix'].'/item_inventory', function (Request $request, Re
 	
 	$store = $storeService->getStoreByType($item->store_id, 'id');
 	$snapshot->store = $store;
-	$item->snapshot_id = $snapshot;
+	$item->snapshot = $snapshot;
 	$item->adjourn_price = $snapshot->adjourn_price;
 
 	if (($item->stored_end*1 - 259200) <= $time && ($item->stored_end*1) >= $time && $item->stored_end != 0) {

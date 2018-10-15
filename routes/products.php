@@ -207,6 +207,8 @@ $app->put($container['prefix'].'/products', function (Request $request, Response
 	$product->data->price = 15000;
 	$product->data->snapshot_id = 0;
 	$product->data->is_special = 0;
+	$product->data->duration = 30;
+	$product->data->storage_duration = 30;
 	$product->data->creator_id = $loggedin_user->id;
 	$product->data->enabled = 1;
 	$product->data->category = "1,2,3,4,5,6";

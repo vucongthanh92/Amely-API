@@ -20,6 +20,7 @@ class Product extends Object
 	private $currency;
 	private $origin;
 	private $product_order;
+	private $duration;
 	private $storage_duration;
 	private $is_special;
 	private $product_group;
@@ -27,7 +28,6 @@ class Product extends Object
 	private $custom_attributes;
 	private $download;
 	private $featured;
-	private $duration;
 	private $begin_day;
 	private $end_day;
 	private $manufacturer;

@@ -200,6 +200,9 @@ $app->post($container['prefix'].'/inventory', function (Request $request, Respon
 	];
 	
 	switch ($item_type) {
+		case 'all':
+
+			break;
 		// moi nhap
 		case 'new':
 			$item_params[] = [

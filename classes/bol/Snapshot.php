@@ -28,6 +28,7 @@ class Snapshot extends Object
 	private $unit;
 	private $adjourn_price;
 	private $code;
+	private $images;
 	private $parent_id;
 
 	public function __construct() 

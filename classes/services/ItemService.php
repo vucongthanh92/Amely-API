@@ -20,6 +20,20 @@ class ItemService extends Services
         $this->table = "amely_items";
     }
 
+    public function changeOwnerItem($owner_id, $type, $data)
+    {
+    	$inventoryService = InventoryService::getInstance();
+    	$inventory = $inventoryService->getInventoryByType($owner_id, $type);
+    	if (!$inventory) return false;
+    	$item = new Item();
+    	foreach ($data as $key => $value) {
+    		$item->data->$key = $value;
+    	}
+    	$item->data->owner_id = $inventory->id;
+    	$item->where = "id = {$data['id']}";
+    	return $item->update();
+    }
+
 	public function save($data)
 	{
 		$productService = ProductService::getInstance();
@@ -54,7 +68,7 @@ class ItemService extends Services
 		$item->data->givelist = 0;
 		$item->data->status = 1;
 		return $item->insert();
-	}    
+	}
 
     public function separateItem($item_id, $quantity)
     {

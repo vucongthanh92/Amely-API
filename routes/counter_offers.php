@@ -18,8 +18,11 @@ $app->put($container['prefix'].'/counter_offers', function (Request $request, Re
 	if (!$params['offer_id']) return response(false);
 
 	$offer = $offerService->getOfferByType($params['offer_id']);
+	if ($offer->owner_id == $loggedin_user->id) return response(false);
 	if ($offer->status != 0) return response(false);
-	if ($offer->limit_counter != 0) return response(false);
+	$counter = $counterService->getCounterByType($offer->id, 'owner_id');
+	if ($counter) return response(false);
+
 	$counter_params = null;
 	$counter_params[] = [
 		'key' => 'owner_id',
@@ -35,7 +38,14 @@ $app->put($container['prefix'].'/counter_offers', function (Request $request, Re
 	if ($offer->limit_counter == $counters->count) return response(false);
 
 	if ($params['item_id'] && $params['quantity']) {
+		$item = $itemService->getItemByType($params['item_id']);
+		if ($item->owner_id != $loggedin_user->id) return response(false);
+		if ($item->quantity < $params['quantity']) return response(false);
 		$params['item_id'] = $itemService->separateItem($params['item_id'], $params['quantity']);
+		$item = new Item();
+		$item->data->status = 0;
+		$item->where = "id = {$params['item_id']}";
+		$item->update();
 	}
 	$status = 0;
 	switch ($params['offer_type']) {
@@ -69,9 +79,10 @@ $app->put($container['prefix'].'/counter_offers', function (Request $request, Re
 				$item_id = $itemService->separateItem($offer->item_id, 1);
 				$item = $itemService->getItemByType($item_id, 'id');
 				$item = object_cast("Item", $item);
-				$item->data->owner_id = $loggedin_user->id;
-				$item->where = "id = {$item->id}";
-				return response($item->update());
+				$update = null;
+				$update['id'] = $item->id;
+				$update['status'] = 1;
+				return response($itemService->changeOwnerItem($loggedin_user->id, 'user', $update));
 			}
 		}
 		if ($offer->offer_type == 1) {
@@ -91,11 +102,10 @@ $app->put($container['prefix'].'/counter_offers', function (Request $request, Re
 			if ($offer->limit_counter == count($counters)) {
 				$counters = joiner_shuffle($counters);
 				foreach ($counters as $key => $counter) {
-					$item = new Item();
-					$item->data->owner_id = $counter->creator_id;
-					$item->data->status = 1;
-					$item->where = "id = {$counter->item_id}";
-					$item->update();
+					$update = null;
+					$update['id'] = $counter->item_id;
+					$update['status'] = 1;
+					$itemService->changeOwnerItem($counter->creator_id, 'user', $update);
 
 					$counter_offer = new Counter();
 					$counter_offer->data->status = 1;

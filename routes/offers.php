@@ -7,10 +7,14 @@ $app->get($container['prefix'].'/offers', function (Request $request, Response $
 	$userService = UserService::getInstance();
 	$itemService = ItemService::getInstance();
 	$snapshotService = SnapshotService::getInstance();
-
 	$loggedin_user = loggedin_user();
 	$time = time();
+
+	$params = $request->getQueryParams();
+	if (!$params) $params = [];
 	if (!array_key_exists('offer_id', $params)) 	$params['offer_id'] = 0;
+	if (!array_key_exists('offset', $params)) 	$params['offset'] = 0;
+	if (!array_key_exists('limit', $params)) 	$params['limit'] = 10;
 	if (!$params['offer_id']) return response(false);
 	
 	$offset = (double)$params['offset'];
@@ -100,7 +104,6 @@ $app->post($container['prefix'].'/offers', function (Request $request, Response 
 			
 			break;
 	}
-
 	$offers = $offerService->getOffers($offer_params, $offset, $limit);
 	if (!$offers) return response(false);
 
@@ -142,19 +145,29 @@ $app->patch($container['prefix'].'/offers', function (Request $request, Response
 
 	if (!$params['offer_id'] || !$params['counter_id']) return response(false);
 	$offer = $offerService->getOfferByType($params['offer_id'], 'id');
-	$counter = $counterService->getCounterByType($params['counter_id'], 'id');
-	
-	$item = new Item();
-	$item->data->owner_id = $counter->creator_id;
-	$item->data->status = 1;
-	$item->where = "id = {$offer->item_id}";
-	$item->update();
+	if ($offer->owner_id != $loggedin_user->id) return response(false);
+	$counter_params = null;
+	$counter_params[] = [
+		'key' => 'owner_id',
+		'value' => "= {$offer->id}",
+		'operation' => ''
+	];
+	$counter_params[] = [
+		'key' => 'id',
+		'value' => "= {$params['counter_id']}",
+		'operation' => 'AND'
+	];
+	$counter = $counterService->getCounter($counter_params);
+	if (!$counter) return response(false);
+	$update = null;
+	$update['id'] = $offer->item_id;
+	$update['status'] = 1;
+	$itemService->changeOwnerItem($counter->creator_id, 'user', $update);
 
-	$item = new Item();
-	$item->data->owner_id = $offer->owner_id;
-	$item->data->status = 1;
-	$item->where = "id = {$counter->item_id}";
-	$item->update();
+	$update = null;
+	$update['id'] = $counter->item_id;
+	$update['status'] = 1;
+	$itemService->changeOwnerItem($offer->owner_id, 'user', $update);
 
 	$offer = object_cast("Offer", $offer);
 	$offer->data->status = 1;
@@ -180,11 +193,10 @@ $app->patch($container['prefix'].'/offers', function (Request $request, Response
 	$counters = $counterService->getCounters($counter_params, 0, 99999999);
 	if ($counters) {
 		foreach ($counters as $key => $counter) {
-			$item = new Item();
-			$item->data->owner_id = $counter->creator_id;
-			$item->data->status = 1;
-			$item->where = "id = {$counter->item_id}";
-			$item->update();
+			$update = null;
+			$update['id'] = $counter->item_id;
+			$update['status'] = 1;
+			$itemService->changeOwnerItem($counter->creator_id, 'user', $update);
 		}
 	}
 	return response(true);
