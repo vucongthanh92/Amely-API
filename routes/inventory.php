@@ -438,7 +438,7 @@ $app->post($container['prefix'].'/inventory', function (Request $request, Respon
 		    }
 		);
 		if ($snapshots) {
-			$item->snapshot_id = reset($snapshots);
+			$item->snapshot = reset($snapshots);
 		} else {
 			unset($items[$key]);
 		}
