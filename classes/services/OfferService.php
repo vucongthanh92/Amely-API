@@ -37,11 +37,13 @@ class OfferService extends Services
 		$offer->data->limit_counter = $data['limit_counter'];
 		$offer->data->item_id = $data['item_id'];
 		$offer->data->note = $data['note'];
-		if ($offer->insert(true)) {
+		$offer_id = $offer->insert(true);
+		if ($offer_id) {
 			$item = new Item();
 			$item->data->status = 0;
 			$item->where = "id = {$data['item_id']}";
-			return $item->update();
+			$item->update();
+			return $offer_id;
 		}
 		return false;
 	}    

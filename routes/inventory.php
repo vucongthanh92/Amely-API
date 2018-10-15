@@ -136,7 +136,6 @@ $app->get($container['prefix'].'/inventory', function (Request $request, Respons
 		'nearly_expiry' => $nearly_expiry_count,
 		'nearly_stored' => $nearly_stored_count
 	];
-
 	$result['count'] = $count;
 	$result['total_price'] = $total_price;
 	$result['total_quantity'] = $total_quantity;
@@ -156,12 +155,14 @@ $app->post($container['prefix'].'/inventory', function (Request $request, Respon
 	$current_time_before_24hour = $current_time - (24*60*60);
 	$params = $request->getParsedBody();
 	if (!$params) $params = [];
-	if (!array_key_exists('item_type', $params))	$params['item_type'] = "new";
-	if (!array_key_exists('inventory_id', $params))	$params['inventory_id'] = false;
+	if (!array_key_exists('item_type', $params))	$params['item_type'] = 'new';
+	if (!array_key_exists('owner_id', $params))		$params['owner_id'] = $loggedin_user->id;
+	if (!array_key_exists('type', $params))			$params['type'] = 'user';
 	if (!array_key_exists('limit', $params))	 	$params['limit'] = 10;
 	if (!array_key_exists('offset', $params))	 	$params['offset'] = 0;
-
-	if (!$params['inventory_id']) return response(false);
+	
+	$inventory = $inventoryService->getInventoryByType($params['owner_id'], $params['type']);
+	if (!$inventory) return response(false);
 	$offset = (double)$params['offset'];
 	$limit = (double)$params['limit'];
 	$item_type = $params['item_type'];
@@ -169,7 +170,7 @@ $app->post($container['prefix'].'/inventory', function (Request $request, Respon
 	$item_params = null;
 	$item_params[] = [
 		'key' => "owner_id",
-		'value' => "= {$params['inventory_id']}",
+		'value' => "= {$inventory->id}",
 		'operation' => ''
 	];
 	$item_params[] = [

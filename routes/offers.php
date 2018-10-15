@@ -193,6 +193,7 @@ $app->patch($container['prefix'].'/offers', function (Request $request, Response
 
 $app->put($container['prefix'].'/offers', function (Request $request, Response $response, array $args) {
 	$offerService = OfferService::getInstance();
+	$counterService = CounterService::getInstance();
 	$itemService = ItemService::getInstance();
 	$loggedin_user = loggedin_user();
 	$params = $request->getParsedBody();
@@ -209,8 +210,7 @@ $app->put($container['prefix'].'/offers', function (Request $request, Response $
 	if (!array_key_exists('item_id', $params)) $params['item_id'] = false;
 	if (!array_key_exists('note', $params)) $params['note'] = "";
 	if (!array_key_exists('quantity', $params)) $params['quantity'] = 0;
-
-	if (!$params['item_id'] || !$params['quantity']) return response(false);
+	if (!$params['item_id'] || !$params['quantity'] || !$params['duration']) return response(false);
 	switch ($params['offer_type']) {
 		case 0:
 			# code...
@@ -230,7 +230,8 @@ $app->put($container['prefix'].'/offers', function (Request $request, Response $
 			# code...
 			break;
 	}
-
+	$item = $itemService->getItemByType($params['item_id']);
+	if ($item->owner_id != $loggedin_user->id) return response(false);
 	$item_id = $itemService->separateItem($params['item_id'], $params['quantity']);
 
 	$data = [];
@@ -242,5 +243,18 @@ $app->put($container['prefix'].'/offers', function (Request $request, Response $
 	$data['item_id'] = $item_id;
 	$data['note'] = $params['note'];
 	$data['option'] = $params['option'];
-	return response($offerService->save($data));
+	$offer_id = $offerService->save($data);
+	if ($offer_id) {
+		if ($params['offer_type'] == 1) {
+			$counter_params = null;
+			$counter_params['offer_id'] = $offer_id;
+			$counter_params['item_id'] = $item_id;
+			$counter_params['creator_id'] = $loggedin_user->id;
+			$counter_params['status'] = 0;
+			$counter_id = $counterService->save($counter_params);
+			return response($counter_id);
+		}
+		return response(true);
+	}
+	return response(false);
 });
