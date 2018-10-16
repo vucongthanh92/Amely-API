@@ -27,7 +27,12 @@ class CounterService extends Services
 	    $counter->data->creator_id = $data['creator_id'];
 	    $counter->data->item_id = $data['item_id'];
 	    $counter->data->status = $data['status'];
-
+	    if ($data['item_id']) {
+	    	$item = new Item();
+			$item->data->status = 0;
+			$item->where = "id = {$data['item_id']}";
+			$item->update();
+	    }
 		return $counter->insert(true);
 	}    
 
