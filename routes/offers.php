@@ -69,7 +69,7 @@ $app->post($container['prefix'].'/offers', function (Request $request, Response 
 			$offer_params[] = [
 				'key' => 'owner_id',
 				'value' => "= {$loggedin_user->id}",
-				'operation' => 'AND'
+				'operation' => ''
 			];
 			break;
 		case 2:
@@ -78,7 +78,7 @@ $app->post($container['prefix'].'/offers', function (Request $request, Response 
 			$offer_params[] = [
 				'key' => 'status',
 				'value' => "= 0",
-				'operation' => 'AND'
+				'operation' => ''
 			];
 			if ($params['friends']) {
 				$friends_id = implode(',', array_unique($params['friends']));
