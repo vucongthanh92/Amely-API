@@ -9,12 +9,12 @@ $app->get($container['prefix'].'/cart', function (Request $request, Response $re
 	$productService = ProductService::getInstance();
 	$storeService = StoreService::getInstance();
 	$loggedin_user = loggedin_user();
-	$params = $request->getQueryParams();
 	$carts['cart'] = [];
 	$carts['items'] = [];
 	$carts['tax'] = 0;
 	$carts['total'] = 0;
 	$carts['quantity'] = 0;
+	$params = $request->getQueryParams();
 	if (!$params) $params = [];
 	if (!array_key_exists('type', $params))  			$params['type'] = 'user';
 	$type = $params['type'];

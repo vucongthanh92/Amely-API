@@ -225,10 +225,10 @@ $app->put($container['prefix'].'/offers', function (Request $request, Response $
 	if (!$params['item_id'] || !$params['quantity'] || !$params['duration']) return response(false);
 	switch ($params['offer_type']) {
 		case 0:
-			# code...
+			$params['option'] = 0;
 			break;
 		case 1:
-			# code...
+			$params['option'] = 0;
 			break;
 		case 2:
 			if ($params['option']) {
@@ -264,7 +264,8 @@ $app->put($container['prefix'].'/offers', function (Request $request, Response $
 			$counter_params['creator_id'] = $loggedin_user->id;
 			$counter_params['status'] = 0;
 			$counter_id = $counterService->save($counter_params);
-			return response($counter_id);
+			if ($counter_id) return response(true);
+			return response(false);
 		}
 		return response(true);
 	}
