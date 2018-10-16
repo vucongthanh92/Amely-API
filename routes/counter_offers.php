@@ -52,13 +52,13 @@ $app->post($container['prefix'].'/counter_offers', function (Request $request, R
 	if ($params['offer_id']) {
 		$counter_params[] = [
 			'key' => 'owner_id',
-			'value' => "= $params['offer_id']",
+			'value' => "= {$params['offer_id']}",
 			'operation' => 'AND'
 		];
 	} else {
 		$counter_params[] = [
 			'key' => 'creator_id',
-			'value' => "= $loggedin_user->id",
+			'value' => "= {$loggedin_user->id}",
 			'operation' => 'AND'
 		];
 	}
