@@ -17,6 +17,19 @@ class GroupService extends Services
         $this->table = "amely_groups";
     }
 
+    public function getGroupByType($input, $type ='id')
+	{	
+		$conditions = null;
+		$conditions[] = [
+			'key' => $type,
+			'value' => "= '{$input}'",
+			'operation' => ''
+		];
+		$group = $this->getGroup($conditions);
+		if (!$group) return false;
+		return $group;
+	}
+
     public function getGroupById($id)
 	{
 		$conditions = null;

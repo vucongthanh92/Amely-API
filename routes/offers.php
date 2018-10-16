@@ -13,12 +13,7 @@ $app->get($container['prefix'].'/offers', function (Request $request, Response $
 	$params = $request->getQueryParams();
 	if (!$params) $params = [];
 	if (!array_key_exists('offer_id', $params)) 	$params['offer_id'] = 0;
-	if (!array_key_exists('offset', $params)) 	$params['offset'] = 0;
-	if (!array_key_exists('limit', $params)) 	$params['limit'] = 10;
 	if (!$params['offer_id']) return response(false);
-	
-	$offset = (double)$params['offset'];
-	$limit = (double)$params['limit'];
 
 	$offer = $offerService->getOfferByType($params['offer_id'], 'id');
 	if (!$offer) return response(false);
@@ -68,27 +63,23 @@ $app->post($container['prefix'].'/offers', function (Request $request, Response 
 	$limit = $params['limit'];
 
 	$offer_params = null;
-	$offer_params[] = [
-		'key' => 'status',
-		'value' => "= 0",
-		'operation' => ''
-	];
-	$offer_params[] = [
-		'key' => 'target',
-		'value' => "= {$params['target']}",
-		'operation' => 'AND'
-	];
-	$offer_params[] = [
-		'key' => 'owner_id',
-		'value' => "<> {$loggedin_user->id}",
-		'operation' => 'AND'
-	];
+	
 	switch ($params['target']) {
 		case 0:
+			$offer_params[] = [
+				'key' => 'owner_id',
+				'value' => "= {$loggedin_user->id}",
+				'operation' => 'AND'
+			];
 			break;
 		case 2:
 			break;
 		case 1:
+			$offer_params[] = [
+				'key' => 'status',
+				'value' => "= 0",
+				'operation' => 'AND'
+			];
 			if ($params['friends']) {
 				$friends_id = implode(',', array_unique($params['friends']));
 				$offer_params[] = [
@@ -96,14 +87,18 @@ $app->post($container['prefix'].'/offers', function (Request $request, Response 
 					'value' => "IN ({$friends_id})",
 					'operation' => 'AND'
 				];
+
+				$offer_params[] = [
+					'key' => 'owner_id',
+					'value' => "<> {$loggedin_user->id}",
+					'operation' => 'AND'
+				];
 			}
-			
 			break;
 		default:
-			
-			
 			break;
 	}
+	if (!$offer_params) return response(false);
 	$offers = $offerService->getOffers($offer_params, $offset, $limit);
 	if (!$offers) return response(false);
 
@@ -207,6 +202,7 @@ $app->put($container['prefix'].'/offers', function (Request $request, Response $
 	$offerService = OfferService::getInstance();
 	$counterService = CounterService::getInstance();
 	$itemService = ItemService::getInstance();
+	$inventoryService = InventoryService::getInstance();
 	$loggedin_user = loggedin_user();
 	$params = $request->getParsedBody();
 	$time = time();
@@ -243,7 +239,16 @@ $app->put($container['prefix'].'/offers', function (Request $request, Response $
 			break;
 	}
 	$item = $itemService->getItemByType($params['item_id']);
-	if ($item->owner_id != $loggedin_user->id) return response(false);
+	if (!$item) return response(false);
+	$inventory_params = null;
+	$inventory_params[] = [
+		'key' => 'id',
+		'value' => "= {$item->owner_id}",
+		'operation' => ''
+	];
+	$inventory = $inventoryService->getInventory($inventory_params);
+	if ($inventory->type != 'user') return response(false);
+	if ($item->owner_id != $inventory->owner_id) return response(false);
 	$item_id = $itemService->separateItem($params['item_id'], $params['quantity']);
 
 	$data = [];

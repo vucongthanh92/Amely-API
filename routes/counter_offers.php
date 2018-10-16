@@ -2,6 +2,80 @@
 use Slim\Http\Request;
 use Slim\Http\Response;
 
+
+$app->get($container['prefix'].'/counter_offers', function (Request $request, Response $response, array $args) {
+	$offerService = OfferService::getInstance();
+	$counterService = CounterService::getInstance();
+	$userService = UserService::getInstance();
+	$itemService = ItemService::getInstance();
+	$snapshotService = SnapshotService::getInstance();
+	$loggedin_user = loggedin_user();
+	$time = time();
+
+	$params = $request->getQueryParams();
+	if (!$params) $params = [];
+	if (!array_key_exists('counter_id', $params)) 	$params['counter_id'] = 0;
+	if (!$params['counter_id']) return response(false);
+
+	$counter = $counterService->getCounterByType($params['counter_id']);
+	if ($counter->item_id) {
+		$item = $itemService->getItemByType($counter->item_id);
+		$snapshot = $snapshotService->getSnapshotByType($item->snapshot_id, 'id');
+		$counter->snapshot = $snapshot;
+	}
+	$owner = $userService->getUserByType($counter->creator_id, 'id', false);
+	$counter->owner = $owner;
+	return response($counter);
+
+});
+
+$app->post($container['prefix'].'/counter_offers', function (Request $request, Response $response, array $args) {
+	$offerService = OfferService::getInstance();
+	$counterService = CounterService::getInstance();
+	$itemService = ItemService::getInstance();
+	$snapshotService = SnapshotService::getInstance();
+	$userService = UserService::getInstance();
+	$loggedin_user = loggedin_user();
+	$params = $request->getParsedBody();
+	$time = time();
+	if (!$params) $params = [];
+	if (!array_key_exists('offer_id', $params)) $params['offer_id'] = false;
+	if (!array_key_exists('offset', $params)) 	$params['offset'] = 0;
+	if (!array_key_exists('limit', $params)) 	$params['limit'] = 10;
+
+	$counter_params = null;
+	$counter_params[] = [
+		'key' => 'status',
+		'value' => "<> 2",
+		'operation' => ''
+	];
+	if ($params['offer_id']) {
+		$counter_params[] = [
+			'key' => 'owner_id',
+			'value' => "= $params['offer_id']",
+			'operation' => 'AND'
+		];
+	} else {
+		$counter_params[] = [
+			'key' => 'creator_id',
+			'value' => "= $loggedin_user->id",
+			'operation' => 'AND'
+		];
+	}
+	$counters = $counterService->getCounters($counter_params);
+	foreach ($counters as $key => $counter) {
+		if ($counter->item_id) {
+			$item = $itemService->getItemByType($counter->item_id, 'id');
+			$snapshot = $snapshotService->getSnapshotByType($item->snapshot_id, 'id');
+			$counter->snapshot = $snapshot;
+		}
+		$owner = $userService->getUserByType($counter->creator_id, 'id');
+		$counter->owner = $owner;
+		$counters[$key] = $counter;
+	}
+	return response(array_values($counters));
+});
+
 $app->put($container['prefix'].'/counter_offers', function (Request $request, Response $response, array $args) {
 	$offerService = OfferService::getInstance();
 	$counterService = CounterService::getInstance();
