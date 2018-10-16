@@ -20,6 +20,12 @@ class ProductService extends Services
         $this->table = "amely_products";
     }
 
+    public function save($data)
+    {
+    	$product = new Product();
+    	
+    }
+
     public function getPropertyProduct($conditions)
     {
     	$product = $this->searchObject($conditions, 0, 1);
