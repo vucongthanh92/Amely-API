@@ -43,6 +43,7 @@ $app->get($container['prefix'].'/offers', function (Request $request, Response $
 
 $app->post($container['prefix'].'/offers', function (Request $request, Response $response, array $args) {
 	$offerService = OfferService::getInstance();
+	$counterService = CounterService::getInstance();
 	$userService = UserService::getInstance();
 	$itemService = ItemService::getInstance();
 	$snapshotService = SnapshotService::getInstance();
@@ -109,18 +110,35 @@ $app->post($container['prefix'].'/offers', function (Request $request, Response 
 		$snapshot = $snapshotService->getSnapshotByType($item->snapshot_id, 'id');
 		$offer->snapshot = $snapshot;
 
+		$counter_params = null;
+		$counter_params[] = [
+			'key' => '*',
+			'value' => "count",
+			'operation' => 'count'
+		];
+		$counter_params[] = [
+			'key' => 'owner_id',
+			'value' => "= {$offer->id}",
+			'operation' => ''
+		];
+		$counter_params[] = [
+			'key' => 'status',
+			'value' => "= 0",
+			'operation' => 'AND'
+		];
+		$counters = $counterService->getCounter($counter_params);
+		$offer->counter_offers_number = $counters->count;
 
-			// if ($offer->duration < 1) {
-			// 	$hour = $offer->duration*24;
-			// 	$time_end = strtotime("+{$hour} hours", $offer->time_created);
-			// } else {
-			// 	$time_end = strtotime("+{$offer->duration} days", $offer->time_created);
-			// }
+		if ($offer->duration < 1) {
+			$hour = $offer->duration*24;
+			$time_end = strtotime("+{$hour} hours", $offer->time_created);
+		} else {
+			$time_end = strtotime("+{$offer->duration} days", $offer->time_created);
+		}
 
-			// $offer->current_time = $time;
-			// $offer->time_end = $time_end;
-			// $offers[$key] = $offer;
-
+		$offer->current_time = $time;
+		$offer->time_end = $time_end;
+		$offers[$key] = $offer;
 	}
 
 	return response(array_values($offers));
