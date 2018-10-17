@@ -89,9 +89,8 @@ $app->post($container['prefix'].'/gift', function (Request $request, Response $r
 	];
 
 	$gifts = $giftService->getGifts($gift_params, 0, 999999999);
-
-
-
+	if (!$gifts) return response(false);
+	return response($gifts);
 });
 
 $app->put($container['prefix'].'/gift', function (Request $request, Response $response, array $args) {

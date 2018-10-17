@@ -27,7 +27,6 @@ $app->get($container['prefix'].'/counter_offers', function (Request $request, Re
 	$owner = $userService->getUserByType($counter->creator_id, 'id', false);
 	$counter->owner = $owner;
 	return response($counter);
-
 });
 
 $app->post($container['prefix'].'/counter_offers', function (Request $request, Response $response, array $args) {
@@ -103,6 +102,11 @@ $app->put($container['prefix'].'/counter_offers', function (Request $request, Re
 	$counter_params[] = [
 		'key' => 'owner_id',
 		'value' => "= {$offer->id}",
+		'operation' => ''
+	];
+	$counter_params[] = [
+		'key' => 'staus',
+		'value' => "<> 2",
 		'operation' => ''
 	];
 	$counter_params[] = [
@@ -196,4 +200,24 @@ $app->put($container['prefix'].'/counter_offers', function (Request $request, Re
 		return response(true);
 	}
 	return response(false);
+});
+
+$app->delete($container['prefix'].'/counter_offers', function (Request $request, Response $response, array $args) {
+	$counterService = CounterService::getInstance();
+	$loggedin_user = loggedin_user();
+
+	$params = $request->getQueryParams();
+	if (!$params) $params = [];
+	if (!array_key_exists('counter_id', $params)) 	$params['counter_id'] = 0;
+	$counter = $counterService->getCounterByType($params['counter_id']);
+	if ($counter->creator_id != $loggedin_user->id) return response(false);
+	$item = new Item();
+	$item->data->status = 1;
+	$item->where = "id = {$counter->item_id}";
+	$item->update();
+
+	$counter = object_cast("Counter", $counter);
+	$counter->data->status = 2;
+	$counter->where = "id = {$counter->id}";
+	return response($counter->update());
 });

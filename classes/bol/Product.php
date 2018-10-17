@@ -1,5 +1,28 @@
 <?php
+/**
+    * is_special
+        0 binh thuong
+        1 voucher
+        2 ticket
 
+    * expiry_type
+        0 ko han dung
+        1 tinh theo luc mua duration
+        2 tinh theo begin end
+
+    * featured
+    	0 ko noi bat
+    	1 noi bat
+
+    * approved
+    	0 cho duyet
+    	1 da duyet
+    	2 cam
+
+    * enabled
+    	0 tat
+    	1 mo
+*/
 class Product extends Object
 {
 	private $owner_id;

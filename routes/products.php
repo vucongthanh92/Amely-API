@@ -192,29 +192,120 @@ $app->put($container['prefix'].'/products', function (Request $request, Response
 	$productService = ProductService::getInstance();
 	$snapshotService = SnapshotService::getInstance();
 	$storeService = StoreService::getInstance();
+	$shopService = ShopService::getInstance();
 	$productStoreService = ProductStoreService::getInstance();
 	$loggedin_user = loggedin_user();
+
+	$shop = $shopService->getShopByType($loggedin_user->id, 'owner_id', false);
+	if (!$shop) return response(false);
 	$params = $request->getParsedBody();
 	if (!$params) $params = [];
-	$num = rand();
+	if (!array_key_exists('owner_id', $params)) $params['owner_id'] = $shop->id;
+	if (!array_key_exists('type', $params)) $params['type'] = 'shop';
+	if (!array_key_exists('title', $params)) $params['title'] = 0;
+	if (!array_key_exists('description', $params)) $params['description'] = 0;
+	if (!array_key_exists('sku', $params)) $params['sku'] = 0;
+	if (!array_key_exists('price', $params)) $params['price'] = 0;
+	if (!array_key_exists('model', $params)) $params['model'] = 0;
+	if (!array_key_exists('tag', $params)) $params['tag'] = 0;
+	if (!array_key_exists('tax', $params)) $params['tax'] = 0;
+	if (!array_key_exists('friendly_url', $params)) $params['friendly_url'] = 0;
+	if (!array_key_exists('weight', $params)) $params['weight'] = 0;
+	if (!array_key_exists('expiry_type', $params)) $params['expiry_type'] = 0;
+	if (!array_key_exists('currency', $params)) $params['currency'] = 0;
+	if (!array_key_exists('origin', $params)) $params['origin'] = 0;
+	if (!array_key_exists('product_order', $params)) $params['product_order'] = 0;
+	if (!array_key_exists('duration', $params)) $params['duration'] = 0;
+	if (!array_key_exists('storage_duration', $params)) $params['storage_duration'] = 0;
+	if (!array_key_exists('is_special', $params)) $params['is_special'] = 0;
+	if (!array_key_exists('product_group', $params)) $params['product_group'] = 0;
+	if (!array_key_exists('creator_id', $params)) $params['creator_id'] = $loggedin_user->id;
+	if (!array_key_exists('custom_attributes', $params)) $params['custom_attributes'] = 0;
+	if (!array_key_exists('download', $params)) $params['download'] = 0;
+	if (!array_key_exists('featured', $params)) $params['featured'] = 0;
+	if (!array_key_exists('begin_day', $params)) $params['begin_day'] = 0;
+	if (!array_key_exists('end_day', $params)) $params['end_day'] = 0;
+	if (!array_key_exists('manufacturer', $params)) $params['manufacturer'] = 0;
+	if (!array_key_exists('sale_price', $params)) $params['sale_price'] = 0;
+	if (!array_key_exists('unit', $params)) $params['unit'] = 0;
+	if (!array_key_exists('approved', $params)) $params['approved'] = 0;
+	if (!array_key_exists('enabled', $params)) $params['enabled'] = 0;
+	if (!array_key_exists('voucher_category', $params)) $params['voucher_category'] = 0;
+	if (!array_key_exists('ticket_category', $params)) $params['ticket_category'] = 0;
+	if (!array_key_exists('shop_category', $params)) $params['shop_category'] = 0;
+	if (!array_key_exists('market_category', $params)) $params['market_category'] = 0;
+	if (!array_key_exists('category', $params)) $params['category'] = 0;
+	if (!array_key_exists('adjourn_price', $params)) $params['adjourn_price'] = 0;
+	if (!array_key_exists('images', $params)) $params['images'] = 0;
+	if (!array_key_exists('parent_id', $params)) $params['parent_id'] = 0;
 
-	$product = new Product();
-	$product->data->owner_id = 1;
-	$product->data->type = "shop";
-	$product->data->title = "product ".$num;
-	$product->data->description = "product ".$num;
-	$product->data->sku = "sku ".$num;
-	$product->data->price = 15000;
-	$product->data->snapshot_id = 0;
-	$product->data->is_special = 0;
-	$product->data->duration = 30;
-	$product->data->storage_duration = 30;
-	$product->data->creator_id = $loggedin_user->id;
-	$product->data->adjourn_price = 0;
-	$product->data->enabled = 1;
-	$product->data->category = "1,2,3,4,5,6";
-	$product->data->approved = time();
-	$product_id = $product->insert(true);
+	$num = rand();
+	if (!$params['title'] || !$params['sku']) return response(false);
+
+	$product = $productService->checkSKU($params['sku']);
+	$data = [];
+	if ($product) return response(false);
+	if ($params['tag']) {
+		$params['tag'] = implode(',', $params['tag']);
+	}
+	if ($params['images']) {
+		$params['images'] = implode(',', $params['images']);
+	}
+	if ($params['begin_day']) {
+		$params['begin_day'] = strtotime($params['begin_day']);
+	}
+	if ($params['end_day']) {
+		$params['end_day'] = strtotime($params['end_day']);
+	}
+	if ($params['category']) {
+		$data['category'] = implode(',', $params['category']);
+	}
+	if ($params['voucher_category']) {
+		$data['voucher_category'] = implode(',', $params['voucher_category']);
+	}
+	if ($params['ticket_category']) {
+		$data['ticket_category'] = implode(',', $params['ticket_category']);
+	}
+	if ($params['market_category']) {
+		$data['market_category'] = implode(',', $params['market_category']);
+	}
+	if ($params['shop_category']) {
+		$data['shop_category'] = implode(',', $params['shop_category']);
+	}
+	$data['owner_id'] = $params['owner_id'];
+	$data['type'] = 'shop';
+	$data['title'] = $params['title'];
+	$data['description'] = $params['description'];
+	$data['sku'] = $params['sku'];
+	$data['price'] = $params['price'];
+	$data['model'] = $params['model'];
+	$data['tag'] = $params['tag'];
+	$data['tax'] = $params['tax'];
+	$data['friendly_url'] = $params['friendly_url'];
+	$data['weight'] = $params['weight'];
+	$data['expiry_type'] = $params['expiry_type'];
+	$data['currency'] = $params['currency'];
+	$data['origin'] = $params['origin'];
+	$data['product_order'] = 0;
+	$data['duration'] = $params['duration'];
+	$data['storage_duration'] = $params['storage_duration'];
+	$data['is_special'] = $params['is_special'];
+	$data['product_group'] = $params['product_group'];
+	$data['creator_id'] = $loggedin_user->id;
+	$data['custom_attributes'] = $params['custom_attributes'];
+	$data['download'] = $params['download'];
+	$data['featured'] = $params['featured'];
+	$data['begin_day'] = $params['begin_day'];
+	$data['end_day'] = $params['end_day'];
+	$data['manufacturer'] = $params['manufacturer'];
+	$data['sale_price'] = 0;
+	$data['unit'] = $params['unit'];
+	$data['approved'] = 0;
+	$data['enabled'] = 0;
+	$data['adjourn_price'] = $params['adjourn_price'];
+	$data['images'] = $params['images'];
+
+	$product_id = $productService->save($data);
 	
 	$product_params = null;
 	$product_params[] = [
@@ -230,13 +321,14 @@ $app->put($container['prefix'].'/products', function (Request $request, Response
 	if ($snapshot) {
 		$snapshot_id = $snapshot->id;
 	} else {
-		$snapshot = new Snapshot();
+		$data = null;
+		$data = [];
 		foreach ($product_properties as $property => $product_property) {
-			$snapshot->data->$property = $product_property;
+			$data[$property] = $product_property;
 		}
-		unset($snapshot->data->id);
-		$snapshot->data->code = $key;
-		$snapshot_id = $snapshot->insert(true);
+		unset($data['id']);
+		$data['code'] = $key;
+		$snapshot_id = $snapshotService->insert(true);
 	}
 	$product = new Product();
 	$product->data->snapshot_id = $snapshot_id;

@@ -142,7 +142,6 @@ $app->post($container['prefix'].'/offers', function (Request $request, Response 
 	}
 
 	return response(array_values($offers));
-
 });
 
 $app->patch($container['prefix'].'/offers', function (Request $request, Response $response, array $args) {
@@ -213,7 +212,6 @@ $app->patch($container['prefix'].'/offers', function (Request $request, Response
 		}
 	}
 	return response(true);
-
 });
 
 $app->put($container['prefix'].'/offers', function (Request $request, Response $response, array $args) {
@@ -293,4 +291,51 @@ $app->put($container['prefix'].'/offers', function (Request $request, Response $
 		return response(true);
 	}
 	return response(false);
+});
+
+$app->delete($container['prefix'].'/offers', function (Request $request, Response $response, array $args) {
+	$offerService = OfferService::getInstance();
+	$counterService = CounterService::getInstance();
+	$userService = UserService::getInstance();
+	$itemService = ItemService::getInstance();
+	$snapshotService = SnapshotService::getInstance();
+	$loggedin_user = loggedin_user();
+	$time = time();
+
+	$params = $request->getQueryParams();
+	if (!$params) $params = [];
+	if (!array_key_exists('offer_id', $params)) 	$params['offer_id'] = 0;
+	
+	$offer = $offerService->getOfferByType($params['offer_id']);
+	if (!$offer) return response(false);
+	if ($offer->owner_id != $loggedin_user->id) return response(false);
+	$offer = object_cast("Offer", $offer);
+	$offer->data->status = 2;
+	$offer->where = "id = {$offer->id}";
+	$offer->update();
+
+	$counter_params = null;
+	$counter_params[] = [
+		'key' => 'owner_id',
+		'value' => "= {$params['offer_id']}",
+		'operation' => ''
+	];
+	$counters = $counterService->getCounters($counter_params, 0, 99999999);
+	if ($counters) {
+		foreach ($counters as $key => $counter) {
+			if ($counter->item_id) {
+				$item = new Item();
+				$item->data->status = 1;
+				$item->where = "id = {$counter->item_id}";
+				$item->update();
+
+				$counter = object_cast("Counter", $counter);
+				$counter->data->status = 2;
+				$counter->where = "id = {$counter->id}";
+				$counter->update();
+
+			}
+		}
+	}
+	return response(true);
 });

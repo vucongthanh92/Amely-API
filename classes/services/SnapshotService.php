@@ -22,7 +22,37 @@ class SnapshotService extends Services
 
     public function save(array $data)
     {
-    	
+    	$snapshot = new Snapshot();
+    	$snapshot->data->owner_id = $data['owner_id'];
+		$snapshot->data->type = $data['type'];
+		$snapshot->data->time_created = $data['time_created'];
+		$snapshot->data->title = $data['title'];
+		$snapshot->data->description = $data['description'];
+		$snapshot->data->sku = $data['sku'];
+		$snapshot->data->model = $data['model'];
+		$snapshot->data->tax = $data['tax'];
+		$snapshot->data->weight = $data['weight'];
+		$snapshot->data->expiry_type = $data['expiry_type'];
+		$snapshot->data->currency = $data['currency'];
+		$snapshot->data->origin = $data['origin'];
+		$snapshot->data->storage_duration = $data['storage_duration'];
+		$snapshot->data->is_special = $data['is_special'];
+		$snapshot->data->product_group = $data['product_group'];
+		$snapshot->data->creator_id = $data['creator_id'];
+		$snapshot->data->custom_attributes = $data['custom_attributes'];
+		$snapshot->data->duration = $data['duration'];
+		$snapshot->data->begin_day = $data['begin_day'];
+		$snapshot->data->end_day = $data['end_day'];
+		$snapshot->data->manufacturer = $data['manufacturer'];
+		$snapshot->data->price = $data['price'];
+		$snapshot->data->sale_price = $data['sale_price'];
+		$snapshot->data->unit = $data['unit'];
+		$snapshot->data->adjourn_price = $data['adjourn_price'];
+		$snapshot->data->code = $data['code'];
+		$snapshot->data->images = $data['images'];
+		$snapshot->data->parent_id = $data['parent_id'];
+		$snapshot_id = $snapshot->insert(true);
+		return $snapshot_id;
     }
 
     public function checkExistKey($key)

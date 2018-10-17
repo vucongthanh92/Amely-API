@@ -23,7 +23,54 @@ class ProductService extends Services
     public function save($data)
     {
     	$product = new Product();
+    	$product->data->owner_id = $data['owner_id'];
+		$product->data->type = 'shop';
+		$product->data->title = $data['title'];
+		$product->data->description = $data['description'];
+		$product->data->sku = $data['sku'];
+		$product->data->price = $data['price'];
+		$product->data->model = $data['model'];
+		$product->data->tag = $data['tag'];
+		$product->data->number_sold = $data['number_sold'];
+		$product->data->tax = $data['tax'];
+		$product->data->friendly_url = $data['friendly_url'];
+		$product->data->weight = $data['weight'];
+		$product->data->expiry_type = $data['expiry_type'];
+		$product->data->currency = $data['currency'];
+		$product->data->origin = $data['origin'];
+		$product->data->product_order = 0;
+		$product->data->duration = $data['duration'];
+		$product->data->storage_duration = $data['storage_duration'];
+		$product->data->is_special = $data['is_special'];
+		$product->data->product_group = $data['product_group'];
+		$product->data->creator_id = $data['creator_id'];
+		$product->data->custom_attributes = $data['custom_attributes'];
+		$product->data->featured = 0;
+		$product->data->begin_day = $data['begin_day'];
+		$product->data->end_day = $data['end_day'];
+		$product->data->manufacturer = $data['manufacturer'];
+		$product->data->sale_price = $data['sale_price'];
+		$product->data->unit = $data['unit'];
+		$product->data->approved = 0;
+		$product->data->enabled = 0;
+		$product->data->voucher_category = $data['voucher_category'];
+		$product->data->ticket_category = $data['ticket_category'];
+		$product->data->shop_category = $data['shop_category'];
+		$product->data->market_category = $data['market_category'];
+		$product->data->category = $data['category'];
+		$product->data->adjourn_price = $data['adjourn_price'];
+		$product->data->images = $data['images'];
+		$product->data->parent_id = $data['parent_id'];
+		$product_id = $product->insert(true);
+		return $product_id;
     	
+    }
+
+    public function checkSKU($sku)
+    {
+    	$product = $this->getProductByType($sku, 'sku');
+    	if (!$product) return response(false);
+    	return response($product);
     }
 
     public function getPropertyProduct($conditions)
