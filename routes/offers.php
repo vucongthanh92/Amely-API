@@ -21,9 +21,8 @@ $app->get($container['prefix'].'/offers', function (Request $request, Response $
 	$item = $itemService->getItemByType($offer->item_id);
 	if (!$item) return response(false);
 	$snapshot = $snapshotService->getSnapshotByType($item->snapshot_id, 'id');
-
-	$offer->snapshot = $snapshot;
-
+	$item->snapshot = $snapshot;
+	$offer->item = $item;
 
 	if ($offer->duration < 1) {
 		$hour = $offer->duration*24;
@@ -108,7 +107,8 @@ $app->post($container['prefix'].'/offers', function (Request $request, Response 
 		$offer->owner = $owner;
 		$item = $itemService->getItemByType($offer->item_id, 'id');
 		$snapshot = $snapshotService->getSnapshotByType($item->snapshot_id, 'id');
-		$offer->snapshot = $snapshot;
+		$item->snapshot = $snapshot;
+		$offer->item= $item;
 
 		$counter_params = null;
 		$counter_params[] = [

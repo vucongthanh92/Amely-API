@@ -21,7 +21,8 @@ $app->get($container['prefix'].'/counter_offers', function (Request $request, Re
 	if ($counter->item_id) {
 		$item = $itemService->getItemByType($counter->item_id);
 		$snapshot = $snapshotService->getSnapshotByType($item->snapshot_id, 'id');
-		$counter->snapshot = $snapshot;
+		$item->snapshot = $snapshot;
+		$counter->item = $item;
 	}
 	$owner = $userService->getUserByType($counter->creator_id, 'id', false);
 	$counter->owner = $owner;
@@ -67,7 +68,8 @@ $app->post($container['prefix'].'/counter_offers', function (Request $request, R
 		if ($counter->item_id) {
 			$item = $itemService->getItemByType($counter->item_id, 'id');
 			$snapshot = $snapshotService->getSnapshotByType($item->snapshot_id, 'id');
-			$counter->snapshot = $snapshot;
+			$item->snapshot = $snapshot;
+			$counter->item = $item;
 		}
 		$owner = $userService->getUserByType($counter->creator_id, 'id');
 		$counter->owner = $owner;
