@@ -71,6 +71,26 @@ $app->post($container['prefix'].'/counter_offers', function (Request $request, R
 			$item->snapshot = $snapshot;
 			$counter->item = $item;
 		}
+		$offer = $offerService->getOfferByType($counter->owner_id);
+		$counter_params = null;
+		$counter_params[] = [
+			'key' => '*',
+			'value' => "count",
+			'operation' => 'count'
+		];
+		$counter_params[] = [
+			'key' => 'owner_id',
+			'value' => "= {$offer->id}",
+			'operation' => ''
+		];
+		$counter_params[] = [
+			'key' => 'status',
+			'value' => "= 0",
+			'operation' => 'AND'
+		];
+		$counter_number = $counterService->getCounter($counter_params);
+		$offer->counter_offers_number = $counter_number->count;
+		$counter->offer = $offer;
 		$owner = $userService->getUserByType($counter->creator_id, 'id');
 		$counter->owner = $owner;
 		$counters[$key] = $counter;
@@ -121,25 +141,28 @@ $app->put($container['prefix'].'/counter_offers', function (Request $request, Re
 		if ($offer->limit_counter == $counters->count) return response(false);
 	}
 
-	if ($params['item_id'] && $params['quantity']) {
-		$item = $itemService->getItemByType($params['item_id']);
-		if (!$item) return response(false);
-		$inventory_params = null;
-		$inventory_params[] = [
-			'key' => 'id',
-			'value' => "= {$item->owner_id}",
-			'operation' => ''
-		];
-		$inventory = $inventoryService->getInventory($inventory_params);
-		if ($inventory->type != 'user') return response(false);
-		if ($item->owner_id != $inventory->id) return response(false);
-		if ($item->quantity < $params['quantity']) return response(false);
-		$params['item_id'] = $itemService->separateItem($params['item_id'], $params['quantity']);
-		$item = new Item();
-		$item->data->status = 0;
-		$item->where = "id = {$params['item_id']}";
-		$item->update();
+	if ($offer->offer_type != 2) {
+		if ($params['item_id'] && $params['quantity']) {
+			$item = $itemService->getItemByType($params['item_id']);
+			if (!$item) return response(false);
+			$inventory_params = null;
+			$inventory_params[] = [
+				'key' => 'id',
+				'value' => "= {$item->owner_id}",
+				'operation' => ''
+			];
+			$inventory = $inventoryService->getInventory($inventory_params);
+			if ($inventory->type != 'user') return response(false);
+			if ($item->owner_id != $inventory->id) return response(false);
+			if ($item->quantity < $params['quantity']) return response(false);
+			$params['item_id'] = $itemService->separateItem($params['item_id'], $params['quantity']);
+			$item = new Item();
+			$item->data->status = 0;
+			$item->where = "id = {$params['item_id']}";
+			$item->update();
+		}
 	}
+
 	$status = 0;
 	switch ($params['offer_type']) {
 		case 0:

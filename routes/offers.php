@@ -24,19 +24,6 @@ $app->get($container['prefix'].'/offers', function (Request $request, Response $
 	$item->snapshot = $snapshot;
 	$offer->item = $item;
 
-	if ($offer->duration < 1) {
-		$hour = $offer->duration*24;
-		$time_end = strtotime("+{$hour} hours", $offer->time_created);
-	} else {
-		$time_end = strtotime("+{$offer->duration} days", $offer->time_created);
-	}
-
-	$offer->current_time = time();
-	$offer->time_end = $time_end;
-	if ($offer->owner_id == $loggedin_user->id) {
-		$offer->offered = true;
-	}
-	
 	return response($offer);
 });
 
@@ -128,16 +115,6 @@ $app->post($container['prefix'].'/offers', function (Request $request, Response 
 		];
 		$counters = $counterService->getCounter($counter_params);
 		$offer->counter_offers_number = $counters->count;
-
-		if ($offer->duration < 1) {
-			$hour = $offer->duration*24;
-			$time_end = strtotime("+{$hour} hours", $offer->time_created);
-		} else {
-			$time_end = strtotime("+{$offer->duration} days", $offer->time_created);
-		}
-
-		$offer->current_time = $time;
-		$offer->time_end = $time_end;
 		$offers[$key] = $offer;
 	}
 

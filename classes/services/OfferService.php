@@ -65,6 +65,7 @@ class OfferService extends Services
 	{
 		$offer = $this->searchObject($conditions, 0, 1);
 		if (!$offer) return false;
+		$offer = $this->changeStructureInfo($offer);
 		return $offer;
 	}
 
@@ -72,6 +73,29 @@ class OfferService extends Services
 	{
 		$offers = $this->searchObject($conditions, $offset, $limit);
 		if (!$offers) return false;
+		foreach ($offers as $key => $offer) {
+			$offer = $this->changeStructureInfo($offer);
+			$offers[$key] = $offer;
+		}
 		return array_values($offers);
+	}
+
+	private function changeStructureInfo($offer)
+	{
+		$loggedin_user = loggedin_user();
+		$time = time();
+		if ($offer->duration < 1) {
+			$hour = $offer->duration*24;
+			$time_end = strtotime("+{$hour} hours", $offer->time_created);
+		} else {
+			$time_end = strtotime("+{$offer->duration} days", $offer->time_created);
+		}
+
+		$offer->current_time = time();
+		$offer->time_end = $time_end;
+		if ($offer->owner_id == $loggedin_user->id) {
+			$offer->offered = true;
+		}
+		return $offer;
 	}
 }

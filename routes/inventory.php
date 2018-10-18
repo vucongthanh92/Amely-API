@@ -433,18 +433,11 @@ $app->post($container['prefix'].'/inventory', function (Request $request, Respon
 	$snapshots = $snapshotService->getSnapshots($snapshot_params, 0, 99999999);
 	if (!$snapshots) return response(false);
 	foreach ($items as $key => $item) {
-		$searchedValue = $item->snapshot_id;
-		$snapshots = array_filter(
-		    $snapshots,
-		    function ($e) use (&$searchedValue) {
-		        return $e->id == $searchedValue;
-		    }
-		);
-		if ($snapshots) {
-			$item->snapshot = reset($snapshots);
-		} else {
-			unset($items[$key]);
-		}
+	  foreach ($snapshots as $snapshot) {
+            if ($item->snapshot_id = $snapshot->id) {
+                $item->snapshot = $snapshot;
+            }
+        }
 	}
 	return response(array_values($items));
 });
