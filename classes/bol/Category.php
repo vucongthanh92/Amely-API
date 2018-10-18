@@ -1,5 +1,10 @@
 <?php
-
+/**
+	* subtype
+		0 market
+		1 voucher
+		2 ticket
+*/
 class Category extends Object
 {
 	private $owner_id;

@@ -562,6 +562,7 @@ CREATE TABLE `amely_categories` (
   `time_created` int(11) NOT NULL,
   `title` text NOT NULL,
   `description` longtext NOT NULL,
+  `subtype` varchar(20) NOT NULL,
   `friendly_url` text,
   `sort_order` text,
   `enabled` text,

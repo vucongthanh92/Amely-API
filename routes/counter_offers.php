@@ -91,7 +91,11 @@ $app->post($container['prefix'].'/counter_offers', function (Request $request, R
 		$counter_number = $counterService->getCounter($counter_params);
 		$offer->counter_offers_number = $counter_number->count;
 		$counter->offer = $offer;
-		$owner = $userService->getUserByType($counter->creator_id, 'id');
+		if ($params['offer_id']) {
+			$owner = $userService->getUserByType($counter->creator_id, 'id');
+		} else {
+			$owner = $loggedin_user;
+		}
 		$counter->owner = $owner;
 		$counters[$key] = $counter;
 	}

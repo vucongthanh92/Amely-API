@@ -39,21 +39,21 @@ $app->post($container['prefix'].'/categories', function (Request $request, Respo
 			case 'voucher':
 				$category_params[] = [
 					'key' => 'subtype',
-					'value' => "= 'voucher'",
+					'value' => "= 1",
 					'operation' => ''
 				];
 				break;
 			case 'ticket':
 				$category_params[] = [
 					'key' => 'subtype',
-					'value' => "= 'ticket'",
+					'value' => "= 2",
 					'operation' => ''
 				];
 				break;
 			default:
 				$category_params[] = [
 					'key' => 'subtype',
-					'value' => "= 'market'",
+					'value' => "= 0",
 					'operation' => ''
 				];
 				break;

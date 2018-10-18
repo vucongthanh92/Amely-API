@@ -22,7 +22,7 @@ $app->get($container['prefix'].'/friends', function (Request $request, Response 
     }
     if (!$user) return response(false);
 
-    $friends_id = $relationshipService->getFriendsGUID($loggedin_user->id);
+    $friends_id = $relationshipService->getFriendsGUID($user->id);
     if (!$friends_id) return response(false);
     $friends_id = implode(",", array_unique($friends_id));
 	if ($user->id != $loggedin_user->id) {
