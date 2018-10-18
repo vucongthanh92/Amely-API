@@ -264,7 +264,7 @@ $app->put($container['prefix'].'/offers', function (Request $request, Response $
 	];
 	$inventory = $inventoryService->getInventory($inventory_params);
 	if ($inventory->type != 'user') return response(false);
-	if ($item->owner_id != $inventory->owner_id) return response(false);
+	if ($item->owner_id != $inventory->id) return response(false);
 	$item_id = $itemService->separateItem($params['item_id'], $params['quantity']);
 
 	$data = [];

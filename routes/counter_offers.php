@@ -63,6 +63,7 @@ $app->post($container['prefix'].'/counter_offers', function (Request $request, R
 		];
 	}
 	$counters = $counterService->getCounters($counter_params);
+	if (!$counters) return response(false);
 	foreach ($counters as $key => $counter) {
 		if ($counter->item_id) {
 			$item = $itemService->getItemByType($counter->item_id, 'id');
@@ -81,6 +82,7 @@ $app->put($container['prefix'].'/counter_offers', function (Request $request, Re
 	$offerService = OfferService::getInstance();
 	$counterService = CounterService::getInstance();
 	$itemService = ItemService::getInstance();
+	$inventoryService = InventoryService::getInstance();
 	$loggedin_user = loggedin_user();
 	$params = $request->getParsedBody();
 	$time = time();
@@ -115,11 +117,22 @@ $app->put($container['prefix'].'/counter_offers', function (Request $request, Re
 		'operation' => 'count'
 	];
 	$counters = $counterService->getCounter($counter_params);
-	if ($offer->limit_counter == $counters->count) return response(false);
+	if ($offer->offer_type == 2) {
+		if ($offer->limit_counter == $counters->count) return response(false);
+	}
 
 	if ($params['item_id'] && $params['quantity']) {
 		$item = $itemService->getItemByType($params['item_id']);
-		if ($item->owner_id != $loggedin_user->id) return response(false);
+		if (!$item) return response(false);
+		$inventory_params = null;
+		$inventory_params[] = [
+			'key' => 'id',
+			'value' => "= {$item->owner_id}",
+			'operation' => ''
+		];
+		$inventory = $inventoryService->getInventory($inventory_params);
+		if ($inventory->type != 'user') return response(false);
+		if ($item->owner_id != $inventory->id) return response(false);
 		if ($item->quantity < $params['quantity']) return response(false);
 		$params['item_id'] = $itemService->separateItem($params['item_id'], $params['quantity']);
 		$item = new Item();

@@ -605,6 +605,15 @@ CREATE TABLE `amely_items` (
   `status` text
  ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
+DROP TABLE IF EXISTS `amely_site_settings`; 
+CREATE TABLE `amely_items` (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT,
+  PRIMARY KEY (`id`),
+  `time_created` int(11) NOT NULL,
+  `name` text NOT NULL,
+  `value` text
+ ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
 DROP TABLE IF EXISTS `amely_events`; 
 CREATE TABLE `amely_events` (
   `id` bigint(20) NOT NULL AUTO_INCREMENT,
