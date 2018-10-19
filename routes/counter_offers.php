@@ -232,9 +232,6 @@ $app->put($container['prefix'].'/counter_offers', function (Request $request, Re
 	$offer = $offerService->getOfferByType($params['offer_id']);
 	if ($offer->owner_id == $loggedin_user->id) return response(false);
 	if ($offer->status != 0) return response(false);
-	$counter = $counterService->getCounterByType($loggedin_user->id, 'owner_id');
-	if ($counter) return response(false);
-
 	$counter_params = null;
 	$counter_params[] = [
 		'key' => 'owner_id',
@@ -242,17 +239,31 @@ $app->put($container['prefix'].'/counter_offers', function (Request $request, Re
 		'operation' => ''
 	];
 	$counter_params[] = [
-		'key' => 'staus',
-		'value' => "<> 2",
-		'operation' => ''
+		'key' => 'creator_id',
+		'value' => "= {$loggedin_user->id}",
+		'operation' => 'AND'
 	];
-	$counter_params[] = [
-		'key' => '*',
-		'value' => "'count'",
-		'operation' => 'count'
-	];
-	$counters = $counterService->getCounter($counter_params);
+	$counter = $counterService->getCounter($counter_params);
+	if ($counter) return response(false);
+
 	if ($offer->offer_type == 2) {
+		$counter_params = null;
+		$counter_params[] = [
+			'key' => 'owner_id',
+			'value' => "= {$offer->id}",
+			'operation' => ''
+		];
+		$counter_params[] = [
+			'key' => 'staus',
+			'value' => "<> 2",
+			'operation' => ''
+		];
+		$counter_params[] = [
+			'key' => '*',
+			'value' => "'count'",
+			'operation' => 'count'
+		];
+		$counters = $counterService->getCounter($counter_params);
 		if ($offer->limit_counter == $counters->count) return response(false);
 	}
 
