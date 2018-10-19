@@ -34,7 +34,7 @@ $app->get($container['prefix'].'/counter_offers', function (Request $request, Re
 	$snapshot = $snapshotService->getSnapshotByType($item->snapshot_id, 'id');
 	$item->snapshot = $snapshot;
 	$offer->item = $item;
-	
+
 	$counter->offer = $offer;
 	return response($counter);
 });
@@ -74,52 +74,142 @@ $app->post($container['prefix'].'/counter_offers', function (Request $request, R
 	}
 	$counters = $counterService->getCounters($counter_params);
 	if (!$counters) return response(false);
+	// foreach ($counters as $key => $counter) {
+	// 	if ($counter->item_id) {
+	// 		$item = $itemService->getItemByType($counter->item_id, 'id');
+	// 		$snapshot = $snapshotService->getSnapshotByType($item->snapshot_id, 'id');
+	// 		$item->snapshot = $snapshot;
+	// 		$counter->item = $item;
+	// 	}
+	// 	if ($params['offer_id']) {
+	// 		$owner = $userService->getUserByType($counter->creator_id, 'id');
+	// 	} else {
+	// 		$owner = $loggedin_user;
+	// 	}
+	// 	$counter->owner = $owner;
+
+	// 	$offer = $offerService->getOfferByType($counter->owner_id);
+	// 	$counter_params = null;
+	// 	$counter_params[] = [
+	// 		'key' => '*',
+	// 		'value' => "count",
+	// 		'operation' => 'count'
+	// 	];
+	// 	$counter_params[] = [
+	// 		'key' => 'owner_id',
+	// 		'value' => "= {$offer->id}",
+	// 		'operation' => ''
+	// 	];
+	// 	$counter_params[] = [
+	// 		'key' => 'status',
+	// 		'value' => "= 0",
+	// 		'operation' => 'AND'
+	// 	];
+	// 	$counter_number = $counterService->getCounter($counter_params);
+	// 	$offer->counter_offers_number = $counter_number->count;
+	// 	$item = $itemService->getItemByType($offer->item_id, 'id');
+	// 	$snapshot = $snapshotService->getSnapshotByType($item->snapshot_id, 'id');
+	// 	$item->snapshot = $snapshot;
+	// 	$offer->item = $item;
+	// 	if ($offer->owner_id == $loggedin_user->id) {
+	// 		$owner = $loggedin_user;
+	// 	} else {
+	// 		$owner = $userService->getUserByType($offer->owner_id, 'id');
+	// 	}
+	// 	$offer->owner = $owner;
+	// 	$counter->offer = $offer;
+	// 	$counters[$key] = $counter;
+	// }
+
+	$offers_id = $counters_id = $items_id = $snapshots_id = $owners_id = [];
 	foreach ($counters as $key => $counter) {
 		if ($counter->item_id) {
-			$item = $itemService->getItemByType($counter->item_id, 'id');
-			$snapshot = $snapshotService->getSnapshotByType($item->snapshot_id, 'id');
-			$item->snapshot = $snapshot;
-			$counter->item = $item;
+			array_push($items_id, $counter->item_id);
 		}
-		if ($params['offer_id']) {
-			$owner = $userService->getUserByType($counter->creator_id, 'id');
-		} else {
-			$owner = $loggedin_user;
-		}
-		$counter->owner = $owner;
+		array_push($offers_id, $counter->owner_id);
+		array_push($owners_id, $counter->creator_id);
+	}
+	if (!$offers_id) return response(false);
+	$offers_id = implode(',', array_unique($offers_id));
+	$offer_params = null;
+	$offer_params[] = [
+		'key' => 'id',
+		'value' => "IN ({$offers_id})",
+		'operation' => ''
+	];
+	$offers = $offerService->getOffers($offer_params, 0, 99999999);
 
-		$offer = $offerService->getOfferByType($counter->owner_id);
-		$counter_params = null;
-		$counter_params[] = [
-			'key' => '*',
-			'value' => "count",
-			'operation' => 'count'
-		];
-		$counter_params[] = [
-			'key' => 'owner_id',
-			'value' => "= {$offer->id}",
-			'operation' => ''
-		];
-		$counter_params[] = [
-			'key' => 'status',
-			'value' => "= 0",
-			'operation' => 'AND'
-		];
-		$counter_number = $counterService->getCounter($counter_params);
-		$offer->counter_offers_number = $counter_number->count;
-		$item = $itemService->getItemByType($offer->item_id, 'id');
-		$snapshot = $snapshotService->getSnapshotByType($item->snapshot_id, 'id');
-		$item->snapshot = $snapshot;
-		$offer->item = $item;
-		if ($offer->owner_id == $loggedin_user->id) {
-			$owner = $loggedin_user;
-		} else {
-			$owner = $userService->getUserByType($offer->owner_id, 'id');
+	foreach ($offers as $key => $offer) {
+		if ($counter->item_id) {
+			array_push($items_id, $counter->item_id);
 		}
-		$offer->owner = $owner;
-		$counter->offer = $offer;
+		array_push($owners_id, $offer->owner_id);
+	}
+
+	if (!$items_id) return response(false);
+	$items_id = implode(',', array_unique($items_id));
+	$item_params = null;
+	$item_params[] = [
+		'key' => 'id',
+		'value' => "IN ({$items_id})",
+		'operation' => ''
+	];
+	$items = $itemService->getItems($item_params, 0, 999999999);
+
+	foreach ($items as $key => $item) {
+		array_push($snapshots_id, $item->snapshot_id);
+	}
+
+	if (!$snapshots_id) return response(false);
+	$snapshots_id = implode(',', array_unique($snapshots_id));
+	$snapshot_params = null;
+	$snapshot_params[] = [
+		'key' => 'id',
+		'value' => "IN ({$snapshots_id})",
+		'operation' => ''
+	];
+	$snapshots = $snapshotService->getSnapshots($snapshot_params, 0, 999999999);
+
+	if (!$owners_id) return response(false);
+	$owners_id = implode(',', array_unique($owners_id));
+	$owner_params = null;
+	$owner_params[] = [
+		'key' => 'id',
+		'value' => "IN ({$owners_id})",
+		'operation' => ''
+	];
+	$owners = $userService->getUsers($owner_params, 0, 999999999, false);
+
+	foreach ($counters as $key => $counter) {
+		foreach ($offers as $offer) {
+			foreach ($owners as $owner) {
+				if ($owner->id == $counter->creator_id) {
+					$counter->owner = $owner;
+				}
+				if ($owner->id == $offer->owner_id) {
+					$offer->owner = $owner;
+				}
+			}
+			foreach ($items as $item) {
+				foreach ($snapshots as $snapshot) {
+					if ($item->snapshot_id == $snapshot->id) {
+						$item->snapshot = $snapshot;
+					}
+				}
+				if ($item->id == $counter->item_id) {
+					$counter->item = $item;
+				}
+				if ($item->id == $offer->item_id) {
+					$offer->item = $item;
+				}
+			}
+			if ($offer->id == $counter->owner_id) {
+				$counter->offer = $offer;
+			}
+		}
 		$counters[$key] = $counter;
 	}
+
 	return response(array_values($counters));
 });
 
