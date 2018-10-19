@@ -26,6 +26,16 @@ $app->get($container['prefix'].'/counter_offers', function (Request $request, Re
 	}
 	$owner = $userService->getUserByType($counter->creator_id, 'id', false);
 	$counter->owner = $owner;
+
+	$offer = $offerService->getOfferByType($counter->owner_id);
+	$owner = $userService->getUserByType($offer->owner_id, 'id', false);
+	$offer->owner = $owner;
+	$item = $itemService->getItemByType($offer->item_id);
+	$snapshot = $snapshotService->getSnapshotByType($item->snapshot_id, 'id');
+	$item->snapshot = $snapshot;
+	$offer->item = $item;
+	
+	$counter->offer = $offer;
 	return response($counter);
 });
 
@@ -71,6 +81,13 @@ $app->post($container['prefix'].'/counter_offers', function (Request $request, R
 			$item->snapshot = $snapshot;
 			$counter->item = $item;
 		}
+		if ($params['offer_id']) {
+			$owner = $userService->getUserByType($counter->creator_id, 'id');
+		} else {
+			$owner = $loggedin_user;
+		}
+		$counter->owner = $owner;
+
 		$offer = $offerService->getOfferByType($counter->owner_id);
 		$counter_params = null;
 		$counter_params[] = [
@@ -90,13 +107,17 @@ $app->post($container['prefix'].'/counter_offers', function (Request $request, R
 		];
 		$counter_number = $counterService->getCounter($counter_params);
 		$offer->counter_offers_number = $counter_number->count;
-		$counter->offer = $offer;
-		if ($params['offer_id']) {
-			$owner = $userService->getUserByType($counter->creator_id, 'id');
-		} else {
+		$item = $itemService->getItemByType($offer->item_id, 'id');
+		$snapshot = $snapshotService->getSnapshotByType($item->snapshot_id, 'id');
+		$item->snapshot = $snapshot;
+		$offer->item = $item;
+		if ($offer->owner_id == $loggedin_user->id) {
 			$owner = $loggedin_user;
+		} else {
+			$owner = $userService->getUserByType($offer->owner_id, 'id');
 		}
-		$counter->owner = $owner;
+		$offer->owner = $owner;
+		$counter->offer = $offer;
 		$counters[$key] = $counter;
 	}
 	return response(array_values($counters));

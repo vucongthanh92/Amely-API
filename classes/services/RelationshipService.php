@@ -20,6 +20,15 @@ class RelationshipService extends Services
         $this->table = "amely_relationships r";
     }
 
+    public function save($data)
+    {
+    	$relationship = new Relationship();
+    	$relationship->data->relation_from = $data['relation_from'];
+		$relationship->data->relation_to = $data['relation_to'];
+		$relationship->data->type = $data['type'];
+		$relationship_id = $relationship->insert(true);
+		return $relationship_id;
+    }
 
 	public function getFriendsGUID($owner_guid)
 	{

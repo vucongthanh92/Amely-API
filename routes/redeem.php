@@ -11,5 +11,4 @@ $app->put($container['prefix'].'/redeem', function (Request $request, Response $
 	if (!array_key_exists('owner_id', $params)) $params['owner_id'] = false;
 	if (!array_key_exists('quantity_redeem', $params)) $params['quantity_redeem'] = false;
 
-
 });

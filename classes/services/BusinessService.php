@@ -20,6 +20,26 @@ class BusinessService extends Services
         $this->table = "amely_business_pages";
     }
 
+    public function save($data)
+    {
+    	$business = new Business();
+    	$business->data->owner_id = $data['owner_id'];
+		$business->data->type = $data['type'];
+		$business->data->time_created = $data['time_created'];
+		$business->data->title = $data['title'];
+		$business->data->description = $data['description'];
+		$business->data->subtype = $data['subtype'];
+		$business->data->category = $data['category'];
+		$business->data->website = $data['website'];
+		$business->data->phone = $data['phone'];
+		$business->data->address = $data['address'];
+		$business->data->inventory_status = $data['inventory_status'];
+		$business->data->avatar = $data['avatar'];
+		$business->data->cover = $data['cover'];
+		$business_id = $business->insert(true);
+		return $business_id;
+    }
+
     public function getPageById($id)
     {
     	$conditions = null;

@@ -25,6 +25,18 @@ CREATE TABLE `amely_payment` (
   `response` text
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
+DROP TABLE IF EXISTS `amely_shipping`;
+CREATE TABLE `amely_payment` (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT,
+  PRIMARY KEY (`id`),
+  `owner_id` bigint(20) NOT NULL,
+  `type` varchar(20) NOT NULL,
+  `time_created` int(11) NOT NULL,
+  `shipping_method` text,
+  `request` text,
+  `response` text
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
 DROP TABLE IF EXISTS `amely_usertokens`;
 CREATE TABLE `amely_usertokens` (
   `id` bigint(255) unsigned NOT NULL AUTO_INCREMENT,
@@ -52,7 +64,6 @@ CREATE TABLE `amely_redeem_code` (
   `item_id` bigint(255) NOT NULL,
   `code` varchar(100) NOT NULL,
   `expired` bigint(20) NOT NULL,
-  `quantity` double(22,0) NOT NULL,
   `type` varchar(20) NOT NULL,
   `guest_id` bigint(20) NOT NULL,
   `time_created` int(11) NOT NULL,

@@ -37,6 +37,7 @@ class PurchaseOrderService extends Services
 	{
 		$po = $this->searchObject($conditions, 0, 1);
 		if (!$po) return false;
+		$po = $this->changeStructureInfo($po);
 		return $po;
 	}
 
@@ -44,7 +45,17 @@ class PurchaseOrderService extends Services
 	{
 		$pos = $this->searchObject($conditions, $offset, $limit);
 		if (!$pos) return false;
+		foreach ($pos as $key => $po) {
+			$po = $this->changeStructureInfo($po);
+			$pos[$key] = $po;
+		}
 		return array_values($pos);
+	}
+
+	private function changeStructureInfo($po)
+	{
+		$po->display_order = convertPrefixOrder("HD", $po->id, $po->time_created);
+		return $po;
 	}
 
 }

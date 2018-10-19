@@ -2,6 +2,12 @@
 use Slim\Http\Request;
 use Slim\Http\Response;
 
+$app->get($container['prefix'].'/categories', function (Request $request, Response $response, array $args) {
+	$params = $request->getQueryParams();
+	if (!$params) $params = [];
+	if (!array_key_exists('counter_id', $params)) 	$params['counter_id'] = 0;
+});
+
 $app->post($container['prefix'].'/categories', function (Request $request, Response $response, array $args) {
 	$categoryService = CategoryService::getInstance();
 	$params = $request->getParsedBody();

@@ -74,7 +74,9 @@ class StoreService extends Services
 				$store_province = $addressService->getAddress($store->store_province, 'province');
 				$store_district = $addressService->getAddress($store->store_district, 'district');
 				$store_ward = $addressService->getAddress($store->store_ward, 'ward');
-
+				$store->store_province_name = $store_province->name;
+				$store->store_district_name = $store_district->name;
+				$store->store_ward_name = $store_ward->name;
 			    $store_province = $store_province->type .' '. $store_province->name;
 			    $store_district = $store_district->type .' '. $store_district->name;
 			    $store_ward = $store_ward->type .' '. $store_ward->name;

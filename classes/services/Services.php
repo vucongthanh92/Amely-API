@@ -116,5 +116,57 @@ class Services extends SlimDatabase
 		return true;
 	}
 
+	public function generateRedeemCode($item_id, $quantity_redeem, $owner_id, $guest_id)
+	{
+		$item = new InventoryItem;
+		if (!$item->checkExist($item_guid, $owner_guid, $quantity_redeem)) return false;
+		$code = md5(time().uniqid());
+
+		$expired = time() + 300;
+		$this->saveRedeemCode($item_guid, $code, $expired, $quantity_redeem, $guest_guid);
+		$encrypt_code = ossn_encrypt_data($code);
+		$code = Base64URLSafe::urlsafe_b64encode($encrypt_code); 
+		return $code;
+	}
+
+	public function connectServerGHTK($token, $url, $data, $method = "GET", $return_transfer = true, $version = CURL_HTTP_VERSION_1_1)
+	{
+		$curl = curl_init();
+		switch ($method) {
+			case 'GET':
+		        curl_setopt_array($curl, array(
+		            CURLOPT_URL => $url . http_build_query($data),
+		            CURLOPT_RETURNTRANSFER => $return_transfer,
+		            CURLOPT_HTTP_VERSION => $version,
+		            CURLOPT_HTTPHEADER => array(
+		                "Token: " .$token,
+		            ),
+		        ));
+				break;
+			case 'POST':
+				curl_setopt_array($curl, array(
+		            CURLOPT_URL => $url,
+		            CURLOPT_RETURNTRANSFER => $return_transfer,
+		            CURLOPT_HTTP_VERSION => $version,
+		            CURLOPT_CUSTOMREQUEST => "POST",
+		            CURLOPT_POSTFIELDS => $data,
+		            CURLOPT_HTTPHEADER => array(
+		                "Content-Type: application/json",
+		                "Token: " .$token,
+		                "Content-Length: " . strlen($data),
+		            ),
+		        ));
+				break;
+			default:
+				# code...
+				break;
+		}
+
+        $response = curl_exec($curl);
+        curl_close($curl);
+        $response = json_decode($response);
+        return $response;
+	}
+
 	// UPDATE amely_feeds SET description = REPLACE(description,',1',''), description = REPLACE(description,'1,',''),description = REPLACE(description,'1','') where id = 1;
 }
