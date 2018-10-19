@@ -89,32 +89,137 @@ $app->post($container['prefix'].'/offers', function (Request $request, Response 
 	$offers = $offerService->getOffers($offer_params, $offset, $limit);
 	if (!$offers) return response(false);
 
-	foreach ($offers as $key => $offer) {
-		$owner = $userService->getUserByType($offer->owner_id, 'id', false);
-		$offer->owner = $owner;
-		$item = $itemService->getItemByType($offer->item_id, 'id');
-		$snapshot = $snapshotService->getSnapshotByType($item->snapshot_id, 'id');
-		$item->snapshot = $snapshot;
-		$offer->item= $item;
+	// foreach ($offers as $key => $offer) {
+	// 	$owner = $userService->getUserByType($offer->owner_id, 'id', false);
+	// 	$offer->owner = $owner;
+	// 	$item = $itemService->getItemByType($offer->item_id, 'id');
+	// 	$snapshot = $snapshotService->getSnapshotByType($item->snapshot_id, 'id');
+	// 	$item->snapshot = $snapshot;
+	// 	$offer->item= $item;
 
-		$counter_params = null;
-		$counter_params[] = [
-			'key' => '*',
-			'value' => "count",
-			'operation' => 'count'
-		];
-		$counter_params[] = [
-			'key' => 'owner_id',
-			'value' => "= {$offer->id}",
-			'operation' => ''
-		];
-		$counter_params[] = [
-			'key' => 'status',
-			'value' => "= 0",
-			'operation' => 'AND'
-		];
-		$counters = $counterService->getCounter($counter_params);
-		$offer->counter_offers_number = $counters->count;
+	// 	$counter_params = null;
+	// 	$counter_params[] = [
+	// 		'key' => '*',
+	// 		'value' => "count",
+	// 		'operation' => 'count'
+	// 	];
+	// 	$counter_params[] = [
+	// 		'key' => 'owner_id',
+	// 		'value' => "= {$offer->id}",
+	// 		'operation' => ''
+	// 	];
+	// 	$counter_params[] = [
+	// 		'key' => 'status',
+	// 		'value' => "= 0",
+	// 		'operation' => 'AND'
+	// 	];
+	// 	$counters = $counterService->getCounter($counter_params);
+	// 	$offer->counter_offers_number = $counters->count;
+	// 	$offers[$key] = $offer;
+	// }
+
+	$offers_id = $owners_id = $items_id = $snapshots_id = [];
+	foreach ($offers as $key => $offer) {
+		array_push($offers_id, $offer->id);
+		array_push($owners_id, $offer->owner_id);
+		array_push($items_id, $offer->item_id);
+	}
+
+	if (!$owners_id) return response(false);
+	$owners_id = implode(',', array_unique($owners_id));
+	$owner_params = null;
+	$owner_params[] = [
+		'key' => 'id',
+		'value' => "IN ({$owners_id})",
+		'operation' => ''
+	];
+	$owners = $userService->getUsers($owner_params, 0, 99999999);
+	if (!$owners) return response(false);
+
+	if (!$items_id) return response(false);
+	$items_id = implode(',', array_unique($items_id));
+	$item_params = null;
+	$item_params[] = [
+		'key' => 'id',
+		'value' => "IN ({$items_id})",
+		'operation' => ''
+	];
+	$items = $itemService->getItems($item_params, 0, 99999999);
+	if (!$items) return response(false);
+
+	foreach ($items as $item) {
+		array_push($snapshots_id, $item->snapshot_id);
+	}
+
+	if (!$snapshots_id) return response(false);
+	$snapshots_id = implode(',', array_unique($snapshots_id));
+	$snapshot_params = null;
+	$snapshot_params[] = [
+		'key' => 'id',
+		'value' => "IN ({$snapshots_id})",
+		'operation' => ''
+	];
+	$snapshots = $itemService->getItems($snapshot_params, 0, 99999999);
+	if (!$snapshots) return response(false);
+
+	if (!$offers_id) return response(false);
+	$offers_id = implode(',', array_unique($offers_id));
+
+	$counter_params = null;
+	$counter_params[] = [
+		'key' => 'owner_id',
+		'value' => '',
+		'operation' => 'query_params'
+	];
+
+	$counter_params[] = [
+		'key' => 'count (*) as `count` ',
+		'value' => '',
+		'operation' => 'query_params'
+	];
+	$counter_params[] = [
+		'key' => 'owner_id',
+		'value' => "IN ({$offers_id})",
+		'operation' => ''
+	];
+	$counter_params[] = [
+		'key' => 'status',
+		'value' => "= 0",
+		'operation' => 'AND'
+	];
+	$counter_params[] = [
+		'key' => 'owner_id',
+		'value' => '',
+		'operation' => 'group_by'
+	];
+
+	$counters = $counterService->getCounters($counter_params, 0, 99999999);
+
+	foreach ($offers as $key => $offer) {
+		if ($counters) {
+			foreach ($counters as $counter) {
+				if ($counter->owner_id == $offer->id) {
+					$offer->counter_offers_number = $counter->count;
+				}
+			}
+		} else {
+			$offer->counter_offers_number = 0;
+		}
+		foreach ($owners as $owner) {
+			if ($offer->owner->id == $owner->id) {
+				$offer->owner = $owner;
+			}
+		}
+		foreach ($items as $item) {
+			foreach ($snapshots as $snapshot) {
+				if ($item->snapshot_id == $snapshot->id) {
+					$item->snapshot = $snapshot;
+				}
+			}
+			if ($item->id == $offer->item_id) {
+				$offer->item = $item;
+			}
+		}
 		$offers[$key] = $offer;
 	}
 

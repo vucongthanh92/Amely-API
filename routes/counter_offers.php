@@ -232,7 +232,7 @@ $app->put($container['prefix'].'/counter_offers', function (Request $request, Re
 	$offer = $offerService->getOfferByType($params['offer_id']);
 	if ($offer->owner_id == $loggedin_user->id) return response(false);
 	if ($offer->status != 0) return response(false);
-	$counter = $counterService->getCounterByType($offer->id, 'owner_id');
+	$counter = $counterService->getCounterByType($loggedin_user->id, 'owner_id');
 	if ($counter) return response(false);
 
 	$counter_params = null;
