@@ -140,8 +140,8 @@ $app->post($container['prefix'].'/counter_offers', function (Request $request, R
 	$offers = $offerService->getOffers($offer_params, 0, 99999999);
 
 	foreach ($offers as $key => $offer) {
-		if ($counter->item_id) {
-			array_push($items_id, $counter->item_id);
+		if ($offer->item_id) {
+			array_push($items_id, $offer->item_id);
 		}
 		array_push($owners_id, $offer->owner_id);
 	}
