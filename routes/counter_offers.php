@@ -381,5 +381,5 @@ $app->delete($container['prefix'].'/counter_offers', function (Request $request,
 	$counter = object_cast("Counter", $counter);
 	$counter->data->status = 2;
 	$counter->where = "id = {$counter->id}";
-	return response($counter->update());
+	return response($counter->delete());
 });
