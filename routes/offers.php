@@ -159,7 +159,7 @@ $app->post($container['prefix'].'/offers', function (Request $request, Response 
 		'value' => "IN ({$snapshots_id})",
 		'operation' => ''
 	];
-	$snapshots = $itemService->getItems($snapshot_params, 0, 99999999);
+	$snapshots = $snapshotService->getItems($snapshot_params, 0, 99999999);
 	if (!$snapshots) return response(false);
 
 	if (!$offers_id) return response(false);
