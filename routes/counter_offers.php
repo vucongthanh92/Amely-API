@@ -365,6 +365,7 @@ $app->put($container['prefix'].'/counter_offers', function (Request $request, Re
 });
 
 $app->delete($container['prefix'].'/counter_offers', function (Request $request, Response $response, array $args) {
+	$offerService = OfferService::getInstance();
 	$counterService = CounterService::getInstance();
 	$loggedin_user = loggedin_user();
 
@@ -372,7 +373,9 @@ $app->delete($container['prefix'].'/counter_offers', function (Request $request,
 	if (!$params) $params = [];
 	if (!array_key_exists('counter_id', $params)) 	$params['counter_id'] = 0;
 	$counter = $counterService->getCounterByType($params['counter_id']);
-	if ($counter->creator_id != $loggedin_user->id) return response(false);
+	$offer = $offerService->getOfferByType($counter->owner_id, 'id');
+	if ($offer->owner_id != $loggedin_user->id && $counter->creator_id != $loggedin_user->id) return response(false);
+
 	$item = new Item();
 	$item->data->status = 1;
 	$item->where = "id = {$counter->item_id}";
