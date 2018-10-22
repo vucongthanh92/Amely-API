@@ -206,7 +206,7 @@ $app->post($container['prefix'].'/offers', function (Request $request, Response 
 			$offer->counter_offers_number = 0;
 		}
 		foreach ($owners as $owner) {
-			if ($offer->owner->id == $owner->id) {
+			if ($offer->owner_id == $owner->id) {
 				$offer->owner = $owner;
 			}
 		}
