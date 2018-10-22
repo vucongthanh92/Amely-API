@@ -19,6 +19,23 @@ class ItemService extends Services
 	{
         $this->table = "amely_items";
     }
+    public function checkItemOfOwner($item_id, $owner_id, $type)
+    {
+    	$itemService = ItemService::getInstance();
+    	$inventoryService = InventoryService::getInstance();
+    	$item = $itemService->getItemByType($item_id, 'id');
+    	if ($item->status == 1) {
+    		$inventory_params = null;
+    		$inventory_params[] = [
+    			'key' => 'id',
+    			'value' => "= {$item->id}",
+    			'operation' => ''
+    		];
+    		$inventory = $inventoryService->getInventory($inventory_params);
+    		if ($inventory->owner_id == $owner_id && $inventory->type == $type) return true;
+    		return false;
+    	}
+    }
 
     public function changeOwnerItem($owner_id, $type, $data)
     {

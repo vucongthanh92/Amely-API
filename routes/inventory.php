@@ -434,7 +434,7 @@ $app->post($container['prefix'].'/inventory', function (Request $request, Respon
 	if (!$snapshots) return response(false);
 	foreach ($items as $key => $item) {
 	  foreach ($snapshots as $snapshot) {
-            if ($item->snapshot_id = $snapshot->id) {
+            if ($item->snapshot_id == $snapshot->id) {
                 $item->snapshot = $snapshot;
             }
         }

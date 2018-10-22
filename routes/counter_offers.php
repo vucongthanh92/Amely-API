@@ -56,7 +56,7 @@ $app->post($container['prefix'].'/counter_offers', function (Request $request, R
 	$counter_params = null;
 	$counter_params[] = [
 		'key' => 'status',
-		'value' => "<> 2",
+		'value' => "= 0",
 		'operation' => ''
 	];
 	if ($params['offer_id']) {
