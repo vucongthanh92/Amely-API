@@ -27,10 +27,12 @@ class ItemService extends Services
     	if (!$inventory) return false;
     	$item = new Item();
     	foreach ($data as $key => $value) {
+    		if ($key == 'id') {
+    			$item->where = "id = {$value}";
+    		}
     		$item->data->$key = $value;
     	}
     	$item->data->owner_id = $inventory->id;
-    	$item->where = "id = {$data['id']}";
     	return $item->update();
     }
 
