@@ -20,6 +20,7 @@ $app->post($container['prefix'].'/bookmark', function (Request $request, Respons
 			$offerService = OfferService::getInstance();
 			$itemService = ItemService::getInstance();
 			$snapshotService = SnapshotService::getInstance();
+			$userService = UserService::getInstance();
 
 			$owners_id = $offers_id = $items_id = $snapshots_id = $offers = [];
 			foreach ($relations as $key => $relation) {
@@ -70,13 +71,8 @@ $app->post($container['prefix'].'/bookmark', function (Request $request, Respons
 
 			if (!$owners_id) return response(false);
 			$owners_id = implode(',', $owners_id);
-			$owner_params = null;
-			$owner_params[] = [
-				'key' => 'id',
-				'value' => "IN ({$owners_id})",
-				'operation' => ''
-			];
-			$owners = $snapshotService->getSnapshots($owner_params, 0, 9999999);
+			
+			$owners = $userService->getUsersByType($owners_id, 'id', false);
 			if (!$owners) return response(false);
 
 			foreach ($offers as $key => $offer) {
