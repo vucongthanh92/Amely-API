@@ -72,7 +72,7 @@ class CartService extends Services
         return $cart;
     }
 
-    public function checkItemInCart($product_id, $cart_id)
+    public function checkItemInCart($product_id, $store_id, $cart_id)
     {
         $conditions = null;
         $conditions[] = [
@@ -88,6 +88,11 @@ class CartService extends Services
         $conditions[] = [
             'key' => 'product_id',
             'value' => "= {$product_id}",
+            'operation' => 'AND'
+        ];
+        $conditions[] = [
+            'key' => 'store_id',
+            'value' => "= {$store_id}",
             'operation' => 'AND'
         ];
         

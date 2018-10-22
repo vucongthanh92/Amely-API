@@ -9,7 +9,6 @@ class Express extends \Object
 	private $version;
 	private $currency;
 
-	public $test;
 	function __construct()
 	{
 		$this->url = "https://dev.ghtk.vn";
@@ -24,18 +23,17 @@ class Express extends \Object
 		
 	}
 
-	public function checkFee()
+	public function checkFee($data)
 	{
 		$url = $this->url."/services/shipment/fee?";
 		$data = array(
-			"pick_province" => "Hà Nội",
-			"pick_district" => "Quận Hai Bà Trưng",
-			"province" => "Hà nội",
-			"district" => "Quận Cầu Giấy",
-			"address" => "P.503 tòa nhà Auu Việt, số 1 Lê Đức Thọ",
-			"weight" => 1000,
-			"value" => 3000000,
-			"transport" => "fly"
+			"pick_province" => $data['pick_province'],
+			"pick_district" => $data['pick_district'],
+			"province" => $data['province'],
+			"district" => $data['district'],
+			"address" => $data['address'],
+			"weight" => $data['weight'],
+			"value" => $data['total']
         );
 		$services = \Services::getInstance();
 		$response = $services->connectServerGHTK($this->ghtk_token, $url, $data);

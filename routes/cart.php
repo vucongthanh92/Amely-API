@@ -139,7 +139,7 @@ $app->put($container['prefix'].'/cart', function (Request $request, Response $re
 		$cart_id = $cart->insert(true);
 	}
 
-	$cart_item_exist = $cartService->checkItemInCart($product_id, $cart_id);
+	$cart_item_exist = $cartService->checkItemInCart($product_id, $store_id, $cart_id);
 	if ($cart_item_exist) {
 		$cart_item = new CartItem();
 		$cart_item->id = $cart_item_exist->id;

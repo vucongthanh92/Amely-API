@@ -75,7 +75,7 @@ class SnapshotService extends Services
 		return $snapshot;
     }
 
-    public function getSnapshotByType($input, $type)
+    public function getSnapshotByType($input, $type = 'id')
 	{
 		$conditions = null;
 		$conditions[] = [
