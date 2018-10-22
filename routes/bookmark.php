@@ -127,6 +127,9 @@ $app->put($container['prefix'].'/bookmark', function (Request $request, Response
 			$offerService = OfferService::getInstance();
 			$offer = $offerService->getOfferByType($params['subject_id']);
 			if ($offer->status != 0) return response(false);
+			$relation = $relationshipService->getRelationByType($loggedin_user->id, $offer->id, 'offer');
+			if ($relation) return response(true);
+
 			$data['type'] = 'offer';
 			break;
 		case 'gift':

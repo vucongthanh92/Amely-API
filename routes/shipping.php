@@ -23,4 +23,10 @@ $app->post($container['prefix'].'/shipping', function (Request $request, Respons
 	$data['address'] = $params['address'];
 	$data['weight'] = $params['weight'];
 	$data['total'] = $params['total'];
+
+	$shippingService = ShippingService::getInstance();
+	$sm = $shippingService->getMethod($params['shipping_method']);
+	$fee = $sm->checkFee($data);
+	var_dump($fee);
+	die('12332');
 });

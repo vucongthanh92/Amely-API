@@ -6,13 +6,6 @@ use Slim\Http\Response;
 // Routes
 // $app->get('/authtoken', function (Request $request, Response $response, array $args) {
 $app->get($container['prefix'].'/services', function (Request $request, Response $response, array $args) {
-	$shippingService = ShippingService::getInstance();
-	$sm = $shippingService->getMethod('sq/express');
-	$sm->test = '123';
-	$fee = $sm->checkFee();
-	var_dump($fee);
-	die('12332');
-
 	$current_time = time();
 	$siteSettingService = SiteSettingService::getInstance();
 	$conditions = null;
