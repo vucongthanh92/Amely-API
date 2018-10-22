@@ -40,7 +40,7 @@ $app->post($container['prefix'].'/bookmark', function (Request $request, Respons
 			foreach ($offers as $key => $offer) {
 				array_push($items_id, $offer->item_id);
 				if ($offer->type == 'user') {
-					array_push($owners_id, $offer->owners_id);
+					array_push($owners_id, $offer->owner_id);
 				}
 			}
 
@@ -149,12 +149,11 @@ $app->delete($container['prefix'].'/bookmark', function (Request $request, Respo
 	if (!$params) $params = [];
 	if (!array_key_exists('type', $params)) 	$params['type'] = false;
 
-	if ($params['type'] != 'offer' || $params['type'] != 'gift') return response(false);
-
 	$relations = $relationshipService->getRelationsByType($loggedin_user->id, false, $params['type'], 0, 99999999);
 
+	if (!$relations) return response(true);
 	foreach ($relations as $key => $relation) {
-		$relation = object_cast("Relation", $relation);
+		$relation = object_cast("Relationship", $relation);
 		$relation->where = "id = {$relation->id}";
 		$relation->delete();
 	}
