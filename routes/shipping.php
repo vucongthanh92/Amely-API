@@ -7,11 +7,10 @@ $app->post($container['prefix'].'/shipping', function (Request $request, Respons
 	$params = $request->getParsedBody();
 	if (!$params) $params = [];
 	if (!array_key_exists('shipping_method', $params)) $params['shipping_method'] = false;
+	if (!array_key_exists('store_id', $params)) $params['store_id'] = false;
 	if (!array_key_exists('pick_province', $params)) $params['pick_province'] = false;
 	if (!array_key_exists('pick_district', $params)) $params['pick_district'] = false;
-	if (!array_key_exists('province', $params)) $params['province'] = false;
-	if (!array_key_exists('district', $params)) $params['district'] = false;
-	if (!array_key_exists('address', $params)) $params['address'] = false;
+	if (!array_key_exists('pick_address', $params)) $params['pick_address'] = false;
 	if (!array_key_exists('weight', $params)) $params['weight'] = false;
 	if (!array_key_exists('total', $params)) $params['total'] = false;
 
@@ -27,6 +26,5 @@ $app->post($container['prefix'].'/shipping', function (Request $request, Respons
 	$shippingService = ShippingService::getInstance();
 	$sm = $shippingService->getMethod($params['shipping_method']);
 	$fee = $sm->checkFee($data);
-	var_dump($fee);
-	die('12332');
+	return response($fee->fee);
 });

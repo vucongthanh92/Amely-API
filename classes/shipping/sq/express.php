@@ -26,18 +26,21 @@ class Express extends \Object
 	public function checkFee($data)
 	{
 		$url = $this->url."/services/shipment/fee?";
-		$data = array(
-			"pick_province" => $data['pick_province'],
-			"pick_district" => $data['pick_district'],
-			"province" => $data['province'],
-			"district" => $data['district'],
-			"address" => $data['address'],
-			"weight" => $data['weight'],
-			"value" => $data['total']
-        );
-		$services = \Services::getInstance();
-		$response = $services->connectServerGHTK($this->ghtk_token, $url, $data);
-		return $response;
+		foreach ($data as $key => $value) {
+			$parmas = array(
+				"pick_province" => $value['pick_province'],
+				"pick_district" => $value['pick_district'],
+				"province" => $value['province'],
+				"district" => $value['district'],
+				"address" => $value['address'],
+				"weight" => $value['weight'],
+				"value" => $value['total']
+	        );
+			$services = \Services::getInstance();
+			$response = $services->connectServerGHTK($this->ghtk_token, $url, $parmas);
+			$data[$key]['fee'] = $response->fee->fee;
+		}
+		return $data;
 	}
 
 	public function redeemDelivery()

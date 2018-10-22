@@ -50,23 +50,24 @@ $app->post($container['prefix'].'/offers', function (Request $request, Response 
 	$limit = $params['limit'];
 
 	$offer_params = null;
+	$offer_params[] = [
+		'key' => 'status',
+		'value' => "= 0",
+		'operation' => ''
+	];
 	
 	switch ($params['target']) {
 		case 0:
 			$offer_params[] = [
 				'key' => 'owner_id',
 				'value' => "= {$loggedin_user->id}",
-				'operation' => ''
+				'operation' => 'AND'
 			];
 			break;
 		case 2:
 			break;
 		case 1:
-			$offer_params[] = [
-				'key' => 'status',
-				'value' => "= 0",
-				'operation' => ''
-			];
+			
 			if ($params['friends']) {
 				$friends_id = implode(',', array_unique($params['friends']));
 				$offer_params[] = [
@@ -390,6 +391,7 @@ $app->delete($container['prefix'].'/offers', function (Request $request, Respons
 	
 	$offer = $offerService->getOfferByType($params['offer_id']);
 	if (!$offer) return response(false);
+	if ($offer->status != 2) return response(false);
 	if ($offer->owner_id != $loggedin_user->id) return response(false);
 	$offer = object_cast("Offer", $offer);
 	$offer->data->status = 2;
