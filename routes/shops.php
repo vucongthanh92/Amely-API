@@ -38,15 +38,40 @@ $app->post($container['prefix'].'/shops', function (Request $request, Response $
 	if (!$params) $params = [];
 	if (!array_key_exists("offset", $params)) $params["offset"] = 0;
 	if (!array_key_exists("limit", $params)) $params["limit"] = 10;
+	if (!array_key_exists("friends", $params)) $params["friends"] = false;
 
 	$offset = (double)$params['offset'];
 	$limit = (double)$params['limit'];
 
 	$shops_liked = $shopService->getShopsLiked($loggedin_user->id);
-	if (!$shops_liked) return response(false);
-	$shops_liked = array_map(create_function('$o', 'return $o->subject_id;'), $shops_liked);
-	$shops_liked = implode(',', $shops_liked);
-	$shops = $shopService->getShopsByType($shops_liked, 'id', $offset, $limit, false);
+	$shop_params = null;
+	if ($shops_liked) {
+		$shops_liked = array_map(create_function('$o', 'return $o->subject_id;'), $shops_liked);
+		$shops_liked = implode(',', $shops_liked);
+		$shop_params[] = [
+			'key' => 'id',
+			'value' => "IN ($shops_liked)",
+			'operation' => ''
+		];
+		if ($params['friends']) {
+			$friends = implode(',', $params['friends']);
+			$shop_params[] = [
+				'key' => 'owner_id',
+				'value' => "IN ($friends)",
+				'operation' => 'OR'
+			];
+		}
+	} else {
+		if ($params['friends']) {
+			$friends = implode(',', $params['friends']);
+			$shop_params[] = [
+				'key' => 'owner_id',
+				'value' => "IN ($friends)",
+				'operation' => ''
+			];
+		}
+	}
+	$shops = $shopService->getShops($shop_params, $offset, $limit, false);
 	if (!$shops) return response(false);
 	return response($shops);
 

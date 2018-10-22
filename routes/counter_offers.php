@@ -290,7 +290,7 @@ $app->put($container['prefix'].'/counter_offers', function (Request $request, Re
 	}
 
 	$status = 0;
-	switch ($params['offer_type']) {
+	switch ($offer->offer->type) {
 		case 0:
 			$status = 0;
 			break;
@@ -318,8 +318,16 @@ $app->put($container['prefix'].'/counter_offers', function (Request $request, Re
 	if ($counterService->save($data)) {
 		if ($offer->offer_type == 2) {
 			if ($status == 1) {
-				$item_id = $itemService->separateItem($offer->item_id, 1);
-				$item = $itemService->getItemByType($item_id, 'id');
+				$item = $itemService->getItemByType($offer->item_id, 'id');
+				if ($item->quantity == 1) {
+					$offer = object_cast("Offer", $offer);
+					$offer->data->status = 2;
+					$offer->where = "id = {$offer->id}";
+					$offer->update();
+				} else {
+					$item_id = $itemService->separateItem($offer->item_id, 1);
+					$item = $itemService->getItemByType($item_id, 'id');
+				}
 				$item = object_cast("Item", $item);
 				$update = null;
 				$update['id'] = $item->id;

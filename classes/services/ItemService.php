@@ -30,6 +30,7 @@ class ItemService extends Services
     		if ($key == 'id') {
     			$item->where = "id = {$value}";
     		}
+    		$item->data->time_created = time();
     		$item->data->$key = $value;
     	}
     	$item->data->owner_id = $inventory->id;
