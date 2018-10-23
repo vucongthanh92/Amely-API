@@ -58,15 +58,16 @@ CREATE TABLE `amely_relationships` (
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
-DROP TABLE IF EXISTS `amely_redeem_code`;
+DROP TABLE IF EXISTS `amely_redeem`;
 CREATE TABLE `amely_redeem_code` (
   `id` bigint(255) NOT NULL AUTO_INCREMENT,
-  `item_id` bigint(255) NOT NULL,
-  `code` varchar(100) NOT NULL,
-  `expired` bigint(20) NOT NULL,
+  `owner_id` int(11) NOT NULL,
   `type` varchar(20) NOT NULL,
-  `guest_id` bigint(20) NOT NULL,
   `time_created` int(11) NOT NULL,
+  `item_id` bigint(255) NOT NULL,
+  `creator_id` int(11) NOT NULL,
+  `code` varchar(100) NOT NULL,
+  `status` varchar(20) NOT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 

@@ -6,6 +6,19 @@ use Slim\Http\Response;
 // Routes
 // $app->get('/authtoken', function (Request $request, Response $response, array $args) {
 $app->get($container['prefix'].'/services', function (Request $request, Response $response, array $args) {
+	/*
+	$data = "123456";
+	$services = Services::getInstance();
+	$encrypt = $services->encrypt($data);
+	$code = $services->b64encode($encrypt);
+	var_dump($code);
+
+	$decrypt = $services->b64decode($code);
+	$data = $services->decrypt($decrypt);
+	var_dump($data);
+	die();
+	*/
+
 	$current_time = time();
 	$siteSettingService = SiteSettingService::getInstance();
 	$conditions = null;

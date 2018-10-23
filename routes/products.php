@@ -219,21 +219,12 @@ $app->put($container['prefix'].'/products', function (Request $request, Response
 	if (!array_key_exists('storage_duration', $params)) $params['storage_duration'] = 0;
 	if (!array_key_exists('is_special', $params)) $params['is_special'] = 0;
 	if (!array_key_exists('product_group', $params)) $params['product_group'] = 0;
-	if (!array_key_exists('creator_id', $params)) $params['creator_id'] = $loggedin_user->id;
 	if (!array_key_exists('custom_attributes', $params)) $params['custom_attributes'] = 0;
-	if (!array_key_exists('download', $params)) $params['download'] = 0;
-	if (!array_key_exists('featured', $params)) $params['featured'] = 0;
 	if (!array_key_exists('begin_day', $params)) $params['begin_day'] = 0;
 	if (!array_key_exists('end_day', $params)) $params['end_day'] = 0;
 	if (!array_key_exists('manufacturer', $params)) $params['manufacturer'] = 0;
 	if (!array_key_exists('sale_price', $params)) $params['sale_price'] = 0;
 	if (!array_key_exists('unit', $params)) $params['unit'] = 0;
-	if (!array_key_exists('approved', $params)) $params['approved'] = 0;
-	if (!array_key_exists('enabled', $params)) $params['enabled'] = 0;
-	if (!array_key_exists('voucher_category', $params)) $params['voucher_category'] = 0;
-	if (!array_key_exists('ticket_category', $params)) $params['ticket_category'] = 0;
-	if (!array_key_exists('shop_category', $params)) $params['shop_category'] = 0;
-	if (!array_key_exists('market_category', $params)) $params['market_category'] = 0;
 	if (!array_key_exists('category', $params)) $params['category'] = 0;
 	if (!array_key_exists('adjourn_price', $params)) $params['adjourn_price'] = 0;
 	if (!array_key_exists('images', $params)) $params['images'] = 0;
@@ -259,18 +250,6 @@ $app->put($container['prefix'].'/products', function (Request $request, Response
 	}
 	if ($params['category']) {
 		$data['category'] = implode(',', $params['category']);
-	}
-	if ($params['voucher_category']) {
-		$data['voucher_category'] = implode(',', $params['voucher_category']);
-	}
-	if ($params['ticket_category']) {
-		$data['ticket_category'] = implode(',', $params['ticket_category']);
-	}
-	if ($params['market_category']) {
-		$data['market_category'] = implode(',', $params['market_category']);
-	}
-	if ($params['shop_category']) {
-		$data['shop_category'] = implode(',', $params['shop_category']);
 	}
 	$data['owner_id'] = $params['owner_id'];
 	$data['type'] = 'shop';

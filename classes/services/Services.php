@@ -118,15 +118,7 @@ class Services extends SlimDatabase
 
 	public function generateRedeemCode($item_id, $quantity_redeem, $owner_id, $guest_id)
 	{
-		$item = new InventoryItem;
-		if (!$item->checkExist($item_guid, $owner_guid, $quantity_redeem)) return false;
-		$code = md5(time().uniqid());
-
-		$expired = time() + 300;
-		$this->saveRedeemCode($item_guid, $code, $expired, $quantity_redeem, $guest_guid);
-		$encrypt_code = ossn_encrypt_data($code);
-		$code = Base64URLSafe::urlsafe_b64encode($encrypt_code); 
-		return $code;
+		
 	}
 
 	public function connectServerGHTK($token, $url, $data, $method = "GET", $return_transfer = true, $version = CURL_HTTP_VERSION_1_1)
@@ -166,6 +158,32 @@ class Services extends SlimDatabase
         curl_close($curl);
         $response = json_decode($response);
         return $response;
+	}
+
+	public function encrypt($input)
+	{
+		$ossnCrypto = OssnCrypto::getInstance();
+		$encrypt = $ossnCrypto->encrypt($input);
+		return $encrypt;
+	}
+
+	public function decrypt($input)
+	{
+		$ossnCrypto = OssnCrypto::getInstance();
+		$decrypt = $ossnCrypto->decrypt($input);
+		return $decrypt;
+	}
+
+	public function b64encode($input)
+	{
+		$code = \MIME\Base64URLSafe::urlsafe_b64encode($input); 
+		return $code;
+	}
+
+	public function b64decode($input)
+	{
+		$code = \MIME\Base64URLSafe::urlsafe_b64decode($input); 
+		return $code;
 	}
 
 	// UPDATE amely_feeds SET description = REPLACE(description,',1',''), description = REPLACE(description,'1,',''),description = REPLACE(description,'1','') where id = 1;

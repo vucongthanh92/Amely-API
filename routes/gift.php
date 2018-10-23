@@ -106,9 +106,8 @@ $app->put($container['prefix'].'/gift', function (Request $request, Response $re
 	if (!array_key_exists('to_type', $params)) $params['to_type'] = 0;
 	if (!array_key_exists('item_id', $params)) $params['item_id'] = 0;
 	if (!array_key_exists('quantity', $params)) $params['quantity'] = 0;
-	if (!array_key_exists('status', $params)) $params['status'] = 0;
 
-	if (!$params['time_created'] || !$params['from_id'] || !$params['from_type'] || !$params['to_id'] || !$params['to_type'] || !$params['item_id'] || !$params['status'] || $params['quantity']) return response(false);
+	if (!$params['time_created'] || !$params['from_id'] || !$params['from_type'] || !$params['to_id'] || !$params['to_type'] || !$params['item_id'] || $params['quantity']) return response(false);
 
 	$item = $itemService->getItemByType($params['item_id'], 'id');
 	if ($item->owner_id != $params['from_id']) return response(false);
@@ -125,4 +124,105 @@ $app->put($container['prefix'].'/gift', function (Request $request, Response $re
 	$data['item_id'] = $item_id;
 
 	return response($giftService->save($data));
+});
+
+
+$app->patch($container['prefix'].'/gift', function (Request $request, Response $response, array $args) {
+	$giftService = GiftService::getInstance();
+	$itemService = ItemService::getInstance();
+	$loggedin_user = loggedin_user();
+
+	$params = $request->getParsedBody();
+	if (!$params) $params = [];
+	if (!array_key_exists('gift_id', $params)) $params['gift_id'] = 0;
+
+	$gift = $giftService->getGiftByType($params['gift_id'], 'id');
+	if (!$gift) return response(false);
+	if ($gift->status != 0) return response(false);
+
+	switch ($gift->to_type) {
+		case 'user':
+			if ($loggedin_user->id != $gift->to_id) return response(false);
+			break;
+		case 'group':
+			$groupService = GroupService::getInstance();
+			$group = $groupService->getGroupByType($gift->to_id, 'id');
+			if ($group->owner_id != $loggedin_user->id) return response(false);
+			break;
+		case 'event':
+			$eventService = EventService::getInstance();
+			$event = $eventService->getEventByType($gift->to_id, 'id');
+			if ($event->creator_id != $loggedin_user->id) return response(false);
+			break;
+		case 'business':
+			$businessService = BusinessService::getInstance();
+			$business = $businessService->getBusinessByType($gift->to_id, 'id');
+			if ($business->owner_id != $loggedin_user->id) return response(false);
+			break;
+		default:
+			return response(false);
+			break;
+	}
+
+	$item = $itemService->getItemByType($gift->item_id, 'id');
+
+	$item = object_cast("Item", $item);
+	$item->data->owner_id = $gift->to_id;
+	$item->data->type = $gift->to_type;
+	$item->data->status = 1;
+	$item->where = "id = {$item->id}";
+	$item->update();
+
+	$gift = object_cast("Gift", $gift);
+	$gift->data->status = 1;
+	$gift->where = "id = {$gift->id}";
+	return response($gift->update());
+});
+
+$app->delete($container['prefix'].'/gift', function (Request $request, Response $response, array $args) {
+	$giftService = GiftService::getInstance();
+	$itemService = ItemService::getInstance();
+	$loggedin_user = loggedin_user();
+	$params = $request->getQueryParams();
+	if (!$params) $params = [];
+	if (!array_key_exists('gift_id', $params)) $params['gift_id'] = 0;
+	$gift = $giftService->getGiftByType($params['gift_id'], 'id');
+	if (!$gift) return response(false);
+	if ($gift->status != 0) return response(false);
+
+	switch ($gift->to_type) {
+		case 'user':
+			if ($loggedin_user->id != $gift->to_id) return response(false);
+			break;
+		case 'group':
+			$groupService = GroupService::getInstance();
+			$group = $groupService->getGroupByType($gift->to_id, 'id');
+			if ($group->owner_id != $loggedin_user->id) return response(false);
+			break;
+		case 'event':
+			$eventService = EventService::getInstance();
+			$event = $eventService->getEventByType($gift->to_id, 'id');
+			if ($event->creator_id != $loggedin_user->id) return response(false);
+			break;
+		case 'business':
+			$businessService = BusinessService::getInstance();
+			$business = $businessService->getBusinessByType($gift->to_id, 'id');
+			if ($business->owner_id != $loggedin_user->id) return response(false);
+			break;
+		default:
+			return response(false);
+			break;
+	}
+
+	$item = $itemService->getItemByType($gift->item_id, 'id');
+
+	$item = object_cast("Item", $item);
+	$item->data->status = 1;
+	$item->where = "id = {$item->id}";
+	$item->update();
+
+	$gift = object_cast("Gift", $gift);
+	$gift->data->status = 2;
+	$gift->where = "id = {$gift->id}";
+	return response($gift->update());
 });
