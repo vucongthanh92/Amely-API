@@ -16,21 +16,18 @@ $app->get($container['prefix'].'/redeem', function (Request $request, Response $
 	$decrypt = $services->b64decode($params['code']);
 	$data = $services->decrypt($decrypt);
 	$data = unserialize($data);
-
 	$time = time();
 	$time_affter_5m = $data['time'] + (5*60);
 
 	if ($time > $time_affter_5m) return response(false);
-
-	$item = $itemService->getItemByType($data['item_id
-		']);
+	$item = $itemService->getItemByType($data['item_id'],'id');
 
 	if ($item->status != 1) return response(false);
 
 	$redeem_parmas = null;
 	$redeem_parmas[] = [
 		'key' => 'code',
-		'value' => "= {$params['code']}",
+		'value' => "= '{$params['code']}'",
 		'operation' => ''
 	];
 
@@ -51,7 +48,14 @@ $app->post($container['prefix'].'/redeem', function (Request $request, Response 
 	$params = $request->getParsedBody();
 	if (!$params) $params = [];
 	if (!array_key_exists('code', $params)) $params['code'] = false;
-
+	$redeem_parmas = null;
+	$redeem_parmas[] = [
+		'key' => 'code',
+		'value' => "= '{$params['code']}'",
+		'operation' => ''
+	];
+	$redeem = $redeemService->getRedeem($redeem_parmas);
+	if ($redeem) return response(false);
 	$decrypt = $services->b64decode($params['code']);
 	$data = $services->decrypt($decrypt);
 	$data = unserialize($data);
@@ -62,13 +66,13 @@ $app->post($container['prefix'].'/redeem', function (Request $request, Response 
 	if ($time > $time_affter_5m) return response(false);
 	$item_id = $itemService->separateItem($data['item_id'], $data['quantity']);
 
-	$params = null;
-	$params['owner_id'] = $data['owner_id'];
-	$params['item_id'] = $data['item_id'];
-	$params['creator_id'] = $loggedin_user->id;
-	$params['code'] = $params['code'];
-	$params['status'] = 1;
-	$redeem_id = $redeemService->save($params);
+	$redeem_params = null;
+	$redeem_params['owner_id'] = $data['owner_id'];
+	$redeem_params['item_id'] = $item_id;
+	$redeem_params['creator_id'] = $loggedin_user->id;
+	$redeem_params['code'] = $params['code'];
+	$redeem_params['status'] = 1;
+	$redeem_id = $redeemService->save($redeem_params);
 	return response(true);
 
 });
@@ -84,10 +88,19 @@ $app->put($container['prefix'].'/redeem', function (Request $request, Response $
 	$itemService = ItemService::getInstance();
 	$item = $itemService->getItemByType($params['item_id'], 'id');
 	if (!$item) return response(false);
+	$inventoryService = InventoryService::getInstance();
+	$inventory_params = null;
+	$inventory_params[] = [
+		'key' => 'id',
+		'value' => "= {$item->owner_id}",
+		'operation' => ''
+	];
+	$inventory = $inventoryService->getInventory($inventory_params);
+	if (!$inventory) return response(false);
 
-	switch ($item->type) {
+	switch ($inventory->type) {
 		case 'user':
-			if ($item->owner_id != $loggedin_user->id) return response(false);
+			if ($inventory->owner_id != $loggedin_user->id) return response(false);
 			break;
 		case 'group':
 			$groupService = GroupService::getInstance();
@@ -116,5 +129,5 @@ $app->put($container['prefix'].'/redeem', function (Request $request, Response $
 	$encrypt = $services->encrypt(serialize($data));
 	$code = $services->b64encode($encrypt);
 
-	return response($code);
+	return response([ "code" => $code]);
 });

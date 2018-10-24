@@ -17,7 +17,7 @@ class RedeemService extends Services
 
 	public function __construct() 
 	{
-        $this->table = "amely_redeem_code";
+        $this->table = "amely_redeem";
     }
 
     public function save(array $data)
@@ -29,7 +29,13 @@ class RedeemService extends Services
 		$redeem->data->creator_id = $data['creator_id'];
 		$redeem->data->code = $data['code'];
 		$redeem->data->status = $data['status'];
-		return response($redeem->insert(true));
+		if ($redeem->insert(true)) {
+			$item = new Item();
+			$item->data->status = 2;
+			$item->where = "id = {$data['item_id']}";
+			return response($item->update());
+		}
+		return response(false);
     }
 
     public function getRedeem($conditions)

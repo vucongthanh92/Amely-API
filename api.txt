@@ -58,7 +58,10 @@ v    @PUT("gift")
 v    @GET("gift")
 v    @DELETE("gift")
 v    @PATCH("gift")
-
+v    @PUT("redeem")
+v    @PATCH("change_password")
+    @POST("forgot_password")
+    
      @POST("business")
      @GET("business")
 
@@ -69,7 +72,7 @@ v    @PATCH("gift")
     @PUT("events")
     @PATCH("events")
 
-    @PUT("redeem")
+    
     @PATCH("item_inventory")
     @GET("transaction")
     @PUT("givelist")
@@ -77,7 +80,6 @@ v    @PATCH("gift")
     @PUT("wishlist")
     @DELETE("wishlist")    
     @POST("featured_products")
-    
     @POST("featured_shops")
     @POST("invitation")
     @PUT("invitation")
@@ -100,8 +102,8 @@ v    @PATCH("gift")
     @GET("click_ads")
     
     @GET("services")
-    @PATCH("change_password")
-    @POST("forgot_password")
+    
+    
     @PATCH("change_phone")
     @PUT("delivery_orders")
     @PUT("delivery_orders")
