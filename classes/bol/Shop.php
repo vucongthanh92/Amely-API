@@ -1,5 +1,10 @@
 <?php
-
+/**
+    * status
+        0 tat
+        1 mo
+        2 cam
+*/
 class Shop extends Object
 {
 	private $owner_id;

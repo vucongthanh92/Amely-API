@@ -143,6 +143,11 @@ class SnapshotService extends Services
         if ($images) {
         	$snapshot->images = $images;
         }
+        $snapshot->display_price = $this->getPrice($snapshot);
+        $snapshot->display_currency = "VND";
+        if ($snapshot->sale_price) {
+        	$snapshot->display_old_price = $snapshot->price;
+        }
         return $snapshot;
     }
 

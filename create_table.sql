@@ -662,20 +662,19 @@ CREATE TABLE `amely_advertisements` (
   `title` text NOT NULL,
   `description` longtext NOT NULL,
   `advertise_type` text,
-  `item` text,
+  `time_type` text,
+  `target_id` text,
   `image` text,
-  `start_date` text,
-  `end_date` text,
   `budget` text,
   `cpc` text,
   `link` text,
+  `amount` text,
   `start_time` text,
   `end_time` text,
   `enabled` text,
-  `amount` text,
-  `number_click` text,
-  `approved` text,
-  `admin_created` text
+  `total_click` bigint(20),
+  `approved` int(11),
+  `creator_id` int(11)
    
  ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 

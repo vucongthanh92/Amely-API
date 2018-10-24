@@ -3,19 +3,22 @@ use Slim\Http\Request;
 use Slim\Http\Response;
 
 $app->post($container['prefix'].'/shop/featured_products', function (Request $request, Response $response, array $args) {
+	$productService = ProductService::getInstance();
 	$loggedin_user = loggedin_user();
     $params = $request->getParsedBody();
 	if (!$params) $params = [];
-	if (!array_key_exists("shop_guid", $params)) 		$params["shop_guid"] = false;
+	if (!array_key_exists("shop_id", $params)) 		$params["shop_id"] = false;
+	if (!$params['shop_id']) return response(false);
+
 	$product_params = null;
 	$product_params[] = [
-		'key' => 'owner_guid',
-		'value' => "= {$shop_guid}",
+		'key' => 'owner_id',
+		'value' => "= {$params['shop_id']}",
 		'operation' => ''
 	];
 	$product_params[] = [
-		'key' => 'quantity',
-		'value' => "> 0",
+		'key' => 'approved',
+		'value' => "= 1",
 		'operation' => 'AND'
 	];
 	$product_params[] = [
@@ -28,6 +31,13 @@ $app->post($container['prefix'].'/shop/featured_products', function (Request $re
 		'value' => "= 1",
 		'operation' => 'AND'
 	];
-	$products = $select->getProducts($product_params, 0, 16);
+	$product_params[] = [
+		'key' => 'product_order',
+		'value' => 'DESC',
+		'operation' => 'order_by'
+	];
+
+	$products = $productService->getProducts($product_params, 0, 16);
+	if (!$products) return response(false);
 	return response($products);
 });

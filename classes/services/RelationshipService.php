@@ -167,4 +167,18 @@ class RelationshipService extends Services
 	    return $relation;
 	}
 
+	public function getRelation($conditions)
+	{
+		$relation = $this->searchObject($conditions, 0, 1);
+		if (!$relation) return false;
+		return $relation;
+	}
+
+	public function getRelations($conditions, $offset = 0, $limit = 10)
+	{
+		$relations = $this->searchObject($conditions, $offset, $limit);
+		if (!$relations) return false;
+		return array_values($relations);
+	}
+
 }

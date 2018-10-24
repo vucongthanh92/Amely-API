@@ -48,6 +48,8 @@ class ItemService extends Services
     			$item->where = "id = {$value}";
     		}
     		$item->data->time_created = time();
+    		$item->data->givelist = 0;
+    		$item->data->wishlist = 0;
     		$item->data->$key = $value;
     	}
     	$item->data->owner_id = $inventory->id;
