@@ -70,6 +70,7 @@ $app->post($container['prefix'].'/groups', function (Request $request, Response 
 });
 
 $app->put($container['prefix'].'/groups', function (Request $request, Response $response, array $args) {
+	$services = Services::getInstance();
 	$loggedin_user = loggedin_user();
 	$params = $request->getParsedBody();
 	if (!$params) $params = [];
@@ -106,8 +107,9 @@ $app->put($container['prefix'].'/groups', function (Request $request, Response $
 			$relationship->data->relation_to = $owner;
 			$relationship->data->type = "group:approve";
 			$relationship->insert();
-
+			$services->memberGroupFB($group_id, $member_username, 'add');
 		}
+		$services->createGroupFB($loggedin_user->username, $group_id, $params['name']);
 		return response($group_id);
 	}
 

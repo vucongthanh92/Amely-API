@@ -3,6 +3,7 @@ use Slim\Http\Request;
 use Slim\Http\Response;
 
 $app->put($container['prefix'].'/removal', function (Request $request, Response $response, array $args) {
+	$services = Services::getInstance();
 	$relationshipService = RelationshipService::getInstance();
 	$loggedin_user = loggedin_user();
 	$params = $request->getParsedBody();
@@ -34,7 +35,19 @@ $app->put($container['prefix'].'/removal', function (Request $request, Response 
 			// return response($relationship->insert());
 			break;
 		case 'group':
-			return response($relationshipService->deleteMemberGroup($from, $to));
+			$userService = UserService::getInstance();
+			$groupService = GroupService::getInstance();
+		
+			$user = $userService->getUserByType($to, 'id');
+			$group = $groupService->getGroupByType($from, 'id');
+			if (!$group) return response(false);
+			$member = $groupService->checkMember($group->id, $to);
+			if ($member) {
+				if ($relationshipService->deleteMemberGroup($from, $to)) {
+					return response($services->memberGroupFB($group->id, $user->username, 'delete'));
+				}
+			}
+			return response(false);
 			break;
 		case 'event':
 			# code...

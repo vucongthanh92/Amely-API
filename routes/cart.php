@@ -16,16 +16,25 @@ $app->get($container['prefix'].'/cart', function (Request $request, Response $re
 	$carts['quantity'] = 0;
 	$params = $request->getQueryParams();
 	if (!$params) $params = [];
-	if (!array_key_exists('type', $params))  			$params['type'] = 'user';
-	$type = $params['type'];
+	if (!array_key_exists('code', $params))  			$params['code'] = false;
+	$type = 'user';
 	$owner_id = $loggedin_user->id;
-	if ($params['type'] == 'shop') {
-		$type = 'store';
-		$owner_id = $loggedin_user->chain_store;
-	}
 	$creator_id = $loggedin_user->id;
+	if ($params['code']) {
+		$services = Services::getInstance();
+		$decrypt = $services->b64decode($params['code']);
+		$data = $services->decrypt($decrypt);
+		$data = unserialize($data);
+		$time = time();
+		$time_affter_5m = $data['time'] + (5*60);
+		if ($time > $time_affter_5m) return response(false);
+		
+		$type = 'store';
+		$owner_id = $data['owner_id'];
+		$creator_id = $data['creator_id'];
+	}
 
-	$cart = $cartService->checkCart($owner_id, $type, $loggedin_user->id, 0);
+	$cart = $cartService->checkCart($owner_id, $type, $creator_id, 0);
 	if (!$cart) return response($carts);
 	$carts['cart'] = $cart;
 	$cart_items = $cartService->getCartItems($cart->id);
@@ -49,8 +58,19 @@ $app->get($container['prefix'].'/cart', function (Request $request, Response $re
 });
 
 $app->post($container['prefix'].'/cart', function (Request $request, Response $response, array $args) {
-	
-
+	$services = Services::getInstance();
+	$loggedin_user = loggedin_user();
+	$params = $request->getParsedBody();
+	if (!$params) $params = [];
+	if (!array_key_exists('owner_id', $params))  		$params['owner_id'] = false;
+	$data = [];
+	$data['type'] = "store";
+	$data['owner_id'] = $params['owner_id'];
+	$data['creator_id'] = $loggedin_user->id;
+	$data['time'] = time();
+	$encrypt = $services->encrypt(serialize($data));
+	$code = $services->b64encode($encrypt);
+	return response($code);
 });
 
 $app->patch($container['prefix'].'/cart', function (Request $request, Response $response, array $args) {
@@ -65,6 +85,7 @@ $app->patch($container['prefix'].'/cart', function (Request $request, Response $
 	if (!array_key_exists('snapshot_id', $params))  	$params['snapshot_id'] = false;
 	if (!array_key_exists('store_id', $params))  		$params['store_id'] = false;
 	if (!array_key_exists('quantity', $params))  		$params['quantity'] = 0;
+	if (!array_key_exists('redeem_quantity', $params))  $params['redeem_quantity'] = 0;
 
 	$cart_item = new CartItem();
 	$cart_item->data->owner_id = $params['cart_id'];
@@ -74,6 +95,7 @@ $app->patch($container['prefix'].'/cart', function (Request $request, Response $
 	$product_id = $params['product_id'];
 	$store_id = $params['store_id'];
 	$quantity = $params['quantity'];
+	$redeem_quantity = $params['redeem_quantity'];
 
 	$store_quantity = $productStoreService->checkQuantityInStore($product_id, $store_id);
 	if (!$store_quantity) return response(false);
@@ -85,6 +107,8 @@ $app->patch($container['prefix'].'/cart', function (Request $request, Response $
 	}
 	$cart_item = new CartItem();
 	$cart_item->data->quantity = $quantity;
+	$cart_item->data->redeem_quantity = $redeem_quantity;
+
 	$cart_item->where = "owner_id = '{$cart_id}' AND product_id = '{$product_id}' AND store_id = '{$store_id}'";
 	return response($cart_item->update());
 

@@ -186,16 +186,26 @@ class Services extends SlimDatabase
 		return $code;
 	}
 
-	public function createGroupFB($from_username, $to_username)
+	public function memberGroupFB($group_id, $member_username, $type = 'add')
 	{
-		$from = new stdClass;
-		$from->username = $from_username;
-		$to = new stdClass;
-		$to->username = $to_username;
+		$member = new stdClass;
+		$member->username = $member_username;
 		$obj = new stdClass;
-		$obj->from = $from;
-		$obj->to = $to;
-		return $this->connectServer("addFriend", $obj);
+		$obj->type = $type;
+		$obj->member = $member;
+		$obj->group_id = $group_id;
+		return response($services->connectServer("memberGroup", $obj));
+	}
+
+	public function createGroupFB($owner_username, $group_id, $group_title)
+	{
+		$owner = new stdClass;
+		$owner->username = $owner_username;
+		$obj = new stdClass;
+		$obj->owner = $owner;
+		$obj->group_id = $group_id;
+		$obj->title = $group_title;
+		return response($services->connectServer("createGroup", $obj));
 	}
 
 	public function addFriendFB($from_username, $to_username)

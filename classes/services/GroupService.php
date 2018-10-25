@@ -113,6 +113,14 @@ class GroupService extends Services
 		return $members;
 	}
 
+	public function checkMember($group_id, $member_id)
+	{
+		$relationshipService = RelationshipService::getInstance();
+		$member = $relationshipService->getRelationsByType($group_id, $member_id, 'group:approve', 0, 1);
+		if (!$member) return false;
+		return $member;
+	}
+
 	public function deleteRelationshipGroup($group_id)
 	{
 		$relate = new Relationship;
