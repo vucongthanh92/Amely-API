@@ -56,4 +56,29 @@ $app->patch($container['prefix'].'/services', function (Request $request, Respon
 
 	return response($services->connectServer("notify", $obj));
 
+
+	// $from = new stdClass;
+	// $from->username = "thinhn1";
+	// $to = new stdClass;
+	// $to->username = "thinhn0";
+	// $obj = new stdClass;
+	// $obj->from = $from;
+	// $obj->to = $to;
+	// return response($services->connectServer("addFriend", $obj));
+
+	// $member = new stdClass;
+	// $member->username = "thinhn1";
+	// $obj = new stdClass;
+	// $obj->type = 'delete';
+	// $obj->member = $member;
+	// $obj->group_id = 23;
+	// return response($services->connectServer("memberGroup", $obj));
+
+	// $owner = new stdClass;
+	// $owner->username = "thinhn0";
+	// $obj = new stdClass;
+	// $obj->owner = $owner;
+	// $obj->group_id = 23;
+	// $obj->title = "Name of group 23";
+	// return response($services->connectServer("createGroup", $obj));
 })->setName('services');
