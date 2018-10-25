@@ -38,7 +38,7 @@ class AdvertiseService extends Services
 		$advertise->data->amount = $data['amount'];
 		$advertise->data->start_time = $data['start_time'];
 		$advertise->data->end_time = $data['end_time'];
-		$advertise->data->enabled = 1
+		$advertise->data->enabled = 1;
 		$advertise->data->total_click = 0;
 		$advertise->data->approved = 1;
 		$advertise->data->creator_id = $data['creator_id'];
