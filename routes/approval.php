@@ -3,6 +3,7 @@ use Slim\Http\Request;
 use Slim\Http\Response;
 
 $app->put($container['prefix'].'/approval', function (Request $request, Response $response, array $args) {
+	$services = Services::getInstance();
 	$relationshipService = RelationshipService::getInstance();
 	$loggedin_user = loggedin_user();
 	$params = $request->getParsedBody();
@@ -18,13 +19,16 @@ $app->put($container['prefix'].'/approval', function (Request $request, Response
 
 	switch ($type) {
 		case 'user':
+			$userService = UserService::getInstance();
 			$from = $loggedin_user->id;
+			$user = $userService->getUserByType($to, 'id');
 			if ($relationshipService->getRelationByType($from, $to, 'friend:request')) {
 				if ($relationshipService->getRelationByType($to, $from, 'friend:request')) return response(false);
 				$relationship = new Relationship;
 				$relationship->data->relation_from = $to;
 				$relationship->data->relation_to = $from;
 				$relationship->data->type = 'friend:request';
+				$services->addFriendFB($loggedin_user->username, $user->username);
 				return response($relationship->insert());
 			}
 			$relationship = new Relationship;

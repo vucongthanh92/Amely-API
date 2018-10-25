@@ -41,13 +41,11 @@ $app->patch($container['prefix'].'/services', function (Request $request, Respon
 	$params = $request->getParsedBody();
 	if (!$params) $params = [];
 	if (!array_key_exists('token', $params))	 	$params['token'] = 0;
-	if (!array_key_exists('collapse_key', $params))	 	$params['collapse_key'] = 0;
 	if (!array_key_exists('title', $params))	 	$params['title'] = "";
 	if (!array_key_exists('body', $params))	 	$params['body'] = "";
 
 	$obj = new stdClass;
 	$obj->token = $params['token'];
-	$obj->collapse_key = $params['collapse_key'];
 	$obj->title = $params['title'];
 	$obj->body = $params['body'];
 

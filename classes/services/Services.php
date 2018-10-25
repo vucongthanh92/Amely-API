@@ -186,5 +186,29 @@ class Services extends SlimDatabase
 		return $code;
 	}
 
+	public function createGroupFB($from_username, $to_username)
+	{
+		$from = new stdClass;
+		$from->username = $from_username;
+		$to = new stdClass;
+		$to->username = $to_username;
+		$obj = new stdClass;
+		$obj->from = $from;
+		$obj->to = $to;
+		return $this->connectServer("addFriend", $obj);
+	}
+
+	public function addFriendFB($from_username, $to_username)
+	{
+		$from = new stdClass;
+		$from->username = $from_username;
+		$to = new stdClass;
+		$to->username = $to_username;
+		$obj = new stdClass;
+		$obj->from = $from;
+		$obj->to = $to;
+		return $this->connectServer("addFriend", $obj);
+	}
+
 	// UPDATE amely_feeds SET description = REPLACE(description,',1',''), description = REPLACE(description,'1,',''),description = REPLACE(description,'1','') where id = 1;
 }
