@@ -194,7 +194,7 @@ class Services extends SlimDatabase
 		$obj->type = $type;
 		$obj->member = $member;
 		$obj->group_id = $group_id;
-		return response($services->connectServer("memberGroup", $obj));
+		return $this->connectServer("memberGroup", $obj);
 	}
 
 	public function createGroupFB($owner_username, $group_id, $group_title)
@@ -205,7 +205,7 @@ class Services extends SlimDatabase
 		$obj->owner = $owner;
 		$obj->group_id = $group_id;
 		$obj->title = $group_title;
-		return response($services->connectServer("createGroup", $obj));
+		return $this->connectServer("createGroup", $obj);
 	}
 
 	public function addFriendFB($from_username, $to_username)
