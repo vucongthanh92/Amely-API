@@ -97,7 +97,7 @@ $app->put($container['prefix'].'/groups', function (Request $request, Response $
 	$group_id = $group->insert(true);
 	if ($group_id) {
 		foreach ($params['owners'] as $key => $owner) {
-			$user = $userService->getUsersByType($owner, 'id', false);
+			$user = $userService->getUserByType($owner, 'id', false);
 			$relationship = new Relationship;
 			$relationship->data->relation_from = $owner;
 			$relationship->data->relation_to = $group_id;
