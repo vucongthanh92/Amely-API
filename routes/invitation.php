@@ -30,6 +30,7 @@ $app->post($container['prefix'].'/invitation', function (Request $request, Respo
 
 $app->put($container['prefix'].'/invitation', function (Request $request, Response $response, array $args) {
 	$services = Services::getInstance();
+	$userService = UserService::getInstance();
 	$relationshipService = RelationshipService::getInstance();
 	$loggedin_user = loggedin_user();
 	$params = $request->getParsedBody();
@@ -67,6 +68,7 @@ $app->put($container['prefix'].'/invitation', function (Request $request, Respon
 		case 'group':
 			foreach ($tos as $key => $to) {
 				if (!$relationshipService->getRelationByType($from, $to, 'group:approve')) {
+					$user = $userService->getUserByType($to, 'id');
 					$relationship = new Relationship;
 					$relationship->data->relation_from = $to;
 					$relationship->data->relation_to = $from;
@@ -78,6 +80,7 @@ $app->put($container['prefix'].'/invitation', function (Request $request, Respon
 					$relationship->data->relation_to = $to;
 					$relationship->data->type = "group:approve";
 					$relationship->insert();
+					$services->memberGroupFB($from, $user->username, 'add');
 				}
 
 				continue;
