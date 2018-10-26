@@ -43,7 +43,7 @@ $app->put($container['prefix'].'/removal', function (Request $request, Response 
 			if (!$group) return response(false);
 			$member = $groupService->checkMember($group->id, $to);
 			if ($member) {
-				if ($relationshipService->deleteMemberGroup($from, $to)) {
+				if ($relationshipService->deleteMemberGroup($to, $from)) {
 					return response($services->memberGroupFB($group->id, $user->username, 'delete'));
 				}
 			}
