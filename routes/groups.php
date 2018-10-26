@@ -128,12 +128,14 @@ $app->patch($container['prefix'].'/groups', function (Request $request, Response
 	if (!array_key_exists('description', $params)) $params['description'] = false;
 	if (!array_key_exists('privacy', $params)) $params['privacy'] = 0;
 	if (!array_key_exists('rule', $params)) $params['rule'] = 0;
+	if (!array_key_exists('owner_id', $params)) $params['owner_id'] = $loggedin_user->id;
 
 	if (!$params['id']) return response(false);
 
 	$group = $groupService->getGroupById($params['id']);
 	$group = object_cast("Group", $group);
-	
+	if ($group->owner_id != $loggedin_user->id) return response(false);
+	$group->data->owner_id = $params['owner_id'];
 	$group->data->title = $params['name'];
 	$group->data->description = $params['description'];
 	$group->data->privacy = $params['privacy'];
@@ -155,6 +157,7 @@ $app->delete($container['prefix'].'/groups', function (Request $request, Respons
 	if ($group->type = 'user') {
 		if ($loggedin_user->id == $group->owner_id) {
 			if ($groupService->deleteRelationshipGroup($group->id)) {
+				// $services->memberGroupFB($group->id, $user->username, 'delete')
 				return response($group->delete());
 			}
 		}

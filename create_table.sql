@@ -74,13 +74,16 @@ CREATE TABLE `amely_redeem` (
 DROP TABLE IF EXISTS `amely_notifications`;
 CREATE TABLE `amely_notifications` (
   `id` bigint(20) NOT NULL AUTO_INCREMENT,
-  `type` text NOT NULL,
-  `poster_id` bigint(20) NOT NULL,
   `owner_id` bigint(20) NOT NULL,
-  `subject_id` bigint(20) NOT NULL,
-  `viewed` varchar(1) DEFAULT NULL,
+  `type` varchar(20) DEFAULT NULL,
+  `title` text,
+  `description` text,
   `time_created` int(11) NOT NULL,
-  `item_id` bigint(20) NOT NULL,
+  `from_id` bigint(20) NOT NULL,
+  `from_type` varchar(20) DEFAULT NULL,
+  `subject_id` bigint(20),
+  `item_id` bigint(20),
+  `viewed` int(1) DEFAULT NULL
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
@@ -180,7 +183,8 @@ CREATE TABLE `amely_users` (
   `cover` text,
   `gift_count` int DEFAULT 0,
   `offer_count` int DEFAULT 0,
-  `blockedusers` text
+  `blockedusers` text,
+  `notify_token` text
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 DROP TABLE IF EXISTS `amely_promotion_items`; 

@@ -220,5 +220,16 @@ class Services extends SlimDatabase
 		return $this->connectServer("addFriend", $obj);
 	}
 
+	public function notify($params)
+	{
+		$obj = new stdClass;
+		$obj->token = $params['notify_token'];
+		$obj->title = $params['title'];
+		$obj->body = $params['description'];
+		$obj->data = (Object) $params['data'];
+
+		return $this->connectServer("notify", $obj);
+	}
+
 	// UPDATE amely_feeds SET description = REPLACE(description,',1',''), description = REPLACE(description,'1,',''),description = REPLACE(description,'1','') where id = 1;
 }
