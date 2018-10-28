@@ -19,6 +19,45 @@ class ItemService extends Services
 	{
         $this->table = "amely_items";
     }
+
+    public function getQuantityOfItemBySnapshot($snapshot_id, $owner_id, $type = 'user')
+    {
+    	$inventoryService = InventoryService::getInstance();
+		$inventory = $inventoryService->getInventoryByType($owner_id, $type);
+		if (!$inventory) return false;
+		$item_params = null;
+		$item_params[] = [
+			'key' => 'owner_id',
+			'value' => "= {$inventory->id}",
+			'operation' => ''
+		];
+		$item_params[] = [
+			'key' => 'snapshot_id',
+			'value' => "= {$snapshot_id}",
+			'operation' => 'AND'
+		];
+		$item_params[] = [
+			'key' => 'quantity',
+			'value' => "> 0",
+			'operation' => 'AND'
+		];
+		$item_params[] = [
+			'key' => 'status',
+			'value' => "= 1",
+			'operation' => 'AND'
+		];
+		$item_params[] = [
+			'key' => 'SUM(quantity) as sum',
+			'value' => '',
+			'operation' => 'query_params'
+		]
+		$item = $this->getItem($item_params);
+		if (!$item) return 0;
+		$quantity = $item->sum;
+		return $quantity;
+
+    }
+
     public function checkItemOfOwner($item_id, $owner_id, $type)
     {
     	$itemService = ItemService::getInstance();
@@ -32,7 +71,7 @@ class ItemService extends Services
     			'operation' => ''
     		];
     		$inventory = $inventoryService->getInventory($inventory_params);
-    		if ($inventory->owner_id == $owner_id && $inventory->type == $type) return true;
+    		if ($inventory->owner_id == $owner_id && $inventory->type == $type) return $item;
     		return false;
     	}
     }

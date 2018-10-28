@@ -21,6 +21,7 @@ $app->get($container['prefix'].'/cart', function (Request $request, Response $re
 	$owner_id = $loggedin_user->id;
 	$creator_id = $loggedin_user->id;
 	if ($params['code']) {
+		$itemService = ItemService::getInstance();
 		$services = Services::getInstance();
 		$decrypt = $services->b64decode($params['code']);
 		$data = $services->decrypt($decrypt);
@@ -49,6 +50,11 @@ $app->get($container['prefix'].'/cart', function (Request $request, Response $re
 		$quantity += $cart_item->quantity;
 		$total += $product->display_price*$product->display_quantity;
 		$tax += $product->tax;
+		$product->max_redemm_quantity = 0;
+		if ($params['code']) {
+			$max_redemm_quantity = $itemService->getQuantityOfItemBySnapshot($product->snapshot_id, $loggedin_user->id, 'user');
+			$product->max_redemm_quantity = $max_redemm_quantity;
+		}
 		$carts['items'][] = $product;
 	}
 	$carts['quantity'] = $quantity;
