@@ -11,6 +11,7 @@ class Notification extends Object
     private $from_id;
     private $from_type;
     private $subject_id;
+    private $subject_type;
     private $item_id;
     private $viewed;
 

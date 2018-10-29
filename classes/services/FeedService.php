@@ -30,6 +30,32 @@ class FeedService extends Services
         return $feed;
     }
 
+    public function getFeedsByType($input, $type = 'user')
+    {
+        $conditions = null;
+        $conditions[] = [
+            'key' => $type,
+            'value' => "IN {$input}",
+            'operation' => ''
+        ];
+        $feeds = $this->getFeeds($conditions, 0, 9999999999);
+        if (!$feeds) return false;
+        return $feeds;
+    }
+
+    public function getFeedByType($input, $type = 'user')
+    {
+        $conditions = null;
+        $conditions[] = [
+            'key' => $type,
+            'value' => "= {$input}",
+            'operation' => ''
+        ];
+        $feed = $this->getFeed($conditions);
+        if (!$feed) return false;
+        return $feed;
+    }
+
     public function getFeed($conditions, $info = true)
     {
         $feed = $this->searchObject($conditions, 0, 1);

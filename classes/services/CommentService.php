@@ -20,6 +20,35 @@ class CommentService extends Services
         $this->table = "amely_annotations";
     }
 
+    public function save($data)
+    {
+    	$comment = new Annotation();
+		$comment->data->owner_id = $data['owner_id'];
+		$comment->data->type = $data['type'];
+		$comment->data->creator_id = $data['creator']->id;
+		if ($data['content']) {
+			$comment->data->content = $data['content'];
+		}
+		$comment_id = $comment->insert(true);
+		if ($comment_id) {
+			$notificationService = NotificationService::getInstance();
+			$notify_params = null;
+			$notify_params['owner_id'] = $data['owner']->id;
+			$notify_params['type'] = 'user';
+			$notify_params['from_id'] = $data['creator_id'];
+			$notify_params['from_type'] = 'user';
+			$notify_params['subject_id'] = $data['subject_id'];
+			$notify_params['subject_type'] = 'comments:post';
+			$notify_params['item_id'] = null;
+			$notify_params['notify_token'] = $data['owner']->notify_token;
+			$notify_params['title'] = $data['creator']->fullname." ".COMMENT;
+			$notify_params['description'] = "";
+			
+			return response($notificationService->save($notify_params));
+		}
+		return false;
+    }
+
     public function getCommentById($id)
     {	
     	$conditions = null;
@@ -54,20 +83,20 @@ class CommentService extends Services
 		    	'value' => "= {$from}",
 		    	'operation' => ''
 		    ];
+		    $conditions[] = [
+		    	'key' => 'type',
+		    	'value' => "= '{$type}'",
+		    	'operation' => 'AND'
+		    ];
     	}
 	    if ($to !== false) {
 		    $conditions[] = [
-		    	'key' => 'subject_id',
+		    	'key' => 'creator_id',
 		    	'value' => "= {$to}",
 		    	'operation' => 'AND'
 		    ];
 	    }
 	    if (!$from && !$to) return false;
-	    $conditions[] = [
-	    	'key' => 'type',
-	    	'value' => "= '{$type}'",
-	    	'operation' => 'AND'
-	    ];
 	    $conditions[] = [
 	    	'key' => '*',
 	    	'value' => "count",
@@ -87,32 +116,32 @@ class CommentService extends Services
 		    	'value' => "IN ({$from})",
 		    	'operation' => ''
 		    ];
+		    $conditions[] = [
+		    	'key' => 'type',
+		    	'value' => "= '{$type}'",
+		    	'operation' => 'AND'
+		    ];
     	}
 	    if ($to !== false) {
 		    $conditions[] = [
-		    	'key' => 'subject_id',
+		    	'key' => 'creator_id',
 		    	'value' => "IN ({$to})",
 		    	'operation' => 'AND'
 		    ];
 	    }
 	    if (!$from && !$to) return false;
 	    $conditions[] = [
-	    	'key' => 'type',
-	    	'value' => "= '{$type}'",
-	    	'operation' => 'AND'
-	    ];
-	    $conditions[] = [
 	    	'key' => '*',
 	    	'value' => "count",
 	    	'operation' => 'count'
 	    ];
 	    $comment_params[] = [
-			'key' => 'subject_id',
+			'key' => 'creator_id',
 			'value' => "",
 			'operation' => 'query_params'
 		];
 		$comment_params[] = [
-			'key' => 'subject_id',
+			'key' => 'creator_id',
 			'value' => "",
 			'operation' => 'group_by'
 		];

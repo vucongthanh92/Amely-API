@@ -28,7 +28,7 @@ $app->put($container['prefix'].'/approval', function (Request $request, Response
 				$relationship->data->relation_from = $to;
 				$relationship->data->relation_to = $from;
 				$relationship->data->type = 'friend:request';
-				$services->addFriendFB($loggedin_user->username, $user->username);
+				$services->addFriendFB($loggedin_user, $user);
 				return response($relationship->insert());
 			}
 			$relationship = new Relationship;

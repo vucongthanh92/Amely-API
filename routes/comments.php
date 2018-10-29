@@ -61,27 +61,28 @@ $app->put($container['prefix'].'/comments', function (Request $request, Response
 	if (!array_key_exists('images', $params)) $params['images'] = false;
 	if (!in_array($params['type'], ['feed', 'business'])) return response(false);
 
-	$comment = new Annotation();
-	$comment->data->owner_id = $loggedin_user->id;
-	$comment->data->subject_id = $params['subject_id'];
-	$comment->data->type = $params['type'];
-	if ($params['content']) {
-		$comment->data->content = $params['content'];
+	switch ($params['type']) {
+		case 'feed':
+			$feedService = FeedService::getInstance();
+			$feed = $feedService->getFeedByType($params['subject_id'], 'id');
+			if (!$feed) return response(false);
+			$userService = UserService::getInstance();
+			$user = $userService->getUserByType($feed->poster_id, 'id');
+			break;
+		
+		default:
+			# code...
+			break;
 	}
-	$id = $comment->insert(true);
-	if ($id) {
-		if ($params['images']) {
-			$obj = new stdClass;
-			$obj->image_type = 'images';
-			$obj->images = $params['images'];
-			$obj->owner_id = $id;
-			$obj->owner_type = 'comment';
-			$services->connectServer("uploads", $obj);
-		}
-		return response($id);
-	}
+	$data = null;
+	$data['owner_id'] = $params['subject_id'];
+	$data['type'] = $params['type'];
+	$data['creator'] = $loggedin_user;
+	$data['owner'] = $user;
+	$data['content'] = $params['content'];
+	$data['images'] = $params['images'];
 
-	return response(false);
+	return response($commentService->save($data));
 });
 
 $app->delete($container['prefix'].'/comments', function (Request $request, Response $response, array $args) {

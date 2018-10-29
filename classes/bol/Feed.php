@@ -1,5 +1,11 @@
 <?php
-
+/**
+    * type
+        user
+        group
+        business
+        event
+*/
 class Feed extends Object
 {
     private $owner_id;

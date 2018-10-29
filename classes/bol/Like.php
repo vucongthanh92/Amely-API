@@ -1,11 +1,18 @@
 <?php
+/**
+    * type (string)
+        feed
+        shop
+        product
+
+*/
 
 class Like extends Object
 {
-    private $subject_id;
     private $owner_id;
     private $type;
     private $time_created;
+    private $creator_id;
 
 	public function __construct() 
 	{	

@@ -3,8 +3,8 @@
 class Annotation extends Object
 {
     private $owner_id;
-    private $subject_id;
     private $type;
+    private $creator_id;
     private $time_created;
     private $content;
     private $images;

@@ -82,18 +82,9 @@ CREATE TABLE `amely_notifications` (
   `from_id` bigint(20) NOT NULL,
   `from_type` varchar(20) DEFAULT NULL,
   `subject_id` bigint(20),
+  `subject_type` varchar(20) DEFAULT NULL,
   `item_id` bigint(20),
   `viewed` int(1) DEFAULT NULL
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-
-DROP TABLE IF EXISTS `amely_likes`;
-CREATE TABLE `amely_likes` (
-  `id` bigint(20) NOT NULL AUTO_INCREMENT,
-  `subject_id` bigint(20) NOT NULL,
-  `owner_id` bigint(20) NOT NULL,
-  `type` varchar(20) NOT NULL,
-  `time_created` int(11) NOT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
@@ -111,11 +102,21 @@ DROP TABLE IF EXISTS `amely_annotations`;
 CREATE TABLE `amely_annotations` (
   `id` bigint(20) NOT NULL AUTO_INCREMENT,
   `owner_id` bigint(20) NOT NULL,
-  `subject_id` bigint(20) NOT NULL,
   `type` varchar(20) NOT NULL,
+  `creator_id` bigint(20) NOT NULL,
   `time_created` int(11) NOT NULL,
   `content` text,
   `images` text,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+DROP TABLE IF EXISTS `amely_likes`;
+CREATE TABLE `amely_likes` (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT,
+  `owner_id` bigint(20) NOT NULL,
+  `type` varchar(20) NOT NULL,
+  `time_created` int(11) NOT NULL,
+  `creator_id` bigint(20) NOT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 

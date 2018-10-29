@@ -3,6 +3,7 @@ use Slim\Http\Request;
 use Slim\Http\Response;
 
 $app->put($container['prefix'].'/likes', function (Request $request, Response $response, array $args) {
+	$notificationService = NotificationService::getInstance();
 	$likeService = LikeService::getInstance();
 	$loggedin_user = loggedin_user();
 	$params = $request->getParsedBody();
@@ -16,12 +17,16 @@ $app->put($container['prefix'].'/likes', function (Request $request, Response $r
 	$type = $params['type'];
 	if (!in_array($type, ['feed', 'business', 'shop'])) return response(false);
 	if ($likeService->isLiked($from, $to, $type)) return response(false);
+	$userService = UserService::getInstance();
+	$user = $userService->getUserByType($feed->poster_id, 'id');
 
-	$like = new Like();
-	$like->data->subject_id = $subject_id;
-	$like->data->owner_id = $loggedin_user->id;
-	$like->data->type = $type;
-	return response($like->insert());
+	$data = null;
+	$data['owner_id'] = $subject_id;
+	$data['type'] = $type;
+	$data['owner'] = $user;
+	$data['creator'] = $loggedin_user;
+
+	return response($likeService->save($data));
 });
 
 $app->delete($container['prefix'].'/likes', function (Request $request, Response $response, array $args) {

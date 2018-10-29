@@ -10,6 +10,14 @@ $app->post($container['prefix'].'/notification', function (Request $request, Res
 	if (!$params) $params = [];
 	if (!array_key_exists('offset', $params)) $params['offset'] = 0;
 	if (!array_key_exists('limit', $params)) $params['limit'] = 10;
+	if (!array_key_exists('notify_token', $params)) $params['notify_token'] = false;
+
+	if ($params['notify_token']) {
+		$user = new User();
+		$user->data->notify_token = $params['notify_token'];
+		$user->where = "id = {$loggedin_user->id}";
+		$user->update();
+	}
 
 	$notifications = $notificationService->getNotificationsByType($loggedin_user->id, 'owner_id', $params['offset'], $params['limit']);
 	if (!$notifications) return response(false);

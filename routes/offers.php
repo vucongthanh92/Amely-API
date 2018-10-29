@@ -67,7 +67,11 @@ $app->post($container['prefix'].'/offers', function (Request $request, Response 
 		case 2:
 			break;
 		case 1:
-			
+			$offer_params[] = [
+				'key' => 'target',
+				'value' => "= 1",
+				'operation' => 'AND'
+			];
 			if ($params['friends']) {
 				$friends_id = implode(',', array_unique($params['friends']));
 				$offer_params[] = [

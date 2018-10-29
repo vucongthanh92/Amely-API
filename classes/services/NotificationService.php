@@ -30,6 +30,7 @@ class NotificationService extends Services
 		$notification->data->from_id = $data['from_id'];
 		$notification->data->from_type = $data['from_type'];
 		$notification->data->subject_id = $data['subject_id'];
+		$notification->data->subject_type = $data['subject_type'];
 		$notification->data->item_id = $data['item_id'];
 		$notification->data->viewed = 0;
 		if ($data['notify_token']) {
@@ -37,6 +38,7 @@ class NotificationService extends Services
 			$obj = new stdClass;
 			$obj->item_id = $data['item_id'];
 			$obj->subject_id = $data['subject_id'];
+			$obj->subject_type = $data['subject_type'];
 			$data['data'] = $obj;
 			Services::getInstance()->notify($data);
 		}

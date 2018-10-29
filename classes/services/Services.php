@@ -208,12 +208,8 @@ class Services extends SlimDatabase
 		return $this->connectServer("createGroup", $obj);
 	}
 
-	public function addFriendFB($from_username, $to_username)
+	public function addFriendFB($from, $to)
 	{
-		$from = new stdClass;
-		$from->username = $from_username;
-		$to = new stdClass;
-		$to->username = $to_username;
 		$obj = new stdClass;
 		$obj->from = $from;
 		$obj->to = $to;

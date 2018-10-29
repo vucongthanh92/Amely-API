@@ -29,6 +29,7 @@ $app->post($container['prefix'].'/invitation', function (Request $request, Respo
 });
 
 $app->put($container['prefix'].'/invitation', function (Request $request, Response $response, array $args) {
+	$notificationService = NotificationService::getInstance();
 	$services = Services::getInstance();
 	$userService = UserService::getInstance();
 	$relationshipService = RelationshipService::getInstance();
@@ -44,6 +45,8 @@ $app->put($container['prefix'].'/invitation', function (Request $request, Respon
 	$tos = $params['to_id'];
 	$type = $params['type'];
 
+	$notify_params = null;
+
 	switch ($type) {
 		case 'user':
 			$from = $loggedin_user->id;
@@ -55,14 +58,41 @@ $app->put($container['prefix'].'/invitation', function (Request $request, Respon
 					$relationship->data->relation_from = $to;
 					$relationship->data->relation_to = $from;
 					$relationship->data->type = 'friend:request';
-					$services->addFriendFB($loggedin_user->username, $user->username);
-					return response($relationship->insert());
+					$services->addFriendFB($loggedin_user, $user);
+
+					if ($relationship->insert()) {
+						$notify_params['owner_id'] = $from;
+						$notify_params['type'] = 'user';
+						$notify_params['from_id'] = $to;
+						$notify_params['from_type'] = 'user';
+						$notify_params['subject_id'] = null;
+						$notify_params['subject_type'] = 'friend:request';
+						$notify_params['item_id'] = null;
+						$notify_params['notify_token'] = $loggedin_user->notify_token;
+						$notify_params['title'] = $user->fullname." ".APPROVAL_FRIEND;
+						$notify_params['description'] = "";
+						return response($notificationService->save($notify_params));
+					}
+					
 				}
+				
 				$relationship = new Relationship;
 				$relationship->data->relation_from = $from;
 				$relationship->data->relation_to = $to;
 				$relationship->data->type = 'friend:request';
-				return response($relationship->insert());
+				if ($relationship->insert()) {
+					$notify_params['owner_id'] = $to;
+					$notify_params['type'] = 'user';
+					$notify_params['from_id'] = $from;
+					$notify_params['from_type'] = 'user';
+					$notify_params['subject_id'] = null;
+					$notify_params['subject_type'] = 'friend:request';
+					$notify_params['item_id'] = null;
+					$notify_params['notify_token'] = $user->notify_token;
+					$notify_params['title'] = $loggedin_user->fullname." ".INVITATION_FRIEND;
+					$notify_params['description'] = "";
+					return response($notificationService->save($notify_params));
+				}
 			}
 			break;
 		case 'group':

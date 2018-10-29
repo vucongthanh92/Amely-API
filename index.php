@@ -16,6 +16,7 @@ session_start();
 // Instantiate the app
 $settings = require __DIR__ . '/src/settings.php';
 $app = new \Slim\App($settings);
+require __DIR__ . '/src/string_notification.php';
 // Set up dependencies
 require __DIR__ . '/src/dependencies.php';
 
