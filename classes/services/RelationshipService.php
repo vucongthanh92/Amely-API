@@ -30,6 +30,24 @@ class RelationshipService extends Services
 		return $relationship_id;
     }
 
+    public function invitation($relation_from, $relation_to, $type)
+    {
+    	$relationship = new Relationship;
+		$relationship->data->relation_from = $relation_from;
+		$relationship->data->relation_to = $relation_to;
+		$relationship->data->type = $type;
+		return $relationship->insert(true);
+    }
+
+    public function approval($relation_from, $relation_to, $type)
+    {
+    	$relationship = new Relationship;
+		$relationship->data->relation_from = $relation_from;
+		$relationship->data->relation_to = $relation_to;
+		$relationship->data->type = $type;
+		return $relationship->insert(true);
+    }
+
 	public function getFriendsGUID($owner_guid)
 	{
 		$relation_params = null;
