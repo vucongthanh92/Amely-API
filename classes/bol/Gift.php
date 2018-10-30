@@ -8,6 +8,7 @@ class Gift extends Object
     private $to_id;
     private $to_type;
     private $item_id;
+    private $message;
     private $status;
 
 	public function __construct() 

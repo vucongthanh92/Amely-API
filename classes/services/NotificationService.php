@@ -42,34 +42,6 @@ class NotificationService extends Services
 			$data['data'] = $obj;
 			Services::getInstance()->notify($data);
 		}
-		$notification->data->data = serialize($data['data']);
-		return $notification->insert();
-    }
-
-    public function notify($from_id, $to_id, $title, $description, $data )
-    {
-    	$subject_id = $subject_type = $item_id = null;
-    	$notification = Notification();
-		$notification->data->owner_id = $to_id;
-		$notification->data->type = 'user';
-		$notification->data->title = $title;
-		$notification->data->description = $description;
-		$notification->data->from_id = $from_id;
-		$notification->data->from_type = 'user';
-		$notification->data->subject_id = $data['subject_id'];
-		$notification->data->subject_type = $data['subject_type'];
-		$notification->data->item_id = $data['item_id'];
-		$notification->data->viewed = 0;
-		if ($data['notify_token']) {
-			$notification->data->viewed = 1;
-			$obj = new stdClass;
-			$obj->item_id = $data['item_id'];
-			$obj->subject_id = $data['subject_id'];
-			$obj->subject_type = $data['subject_type'];
-			$data['data'] = $obj;
-			Services::getInstance()->notify($data);
-		}
-		$notification->data->data = serialize($data['data']);
 		return $notification->insert();
     }
 

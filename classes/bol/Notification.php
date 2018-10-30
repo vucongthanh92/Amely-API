@@ -2,7 +2,6 @@
 
 class Notification extends Object
 {
-    private $id;
     private $owner_id;
     private $type;
     private $title;

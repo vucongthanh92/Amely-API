@@ -19,6 +19,59 @@ class GiftService extends Services
 
 	public function save($data)
 	{
+		$services = Services::getInstance();
+		$userService = UserService::getInstance();
+		$groupService = GroupService::getInstance();
+		$obj = new stdClass;
+		switch ($data['type']) {
+			case 'user':
+				$from = $userService->getUserByType($data['owner_id'], 'id');
+				$obj->from->username = $from->username;
+				$obj->from->fullname = $from->fullname;
+				$obj->from->avatar = $from->avatar;
+				break;
+			case 'group':
+				$from = $groupService->getGroupByType($data['owner_id'], 'id');
+				$obj->from->username = $from->id;
+				$obj->from->fullname = $from->title;
+				$obj->from->avatar = $from->avatar;
+				break;
+			case 'event':
+				# code...
+				break;
+			case 'business':
+				# code...
+				break;
+			default:
+				# code...
+				break;
+		}
+		if (!$from) return false;
+		
+
+		switch ($data['to_type']) {
+			case 'user':
+				$to = $userService->getUserByType($data['to_id'], 'id');
+				$obj->to->type = 'user';
+				$obj->to->username = $to->username;
+				break;
+			case 'group':
+				$to = $groupService->getGroupByType($data['to_id'], 'id');
+				$obj->to->type = 'group';
+				$obj->to->username = $to->id;
+				break;
+			case 'event':
+				# code...
+				break;
+			case 'business':
+				# code...
+				break;
+			default:
+				# code...
+				break;
+		}
+		if (!$to) return false;
+
 		$gift = new Gift();
 		$gift->data->owner_id = $data['owner_id'];
 		$gift->data->type = $data['type'];
@@ -27,13 +80,23 @@ class GiftService extends Services
 		$gift->data->to_id = $data['to_id'];
 		$gift->data->to_type = $data['to_type'];
 		$gift->data->item_id = $data['item_id'];
+		$gift->data->message = $data['message'];
 		$gift->data->status = 0;
 		$gift_id = $gift->insert(true);
 		if ($gift_id) {
 			$item = new Item();
 			$item->data->status = 0;
 			$item->where = "id = {$data['item_id']}";
-			return $item->update();
+			$item->update();
+
+			$obj->text = $data['message'];
+
+			$media = new stdClass;
+			$media->media_type = 'gift';
+			$media->url = $gift_id;
+			$obj->attachment  = $media;
+			$services->giftFB($obj);
+			return true;
 		}
 		return false;
 	}

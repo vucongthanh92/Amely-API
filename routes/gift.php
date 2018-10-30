@@ -110,8 +110,8 @@ $app->put($container['prefix'].'/gift', function (Request $request, Response $re
 
 	if (!$params['time_created'] || !$params['from_id'] || !$params['from_type'] || !$params['to_id'] || !$params['to_type'] || !$params['item_id'] || $params['quantity']) return response(false);
 
-	$item = $itemService->getItemByType($params['item_id'], 'id');
-	if ($item->owner_id != $params['from_id']) return response(false);
+	$item = $itemService->checkItemOfOwner($params['item_id'], $params['from_id'], $params['from_type']);
+	if (!$item) return response(false);
 
 	$item_id = $itemService->separateItem($params['item_id'], $params['quantity']);
 
@@ -123,6 +123,7 @@ $app->put($container['prefix'].'/gift', function (Request $request, Response $re
 	$data['to_id'] = $params['to_id'];
 	$data['to_type'] = $params['to_type'];
 	$data['item_id'] = $item_id;
+	$data['message'] = $params['message'];
 
 	return response($giftService->save($data));
 });

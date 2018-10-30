@@ -186,6 +186,11 @@ class Services extends SlimDatabase
 		return $code;
 	}
 
+	public function giftFB($obj)
+	{
+		return $this->connectServer("gift", $obj);
+	}
+
 	public function memberGroupFB($group_id, $member_username, $type = 'add')
 	{
 		$member = new stdClass;
@@ -199,12 +204,14 @@ class Services extends SlimDatabase
 
 	public function createGroupFB($owner_username, $group_id, $group_title)
 	{
+		global $settings;
 		$owner = new stdClass;
 		$owner->username = $owner_username;
 		$obj = new stdClass;
 		$obj->owner = $owner;
 		$obj->group_id = $group_id;
 		$obj->title = $group_title;
+		$obj->group_avatar = $settings['image']['avatar'];
 		return $this->connectServer("createGroup", $obj);
 	}
 

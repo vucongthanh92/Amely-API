@@ -50,7 +50,7 @@ class ItemService extends Services
 			'key' => 'SUM(quantity) as sum',
 			'value' => '',
 			'operation' => 'query_params'
-		]
+		];
 		$item = $this->getItem($item_params);
 		if (!$item) return 0;
 		$quantity = $item->sum;
@@ -63,17 +63,17 @@ class ItemService extends Services
     	$itemService = ItemService::getInstance();
     	$inventoryService = InventoryService::getInstance();
     	$item = $itemService->getItemByType($item_id, 'id');
-    	if ($item->status == 1) {
-    		$inventory_params = null;
-    		$inventory_params[] = [
-    			'key' => 'id',
-    			'value' => "= {$item->id}",
-    			'operation' => ''
-    		];
-    		$inventory = $inventoryService->getInventory($inventory_params);
-    		if ($inventory->owner_id == $owner_id && $inventory->type == $type) return $item;
-    		return false;
-    	}
+    	if (!$item) return false;
+    	if ($item->status != 1) return false;
+		$inventory_params = null;
+		$inventory_params[] = [
+			'key' => 'id',
+			'value' => "= {$item->owner_id}",
+			'operation' => ''
+		];
+		$inventory = $inventoryService->getInventory($inventory_params);
+		if ($inventory->owner_id == $owner_id && $inventory->type == $type) return $item;
+		return false;
     }
 
     public function changeOwnerItem($owner_id, $type, $data)
@@ -135,6 +135,7 @@ class ItemService extends Services
     {
 		$item = $this->getItemByType($item_id, 'id');
 		if (!$item) return false;
+		if ($item->status != 1) return false;
 		if ($item->quantity == $quantity) return $item->id;
 		if ($item->quantity < $quantity) return false;
 		if ($item->quantity > $quantity) {

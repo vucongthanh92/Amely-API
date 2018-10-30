@@ -30,13 +30,38 @@ class RelationshipService extends Services
 		return $relationship_id;
     }
 
-    public function invitation($relation_from, $relation_to, $type)
+    public function invitation($from, $to, $type)
     {
     	$relationship = new Relationship;
-		$relationship->data->relation_from = $relation_from;
-		$relationship->data->relation_to = $relation_to;
+		$relationship->data->relation_from = $from->id;
+		$relationship->data->relation_to = $to->id;
 		$relationship->data->type = $type;
-		return $relationship->insert(true);
+		if ($relationship->insert(true)) {
+			$notificationService = NotificationService::getInstance();
+			switch ($type) {
+				case 'friend:request':
+					$target = FRIEND;
+					break;
+				case 'group:invite':
+					$target = GROUP;
+					break;
+				case 'event:invite':
+					$target = EVENT;
+					break;
+				default:
+					# code...
+					break;
+			}
+			$title = $from->fullname." ".INVITATION." ".$target;
+			$description = "";
+			$data = null;
+			$data['subject_id'] = $to->id;
+			$data['subject_type'] = $type;
+			$data['item_id'] = null;
+			return response($notificationService->notify($from, $to, $title, $description, $data));
+
+		}
+		return false;
     }
 
     public function approval($relation_from, $relation_to, $type)

@@ -45,13 +45,13 @@ class LikeService extends Services
 
 			switch ($data['type']) {
 				case 'feed':
-					$target = FEED:
+					$target = FEED;
 					break;
 				case 'shop':
-					$target = SHOP:
+					$target = SHOP;
 					break;
 				case 'product':
-					$target = PRODUCT:
+					$target = PRODUCT;
 					break;
 				default:
 					# code...

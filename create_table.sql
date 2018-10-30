@@ -1,5 +1,5 @@
 DROP TABLE IF EXISTS `amely_gifts`;
-CREATE TABLE `amely_payment` (
+CREATE TABLE `amely_gifts` (
   `id` bigint(20) NOT NULL AUTO_INCREMENT,
   PRIMARY KEY (`id`),
   `owner_id` bigint(20) NOT NULL,
@@ -10,6 +10,7 @@ CREATE TABLE `amely_payment` (
   `to_id` bigint(20) NOT NULL,
   `to_type` varchar(20) NOT NULL,
   `item_id` bigint(20) NOT NULL,
+  `message` text,
   `status` varchar(10)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
