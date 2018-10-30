@@ -6,18 +6,21 @@ use Slim\Http\Response;
 // Routes
 // $app->get('/authtoken', function (Request $request, Response $response, array $args) {
 $app->get($container['prefix'].'/services', function (Request $request, Response $response, array $args) {
-	/*
-	$data = "123456";
-	$services = Services::getInstance();
-	$encrypt = $services->encrypt($data);
-	$code = $services->b64encode($encrypt);
-	var_dump($code);
-
-	$decrypt = $services->b64decode($code);
-	$data = $services->decrypt($decrypt);
-	var_dump($data);
-	die();
-	*/
+	// $services = Services::getInstance();
+	// $obj = new stdClass;
+	// $obj->from->username = "quannm";
+	// $obj->from->fullname = "fullname quannm";
+	// $obj->from->avatar = "avatar quannm";
+	// $obj->to->type = 'user';
+	// $obj->to->username = "thanhvc";
+	// $obj->text = "tang qua test";
+	// $media = new stdClass;
+	// $media->media_type = 'gift';
+	// $media->url = 1;
+	// $obj->attachment  = $media;
+	// var_dump($services->giftFB($obj));
+	// die('12313');
+	
 
 	$current_time = time();
 	$siteSettingService = SiteSettingService::getInstance();

@@ -93,7 +93,7 @@ class GiftService extends Services
 
 			$media = new stdClass;
 			$media->media_type = 'gift';
-			$media->url = $gift_id;
+			$media->url = (string)$gift_id;
 			$obj->attachment  = $media;
 			$services->giftFB($obj);
 			return true;

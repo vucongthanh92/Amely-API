@@ -108,7 +108,7 @@ $app->put($container['prefix'].'/gift', function (Request $request, Response $re
 	if (!array_key_exists('quantity', $params)) $params['quantity'] = 0;
 	if (!array_key_exists('message', $params)) $params['message'] = "";
 
-	if (!$params['time_created'] || !$params['from_id'] || !$params['from_type'] || !$params['to_id'] || !$params['to_type'] || !$params['item_id'] || $params['quantity']) return response(false);
+	if (!$params['from_id'] || !$params['from_type'] || !$params['to_id'] || !$params['to_type'] || !$params['item_id'] || !$params['quantity']) return response(false);
 
 	$item = $itemService->checkItemOfOwner($params['item_id'], $params['from_id'], $params['from_type']);
 	if (!$item) return response(false);
