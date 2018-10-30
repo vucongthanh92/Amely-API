@@ -54,11 +54,13 @@ class GiftService extends Services
 				$to = $userService->getUserByType($data['to_id'], 'id');
 				$obj->to->type = 'user';
 				$obj->to->username = $to->username;
+				$obj->to->fullname = $to->fullname;
 				break;
 			case 'group':
 				$to = $groupService->getGroupByType($data['to_id'], 'id');
 				$obj->to->type = 'group';
 				$obj->to->username = $to->id;
+				$obj->to->fullname = $to->title;
 				break;
 			case 'event':
 				# code...
