@@ -32,6 +32,7 @@ class RelationshipService extends Services
 
     public function invitation($from, $to, $type)
     {
+    	$userService = UserService::getInstance();
     	$relationship = new Relationship;
 		$relationship->data->relation_from = $from->id;
 		$relationship->data->relation_to = $to->id;
@@ -41,9 +42,21 @@ class RelationshipService extends Services
 			switch ($type) {
 				case 'friend:request':
 					$target = FRIEND;
+					$owner_id = $to->id;
+					$owner_type = 'user';
+					$notify_token = $to->notify_token;
+					$from_id = $from->id;
+					$from_type = 'user';
 					break;
 				case 'group:invite':
 					$target = GROUP;
+					$user = $userService->getUserByType($to->owner_id, 'id', false);
+					if (!$user) return false;
+					$owner_id = $user->owner_id;
+					$owner_type = 'user';
+					$notify_token = $user->notify_token;
+					$from_id = $to->id;
+					$from_type = 'group';
 					break;
 				case 'event:invite':
 					$target = EVENT;
@@ -52,14 +65,19 @@ class RelationshipService extends Services
 					# code...
 					break;
 			}
-			$title = $from->fullname." ".INVITATION." ".$target;
-			$description = "";
+			$description = $from->fullname." ".INVITATION." ".$target;
 			$data = null;
-			$data['subject_id'] = $to->id;
-			$data['subject_type'] = $type;
-			$data['item_id'] = null;
-			return response($notificationService->notify($from, $to, $title, $description, $data));
-
+			$data['owner_id'] = $owner_id;
+			$data['type'] = $owner_type;
+			$data['title'] = "";
+			$data['description'] = $description;
+			$data['from_id'] = $from_id;
+			$data['from_type'] = $from_type;
+			$data['subject_id'] = $from_id;
+			$data['subject_type'] = $from_type;
+			$data['item_id'] = 0;
+			$data['notify_token'] = $notify_token;
+			return response($notificationService->save($data));
 		}
 		return false;
     }

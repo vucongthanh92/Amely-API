@@ -1,5 +1,8 @@
 <?php
+/**
 
+
+*/
 define("LIKE", "đã thích");
 define("COMMENT", "đã bình luận");
 define("INVITATION", "đã gửi lời mời");

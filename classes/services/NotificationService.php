@@ -36,6 +36,7 @@ class NotificationService extends Services
 		if ($data['notify_token']) {
 			$notification->data->viewed = 1;
 			$obj = new stdClass;
+			$data['title'] = "AMELY";
 			$obj->item_id = $data['item_id'];
 			$obj->subject_id = $data['subject_id'];
 			$obj->subject_type = $data['subject_type'];
