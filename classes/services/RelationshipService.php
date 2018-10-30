@@ -20,17 +20,7 @@ class RelationshipService extends Services
         $this->table = "amely_relationships r";
     }
 
-    public function save($data)
-    {
-    	$relationship = new Relationship();
-    	$relationship->data->relation_from = $data['relation_from'];
-		$relationship->data->relation_to = $data['relation_to'];
-		$relationship->data->type = $data['type'];
-		$relationship_id = $relationship->insert(true);
-		return $relationship_id;
-    }
-
-    public function invitation($from, $to, $type)
+    public function save($from, $to, $type)
     {
     	$userService = UserService::getInstance();
     	$relationship = new Relationship;
@@ -62,7 +52,7 @@ class RelationshipService extends Services
 					$target = EVENT;
 					break;
 				default:
-					# code...
+					return response(true);
 					break;
 			}
 			$description = $from->fullname." ".INVITATION." ".$target;
@@ -80,15 +70,6 @@ class RelationshipService extends Services
 			return response($notificationService->save($data));
 		}
 		return false;
-    }
-
-    public function approval($relation_from, $relation_to, $type)
-    {
-    	$relationship = new Relationship;
-		$relationship->data->relation_from = $relation_from;
-		$relationship->data->relation_to = $relation_to;
-		$relationship->data->type = $type;
-		return $relationship->insert(true);
     }
 
 	public function getFriendsGUID($owner_guid)

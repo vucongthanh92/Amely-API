@@ -29,7 +29,6 @@ $app->post($container['prefix'].'/invitation', function (Request $request, Respo
 });
 
 $app->put($container['prefix'].'/invitation', function (Request $request, Response $response, array $args) {
-	$notificationService = NotificationService::getInstance();
 	$services = Services::getInstance();
 	$userService = UserService::getInstance();
 	$relationshipService = RelationshipService::getInstance();
@@ -54,66 +53,20 @@ $app->put($container['prefix'].'/invitation', function (Request $request, Respon
 				$user = $userService->getUserByType($to, 'id');
 				if ($relationshipService->getRelationByType($from, $to, 'friend:request')) {
 					if ($relationshipService->getRelationByType($to, $from, 'friend:request')) return response(false);
-					$relationship = new Relationship;
-					$relationship->data->relation_from = $to;
-					$relationship->data->relation_to = $from;
-					$relationship->data->type = 'friend:request';
+					$relationshipService->save($user, $loggedin_user, 'friend:request');
 					$services->addFriendFB($loggedin_user, $user);
-
-					if ($relationship->insert()) {
-						$notify_params['owner_id'] = $from;
-						$notify_params['type'] = 'user';
-						$notify_params['from_id'] = $to;
-						$notify_params['from_type'] = 'user';
-						$notify_params['subject_id'] = null;
-						$notify_params['subject_type'] = 'friend:request';
-						$notify_params['item_id'] = null;
-						$notify_params['notify_token'] = $loggedin_user->notify_token;
-						$notify_params['title'] = $user->fullname." ".APPROVAL_FRIEND;
-						$notify_params['description'] = "";
-						return response($notificationService->save($notify_params));
-					}
-					
 				}
-				
-				$relationship = new Relationship;
-				$relationship->data->relation_from = $from;
-				$relationship->data->relation_to = $to;
-				$relationship->data->type = 'friend:request';
-				if ($relationship->insert()) {
-					$notify_params['owner_id'] = $to;
-					$notify_params['type'] = 'user';
-					$notify_params['from_id'] = $from;
-					$notify_params['from_type'] = 'user';
-					$notify_params['subject_id'] = null;
-					$notify_params['subject_type'] = 'friend:request';
-					$notify_params['item_id'] = null;
-					$notify_params['notify_token'] = $user->notify_token;
-					$notify_params['title'] = $loggedin_user->fullname." ".INVITATION_FRIEND;
-					$notify_params['description'] = "";
-					return response($notificationService->save($notify_params));
-				}
+				$relationshipService->save($loggedin_user, $user, 'friend:request');
 			}
 			break;
 		case 'group':
 			foreach ($tos as $key => $to) {
 				if (!$relationshipService->getRelationByType($from, $to, 'group:approve')) {
 					$user = $userService->getUserByType($to, 'id');
-					$relationship = new Relationship;
-					$relationship->data->relation_from = $to;
-					$relationship->data->relation_to = $from;
-					$relationship->data->type = "group:invite";
-					$relationship->insert();
-
-					$relationship = new Relationship;
-					$relationship->data->relation_from = $from;
-					$relationship->data->relation_to = $to;
-					$relationship->data->type = "group:approve";
-					$relationship->insert();
+					$relationshipService->save($user, $loggedin_user, 'group:invite');
+					$relationshipService->save($loggedin_user, $user, 'group:approve');
 					$services->memberGroupFB($from, $user->username, 'add');
 				}
-
-				continue;
 			}
 			return response(true);
 			break;
@@ -124,6 +77,7 @@ $app->put($container['prefix'].'/invitation', function (Request $request, Respon
 			# code...
 			break;
 	}
+	return response(true);
 });
 
 $app->delete($container['prefix'].'/invitation', function (Request $request, Response $response, array $args) {

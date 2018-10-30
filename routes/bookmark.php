@@ -114,32 +114,33 @@ $app->put($container['prefix'].'/bookmark', function (Request $request, Response
 
 	if (!$params['subject_id'] || !$params['type']) return response(false);
 
-	$data = [];
-	$data['relation_from'] = $loggedin_user->id;
-	$data['relation_to'] = $params['subject_id'];
+	
+	$from = $loggedin_user;
 
 	switch ($params['type']) {
 		case 'offer':
 			$offerService = OfferService::getInstance();
 			$offer = $offerService->getOfferByType($params['subject_id']);
 			if ($offer->status != 0) return response(false);
+			$to = $offer;
 			$relation = $relationshipService->getRelationByType($loggedin_user->id, $offer->id, 'offer');
 			if ($relation) return response(true);
 
-			$data['type'] = 'offer';
+			$type = 'offer';
 			break;
 		case 'gift':
 			$giftService = GiftService::getInstance();
 			$gift = $giftService->getGiftByType($params['subject_id']);
 			if ($gift->status != 0) return response(false);
-			$data['type'] = 'gift';
+			$to = $gift;
+			$type = 'gift';
 			break;
 		default:
 			# code...
 			break;
 	}
 
-	return response($relationshipService->save($data));
+	return response($relationshipService->save($from, $tp, $type));
 });
 
 $app->delete($container['prefix'].'/bookmark', function (Request $request, Response $response, array $args) {

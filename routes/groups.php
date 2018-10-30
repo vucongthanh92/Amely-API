@@ -70,6 +70,8 @@ $app->post($container['prefix'].'/groups', function (Request $request, Response 
 });
 
 $app->put($container['prefix'].'/groups', function (Request $request, Response $response, array $args) {
+	$relationshipService = RelationshipService::getInstance();
+	$groupService = GroupService::getInstance();
 	$userService = UserService::getInstance();
 	$services = Services::getInstance();
 	$loggedin_user = loggedin_user();
@@ -96,19 +98,13 @@ $app->put($container['prefix'].'/groups', function (Request $request, Response $
 	}
 	$group_id = $group->insert(true);
 	if ($group_id) {
+		$group = $groupService->getGroupByType($group_id, 'id');
 		foreach ($params['owners'] as $key => $owner) {
 			$user = $userService->getUserByType($owner, 'id', false);
-			$relationship = new Relationship;
-			$relationship->data->relation_from = $owner;
-			$relationship->data->relation_to = $group_id;
-			$relationship->data->type = "group:invite";
-			$relationship->insert();
 
-			$relationship = new Relationship;
-			$relationship->data->relation_from = $group_id;
-			$relationship->data->relation_to = $owner;
-			$relationship->data->type = "group:approve";
-			$relationship->insert();
+			$relationshipService->save($owner, $group, 'group:invite');
+			$relationshipService->save($group, $owner, 'group:approve');
+
 			$services->memberGroupFB($group_id, $user->username, 'add');
 		}
 		$services->createGroupFB($loggedin_user->username, $group_id, $params['name']);
@@ -145,6 +141,7 @@ $app->patch($container['prefix'].'/groups', function (Request $request, Response
 });
 
 $app->delete($container['prefix'].'/groups', function (Request $request, Response $response, array $args) {
+	$services = Services::getInstance();
 	$groupService = GroupService::getInstance();
 	$loggedin_user = loggedin_user();
 	$params = $request->getQueryParams();
@@ -157,6 +154,7 @@ $app->delete($container['prefix'].'/groups', function (Request $request, Respons
 	if ($group->type = 'user') {
 		if ($loggedin_user->id == $group->owner_id) {
 			if ($groupService->deleteRelationshipGroup($group->id)) {
+				$services->deleteGroupFB($group->id);
 				// $services->memberGroupFB($group->id, $user->username, 'delete')
 				return response($group->delete());
 			}
