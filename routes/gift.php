@@ -6,6 +6,8 @@ $app->get($container['prefix'].'/gift', function (Request $request, Response $re
 	$giftService = GiftService::getInstance();
 	$userService = UserService::getInstance();
 	$groupService = GroupService::getInstance();
+	$eventService = EventService::getInstance();
+	$businessService = BusinessService::getInstance();
 	$itemService = ItemService::getInstance();
 	$snapshotService = SnapshotService::getInstance();
 	$loggedin_user = loggedin_user();
@@ -23,16 +25,20 @@ $app->get($container['prefix'].'/gift', function (Request $request, Response $re
 	$from_owner = $to_owner = false;
 	switch ($from_type) {
 		case 'user':
-			$from_owner = $userService->getUserByType($from_id, 'id');
+			$from_user = $userService->getUserByType($from_id, 'id');
+			$gift->from_user = $from_user;
 			break;
 		case 'group':
-			$from_owner = $groupService->getGroupByType($from_id);
+			$from_group = $groupService->getGroupByType($from_id);
+			$gift->from_group = $from_group;
 			break;
 		case 'event':
-			# code...
+			$from_event = $eventService->getEventByType($from_id, 'id');
+			$gift->from_event = $from_event;
 			break;
 		case 'business':
-			# code...
+			$from_business = $businessService->getPageId($from_id);
+			$gift->from_business = $from_business;
 			break;
 		default:
 			# code...
@@ -41,23 +47,26 @@ $app->get($container['prefix'].'/gift', function (Request $request, Response $re
 
 	switch ($to_type) {
 		case 'user':
-			$to_owner = $userService->getUserByType($to_id, 'id');
+			$to_user = $userService->getUserByType($to_id, 'id');
+			$gift->to_user = $to_user;
 			break;
 		case 'group':
-			$to_owner = $groupService->getGroupByType($to_id);
+			$to_group = $groupService->getGroupByType($to_id);
+			$gift->to_group = $to_group;
 			break;
 		case 'event':
-			# code...
+			$to_event = $eventService->getEventByType($to_id, 'id');
+			$gift->to_event = $to_event;
 			break;
 		case 'business':
-			# code...
+			$to_business = $businessService->getPageId($to_id);
+			$gift->to_business = $to_business;
 			break;
 		default:
 			# code...
 			break;
 	}
-	$gift->from_owner = $from_owner;
-	$gift->to_owner = $to_owner;
+	
 	$item = $itemService->getItemByType($gift->item_id);
 	if (!$item) return response(false);
 	$snapshot = $snapshotService->getSnapshotByType($item->snapshot_id, 'id');
