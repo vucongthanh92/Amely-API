@@ -30,6 +30,7 @@ $app->get($container['prefix'].'/gift', function (Request $request, Response $re
 			break;
 		case 'group':
 			$from_group = $groupService->getGroupByType($from_id);
+			unset($from_group->owners);
 			$gift->from_group = $from_group;
 			break;
 		case 'event':
@@ -52,6 +53,7 @@ $app->get($container['prefix'].'/gift', function (Request $request, Response $re
 			break;
 		case 'group':
 			$to_group = $groupService->getGroupByType($to_id);
+			unset($to_group->owners);
 			$gift->to_group = $to_group;
 			break;
 		case 'event':
