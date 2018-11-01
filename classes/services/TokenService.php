@@ -18,13 +18,21 @@ class TokenService extends Services
     }
 
     public function save($token_code, $user_id, $type)
-    {
-    	$token = new Token();
-        $token->data->token = $token_code;
-		$token->data->user_id = $user_id;
-		$token->data->session_id = session_id();
-		$token->data->type = $type;
-		return $token->insert();
+    {	
+    	$token = $this->getTokenByType($user_id, $type);
+    	if ($token) {
+    		$token = object_cast("Token", $token);
+    		$token->data->token = $token_code;
+    		$token->where = "id = {$token->id}";
+    		return $token->update();
+    	} else {
+	    	$token = new Token();
+	        $token->data->token = $token_code;
+			$token->data->user_id = $user_id;
+			$token->data->session_id = session_id();
+			$token->data->type = $type;
+			return $token->insert();
+    	}
     }
 
     public function updateNotifyToken($notify_token, $user_id, $type)
@@ -57,6 +65,25 @@ class TokenService extends Services
 			return true;
 		}
 		return false;
+	}
+
+	public function getTokenByType($user_id, $type)
+	{
+		$conditions[] = [
+			'key' => 'user_id',
+			'value' => "= {$user_id}",
+			'operation' => ''
+		];
+
+		$conditions[] = [
+			'key' => 'type',
+			'value' => "= '{$type}'",
+			'operation' => 'AND'
+		];
+
+		$token = $this->searchObject($conditions, 0, 1);
+		if (!$token) return false;
+		return $token;
 	}
 
 	public function getToken($conditions)

@@ -32,8 +32,6 @@ class User extends Object
 	private $gift_count;
 	private $offer_count;
 	private $blockedusers;
-	private $notify_token;
-
 
 	public function __construct() 
 	{

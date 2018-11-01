@@ -7,6 +7,8 @@ class Token extends Object
 	private $expired;
 	private $user_id;
 	private $session_id;
+	private $type;
+	private $notify_token;
 
 	public function __construct() 
 	{	
