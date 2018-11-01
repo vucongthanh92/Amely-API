@@ -26,6 +26,7 @@ $app->delete($container['prefix'].'/wishlist', function (Request $request, Respo
 	$params = $request->getQueryParams();
 	if (!$params) $params = [];
 	if (!array_key_exists('item_id', $params)) $params['item_id'] = false;
+	$item = $itemService->getItemByType($params['item_id']);
 	if (!$item) return response(false);
 	if ($item->status != 1) return response(false);
 	if ($item->wishlist != 1) return response(false);
