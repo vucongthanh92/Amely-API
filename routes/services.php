@@ -6,19 +6,8 @@ use Slim\Http\Response;
 // Routes
 // $app->get('/authtoken', function (Request $request, Response $response, array $args) {
 $app->get($container['prefix'].'/services', function (Request $request, Response $response, array $args) {
-	// $services = Services::getInstance();
-	// $obj = new stdClass;
-	// $obj->from->username = "quannm";
-	// $obj->from->fullname = "fullname quannm";
-	// $obj->from->avatar = "avatar quannm";
-	// $obj->to->type = 'user';
-	// $obj->to->username = "thanhvc";
-	// $obj->text = "tang qua test";
-	// $media = new stdClass;
-	// $media->media_type = 'gift';
-	// $media->url = 1;
-	// $obj->attachment  = $media;
-	// var_dump($services->giftFB($obj));
+	// $paymentsService = PaymentsService::getInstance();
+	// $pm = $paymentsService->getMethod();
 	// die('12313');
 	
 
@@ -43,16 +32,18 @@ $app->patch($container['prefix'].'/services', function (Request $request, Respon
 	$services = Services::getInstance();
 	$params = $request->getParsedBody();
 	if (!$params) $params = [];
-	if (!array_key_exists('token', $params))	 	$params['token'] = 0;
+	if (!array_key_exists('notify_token', $params))	 	$params['notify_token'] = 0;
 	if (!array_key_exists('title', $params))	 	$params['title'] = "";
 	if (!array_key_exists('body', $params))	 	$params['body'] = "";
 	if (!array_key_exists('data', $params))	 	$params['data'] = "";
 
 	$obj = new stdClass;
-	$obj->token = $params['token'];
+	$obj->token = $params['notify_token'];
 	$obj->title = $params['title'];
 	$obj->body = $params['body'];
-	$obj->data = $params['data'];
+	$obj->collapse_key = "green";
+	$data = new stdClass;
+	$obj->data = $data;
 
 	return response($services->connectServer("notify", $obj));
 

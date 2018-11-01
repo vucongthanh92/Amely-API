@@ -46,13 +46,18 @@ $app->put($container['prefix'].'/orders', function (Request $request, Response $
 	$cart = $cartService->getCartByType($params['cart_id'], 'id');
 	$cart_items = $cartService->getCartItems($params['cart_id']);
 	if ($cart->status == 1) return response(false);
+
 	$order_items_snapshot = [];
 	$total = $quantity = 0;
 	foreach ($cart_items as $key => $cart_item) {
+
 		$product = $productService->getProductByType($cart_item->product_id, 'id');
 		if ($product->snapshot_id != $cart_item->snapshot_id) return response(false);
+
 		$store_quantity = $productStoreService->checkQuantityInStore($product->id, $cart_item->store_id, $cart_item->quantity);
+
 		if (!$store_quantity) return response(false);
+
 		if ($store_quantity->quantity < $cart_item->quantity) return response(false);
 		$quantity += $cart_item->quantity;
 		$total += $product->display_price * $cart_item->quantity;
@@ -66,6 +71,7 @@ $app->put($container['prefix'].'/orders', function (Request $request, Response $
 			'redeem_quantity' => $cart_item->redeem_quantity
 		];
 	}
+
 
 	$po = new PurchaseOrder;
 	$po->data->owner_id = $loggedin_user->id;
