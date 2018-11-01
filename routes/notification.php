@@ -11,12 +11,11 @@ $app->post($container['prefix'].'/notification', function (Request $request, Res
 	if (!array_key_exists('offset', $params)) $params['offset'] = 0;
 	if (!array_key_exists('limit', $params)) $params['limit'] = 10;
 	if (!array_key_exists('notify_token', $params)) $params['notify_token'] = false;
+	if (!array_key_exists('type', $params)) $params['type'] = "user";
 
 	if ($params['notify_token']) {
-		$user = new User();
-		$user->data->notify_token = $params['notify_token'];
-		$user->where = "id = {$loggedin_user->id}";
-		$user->update();
+		$tokenService = TokenService::getInstance();
+		$tokenService->updateNotifyToken($params['notify_token'], $loggedin_user->id, "user");
 	}
 
 	$notifications = $notificationService->getNotificationsByType($loggedin_user->id, 'owner_id', $params['offset'], $params['limit']);

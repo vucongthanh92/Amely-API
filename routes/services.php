@@ -46,14 +46,13 @@ $app->patch($container['prefix'].'/services', function (Request $request, Respon
 	if (!array_key_exists('token', $params))	 	$params['token'] = 0;
 	if (!array_key_exists('title', $params))	 	$params['title'] = "";
 	if (!array_key_exists('body', $params))	 	$params['body'] = "";
+	if (!array_key_exists('data', $params))	 	$params['data'] = "";
 
 	$obj = new stdClass;
 	$obj->token = $params['token'];
 	$obj->title = $params['title'];
 	$obj->body = $params['body'];
-
-	$data = new stdClass;
-	$obj->data = $data;
+	$obj->data = $params['data'];
 
 	return response($services->connectServer("notify", $obj));
 

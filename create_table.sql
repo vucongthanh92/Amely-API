@@ -41,11 +41,13 @@ CREATE TABLE `amely_payment` (
 DROP TABLE IF EXISTS `amely_usertokens`;
 CREATE TABLE `amely_usertokens` (
   `id` bigint(255) unsigned NOT NULL AUTO_INCREMENT,
-  `token` varchar(32) NOT NULL,
+  `token` text,
   `time_created` int(11) NOT NULL,
   `expired` bigint(20) unsigned NOT NULL,
   `user_id` int(10) unsigned NOT NULL,
   `session_id` varchar(255) NOT NULL,
+  `type` varchar(20) NOT NULL,
+  `notify_token` text,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
@@ -185,8 +187,7 @@ CREATE TABLE `amely_users` (
   `cover` text,
   `gift_count` int DEFAULT 0,
   `offer_count` int DEFAULT 0,
-  `blockedusers` text,
-  `notify_token` text
+  `blockedusers` text
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 DROP TABLE IF EXISTS `amely_promotion_items`; 

@@ -17,6 +17,24 @@ class TokenService extends Services
         $this->table = "amely_usertokens";
     }
 
+    public function save($token_code, $user_id, $type)
+    {
+    	$token = new Token();
+        $token->data->token = $token_code;
+		$token->data->user_id = $user_id;
+		$token->data->session_id = session_id();
+		$token->data->type = $type;
+		return $token->insert();
+    }
+
+    public function updateNotifyToken($notify_token, $user_id, $type)
+    {
+    	$token = new Token();
+    	$token->data->notify_token = $notify_token;
+    	$token->where = "user_id = {$user_id} AND type = '{$type}'";
+    	return $token->update();
+    }
+
     public function checkToken($token)
 	{
 		$conditions = null;
@@ -39,5 +57,12 @@ class TokenService extends Services
 			return true;
 		}
 		return false;
+	}
+
+	public function getToken($conditions)
+	{
+		$token = $this->searchObject($conditions, 0, 1);
+		if (!$token) return false;
+		return $token;
 	}
 }

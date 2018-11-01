@@ -69,14 +69,9 @@ $app->post($container['prefix'].'/authtoken', function (Request $request, Respon
             return response($result);
         }
         $token_code = md5(($user->username).uniqid());
-
-        $token = new Token();
-        $token->data->token = $token_code;
-		$token->data->user_id = $user->id;
-		$token->data->session_id = session_id();
-
-        if ($token->insert()) {
-			$_SESSION["OSSN_USER"] = $user;
+        $tokenService = TokenService::getInstance();
+        if ($tokenService->save($token_code, $user->id, $params['type'])) {
+        	$_SESSION["OSSN_USER"] = $user;
 			$_SESSION["TOKEN"] = $token_code;
 			return response(["token" => $token_code]);
         }
