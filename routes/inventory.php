@@ -70,11 +70,11 @@ $app->get($container['prefix'].'/inventory', function (Request $request, Respons
 		}
 		if ($item->stored_end >= $time AND $item->stored_end != 0 AND $item->stored_end != "") {
 			// wishlist
-			if ($item->wishlist == 2) {
+			if ($item->wishlist == 1) {
 				$wishlist_count = $wishlist_count + $item->quantity;
 			}
 			// givelist
-			if ($item->givelist == 2) {
+			if ($item->givelist == 1) {
 				$givelist_count = $givelist_count + $item->quantity;	
 			}
 			// expired
@@ -215,7 +215,7 @@ $app->post($container['prefix'].'/inventory', function (Request $request, Respon
 		case 'wishlist':
 			$item_params[] = [
 				'key' => "wishlist",
-				'value' => "= 2",
+				'value' => "= 1",
 				'operation' => 'AND'
 			];
 			break;
@@ -223,7 +223,7 @@ $app->post($container['prefix'].'/inventory', function (Request $request, Respon
 		case 'givelist':
 			$item_params[] = [
 				'key' => "givelist",
-				'value' => "= 2",
+				'value' => "= 1",
 				'operation' => 'AND'
 			];
 			$item_params[] = [
