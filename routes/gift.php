@@ -121,6 +121,12 @@ $app->put($container['prefix'].'/gift', function (Request $request, Response $re
 
 	if (!$params['from_id'] || !$params['from_type'] || !$params['to_id'] || !$params['to_type'] || !$params['item_id'] || !$params['quantity']) return response(false);
 
+	if ($params['to_type'] == 'user') {
+		$userService = UserService::getInstance();
+		$user = $userService->getUserByType($params['to_id'], 'username');
+		if (!$user) return response(false);
+		$params['to_id'] = $user->id;
+	}
 	$item = $itemService->checkItemOfOwner($params['item_id'], $params['from_id'], $params['from_type']);
 	if (!$item) return response(false);
 
