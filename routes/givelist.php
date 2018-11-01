@@ -26,8 +26,8 @@ $app->delete($container['prefix'].'/givelist', function (Request $request, Respo
 	$params = $request->getQueryParams();
 	if (!$params) $params = [];
 	if (!array_key_exists('item_id', $params)) $params['item_id'] = false;
-	if (!$item) return response(false);
 	$item = $itemService->getItemByType($params['item_id']);
+	if (!$item) return response(false);
 	if ($item->status != 1) return response(false);
 	if ($item->givelist != 1) return response(false);
 	$item = object_cast("Item", $item);
