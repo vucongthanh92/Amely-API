@@ -65,6 +65,14 @@ $app->post($container['prefix'].'/offers', function (Request $request, Response 
 			];
 			break;
 		case 2:
+			if (!array_key_exists('offers_id', $params)) return false;
+			$offers_id = implode(',', array_unique($params['offers_id']));
+			$offer_params[] = [
+				'key' => 'id',
+				'value' => "IN ({$offers_id})",
+				'operation' => 'AND'
+			];
+
 			break;
 		case 1:
 			$offer_params[] = [
@@ -372,10 +380,10 @@ $app->put($container['prefix'].'/offers', function (Request $request, Response $
 			$counter_params['creator_id'] = $loggedin_user->id;
 			$counter_params['status'] = 0;
 			$counter_id = $counterService->save($counter_params);
-			if ($counter_id) return response(true);
+			if ($counter_id) return response($offer_id);
 			return response(false);
 		}
-		return response(true);
+		return response($offer_id);
 	}
 	return response(false);
 });
@@ -395,7 +403,7 @@ $app->delete($container['prefix'].'/offers', function (Request $request, Respons
 	
 	$offer = $offerService->getOfferByType($params['offer_id']);
 	if (!$offer) return response(false);
-	if ($offer->status != 2) return response(false);
+	if ($offer->status != 0) return response(false);
 	if ($offer->owner_id != $loggedin_user->id) return response(false);
 	$offer = object_cast("Offer", $offer);
 	$offer->data->status = 2;
