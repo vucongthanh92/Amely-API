@@ -329,10 +329,7 @@ $app->put($container['prefix'].'/counter_offers', function (Request $request, Re
 					$item = $itemService->getItemByType($item_id, 'id');
 				}
 				$item = object_cast("Item", $item);
-				$update = null;
-				$update['id'] = $item->id;
-				$update['status'] = 1;
-				return response($itemService->changeOwnerItem($loggedin_user->id, 'user', $update));
+				return response($itemService->changeOwnerItem($loggedin_user->id, 'user', $item->id));
 			}
 		}
 		if ($offer->offer_type == 1) {
@@ -352,10 +349,9 @@ $app->put($container['prefix'].'/counter_offers', function (Request $request, Re
 			if ($offer->limit_counter == count($counters)) {
 				$counters = joiner_shuffle($counters);
 				foreach ($counters as $key => $counter) {
-					$update = null;
-					$update['id'] = $counter->item_id;
-					$update['status'] = 1;
-					$itemService->changeOwnerItem($counter->creator_id, 'user', $update);
+					if ($counter->item_id) {
+						$itemService->changeOwnerItem($counter->creator_id, 'user', $counter->item_id);
+					}
 
 					$counter_offer = new Counter();
 					$counter_offer->data->status = 1;

@@ -266,15 +266,8 @@ $app->patch($container['prefix'].'/offers', function (Request $request, Response
 	];
 	$counter = $counterService->getCounter($counter_params);
 	if (!$counter) return response(false);
-	$update = null;
-	$update['id'] = $offer->item_id;
-	$update['status'] = 1;
-	$itemService->changeOwnerItem($counter->creator_id, 'user', $update);
-
-	$update = null;
-	$update['id'] = $counter->item_id;
-	$update['status'] = 1;
-	$itemService->changeOwnerItem($offer->owner_id, 'user', $update);
+	$itemService->changeOwnerItem($counter->creator_id, 'user', $offer->item_id);
+	$itemService->changeOwnerItem($offer->owner_id, 'user', $counter->item_id);
 
 	$offer = object_cast("Offer", $offer);
 	$offer->data->status = 1;
@@ -300,10 +293,7 @@ $app->patch($container['prefix'].'/offers', function (Request $request, Response
 	$counters = $counterService->getCounters($counter_params, 0, 99999999);
 	if ($counters) {
 		foreach ($counters as $key => $counter) {
-			$update = null;
-			$update['id'] = $counter->item_id;
-			$update['status'] = 1;
-			$itemService->changeOwnerItem($counter->creator_id, 'user', $update);
+			$itemService->changeOwnerItem($counter->creator_id, 'user', $counter->item_id);
 		}
 	}
 	return response(true);
@@ -410,6 +400,8 @@ $app->delete($container['prefix'].'/offers', function (Request $request, Respons
 	$offer->where = "id = {$offer->id}";
 	$offer->update();
 
+	$itemService->changeOwnerItem($offer->owner_id, 'user', $offer->item_id);
+
 	$counter_params = null;
 	$counter_params[] = [
 		'key' => 'owner_id',
@@ -420,16 +412,11 @@ $app->delete($container['prefix'].'/offers', function (Request $request, Respons
 	if ($counters) {
 		foreach ($counters as $key => $counter) {
 			if ($counter->item_id) {
-				$item = new Item();
-				$item->data->status = 1;
-				$item->where = "id = {$counter->item_id}";
-				$item->update();
-
 				$counter = object_cast("Counter", $counter);
 				$counter->data->status = 2;
 				$counter->where = "id = {$counter->id}";
 				$counter->update();
-
+				$itemService->changeOwnerItem($counter->creator_id, 'user', $counter->item_id);
 			}
 		}
 	}

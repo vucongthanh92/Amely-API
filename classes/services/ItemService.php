@@ -76,22 +76,17 @@ class ItemService extends Services
 		return false;
     }
 
-    public function changeOwnerItem($owner_id, $type, $data)
+    public function changeOwnerItem($owner_id, $type, $item_id)
     {
     	$inventoryService = InventoryService::getInstance();
     	$inventory = $inventoryService->getInventoryByType($owner_id, $type);
     	if (!$inventory) return false;
     	$item = new Item();
-    	foreach ($data as $key => $value) {
-    		if ($key == 'id') {
-    			$item->where = "id = {$value}";
-    		}
-    		$item->data->time_created = time();
-    		$item->data->givelist = 0;
-    		$item->data->wishlist = 0;
-    		$item->data->$key = $value;
-    	}
     	$item->data->owner_id = $inventory->id;
+    	$item->data->givelist = 0;
+    	$item->data->wishlist = 0;
+    	$item->data->status = 1;
+    	$item->where = "id = {$item_id}";
     	return $item->update();
     }
 

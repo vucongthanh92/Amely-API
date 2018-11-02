@@ -64,33 +64,26 @@ class OPATM extends \Object implements \Amely\Payment\IPaymentMethod
 		$mobilelogin = $creator->mobilelogin;
 		$vpcURL = $this->virtualPaymentClientURL . "?";
 		unset($this->virtualPaymentClientURL);
-
-		$md5HashData = "";
+		$stringHashData = "";
 		$time = time();
 		$requests = [
-			"AVS_City" => $province,
-			"AVS_Country" => $country,
-			"AVS_PostCode" => 10000,
-			"AVS_StateProv" => $district,
-			"AVS_Street01" => $address,
-			"AgainLink" => urlencode($return_url),
-			"Title" => "Thanh Toan ONEPAY",
-			"display" => "mobile",
+			"Title" => $username,
 			"vpc_AccessCode" => $this->vpc_AccessCode,
 			"vpc_Amount" => $amout,
 			"vpc_Command" => $this->vpc_Command,
+			"vpc_Currency" => "VND",
 			"vpc_Customer_Email" => $email,
 			"vpc_Customer_Id" => $username,
 			"vpc_Customer_Phone" => $mobilelogin,
 			"vpc_Locale" => $this->vpc_Locale,
 			"vpc_MerchTxnRef" => $display_order,
 			"vpc_Merchant" => $this->vpc_Merchant,
-			"vpc_OrderInfo" => $order_type,
+			"vpc_OrderInfo" => $display_order,
 			"vpc_ReturnURL" => $return_url,
-			"vpc_SHIP_City" => "",
-			"vpc_SHIP_Country" => "",
-			"vpc_SHIP_Provice" => "",
-			"vpc_SHIP_Street01" => "",
+			"vpc_SHIP_City" => $province,
+			"vpc_SHIP_Country" => $country,
+			"vpc_SHIP_Provice" => $district,
+			"vpc_SHIP_Street01" => $address,
 			"vpc_TicketNo" => $this->vpc_TicketNo,
 			"vpc_Version" => $this->vpc_Version
 		];
@@ -122,7 +115,7 @@ class OPATM extends \Object implements \Amely\Payment\IPaymentMethod
 		    // Thay hàm mã hóa dữ liệu
 		    $vpcURL .= "&vpc_SecureHash=" . strtoupper(hash_hmac('SHA256', $md5HashData, pack('H*',$this->secure_secret)));
 		}
-		var_dump($vpcURL);die('123');
+
 		$payment = new \Payment();
 		$payment->data->owner_id = $order->id;
 		$payment->data->type = $this->order_type;

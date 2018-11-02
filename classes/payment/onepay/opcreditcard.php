@@ -54,7 +54,7 @@ class OPCreditCard extends \Object implements \Amely\Payment\IPaymentMethod
 			$order = $purchaseOrderService->getPOByType($order_id);
 		}
 		$display_order = convertPrefixOrder($order_type, $order->id, $order->time_created);
-		$country = "VN";
+		$country = "Viet Nam";
 		$amout = $this->amount*100;
 		$address = $creator->address;
 		$province = $creator->province_name;
@@ -74,7 +74,7 @@ class OPCreditCard extends \Object implements \Amely\Payment\IPaymentMethod
 			"AVS_StateProv" => $district,
 			"AVS_Street01" => $address,
 			"AgainLink" => urlencode($return_url),
-			"Title" => "Thanh Toan ONEPAY",
+			"Title" => $username,
 			"display" => "mobile",
 			"vpc_AccessCode" => $this->vpc_AccessCode,
 			"vpc_Amount" => $amout,
@@ -85,7 +85,7 @@ class OPCreditCard extends \Object implements \Amely\Payment\IPaymentMethod
 			"vpc_Locale" => $this->vpc_Locale,
 			"vpc_MerchTxnRef" => $display_order,
 			"vpc_Merchant" => $this->vpc_Merchant,
-			"vpc_OrderInfo" => $order_type,
+			"vpc_OrderInfo" => $display_order,
 			"vpc_ReturnURL" => $return_url,
 			"vpc_SHIP_City" => "",
 			"vpc_SHIP_Country" => "",

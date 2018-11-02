@@ -91,10 +91,10 @@ $app->put($container['prefix'].'/orders', function (Request $request, Response $
 	$po->data->quantity = $quantity;
 	$po_id = $po->insert(true);
 	if ($po_id) {
-		$cart = object_cast('cart', $cart);
-		$cart->data->status = 1;
-		$cart->where = "id = {$cart->id}";
-		$cart->update();
+		// $cart = object_cast('cart', $cart);
+		// $cart->data->status = 1;
+		// $cart->where = "id = {$cart->id}";
+		// $cart->update();
 		$pm = $paymentsService->getMethod($params['payment_method']);
 		$pm->order_id = $po_id;
 		$pm->amount = $total;
