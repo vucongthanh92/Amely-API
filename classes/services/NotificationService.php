@@ -117,7 +117,10 @@ class NotificationService extends Services
 				$to_title = $from['title'];
 				$subject_id = $gift->id;
 				break;
-
+			case 'offer:accept':
+				break;
+			case 'offer:reject':
+				break;
 			default:
 				return response(true);
 				break;
@@ -138,6 +141,7 @@ class NotificationService extends Services
 		$notification->data->item_id = "";
 		$notification->data->viewed = 0;
 		$notification_id = $notification->insert(true);
+		var_dump($notification_id);die();
 		if ($notification_id) {
 			if ($notify_token) {
 				$notification = new Notification();

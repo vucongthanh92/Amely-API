@@ -118,7 +118,6 @@ $app->put($container['prefix'].'/gift', function (Request $request, Response $re
 	if (!array_key_exists('item_id', $params)) $params['item_id'] = 0;
 	if (!array_key_exists('quantity', $params)) $params['quantity'] = 0;
 	if (!array_key_exists('message', $params)) $params['message'] = "";
-
 	if (!$params['from_id'] || !$params['from_type'] || !$params['to_id'] || !$params['to_type'] || !$params['item_id'] || !$params['quantity']) return response(false);
 
 	if ($params['to_type'] == 'user') {
@@ -141,7 +140,6 @@ $app->put($container['prefix'].'/gift', function (Request $request, Response $re
 	$data['to_type'] = $params['to_type'];
 	$data['item_id'] = $item_id;
 	$data['message'] = $params['message'];
-
 	return response($giftService->save($data));
 });
 
@@ -193,14 +191,14 @@ $app->patch($container['prefix'].'/gift', function (Request $request, Response $
 	$item->where = "id = {$item->id}";
 	$item->update();
 
-	$data = null;
-	$data['gift'] = $gift->id;
-	$notificationService->save($data, "gift:accept");
 
 	$gift = object_cast("Gift", $gift);
 	$gift->data->status = 1;
 	$gift->where = "id = {$gift->id}";
-	return response($gift->update());
+	$gift->update();
+	$data = null;
+	$data['gift'] = $gift->id;
+	return response($notificationService->save($data, "gift:accept"));
 });
 
 $app->delete($container['prefix'].'/gift', function (Request $request, Response $response, array $args) {
@@ -214,9 +212,7 @@ $app->delete($container['prefix'].'/gift', function (Request $request, Response 
 	$gift = $giftService->getGiftByType($params['gift_id'], 'id');
 	if (!$gift) return response(false);
 	if ($gift->status != 0) return response(false);
-	$data = null;
-	$data['gift'] = $gift->id;
-	$notificationService->save($data, "gift:accept");
+	
 	switch ($gift->to_type) {
 		case 'user':
 			if ($loggedin_user->id != $gift->to_id) return response(false);
@@ -251,5 +247,9 @@ $app->delete($container['prefix'].'/gift', function (Request $request, Response 
 	$gift = object_cast("Gift", $gift);
 	$gift->data->status = 2;
 	$gift->where = "id = {$gift->id}";
-	return response($gift->update());
+	$gift->update();
+
+	$data = null;
+	$data['gift'] = $gift->id;
+	return response($notificationService->save($data, "gift:reject"));
 });

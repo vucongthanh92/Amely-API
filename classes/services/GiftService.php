@@ -26,15 +26,16 @@ class GiftService extends Services
 		switch ($data['type']) {
 			case 'user':
 				$from = $userService->getUserByType($data['owner_id'], 'id');
-				$obj->from->username = $from->username;
-				$obj->from->fullname = $from->fullname;
-				$obj->from->avatar = $from->avatar;
+				$from->type = 'user';
+				$obj->from = $from;
 				break;
 			case 'group':
 				$from = $groupService->getGroupByType($data['owner_id'], 'id');
-				$obj->from->username = $from->id;
-				$obj->from->fullname = $from->title;
-				$obj->from->avatar = $from->avatar;
+				$from->type = 'group';
+				$from->username = $from->id;
+				$from->fullname = $from->title;
+				$from->avatar = $from->avatar;
+				$obj->from = $from;
 				break;
 			case 'event':
 				# code...
@@ -52,17 +53,16 @@ class GiftService extends Services
 		switch ($data['to_type']) {
 			case 'user':
 				$to = $userService->getUserByType($data['to_id'], 'id');
-				$obj->to->type = 'user';
-				$obj->to->username = $to->username;
-				$obj->to->fullname = $to->fullname;
-				$obj->to->avatar = $to->avatar;
+				$to->type = 'user';
+				$obj->to = $to;
 				break;
 			case 'group':
 				$to = $groupService->getGroupByType($data['to_id'], 'id');
-				$obj->to->type = 'group';
-				$obj->to->username = $to->id;
-				$obj->to->fullname = $to->title;
-				$obj->to->avatar = $to->avatar;
+				$to->type = 'group';
+				$to->username = $to->id;
+				$to->fullname = $to->title;
+				$to->avatar = $to->avatar;
+				$obj->to = $to;
 				break;
 			case 'event':
 				# code...
@@ -88,22 +88,21 @@ class GiftService extends Services
 		$gift->data->status = 0;
 		$gift_id = $gift->insert(true);
 		if ($gift_id) {
-			$notificationService = NotificationService::getInstance();
-			$data = null;
-			$data['gift'] = $gift_id;
-			$notificationService->save($data, "gift:request");
 			$item = new Item();
 			$item->data->status = 0;
 			$item->where = "id = {$data['item_id']}";
 			$item->update();
-
 			$obj->text = $data['message'];
-
 			$media = new stdClass;
 			$media->media_type = 'gift';
 			$media->url = (string)$gift_id;
 			$obj->attachment  = $media;
 			$services->giftFB($obj);
+			
+			$notificationService = NotificationService::getInstance();
+			$data = null;
+			$data['gift'] = $gift_id;
+			$notificationService->save($data, "gift:request");
 			return true;
 		}
 		return false;
