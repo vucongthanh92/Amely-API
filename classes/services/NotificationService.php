@@ -88,15 +88,15 @@ class NotificationService extends Services
 				if (!$gift) return false;
 				$from = getInfo($gift->from_id, $gift->from_type);
 				$to = getInfo($gift->to_id, $gift->to_type);
-				$owner_id = $to['user']->id;
+				$owner_id = $from['user']->id;
 				$owner_type = 'user';
 				$notify_token = $tokenService->getNotifyToken($owner_id, $owner_type);
-				$from_id = $from['id'];
-				$from_type = $from['type'];
-				$from_title = $from['title'];
-				$to_id = $to['id'];
-				$to_type = $to['type'];
-				$to_title = $to['title'];
+				$from_id = $to['id'];
+				$from_type = $to['type'];
+				$from_title = $to['title'];
+				$to_id = $from['id'];
+				$to_type = $from['type'];
+				$to_title = $from['title'];
 				$subject_id = $gift->id;
 				break;
 			case 'gift:reject':
@@ -106,18 +106,18 @@ class NotificationService extends Services
 				if (!$gift) return false;
 				$from = getInfo($gift->from_id, $gift->from_type);
 				$to = getInfo($gift->to_id, $gift->to_type);
-				$owner_id = $to['user']->id;
+				$owner_id = $from['user']->id;
 				$owner_type = 'user';
 				$notify_token = $tokenService->getNotifyToken($owner_id, $owner_type);
-				$from_id = $from['id'];
-				$from_type = $from['type'];
-				$from_title = $from['title'];
-				$to_id = $to['id'];
-				$to_type = $to['type'];
-				$to_title = $to['title'];
+				$from_id = $to['id'];
+				$from_type = $to['type'];
+				$from_title = $to['title'];
+				$to_id = $from['id'];
+				$to_type = $from['type'];
+				$to_title = $from['title'];
 				$subject_id = $gift->id;
 				break;
-			
+
 			default:
 				return response(true);
 				break;
