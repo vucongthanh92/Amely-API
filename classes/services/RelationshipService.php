@@ -80,7 +80,7 @@ class RelationshipService extends Services
 			$data['from_id'] = $from_id;
 			$data['from_type'] = $from_type;
 			$data['subject_id'] = $from_id;
-			$data['subject_type'] = $from_type;
+			$data['subject_type'] = $type;
 			$data['item_id'] = 0;
 			$data['notify_token'] = $notify_token;
 			return response($notificationService->save($data));
