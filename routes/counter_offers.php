@@ -384,7 +384,7 @@ $app->delete($container['prefix'].'/counter_offers', function (Request $request,
 	if ($offer->owner_id == $loggedin_user->id) {
 		$noty_params = null;
 		$noty_params['offer_id'] = $offer->id;
-		$noty_params['counter_id'] = $params['counter_id']
+		$noty_params['counter_id'] = $params['counter_id'];
 		$notificationService->save($noty_params, 'counter:reject');
 	}
 	$item = new Item();
