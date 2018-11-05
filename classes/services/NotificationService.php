@@ -22,7 +22,7 @@ class NotificationService extends Services
 
     public function save(array $data)
     {
-    	$notification = Notification();
+    	$notification = new Notification();
 		$notification->data->owner_id = $data['owner_id'];
 		$notification->data->type = $data['type'];
 		$notification->data->title = $data['title'];
@@ -44,6 +44,7 @@ class NotificationService extends Services
 			Services::getInstance()->notify($data);
 		}
 		return $notification->insert();
+		
     }
 
     public function viewed($id)

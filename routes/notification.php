@@ -17,8 +17,8 @@ $app->post($container['prefix'].'/notification', function (Request $request, Res
 		$tokenService = TokenService::getInstance();
 		$tokenService->updateNotifyToken($params['notify_token'], $loggedin_user->id, "user");
 	}
-
 	$notifications = $notificationService->getNotificationsByType($loggedin_user->id, 'owner_id', $params['offset'], $params['limit']);
+
 	if (!$notifications) return response(false);
 
 	$users_id = $groups_id = [];
@@ -45,7 +45,6 @@ $app->post($container['prefix'].'/notification', function (Request $request, Res
 		$groups_id = implode(',', $groups_id);
 		$groups = $userService->getUsersByType($groups_id, 'id');
 	}
-
 	foreach ($notifications as $key => $notification) {
 		switch ($notification->from_type) {
 			case 'user':
@@ -68,5 +67,5 @@ $app->post($container['prefix'].'/notification', function (Request $request, Res
 		}
 		$notifications[$key] = $notification;
 	}
-	return $notifications;
+	return response($notifications);
 });

@@ -43,7 +43,7 @@ class RelationshipService extends Services
 					$target = GROUP;
 					$user = $userService->getUserByType($to->owner_id, 'id', false);
 					if (!$user) return false;
-					$owner_id = $user->owner_id;
+					$owner_id = $user->id;
 					$owner_type = 'user';
 					$notify_token = $tokenService->getNotifyToken($owner_id, $owner_type);
 					$from_id = $to->id;

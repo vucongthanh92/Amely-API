@@ -16,12 +16,12 @@ $app->put($container['prefix'].'/approval', function (Request $request, Response
 	$from = $params['from_id'];
 	$to = $params['to_id'];
 	$type = $params['type'];
-
 	switch ($type) {
 		case 'user':
 			$userService = UserService::getInstance();
 			$from = $loggedin_user->id;
 			$user = $userService->getUserByType($to, 'id');
+			
 			if ($relationshipService->getRelationByType($from, $to, 'friend:request')) {
 				if ($relationshipService->getRelationByType($to, $from, 'friend:request')) return response(false);
 				$relationshipService->save($user, $loggedin_user, 'friend:request');
