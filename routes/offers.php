@@ -240,6 +240,7 @@ $app->post($container['prefix'].'/offers', function (Request $request, Response 
 });
 
 $app->patch($container['prefix'].'/offers', function (Request $request, Response $response, array $args) {
+	$notificationService = NotificationService::getInstance();
 	$offerService = OfferService::getInstance();
 	$counterService = CounterService::getInstance();
 	$itemService = ItemService::getInstance();
@@ -278,6 +279,11 @@ $app->patch($container['prefix'].'/offers', function (Request $request, Response
 	$counter->data->status = 1;
 	$counter->where = "id = {$counter->id}";
 	$counter->update();
+
+	$noty_params = null;
+	$noty_params['offer_id'] = $offer->id;
+	$noty_params['counter_id'] = $counter->id;
+	$notificationService->save($noty_params, 'counter:accept');
 
 	$counter_params = null;
 	$counter_params[] = [
