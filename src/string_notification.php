@@ -17,3 +17,6 @@ define("APPROVAL_FRIEND", "kết bạn");
 define("GROUP", "nhóm");
 define("EVENT", "sự kiện");
 define("BUSINESS", "cộng đồng");
+define("GIFT_REQUEST", "đã tặng quà đến");
+define("GIFT_ACCEPT", "đã đồng ý nhận quà");
+define("GIFT_REJECT", "đã từ chối nhận quà");

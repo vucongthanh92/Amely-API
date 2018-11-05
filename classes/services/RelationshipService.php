@@ -29,61 +29,13 @@ class RelationshipService extends Services
 		$relationship->data->relation_to = $to->id;
 		$relationship->data->type = $type;
 		if ($relationship->insert(true)) {
-			$notificationService = NotificationService::getInstance();
-			switch ($type) {
-				case 'friend:request':
-					$target = FRIEND;
-					$owner_id = $to->id;
-					$owner_type = 'user';
-					$notify_token = $tokenService->getNotifyToken($owner_id, $owner_type);
-					$from_id = $from->id;
-					$from_type = 'user';
-					break;
-				case 'group:invite':
-					$target = GROUP;
-					$user = $userService->getUserByType($to->owner_id, 'id', false);
-					if (!$user) return false;
-					$owner_id = $user->id;
-					$owner_type = 'user';
-					$notify_token = $tokenService->getNotifyToken($owner_id, $owner_type);
-					$from_id = $to->id;
-					$from_type = 'group';
-					break;
-				case 'event:invite':
-					$target = EVENT;
-					break;
-				default:
-					return response(true);
-					break;
+			if ($type == "friend:request") {
+				$type = "friend:".$type_relation;
 			}
-			switch ($type_relation) {
-				case 'invitation':
-					if ($target == FRIEND) {
-						$target = INVITATION." ".INVITATION_FRIEND;
-					}
-					break;
-				case 'approval':
-					if ($target == FRIEND) {
-						$target = APPROVAL." ".APPROVAL_FRIEND;
-					}
-					break;
-				default:
-					# code...
-					break;
-			}
-			$description = $from->fullname." ".$target;
 			$data = null;
-			$data['owner_id'] = $owner_id;
-			$data['type'] = $owner_type;
-			$data['title'] = "";
-			$data['description'] = $description;
-			$data['from_id'] = $from_id;
-			$data['from_type'] = $from_type;
-			$data['subject_id'] = $from_id;
-			$data['subject_type'] = $type;
-			$data['item_id'] = 0;
-			$data['notify_token'] = $notify_token;
-			return response($notificationService->save($data));
+			$data['from'] = $from;
+			$data['to'] = $to;
+			return response($notificationService->save($data, $type));
 		}
 		return false;
     }

@@ -2,6 +2,59 @@
 
 use Slim\Http\Response;
 
+function getInfo($owner_id, $owner_type)
+{
+	switch ($owner_type) {
+		case 'user':
+			$userService = UserService::getInstance();
+			$user = $userService->getUserByType($owner_id, 'id');
+			$user->title = $user->fullname;
+			$object = $user;
+			$id = $user->id;
+			$title = $user->fullname;
+			break;
+		case 'group':
+			$groupService = GroupService::getInstance();
+			$group = $groupService->getGroupByType($owner_id, 'id');
+			if (!$group) return false;
+			if ($group->type == 'user') {
+				$userService = UserService::getInstance();
+				$user = $userService->getUserByType($group->owner_id, 'id');
+				$user->title = $user->fullname;
+			}
+			$id = $group->id;
+			$title = $group->title;
+			$object = $group;
+			break;
+		case 'event':
+			$eventService = EventService::getInstance();
+			$event = $eventService->getEventByType($owner_id, 'id');
+			if (!$event) return false;
+			if ($event->type == 'user') {
+				$userService = UserService::getInstance();
+				$user = $userService->getUserByType($event->owner_id, 'id');
+				$user->title = $user->fullname;
+			}
+			$id = $event->id;
+			$title = $event->title;
+			$object = $event;
+			break;
+		default:
+			return false;
+			break;
+	}
+
+
+	$data = null;
+	$data['id'] = $id;
+	$data['type'] = $owner_type;
+	$data['title'] = $title;
+	$data['user'] = $user;
+	$data[$owner_type] = $object;
+
+	return $data;
+}
+
 function joiner_shuffle($counters)
 {
 	$counters_id = $counters_item = [];

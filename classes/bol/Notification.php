@@ -9,6 +9,8 @@ class Notification extends Object
     private $time_created;
     private $from_id;
     private $from_type;
+    private $to_id;
+    private $to_type;
     private $subject_id;
     private $subject_type;
     private $item_id;

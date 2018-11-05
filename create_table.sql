@@ -84,6 +84,8 @@ CREATE TABLE `amely_notifications` (
   `time_created` int(11) NOT NULL,
   `from_id` bigint(20) NOT NULL,
   `from_type` varchar(20) DEFAULT NULL,
+  `to_id` bigint(20) NOT NULL,
+  `to_type` varchar(20) DEFAULT NULL,
   `subject_id` bigint(20),
   `subject_type` varchar(20) DEFAULT NULL,
   `item_id` bigint(20),
