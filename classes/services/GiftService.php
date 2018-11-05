@@ -88,6 +88,10 @@ class GiftService extends Services
 		$gift->data->status = 0;
 		$gift_id = $gift->insert(true);
 		if ($gift_id) {
+			$notificationService = NotificationService::getInstance();
+			$data = null;
+			$data['gift'] = $gift_id;
+			$notificationService->save($data, "gift:request");
 			$item = new Item();
 			$item->data->status = 0;
 			$item->where = "id = {$data['item_id']}";

@@ -147,6 +147,7 @@ $app->put($container['prefix'].'/gift', function (Request $request, Response $re
 
 
 $app->patch($container['prefix'].'/gift', function (Request $request, Response $response, array $args) {
+	$notificationService = NotificationService::getInstance();
 	$giftService = GiftService::getInstance();
 	$itemService = ItemService::getInstance();
 	$loggedin_user = loggedin_user();
@@ -192,6 +193,10 @@ $app->patch($container['prefix'].'/gift', function (Request $request, Response $
 	$item->where = "id = {$item->id}";
 	$item->update();
 
+	$data = null;
+	$data['gift'] = $gift->id;
+	$notificationService->save($data, "gift:accept");
+
 	$gift = object_cast("Gift", $gift);
 	$gift->data->status = 1;
 	$gift->where = "id = {$gift->id}";
@@ -199,6 +204,7 @@ $app->patch($container['prefix'].'/gift', function (Request $request, Response $
 });
 
 $app->delete($container['prefix'].'/gift', function (Request $request, Response $response, array $args) {
+	$notificationService = NotificationService::getInstance();
 	$giftService = GiftService::getInstance();
 	$itemService = ItemService::getInstance();
 	$loggedin_user = loggedin_user();
@@ -208,7 +214,9 @@ $app->delete($container['prefix'].'/gift', function (Request $request, Response 
 	$gift = $giftService->getGiftByType($params['gift_id'], 'id');
 	if (!$gift) return response(false);
 	if ($gift->status != 0) return response(false);
-
+	$data = null;
+	$data['gift'] = $gift->id;
+	$notificationService->save($data, "gift:accept");
 	switch ($gift->to_type) {
 		case 'user':
 			if ($loggedin_user->id != $gift->to_id) return response(false);

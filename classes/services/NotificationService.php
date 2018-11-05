@@ -117,6 +117,7 @@ class NotificationService extends Services
 				$to_title = $to['title'];
 				$subject_id = $gift->id;
 				break;
+			
 			default:
 				return response(true);
 				break;
