@@ -27,13 +27,17 @@ class CounterService extends Services
 	    $counter->data->creator_id = $data['creator_id'];
 	    $counter->data->item_id = $data['item_id'];
 	    $counter->data->status = $data['status'];
+	    $counter_id = $counter->insert(true);
 	    if ($data['item_id']) {
 	    	$item = new Item();
 			$item->data->status = 0;
 			$item->where = "id = {$data['item_id']}";
 			$item->update();
 	    }
-		return $counter->insert(true);
+	    $params = null;
+	    $params['offer_id']  = $data['offer_id'];
+	    $params['counter_id']  = $counter_id;
+		return $notificationService->save($params, 'counter:request');
 	}    
 
     public function getCounterByType($input, $type ='id')

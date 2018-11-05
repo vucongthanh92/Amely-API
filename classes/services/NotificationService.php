@@ -23,6 +23,7 @@ class NotificationService extends Services
     public function save($data, $notification_type)
     {
     	$tokenService = TokenService::getInstance();
+    	$userService = UserService::getInstance();
 		$str = "";
     	$notify_token = false;
     	switch ($notification_type) {
@@ -37,6 +38,7 @@ class NotificationService extends Services
 				$to_type = 'user';
 				$title = $data['from']->fullname;
 				$subject_id = $data['from']->id;
+				$description = $data['from']->fullname." ".$target;
     			break;
     		case 'friend:approval':
     			$target = APPROVAL_FRIEND;
@@ -49,6 +51,7 @@ class NotificationService extends Services
 				$to_type = 'user';
 				$title = $data['from']->fullname;
 				$subject_id = $data['from']->id;
+				$description = $data['to']->fullname." ".$target;
     			break;
 			case 'group:invite':
 				$target = GROUP;
@@ -66,7 +69,7 @@ class NotificationService extends Services
 			case 'gift:request':
 				$target = GIFT_REQUEST;
 				$giftService = GiftService::getInstance();
-				$gift = $giftService->getGiftByType($data['gift']);
+				$gift = $giftService->getGiftByType($data['gift_id']);
 				if (!$gift) return false;
 				$from = getInfo($gift->from_id, $gift->from_type);
 				$to = getInfo($gift->to_id, $gift->to_type);
@@ -80,11 +83,12 @@ class NotificationService extends Services
 				$to_type = $to['type'];
 				$to_title = $to['title'];
 				$subject_id = $gift->id;
+				$description = $from_title." ".$target." ".$to_title;
 				break;
 			case 'gift:accept':
 				$target = GIFT_ACCEPT;
 				$giftService = GiftService::getInstance();
-				$gift = $giftService->getGiftByType($data['gift']);
+				$gift = $giftService->getGiftByType($data['gift_id']);
 				if (!$gift) return false;
 				$from = getInfo($gift->from_id, $gift->from_type);
 				$to = getInfo($gift->to_id, $gift->to_type);
@@ -98,11 +102,12 @@ class NotificationService extends Services
 				$to_type = $from['type'];
 				$to_title = $from['title'];
 				$subject_id = $gift->id;
+				$description = $from_title." ".$target." ".$to_title;
 				break;
 			case 'gift:reject':
 				$target = GIFT_REJECT;
 				$giftService = GiftService::getInstance();
-				$gift = $giftService->getGiftByType($data['gift']);
+				$gift = $giftService->getGiftByType($data['gift_id']);
 				if (!$gift) return false;
 				$from = getInfo($gift->from_id, $gift->from_type);
 				$to = getInfo($gift->to_id, $gift->to_type);
@@ -116,17 +121,73 @@ class NotificationService extends Services
 				$to_type = $from['type'];
 				$to_title = $from['title'];
 				$subject_id = $gift->id;
+				$description = $from_title." ".$target." ".$to_title;
 				break;
-			case 'offer:accept':
+			case 'counter:request':
+				$target = COUNTER_REQUEST;
+				$offerService = OfferService::getInstance();
+				$counterService = CounterService::getInstance();
+				$offer = $offerService->getOfferByType($data['offer_id'], 'id');
+				$counter = $counterService->getOfferByType($data['counter_id'], 'id');
+				$offer_owner = $userService->getUserByType($offer->owner_id, 'id');
+				$counter_owner = $userService->getUserByType($counter->creator_id, 'id');
+				$owner_id = $offer_owner->id;
+				$owner_type = 'user';
+				$notify_token = $tokenService->getNotifyToken($offer_owner->id, $owner_type);
+				$from_id = $counter_owner->id;
+				$from_type = 'user';
+				$from_title = $counter_owner->fullname;
+				$to_id = $offer_owner->id;
+				$to_type = 'user';
+				$to_title = $offer_owner->fullname;
+				$subject_id = $counter->id;
+				$description = $target." ".$from_title;
 				break;
-			case 'offer:reject':
+			case 'counter:accept':
+				$target = COUNTER_ACCEPT;
+				$offerService = OfferService::getInstance();
+				$counterService = CounterService::getInstance();
+				$offer = $offerService->getOfferByType($data['offer_id'], 'id');
+				$counter = $counterService->getOfferByType($data['counter_id'], 'id');
+				$offer_owner = $userService->getUserByType($offer->owner_id, 'id');
+				$counter_owner = $userService->getUserByType($counter->creator_id, 'id');
+				$owner_id = $counter_owner->id;
+				$owner_type = 'user';
+				$notify_token = $tokenService->getNotifyToken($counter_owner->id, $owner_type);
+				$from_id = $offer_owner->creator_id;
+				$from_type = 'user';
+				$from_title = $offer_owner->fullname;
+				$to_id = $counter_owner->id;
+				$to_type = 'user';
+				$to_title = $counter_owner->fullname;
+				$subject_id = $counter->id;
+				$description = $target." ".$from_title;
+				break;
+			case 'counter:reject':
+				$target = COUNTER_REJECT;
+				$offerService = OfferService::getInstance();
+				$counterService = CounterService::getInstance();
+				$offer = $offerService->getOfferByType($data['offer_id'], 'id');
+				$counter = $counterService->getOfferByType($data['counter_id'], 'id');
+				$offer_owner = $userService->getUserByType($offer->owner_id, 'id');
+				$counter_owner = $userService->getUserByType($counter->creator_id, 'id');
+				$owner_id = $counter_owner->id;
+				$owner_type = 'user';
+				$notify_token = $tokenService->getNotifyToken($counter_owner->id, $owner_type);
+				$from_id = $offer_owner->creator_id;
+				$from_type = 'user';
+				$from_title = $offer_owner->fullname;
+				$to_id = $counter_owner->id;
+				$to_type = 'user';
+				$to_title = $counter_owner->fullname;
+				$subject_id = $counter->id;
+				$description = $target." ".$from_title;
 				break;
 			default:
 				return response(true);
 				break;
     	}
-    	
-    	$description = $from_title." ".$target." ".$to_title;
+    		
     	$notification = new Notification();
 		$notification->data->owner_id = $owner_id;
 		$notification->data->type = $owner_type;
@@ -141,7 +202,6 @@ class NotificationService extends Services
 		$notification->data->item_id = "";
 		$notification->data->viewed = 0;
 		$notification_id = $notification->insert(true);
-		var_dump($notification_id);die();
 		if ($notification_id) {
 			if ($notify_token) {
 				$notification = new Notification();

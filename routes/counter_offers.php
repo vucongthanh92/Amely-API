@@ -214,6 +214,7 @@ $app->post($container['prefix'].'/counter_offers', function (Request $request, R
 });
 
 $app->put($container['prefix'].'/counter_offers', function (Request $request, Response $response, array $args) {
+	$notificationService = NotificationService::getInstance();
 	$offerService = OfferService::getInstance();
 	$counterService = CounterService::getInstance();
 	$itemService = ItemService::getInstance();
@@ -369,6 +370,7 @@ $app->put($container['prefix'].'/counter_offers', function (Request $request, Re
 });
 
 $app->delete($container['prefix'].'/counter_offers', function (Request $request, Response $response, array $args) {
+	$notificationService = NotificationService::getInstance();
 	$offerService = OfferService::getInstance();
 	$counterService = CounterService::getInstance();
 	$loggedin_user = loggedin_user();
@@ -379,7 +381,12 @@ $app->delete($container['prefix'].'/counter_offers', function (Request $request,
 	$counter = $counterService->getCounterByType($params['counter_id']);
 	$offer = $offerService->getOfferByType($counter->owner_id, 'id');
 	if ($offer->owner_id != $loggedin_user->id && $counter->creator_id != $loggedin_user->id) return response(false);
-
+	if ($offer->owner_id == $loggedin_user->id) {
+		$noty_params = null;
+		$noty_params['offer_id'] = $offer->id;
+		$noty_params['counter_id'] = $params['counter_id']
+		$notificationService->save($noty_params, 'counter:reject');
+	}
 	$item = new Item();
 	$item->data->status = 1;
 	$item->where = "id = {$counter->item_id}";

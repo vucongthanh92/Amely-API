@@ -101,7 +101,7 @@ class GiftService extends Services
 			
 			$notificationService = NotificationService::getInstance();
 			$data = null;
-			$data['gift'] = $gift_id;
+			$data['gift_id'] = $gift_id;
 			$notificationService->save($data, "gift:request");
 			return true;
 		}

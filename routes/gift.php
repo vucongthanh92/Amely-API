@@ -197,7 +197,7 @@ $app->patch($container['prefix'].'/gift', function (Request $request, Response $
 	$gift->where = "id = {$gift->id}";
 	$gift->update();
 	$data = null;
-	$data['gift'] = $gift->id;
+	$data['gift_id'] = $gift->id;
 	return response($notificationService->save($data, "gift:accept"));
 });
 
@@ -250,6 +250,6 @@ $app->delete($container['prefix'].'/gift', function (Request $request, Response 
 	$gift->update();
 
 	$data = null;
-	$data['gift'] = $gift->id;
+	$data['gift_id'] = $gift->id;
 	return response($notificationService->save($data, "gift:reject"));
 });
