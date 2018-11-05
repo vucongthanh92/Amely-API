@@ -24,11 +24,11 @@ $app->put($container['prefix'].'/approval', function (Request $request, Response
 			
 			if ($relationshipService->getRelationByType($from, $to, 'friend:request')) {
 				if ($relationshipService->getRelationByType($to, $from, 'friend:request')) return response(false);
-				$relationshipService->save($user, $loggedin_user, 'friend:request');
+				$relationshipService->save($user, $loggedin_user, 'friend:request', 'approval');
 				$services->addFriendFB($loggedin_user, $user);
 				return response(true);
 			}
-			$relationshipService->save($loggedin_user, $user, 'friend:request');
+			$relationshipService->save($loggedin_user, $user, 'friend:request', 'approval');
 			return response(true);
 			break;
 		case 'group':

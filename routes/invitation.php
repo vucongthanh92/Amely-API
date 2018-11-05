@@ -53,10 +53,10 @@ $app->put($container['prefix'].'/invitation', function (Request $request, Respon
 				$user = $userService->getUserByType($to, 'id');
 				if ($relationshipService->getRelationByType($from, $to, 'friend:request')) {
 					if ($relationshipService->getRelationByType($to, $from, 'friend:request')) return response(false);
-					$relationshipService->save($user, $loggedin_user, 'friend:request');
+					$relationshipService->save($user, $loggedin_user, 'friend:request', 'approval');
 					$services->addFriendFB($loggedin_user, $user);
 				}
-				$relationshipService->save($loggedin_user, $user, 'friend:request');
+				$relationshipService->save($loggedin_user, $user, 'friend:request', 'invitation');
 			}
 			break;
 		case 'group':

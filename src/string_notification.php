@@ -12,6 +12,8 @@ define("FEED", "bài viết");
 define("SHOP", "cửa hàng");
 define("PRODUCT", "sản phẩm");
 define("FRIEND", "bạn");
+define("INVITATION_FRIEND", "kết bạn");
+define("APPROVAL_FRIEND", "kết bạn");
 define("GROUP", "nhóm");
 define("EVENT", "sự kiện");
 define("BUSINESS", "cộng đồng");

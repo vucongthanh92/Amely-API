@@ -236,7 +236,6 @@ class Services extends SlimDatabase
 		$obj->title = $params['title'];
 		$obj->body = $params['description'];
 		$obj->data = (Object) $params['data'];
-
 		return $this->connectServer("notify", $obj);
 	}
 

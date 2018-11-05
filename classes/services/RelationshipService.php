@@ -20,7 +20,7 @@ class RelationshipService extends Services
         $this->table = "amely_relationships r";
     }
 
-    public function save($from, $to, $type)
+    public function save($from, $to, $type, $type_relation = 'invitation')
     {
     	$tokenService = TokenService::getInstance();
     	$userService = UserService::getInstance();
@@ -56,7 +56,22 @@ class RelationshipService extends Services
 					return response(true);
 					break;
 			}
-			$description = $from->fullname." ".INVITATION." ".$target;
+			switch ($type_relation) {
+				case 'invitation':
+					if ($target == FRIEND) {
+						$target = INVITATION." ".INVITATION_FRIEND;
+					}
+					break;
+				case 'approval':
+					if ($target == FRIEND) {
+						$target = APPROVAL." ".APPROVAL_FRIEND;
+					}
+					break;
+				default:
+					# code...
+					break;
+			}
+			$description = $from->fullname." ".$target;
 			$data = null;
 			$data['owner_id'] = $owner_id;
 			$data['type'] = $owner_type;

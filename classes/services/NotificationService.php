@@ -33,18 +33,20 @@ class NotificationService extends Services
 		$notification->data->subject_type = $data['subject_type'];
 		$notification->data->item_id = $data['item_id'];
 		$notification->data->viewed = 0;
-		if ($data['notify_token']) {
-			$notification->data->viewed = 1;
-			$obj = new stdClass;
-			$data['title'] = "AMELY";
-			$obj->item_id = $data['item_id'];
-			$obj->subject_id = $data['subject_id'];
-			$obj->subject_type = $data['subject_type'];
-			$data['data'] = $obj;
-			Services::getInstance()->notify($data);
+		$notification_id = $notification->insert(true);
+		if ($notification_id) {
+			if ($data['notify_token']) {
+				$notification->data->viewed = 1;
+				$obj = new stdClass;
+				$data['title'] = "AMELY";
+				$obj->subject_id = (string) $data['subject_id'];
+				$obj->subject_type = (string) $data['subject_type'];
+				$obj->notification_id = (string) $notification_id;
+				$data['data'] = $obj;
+				Services::getInstance()->notify($data);
+			}
 		}
-		return $notification->insert();
-		
+		return true;
     }
 
     public function viewed($id)
