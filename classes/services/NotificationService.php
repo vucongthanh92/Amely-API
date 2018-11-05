@@ -140,7 +140,7 @@ class NotificationService extends Services
 				$to_id = $offer_owner->id;
 				$to_type = 'user';
 				$to_title = $offer_owner->fullname;
-				$subject_id = $counter->id;
+				$subject_id = $offer->id;
 				$description = $target." ".$from_title;
 				break;
 			case 'counter:accept':
