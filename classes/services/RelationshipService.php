@@ -22,6 +22,7 @@ class RelationshipService extends Services
 
     public function save($from, $to, $type)
     {
+    	$tokenService = TokenService::getInstance();
     	$userService = UserService::getInstance();
     	$relationship = new Relationship;
 		$relationship->data->relation_from = $from->id;
@@ -34,7 +35,7 @@ class RelationshipService extends Services
 					$target = FRIEND;
 					$owner_id = $to->id;
 					$owner_type = 'user';
-					$notify_token = $to->notify_token;
+					$notify_token = $tokenService->getNotifyToken($owner_id, $owner_type);
 					$from_id = $from->id;
 					$from_type = 'user';
 					break;
@@ -44,7 +45,7 @@ class RelationshipService extends Services
 					if (!$user) return false;
 					$owner_id = $user->owner_id;
 					$owner_type = 'user';
-					$notify_token = $user->notify_token;
+					$notify_token = $tokenService->getNotifyToken($owner_id, $owner_type);
 					$from_id = $to->id;
 					$from_type = 'group';
 					break;

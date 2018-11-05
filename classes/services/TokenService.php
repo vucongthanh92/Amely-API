@@ -35,6 +35,24 @@ class TokenService extends Services
     	}
     }
 
+    public function getNotifyToken($user_id, $type = 'user')
+    {
+    	$conditions = null;
+		$conditions[] = [
+			'key' => 'user_id',
+			'value' => "= '{$user_id}'",
+			'operation' => ""
+		];
+		$conditions[] = [
+			'key' => 'type',
+			'value' => "= 'user'",
+			'operation' => "AND"
+		];
+		$token = $this->searchObject($conditions, 0, 1);
+		if ($token->notify_token) return $token->notify_token;
+		return false;
+    }
+
     public function updateNotifyToken($notify_token, $user_id, $type)
     {
     	$token = new Token();
