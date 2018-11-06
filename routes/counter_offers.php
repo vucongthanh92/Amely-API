@@ -291,7 +291,7 @@ $app->put($container['prefix'].'/counter_offers', function (Request $request, Re
 	}
 
 	$status = 0;
-	switch ($offer->offer->type) {
+	switch ($offer->offer_type) {
 		case 0:
 			$status = 0;
 			break;

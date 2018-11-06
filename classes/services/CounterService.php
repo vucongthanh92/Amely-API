@@ -19,6 +19,7 @@ class CounterService extends Services
 
 	public function save($data)
 	{
+		$notificationService = NotificationService::getInstance();
 		$counter = new Counter();
 		$counter->data->owner_id = $data['offer_id'];
 	    $counter->data->type = 'offer';
@@ -37,7 +38,8 @@ class CounterService extends Services
 	    $params = null;
 	    $params['offer_id']  = $data['offer_id'];
 	    $params['counter_id']  = $counter_id;
-		return $notificationService->save($params, 'counter:request');
+		$notificationService->save($params, 'counter:request');
+		return true;
 	}    
 
     public function getCounterByType($input, $type ='id')

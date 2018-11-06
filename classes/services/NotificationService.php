@@ -128,7 +128,7 @@ class NotificationService extends Services
 				$offerService = OfferService::getInstance();
 				$counterService = CounterService::getInstance();
 				$offer = $offerService->getOfferByType($data['offer_id'], 'id');
-				$counter = $counterService->getOfferByType($data['counter_id'], 'id');
+				$counter = $counterService->getCounterByType($data['counter_id'], 'id');
 				$offer_owner = $userService->getUserByType($offer->owner_id, 'id');
 				$counter_owner = $userService->getUserByType($counter->creator_id, 'id');
 				$owner_id = $offer_owner->id;
@@ -148,7 +148,7 @@ class NotificationService extends Services
 				$offerService = OfferService::getInstance();
 				$counterService = CounterService::getInstance();
 				$offer = $offerService->getOfferByType($data['offer_id'], 'id');
-				$counter = $counterService->getOfferByType($data['counter_id'], 'id');
+				$counter = $counterService->getCounterByType($data['counter_id'], 'id');
 				$offer_owner = $userService->getUserByType($offer->owner_id, 'id');
 				$counter_owner = $userService->getUserByType($counter->creator_id, 'id');
 				$owner_id = $counter_owner->id;
@@ -168,7 +168,7 @@ class NotificationService extends Services
 				$offerService = OfferService::getInstance();
 				$counterService = CounterService::getInstance();
 				$offer = $offerService->getOfferByType($data['offer_id'], 'id');
-				$counter = $counterService->getOfferByType($data['counter_id'], 'id');
+				$counter = $counterService->getCounterByType($data['counter_id'], 'id');
 				$offer_owner = $userService->getUserByType($offer->owner_id, 'id');
 				$counter_owner = $userService->getUserByType($counter->creator_id, 'id');
 				$owner_id = $counter_owner->id;
