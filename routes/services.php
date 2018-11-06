@@ -6,9 +6,10 @@ use Slim\Http\Response;
 // Routes
 // $app->get('/authtoken', function (Request $request, Response $response, array $args) {
 $app->get($container['prefix'].'/services', function (Request $request, Response $response, array $args) {
-	// $paymentsService = PaymentsService::getInstance();
-	// $pm = $paymentsService->getMethod();
-	// die('12313');
+	$advertiseService = AdvertiseService::getInstance();
+	$test = $advertiseService->getAdvertiseProduct();
+	var_dump($test);
+	die('12313');
 	
 
 	$current_time = time();
