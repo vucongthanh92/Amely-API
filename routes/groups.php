@@ -98,6 +98,8 @@ $app->put($container['prefix'].'/groups', function (Request $request, Response $
 	}
 	$group_id = $group->insert(true);
 	if ($group_id) {
+		$inventoryService = InventoryService::getInstance();
+		$inventoryService->save($group_id, 'group', $loggedin_user->id);
 		$group = $groupService->getGroupByType($group_id, 'id');
 		foreach ($params['owners'] as $key => $owner) {
 			$user = $userService->getUserByType($owner, 'id', false);

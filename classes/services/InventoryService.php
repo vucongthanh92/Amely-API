@@ -20,12 +20,12 @@ class InventoryService extends Services
         $this->table = "amely_inventories";
     }
 
-    public function save(array $data)
+    public function save($owner_id, $type, $creator_id)
     {
     	$inventory = new Inventory();
-    	$inventory->data->owner_id = $data['owner_id'];
-		$inventory->data->type = $data['type'];
-		$inventory->data->creator_id = $data['creator_id'];
+    	$inventory->data->owner_id = $owner_id;
+		$inventory->data->type = $type;
+		$inventory->data->creator_id = $creator_id;
 		$inventory->data->salt = "";
 		$inventory->data->password = "";
 		return $inventory->insert(true);

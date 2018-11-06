@@ -69,8 +69,10 @@ $app->put($container['prefix'].'/register', function (Request $request, Response
 	$user->data->gender = "male";
 	$user->data->usercurrency = "VND";
 
-	$insert_guid = $user->insert(true);
-	if ($insert_guid) {
+	$user_id = $user->insert(true);
+	if ($user_id) {
+		$inventoryService = InventoryService::getInstance();
+		$inventoryService->save($user_id, 'user', $user_id);
 		return response(Services::getInstance()->sendByMobile($user->data->mobilelogin, $code));
 	}
 	return response(false);

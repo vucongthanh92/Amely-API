@@ -182,15 +182,7 @@ $app->patch($container['prefix'].'/gift', function (Request $request, Response $
 			break;
 	}
 
-	$item = $itemService->getItemByType($gift->item_id, 'id');
-
-	$item = object_cast("Item", $item);
-	$item->data->owner_id = $gift->to_id;
-	$item->data->type = $gift->to_type;
-	$item->data->status = 1;
-	$item->where = "id = {$item->id}";
-	$item->update();
-
+	$itemService->changeOwnerItem($gift->to_id, $gift->to_type, $gift->item_id);
 
 	$gift = object_cast("Gift", $gift);
 	$gift->data->status = 1;
