@@ -46,6 +46,14 @@ class AdvertiseService extends Services
 		return $advertise_id;
 	}
 
+	public function getAdvertiseShop()
+	{
+		$conditions = $this->getConditionAds(1);
+		$advertises = $this->searchObject($conditions, 0, 16);
+		if (!$advertises) return false;
+		return $advertises;
+	}
+
     public function getAdvertiseProduct()
 	{
 		$conditions = $this->getConditionAds(0);

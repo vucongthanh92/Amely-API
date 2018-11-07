@@ -104,8 +104,8 @@ $app->put($container['prefix'].'/groups', function (Request $request, Response $
 		foreach ($params['owners'] as $key => $owner) {
 			$user = $userService->getUserByType($owner, 'id', false);
 
-			$relationshipService->save($owner, $group, 'group:invite');
-			$relationshipService->save($group, $owner, 'group:approve');
+			$relationshipService->save($user, $group, 'group:invite');
+			$relationshipService->save($group, $user, 'group:approve');
 
 			$services->memberGroupFB($group_id, $user->username, 'add');
 		}

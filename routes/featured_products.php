@@ -20,7 +20,7 @@ $app->post($container['prefix'].'/featured_products', function (Request $request
 	foreach ($products as $key => $product) {
 		foreach ($ads as $kad => $ad) {
 			if ($ad == $product->id) {
-				$product->advertise_guid = $ads[$kad];
+				$product->advertise_id = $ads[$kad];
 				$products[$key] = $product;
 			}
 		}
