@@ -22,6 +22,7 @@ class RelationshipService extends Services
 
     public function save($from, $to, $type, $type_relation = 'invitation')
     {
+    	$notificationService = NotificationService::getInstance();
     	$tokenService = TokenService::getInstance();
     	$userService = UserService::getInstance();
     	$relationship = new Relationship;
