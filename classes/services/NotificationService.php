@@ -53,16 +53,6 @@ class NotificationService extends Services
 				$subject_id = $data['from']->id;
 				$description = $data['to']->fullname." ".$target;
     			break;
-			case 'group:invite':
-				$target = GROUP;
-				$user = $userService->getUserByType($to->owner_id, 'id', false);
-				if (!$user) return false;
-				$owner_id = $user->id;
-				$owner_type = 'user';
-				$notify_token = $tokenService->getNotifyToken($owner_id, $owner_type);
-				$from_id = $to->id;
-				$from_type = 'group';
-				break;
 			case 'event:invite':
 				$target = EVENT;
 				break;
