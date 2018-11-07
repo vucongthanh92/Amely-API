@@ -34,6 +34,19 @@ $app->get($container['prefix'].'/item_inventory', function (Request $request, Re
 		$item->used = true;
 	}
 
+	$inventory_params = null;
+	$inventory_params[] = [
+		'key' => 'id',
+		'value' => "= {$item->owner_id}",
+		'operatation' => ''
+	];
+	$inventory = $inventoryService->getInventory($inventory_params);
+	if (!$inventory) return response(false);
+	$obj = new stdClass;
+	$obj->id = $inventory->owner_id;
+	$obj->type = $inventory->type;
+
+	$item->inventory = $obj;
 	return response($item);
 
 });

@@ -41,22 +41,21 @@ $app->put($container['prefix'].'/advertise', function (Request $request, Respons
 	$loggedin_user = loggedin_user();
 	$params = $request->getParsedBody();
 	if (!$params) $params = [];
-	if (!array_key_exists('owner_id')) $params['owner_id'] = 1;
-	if (!array_key_exists('type')) $params['type'] = "shop";
-	if (!array_key_exists('title')) $params['title'] = "";
-	if (!array_key_exists('description')) $params['description'] = "";
-	if (!array_key_exists('advertise_type')) $params['advertise_type'] = 0;
-	if (!array_key_exists('time_type')) $params['time_type'] = 0;
-	if (!array_key_exists('target_id')) $params['target_id'] = 0;
-	if (!array_key_exists('image')) $params['image'] = 0;
-	if (!array_key_exists('budget')) $params['budget'] = 0;
-	if (!array_key_exists('cpc')) $params['cpc'] = 0;
-	if (!array_key_exists('link')) $params['link'] = 0;
-	if (!array_key_exists('amount')) $params['amount'] = 0;
-	if (!array_key_exists('start_time')) $params['start_time'] = 0;
-	if (!array_key_exists('end_time')) $params['end_time'] = 0;
-
-	if ($params['start_time'] < $params['end_time']) return response(false);
+	if (!array_key_exists('owner_id', $params)) $params['owner_id'] = 1;
+	if (!array_key_exists('type', $params)) $params['type'] = "shop";
+	if (!array_key_exists('title', $params)) $params['title'] = "";
+	if (!array_key_exists('description', $params)) $params['description'] = "";
+	if (!array_key_exists('advertise_type', $params)) $params['advertise_type'] = 0;
+	if (!array_key_exists('time_type', $params)) $params['time_type'] = 0;
+	if (!array_key_exists('target_id', $params)) $params['target_id'] = 0;
+	if (!array_key_exists('image', $params)) $params['image'] = 0;
+	if (!array_key_exists('budget', $params)) $params['budget'] = 0;
+	if (!array_key_exists('cpc', $params)) $params['cpc'] = 0;
+	if (!array_key_exists('link', $params)) $params['link'] = 0;
+	if (!array_key_exists('amount', $params)) $params['amount'] = 0;
+	if (!array_key_exists('start_time', $params)) $params['start_time'] = 0;
+	if (!array_key_exists('end_time', $params)) $params['end_time'] = 0;
+	if ($params['start_time'] > $params['end_time']) return response(false);
 	switch ($params['advertise_type']) {
 		case 0:
 			$productService = ProductService::getInstance();
