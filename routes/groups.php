@@ -106,6 +106,7 @@ $app->put($container['prefix'].'/groups', function (Request $request, Response $
 
 			$relationshipService->save($user, $group, 'group:invite');
 			$relationshipService->save($group, $user, 'group:approve');
+			$relationshipService->save($group, $user, 'group:joined');
 
 			$services->memberGroupFB($group_id, $user->username, 'add');
 		}

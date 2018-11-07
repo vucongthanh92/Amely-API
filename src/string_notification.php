@@ -23,3 +23,4 @@ define("GIFT_REJECT", "đã từ chối nhận quà");
 define("COUNTER_REQUEST", "Bạn có lời đề nghị trao đổi từ");
 define("COUNTER_ACCEPT", "Món quà trao đổi đã được đồng ý từ");
 define("COUNTER_REJECT", "Bạn bị từ chối trao đổi từ");
+define("GROUP_JOINED", "Bạn đã tham gia nhóm");
