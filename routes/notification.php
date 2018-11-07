@@ -51,6 +51,7 @@ $app->post($container['prefix'].'/notification', function (Request $request, Res
 				foreach ($users as $user) {
 					if ($notification->from_id == $user->id) {
 						$notification->from = $user;
+						$notification->from_avatar = $user->avatar;
 					}
 				}
 				break;
@@ -58,6 +59,7 @@ $app->post($container['prefix'].'/notification', function (Request $request, Res
 				foreach ($groups as $group) {
 					if ($notification->from_id == $group->id) {
 						$notification->from = $group;
+						$notification->from_avatar = $group->avatar;
 					}
 				}
 				break;

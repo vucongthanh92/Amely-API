@@ -240,6 +240,11 @@ class NotificationService extends Services
 			'value' => "= '{$input}'",
 			'operation' => ''
 		];
+		$conditions[] = [
+			'key' => 'from_id',
+			'value' => "<> 0",
+			'operation' => 'AND'
+		];
 		$notifications = $this->searchObject($conditions, $offset, $limit);
 		if (!$notifications) return false;
 		return array_values($notifications);

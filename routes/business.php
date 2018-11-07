@@ -28,16 +28,18 @@ $app->post($container['prefix'].'/business', function (Request $request, Respons
 	if (!array_key_exists("offset", $params)) $params["offset"] = 0;
 	if (!array_key_exists("limit", $params)) $params["limit"] = 10;
 
-	$owner_guid = $loggedin_user->id;
+	$owner_id = $loggedin_user->id;
 	$offset = (double)$params['offset'];
 	$limit = (double)$params['limit'];
 
 	$pages_liked = $businessService->getPagesLiked($loggedin_user->id);
-	$pages_liked = array_map(create_function('$o', 'return $o->subject_id;'), $pages_liked);
+	if ($pages_liked) {
+		$pages_liked = array_map(create_function('$o', 'return $o->subject_id;'), $pages_liked);
+	}
 
 	$page_params = null;
 	$page_params = [
-		'key' => 'owner_guid',
+		'key' => 'owner_id',
 		'value' => "= {$loggedin_user->id}",
 		'operation' => ''
 	];
@@ -47,7 +49,7 @@ $app->post($container['prefix'].'/business', function (Request $request, Respons
 		$page_params = [
 			'key' => 'id',
 			'value' => "IN ($pages_liked)",
-			'operation' => 'AND'
+			'operation' => 'OR'
 		];
 	}
 

@@ -25,12 +25,12 @@ class GiftService extends Services
 		$obj = new stdClass;
 		switch ($data['type']) {
 			case 'user':
-				$from = $userService->getUserByType($data['owner_id'], 'id');
+				$from = $userService->getUserByType($data['from_id'], 'id');
 				$from->type = 'user';
 				$obj->from = $from;
 				break;
 			case 'group':
-				$from = $groupService->getGroupByType($data['owner_id'], 'id');
+				$from = $groupService->getGroupByType($data['from_id'], 'id');
 				$from->type = 'group';
 				$from->username = $from->id;
 				$from->fullname = $from->title;
@@ -77,8 +77,6 @@ class GiftService extends Services
 		if (!$to) return false;
 
 		$gift = new Gift();
-		$gift->data->owner_id = $data['owner_id'];
-		$gift->data->type = $data['type'];
 		$gift->data->from_id = $data['from_id'];
 		$gift->data->from_type = $data['from_type'];
 		$gift->data->to_id = $data['to_id'];

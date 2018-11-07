@@ -79,7 +79,7 @@ $app->get($container['prefix'].'/gift', function (Request $request, Response $re
 
 $app->post($container['prefix'].'/gift', function (Request $request, Response $response, array $args) {
 	$giftService = GiftService::getInstance();
-	$itemService = itemService::getInstance();
+	$itemService = ItemService::getInstance();
 	$loggedin_user = loggedin_user();
 
 	$params = $request->getParsedBody();
