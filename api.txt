@@ -68,7 +68,8 @@ v    @PUT("wishlist")
 v    @DELETE("wishlist")   
 v    @POST("shop/most_sold_products")
 v    @POST("shop/featured_products")
-
+v    @POST("featured_products")
+v    @POST("featured_shops")
 
      @POST("business")
      @GET("business")
@@ -83,8 +84,8 @@ v    @POST("shop/featured_products")
     
     @PATCH("item_inventory")
     @GET("transaction")
-    @POST("featured_products")
-    @POST("featured_shops")
+    
+    
     @POST("invitation")
     @PUT("invitation")
     @PUT("approval")
