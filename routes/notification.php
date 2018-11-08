@@ -41,10 +41,6 @@ $app->post($container['prefix'].'/notification', function (Request $request, Res
 		$users = $userService->getUsersByType($users_id, 'id', false);
 	}
 
-	if ($groups_id) {
-		$groups_id = implode(',', $groups_id);
-		$groups = $userService->getUsersByType($groups_id, 'id');
-	}
 	foreach ($notifications as $key => $notification) {
 		switch ($notification->from_type) {
 			case 'user':
@@ -56,10 +52,16 @@ $app->post($container['prefix'].'/notification', function (Request $request, Res
 				}
 				break;
 			case 'group':
-				foreach ($groups as $group) {
-					if ($notification->from_id == $group->id) {
-						$notification->from = $group;
-						$notification->from_avatar = $group->avatar;
+				if ($groups_id) {
+					$groups_id = implode(',', $groups_id);
+					$groups = $userService->getUsersByType($groups_id, 'id');
+					if ($groups) {
+						foreach ($groups as $group) {
+							if ($notification->from_id == $group->id) {
+								$notification->from = $group;
+								$notification->from_avatar = $group->avatar;
+							}
+						}
 					}
 				}
 				break;

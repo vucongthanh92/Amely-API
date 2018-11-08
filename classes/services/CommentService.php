@@ -31,20 +31,8 @@ class CommentService extends Services
 		}
 		$comment_id = $comment->insert(true);
 		if ($comment_id) {
-			$notificationService = NotificationService::getInstance();
-			$notify_params = null;
-			$notify_params['owner_id'] = $data['owner']->id;
-			$notify_params['type'] = 'user';
-			$notify_params['from_id'] = $data['creator_id'];
-			$notify_params['from_type'] = 'user';
-			$notify_params['subject_id'] = $data['subject_id'];
-			$notify_params['subject_type'] = 'comments:post';
-			$notify_params['item_id'] = null;
-			$notify_params['notify_token'] = $data['owner']->notify_token;
-			$notify_params['title'] = $data['creator']->fullname." ".COMMENT;
-			$notify_params['description'] = "";
-			
-			return response($notificationService->save($notify_params));
+		
+			return true;
 		}
 		return false;
     }
