@@ -9,7 +9,7 @@ class Group extends Object
     private $privacy;
     private $rule;
     private $time_created;
-    private $owners;
+    private $owners_id;
     private $avatar;
     private $cover;
 

@@ -190,7 +190,7 @@ $app->post($container['prefix'].'/feeds', function (Request $request, Response $
 		$feed->comments = 0;
 		if ($feeds_comments) {
 			foreach ($feeds_comments as $feed_comments) {
-				if ($feed_comments->subject_id == $feed->id) {
+				if ($feed_comments->owner_id == $feed->id) {
 					$feed->comments = $feed_comments->count;
 				}
 			}
