@@ -26,7 +26,7 @@ $app->post($container['prefix'].'/comments', function (Request $request, Respons
 		'operation' => ''
 	];
 	$comment_params[] = [
-		'key' => 'subject_id',
+		'key' => 'owner_id',
 		'value' => "= {$subject_id}",
 		'operation' => 'AND'
 	];
@@ -34,14 +34,14 @@ $app->post($container['prefix'].'/comments', function (Request $request, Respons
 	if (!$comments) return response(false);
 	$owners_id = [];
 	foreach ($comments as $key => $comment) {
-		array_push($owners_id, $comment->owner_id);
+		array_push($owners_id, $comment->creator_id);
 	}
 	if (!$owners_id) return response(false);
 	$owners_id = array_unique($owners_id);
 	$owners_id = implode(',', $owners_id);
 	$users = $userService->getUsersByType($owners_id, 'id', 0, 9999999, false);
 	foreach ($comments as $key => $comment) {
-		$owner = arrayFilter($users, $comment->owner_id);
+		$owner = arrayFilter($users, $comment->creator_id);
 		$comment->owners = $owner;
 		$comments[$key] = $comment;
 	}

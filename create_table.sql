@@ -151,7 +151,7 @@ CREATE TABLE `amely_groups` (
   `description` longtext NOT NULL,
   `privacy` int DEFAULT 0,
   `rule` int DEFAULT 0,
-  `owners` text,
+  `owners_id` text,
   `avatar` text,
   `cover` text
  ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
@@ -653,6 +653,7 @@ CREATE TABLE `amely_events` (
   `has_inventory` text,
   `status` text,
   `creator_id` text,
+  `owners_id` text,
   `members` text,
   `invites` text,
   `friendly_url` text,

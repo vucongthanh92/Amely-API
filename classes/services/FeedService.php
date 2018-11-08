@@ -102,7 +102,7 @@ class FeedService extends Services
             'operation' => ''
         ];
         $comment_params[] = [
-            'key' => 'subject_id',
+            'key' => 'owner_id',
             'value' => "IN ({$feeds_id})",
             'operation' => 'AND'
         ];
@@ -112,12 +112,12 @@ class FeedService extends Services
             'operation' => 'count'
         ];
         $comment_params[] = [
-            'key' => 'subject_id',
+            'key' => 'owner_id',
             'value' => "",
             'operation' => 'query_params'
         ];
         $comment_params[] = [
-            'key' => 'subject_id',
+            'key' => 'owner_id',
             'value' => "",
             'operation' => 'group_by'
         ];
