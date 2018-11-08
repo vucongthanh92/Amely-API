@@ -29,12 +29,7 @@ class CommentService extends Services
 		if ($data['content']) {
 			$comment->data->content = $data['content'];
 		}
-		$comment_id = $comment->insert(true);
-		if ($comment_id) {
-		
-			return true;
-		}
-		return false;
+		return $comment->insert(true);
     }
 
     public function getCommentById($id)

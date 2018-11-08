@@ -93,20 +93,14 @@ $app->put($container['prefix'].'/comments', function (Request $request, Response
 				$notify_params['subject_id']  = $data['owner_id'];
 				break;
 			case 'shop':
-				$shopService = ShopService::getInstance();
-				$shop = $shopService->getShopByType($data['owner_id'], 'id');
-				$owner = getInfo($shop->owner_id, 'user');
-				$notify_params['from'] = $loggedin_user;
-				$notify_params['to'] = $owner;
-				$notify_params['subject_id']  = $data['owner_id'];
-				$notification_type = "like:shop";
+				return response(false);
 				break;
-			case 'product':
-				$notify_params['product_id']  = $data['owner_id'];
-				$notification_type = "like:product";
-				break;
+			// case 'product':
+			// 	$notify_params['product_id']  = $data['owner_id'];
+			// 	$notification_type = "like:product";
+				// break;
 			default:
-				return false;
+				return response(false);
 				break;
 		}
 		$notificationService->save($notify_params, $notification_type);
