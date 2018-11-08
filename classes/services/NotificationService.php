@@ -37,7 +37,7 @@ class NotificationService extends Services
 				$to_id = $data['to']->id;
 				$to_type = 'user';
 				$title = $data['from']->fullname;
-				$subject_id = $data['from']->id;
+				$subject_id = $data['subject_id'];
 				$description = $data['from']->fullname." ".$target;
     			break;
     		case 'like:feed': 
@@ -50,7 +50,7 @@ class NotificationService extends Services
 				$to_id = $data['to']->id;
 				$to_type = 'user';
 				$title = $data['from']->fullname;
-				$subject_id = $data['from']->id;
+				$subject_id = $data['subject_id'];
 				$description = $data['from']->fullname." ".$target;
     			break;
     		case 'like:shop': 
@@ -63,7 +63,7 @@ class NotificationService extends Services
 				$to_id = $data['to']->id;
 				$to_type = 'user';
 				$title = $data['from']->fullname;
-				$subject_id = $data['from']->id;
+				$subject_id = $data['subject_id'];
 				$description = $data['from']->fullname." ".$target;
     			break;
     		case 'friend:invitation':

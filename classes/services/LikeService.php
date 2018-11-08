@@ -22,9 +22,6 @@ class LikeService extends Services
 
     public function save($data)
     {
-    	$obj_like = $data['like'];
-    	$obj_notify = $data['notify'];
-
     	$like = new Like();
     	$like->data->owner_id = $data['owner_id'];
 		$like->data->type = $data['type'];
