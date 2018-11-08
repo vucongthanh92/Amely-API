@@ -92,6 +92,32 @@ class AdvertiseService extends Services
      	return $conditions;
     }
 
+    public function clickAd($advertise_id)
+    {
+    	$advertise = $this->getAdvertiseByType($advertise_id, 'id');
+		if (!$advertise) return false;
+
+		if (((double)$advertise->amount + (double)$advertise->cpc) > $advertise->budget) return false;
+
+		$advertise = object_cast("Advertise", $advertise);
+		$advertise->data->total_click = (int) $advertise->total_click + 1;
+		$advertise->data->amount = (int) $advertise->amount + (int) $advertise->cpc;
+		$advertise->where = "id = {$advertise->id}";
+		return $advertise->update();
+    }
+
+    public function getAdvertiseByType($input, $type = 'id')
+    {
+    	$conditions[] = [
+    		'key' => $type,
+    		'value' => "= '{$input}'",
+    		'operation' => ''
+    	];
+
+    	$advertise = $this->getAdvertise($conditions);
+    	if (!$advertise) return false;
+		return $advertise;
+    }
 
     public function getAdvertise($conditions)
 	{

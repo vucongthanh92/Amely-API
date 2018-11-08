@@ -27,6 +27,45 @@ class NotificationService extends Services
 		$str = "";
     	$notify_token = false;
     	switch ($notification_type) {
+    		case 'comment:feed': 
+    			$target = COMMENT_FEED;
+				$owner_id = $data['to']->id;
+				$owner_type = 'user';
+				$notify_token = $tokenService->getNotifyToken($owner_id, $owner_type);
+				$from_id = $data['from']->id;
+				$from_type = 'user';
+				$to_id = $data['to']->id;
+				$to_type = 'user';
+				$title = $data['from']->fullname;
+				$subject_id = $data['from']->id;
+				$description = $data['from']->fullname." ".$target;
+    			break;
+    		case 'like:feed': 
+    			$target = LIKE_FEED;
+				$owner_id = $data['to']->id;
+				$owner_type = 'user';
+				$notify_token = $tokenService->getNotifyToken($owner_id, $owner_type);
+				$from_id = $data['from']->id;
+				$from_type = 'user';
+				$to_id = $data['to']->id;
+				$to_type = 'user';
+				$title = $data['from']->fullname;
+				$subject_id = $data['from']->id;
+				$description = $data['from']->fullname." ".$target;
+    			break;
+    		case 'like:shop': 
+    			$target = LIKE_SHOP;
+				$owner_id = $data['to']->id;
+				$owner_type = 'user';
+				$notify_token = $tokenService->getNotifyToken($owner_id, $owner_type);
+				$from_id = $data['from']->id;
+				$from_type = 'user';
+				$to_id = $data['to']->id;
+				$to_type = 'user';
+				$title = $data['from']->fullname;
+				$subject_id = $data['from']->id;
+				$description = $data['from']->fullname." ".$target;
+    			break;
     		case 'friend:invitation':
     			$target = INVITATION_FRIEND;
 				$owner_id = $data['to']->id;

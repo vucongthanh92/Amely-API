@@ -17,8 +17,19 @@ $app->put($container['prefix'].'/likes', function (Request $request, Response $r
 	$type = $params['type'];
 	if (!in_array($type, ['feed', 'business', 'shop'])) return response(false);
 	if ($likeService->isLiked($from, $to, $type)) return response(false);
-	$userService = UserService::getInstance();
-	$user = $userService->getUserByType($feed->poster_id, 'id');
+	switch ($params['type']) {
+		case 'feed':
+			$feedService = FeedService::getInstance();
+			$feed = $feedService->getFeedByType($params['subject_id'], 'id');
+			if (!$feed) return response(false);
+			$userService = UserService::getInstance();
+			$user = $userService->getUserByType($feed->poster_id, 'id');
+			break;
+		
+		default:
+			# code...
+			break;
+	}
 
 	$data = null;
 	$data['owner_id'] = $subject_id;
@@ -26,7 +37,37 @@ $app->put($container['prefix'].'/likes', function (Request $request, Response $r
 	$data['owner'] = $user;
 	$data['creator'] = $loggedin_user;
 
-	return response($likeService->save($data));
+	if ($likeService->save($data)) {
+		$notificationService = NotificationService::getInstance();
+		$notify_params = null;
+		switch ($data['type']) {
+			case 'feed':
+				$notification_type = "like:feed";
+				$notify_params['from'] = $loggedin_user;
+				$notify_params['to'] = $user;
+				$notify_params['subject_id']  = $data['owner_id'];
+				break;
+			case 'shop':
+				$shopService = ShopService::getInstance();
+				$shop = $shopService->getShopByType($data['owner_id'], 'id');
+				$owner = getInfo($shop->owner_id, 'user');
+				$notify_params['from'] = $loggedin_user;
+				$notify_params['to'] = $owner;
+				$notify_params['subject_id']  = $data['owner_id'];
+				$notification_type = "like:shop";
+				break;
+			case 'product':
+				$notify_params['product_id']  = $data['owner_id'];
+				$notification_type = "like:product";
+				break;
+			default:
+				return false;
+				break;
+		}
+		$notificationService->save($notify_params, $notification_type);
+		return response(true);
+	}
+	return response(false);
 });
 
 $app->delete($container['prefix'].'/likes', function (Request $request, Response $response, array $args) {

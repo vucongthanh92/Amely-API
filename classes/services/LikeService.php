@@ -32,38 +32,11 @@ class LikeService extends Services
 		$like->owner = $data['owner'];
 
 		if ($like->insert()) {
-			$notificationService = NotificationService::getInstance();
-			$notify_params = null;
-			$notify_params['owner_id'] = $data['owner']->id;
-			$notify_params['type'] = 'user';
-			$notify_params['from_id'] = $data['creator_id'];
-			$notify_params['from_type'] = 'user';
-			$notify_params['subject_id'] = $data['subject_id'];
-			$notify_params['subject_type'] = 'like:post';
-			$notify_params['item_id'] = null;
-			$notify_params['notify_token'] = $data['owner']->notify_token;
-
-			switch ($data['type']) {
-				case 'feed':
-					$target = FEED;
-					break;
-				case 'shop':
-					$target = SHOP;
-					break;
-				case 'product':
-					$target = PRODUCT;
-					break;
-				default:
-					# code...
-					break;
-			}
-			$notify_params['title'] = $data['creator']->fullname." ".LIKE." ".$target;
-			$notify_params['description'] = "";
 			
-			return response($notificationService->save($notify_params));
+			return true;
 		}
 
-		return response(false);
+		return false;
     }
 
     public function isLiked($from, $to, $type)

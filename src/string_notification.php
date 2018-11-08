@@ -24,3 +24,6 @@ define("COUNTER_REQUEST", "Bạn có lời đề nghị trao đổi từ");
 define("COUNTER_ACCEPT", "Món quà trao đổi đã được đồng ý từ");
 define("COUNTER_REJECT", "Bạn bị từ chối trao đổi từ");
 define("GROUP_JOINED", "Bạn đã tham gia nhóm");
+define("LIKE_FEED", "đã thích bài viết của bạn");
+define("LIKE_SHOP", "đã thích cửa hàng của bạn");
+define("COMMENT_FEED", "đã bình luận bài viết của bạn");
