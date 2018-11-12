@@ -35,11 +35,10 @@ class CounterService extends Services
 			$item->where = "id = {$data['item_id']}";
 			$item->update();
 	    }
-	    $params = null;
-	    $params['offer_id']  = $data['offer_id'];
-	    $params['counter_id']  = $counter_id;
-		$notificationService->save($params, 'counter:request');
-		return true;
+	    $notify_params = null;
+		$notify_params['offer_id'] = $data['offer_id'];
+		$notify_params['counter_id'] = $counter_id;
+		return response($notificationService->save($notify_params, 'counter:request'));
 	}    
 
     public function getCounterByType($input, $type ='id')

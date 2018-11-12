@@ -27,3 +27,6 @@ define("GROUP_JOINED", "Bạn đã tham gia nhóm");
 define("LIKE_FEED", "đã thích bài viết của bạn");
 define("LIKE_SHOP", "đã thích cửa hàng của bạn");
 define("COMMENT_FEED", "đã bình luận bài viết của bạn");
+
+define("EVENT_INVITATION", "đã mời bạn tham gia sự kiện");
+define("EVENT_APPROVAL", "đã đồng ý tham gia sự kiện");

@@ -183,14 +183,7 @@ $app->patch($container['prefix'].'/gift', function (Request $request, Response $
 	}
 
 	$itemService->changeOwnerItem($gift->to_id, $gift->to_type, $gift->item_id);
-
-	$gift = object_cast("Gift", $gift);
-	$gift->data->status = 1;
-	$gift->where = "id = {$gift->id}";
-	$gift->update();
-	$data = null;
-	$data['gift_id'] = $gift->id;
-	return response($notificationService->save($data, "gift:accept"));
+	return response($giftService->updateStatus($gift->id, 1));
 });
 
 $app->delete($container['prefix'].'/gift', function (Request $request, Response $response, array $args) {
@@ -229,19 +222,6 @@ $app->delete($container['prefix'].'/gift', function (Request $request, Response 
 			break;
 	}
 
-	$item = $itemService->getItemByType($gift->item_id, 'id');
-
-	$item = object_cast("Item", $item);
-	$item->data->status = 1;
-	$item->where = "id = {$item->id}";
-	$item->update();
-
-	$gift = object_cast("Gift", $gift);
-	$gift->data->status = 2;
-	$gift->where = "id = {$gift->id}";
-	$gift->update();
-
-	$data = null;
-	$data['gift_id'] = $gift->id;
-	return response($notificationService->save($data, "gift:reject"));
+	$itemService->updateStatus($gift->item_id, 1);
+	return response($giftService->updateStatus($gift->id, 2));
 });

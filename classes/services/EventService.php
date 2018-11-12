@@ -22,7 +22,44 @@ class EventService extends Services
 
     public function save($data)
 	{
-		
+		$relationshipService = RelationshipService::getInstance();
+		$userService  = UserService::getInstance();
+		$event = new Event();
+		foreach ($data as $key => $value) {
+			$event->data->$key = $value;
+		}
+		if ($data['id']) {
+			$event->where = "id = {$data['id']}";
+			$event->update();
+			$event_id = $data['id'];
+		} else {
+			$event_id = $event->insert();
+		}
+		if ($event_id) {
+			$owners = $userService->getUsersByType($data['owners_id'], 'id');
+			$event = $this->getEventByType($event_id, 'id');
+			foreach ($owners as $key => $owner) {
+				$relationshipService->save($owner, $event, 'event:invitation');
+				$relationshipService->save($event, $owner, 'event:approve');
+			}
+			return true;
+		}
+		return false;
+	}
+
+	public function published($event_id)
+	{
+		$userService = UserService::getInstance();
+		$event = $this->getEventByType($event_id, 'id');
+		if (!$event->published) return false;
+		if ($event->invites_id) {
+			$invites_id = explode(',', $event->invites_id);
+			$invites = $userService->getUsersByType($invites_id, 'id');
+			foreach ($invites as $key => $invite) {
+				$relationshipService->save($invite, $event, 'event:invitation');
+			}
+		}
+		return true;
 	}
 
     public function getEventByType($input, $type ='id')

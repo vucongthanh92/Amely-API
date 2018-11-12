@@ -8,21 +8,40 @@ $app->get($container['prefix'].'/events', function (Request $request, Response $
 });
 
 $app->post($container['prefix'].'/events', function (Request $request, Response $response, array $args) {
-	$select = SlimSelect::getInstance();
 	$eventService = EventService::getInstance();
-	$loggedin_user = loggedin_user();
-	$time = time();
-	$data = $users_guid = $users = $event_params = [];
-	$types = "";
+	// $loggedin_user = loggedin_user();
+	// $time = time();
+	// $data = $users_guid = $users = $event_params = [];
+	// $types = "";
 
-	$params = $request->getParsedBody();
-	if (!$params) $params = [];
-	if (!array_key_exists('limit', $params))	 	$params['limit'] = 10;
-	if (!array_key_exists('offset', $params))	 	$params['offset'] = 0;
-	if (!array_key_exists('event_type', $params))	$params['event_type'] = "all";
-	$offset = (double)$params['offset'];
-	$limit = (double)$params['limit'];
-	$event_type = $params['event_type'];
+	// $params = $request->getParsedBody();
+	// if (!$params) $params = [];
+	// if (!array_key_exists('limit', $params))	 	$params['limit'] = 10;
+	// if (!array_key_exists('offset', $params))	 	$params['offset'] = 0;
+	// if (!array_key_exists('event_type', $params))	$params['event_type'] = "myself";
+	// $offset = (double)$params['offset'];
+	// $limit = (double)$params['limit'];
+	// $event_type = $params['event_type'];
+
+	// switch ($event_type) {
+	// 	case 'myself':
+	// 		$event_params = null;
+	// 		$event_params[] = [
+	// 			'key' => "FIND_IN_SET({$loggedin_user->id}, owners_id)",
+	// 			'value' => ''
+	// 		];
+	// 		break;
+	// 	case 'guest':
+	// 		$relation_params[] = [
+	// 			'key' => 'type',
+	// 			'value' => "IN ('event:invite:approve')",
+	// 			'operation' => ''
+	// 		];
+	// 		break;
+	// 	default:
+	// 		# code...
+	// 		break;
+	// }
 	return response(false);
 	// $relation_params = null;
 
@@ -224,12 +243,37 @@ $app->put($container['prefix'].'/events', function (Request $request, Response $
 	if (!array_key_exists('country', $params))	 	$params['country'] = 10;
 	if (!array_key_exists('location', $params))	 	$params['location'] = 10;
 	if (!array_key_exists('template', $params))	 	$params['template'] = 10;
-	if (!array_key_exists('has_inventory', $params))	 	$params['has_inventory'] = 10;
-	if (!array_key_exists('status', $params))	 	$params['status'] = 10;
+	if (!array_key_exists('has_inventory', $params))	 	$params['has_inventory'] = 1;
+	if (!array_key_exists('status', $params))	 	$params['status'] = 1;
 	if (!array_key_exists('event_type', $params))	 	$params['event_type'] = 10;
-	if (!array_key_exists('owners', $params))	 	$params['owners'] = 10;
-	if (!array_key_exists('members', $params))	 	$params['members'] = 10;
-	if (!array_key_exists('invites', $params))	 	$params['invites'] = 10;
+	if (!array_key_exists('owners', $params))	 	$params['owners_id'] = false;
+	if (!array_key_exists('invites', $params))	 	$params['invites_id'] = false;
 
-
+	$event_params = null;
+	$event_params['owner_id'] = $loggedin_user->id;
+	$event_params['type'] = 'user';
+	$event_params['title'] = $params['title'];
+	$event_params['description'] = $params['description'];
+	if (is_array($params['owners_id'])) {
+		if (!in_array($loggedin_user->id, $params['owners_id'])) {
+			array_push($params['owners_id'], $loggedin_user->id);
+		}
+		$event_params['owners_id'] = array_unique($params['owners_id']);
+		$event_params['owners_id'] = implode(',', $event_params['owners_id']);
+	}
+	if (is_array($params['invites_id'])) {
+		$event_params['invites_id'] = array_unique($params['invites_id']);
+		$event_params['invites_id'] = implode(',', $event_params['invites_id']);	
+	}
+	$event_params['start_date'] = $params['start_date'];
+	$event_params['end_date'] = $params['end_date'];
+	$event_params['country'] = $params['country'];
+	$event_params['location'] = $params['location'];
+	$event_params['template'] = $params['template'];
+	$event_params['has_inventory'] = $params['has_inventory'];
+	$event_params['status'] = $params['status'];
+	$event_params['creator_id'] = $loggedin_user->id;
+	$event_params['friendly_url'] = $params['friendly_url'];
+	$event_params['published'] = 0;
+	return response($eventService->save($event_params));
 });

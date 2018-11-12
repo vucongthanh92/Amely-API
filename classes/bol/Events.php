@@ -7,7 +7,7 @@ class Events extends Object
 	private $time_created;
 	private $title;
 	private $description;
-	private $subtype;
+	private $owners_id;
 	private $start_date;
 	private $end_date;
 	private $country;
@@ -16,9 +16,8 @@ class Events extends Object
 	private $has_inventory;
 	private $status;
 	private $creator_id;
-	private $members;
-	private $invites;
 	private $friendly_url;
+	private $invites_id;
 	private $published;
 	private $avatar;
 	private $cover;

@@ -171,7 +171,7 @@ class NotificationService extends Services
 				$counter_owner = $userService->getUserByType($counter->creator_id, 'id');
 				$owner_id = $offer_owner->id;
 				$owner_type = 'user';
-				$notify_token = $tokenService->getNotifyToken($offer_owner->id, $owner_type);
+				$notify_token = $tokenService->getNotifyToken($owner_id, $owner_type);
 				$from_id = $counter_owner->id;
 				$from_type = 'user';
 				$from_title = $counter_owner->fullname;
@@ -220,6 +220,37 @@ class NotificationService extends Services
 				$to_title = $counter_owner->fullname;
 				$subject_id = $counter->id;
 				$description = $target." ".$from_title;
+				break;
+			case 'event:invitation':
+				$target = EVENT_INVITATION;
+				$eventService = EventService::getInstance();
+				$userService = UserService::getInstance();
+				$event = $eventService->getEventByType($data['to']->id, 'id');
+				$user = $userService->getUserByType($event->creator_id, 'id');
+				$owner_id = $data['from']->id;
+				$owner_type = 'user';
+				$notify_token = $tokenService->getNotifyToken($owner_id, $owner_type);
+				$from_id = $data['from']->id;
+				$from_type = 'user';
+				$to_id = $event->id;
+				$to_type = 'event';
+				$subject_id = $event->id;
+				$description = $user->fullname." ".$target." ".$event->title;
+				break;
+			case 'event:approval':
+				$target = EVENT_APPROVAL;
+				$eventService = EventService::getInstance();
+				$userService = UserService::getInstance();
+				$event = $eventService->getEventByType($data['from']->id, 'id');
+				$owner_id = $event->creator_id;
+				$owner_type = 'user';
+				$notify_token = $tokenService->getNotifyToken($owner_id, $owner_type);
+				$from_id = $event->id;
+				$from_type = 'event';
+				$to_id = $data['from']->id;
+				$to_type = 'user';
+				$subject_id = $event->id;
+				$description = $data['from']->fullname." ".$target." ".$event->title;
 				break;
 			default:
 				return response(true);

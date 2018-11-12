@@ -58,6 +58,14 @@ class ItemService extends Services
 
     }
 
+    public function updateStatus($item_id, $status)
+    {
+    	$item = new Item();
+    	$item->data->status = $status;
+		$item->where = "id = {$item_id}";
+		return $item->update();
+    }
+
     public function checkItemOfOwner($item_id, $owner_id, $type)
     {
     	$itemService = ItemService::getInstance();

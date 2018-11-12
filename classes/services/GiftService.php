@@ -101,6 +101,50 @@ class GiftService extends Services
 			$data = null;
 			$data['gift_id'] = $gift_id;
 			$notificationService->save($data, "gift:request");
+
+			$transaction_params['owner_id'] = $data['from_id'];
+			$transaction_params['type'] = $data['from_type'];
+			$transaction_params['title'] = "";
+			$transaction_params['description'] = "";
+			$transaction_params['subject_type'] = "gift";
+			$transaction_params['subject_id'] = $gift_id;
+			$transaction_params['status'] = 0;
+			TransactionService::getInstance()->save($transaction_params);
+			return true;
+		}
+		return false;
+	}
+
+	public function updateStatus($gift_id, $status)
+	{
+		$notificationService = NotificationService::getInstance();
+		$notify_params['gift_id'] = $gift_id;
+		$gift = new Gift();
+		$gift->where = "id = {$gift_id}";
+		$gift->data->status  = $status;
+		if ($gift->update()) {
+			switch ($status) {
+				case 0:
+					$transaction_params['status'] = 0;
+					break;
+				case 1:
+					$transaction_params['status'] = 1;
+					$notificationService->save($notify_params, "gift:accept");
+					break;
+				case 2:
+					$transaction_params['status'] = 2;
+					$notificationService->save($notify_params, "gift:reject");
+					break;
+				default:
+					break;
+			}
+			$transaction_params['owner_id'] = $data['from_id'];
+			$transaction_params['type'] = $data['from_type'];
+			$transaction_params['title'] = "";
+			$transaction_params['description'] = "";
+			$transaction_params['subject_type'] = "gift";
+			$transaction_params['subject_id'] = $gift_id;
+			TransactionService::getInstance()->save($transaction_params);
 			return true;
 		}
 		return false;

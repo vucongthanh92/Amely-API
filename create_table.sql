@@ -234,21 +234,10 @@ CREATE TABLE `amely_transactions` (
   `time_created` int(11) NOT NULL,
   `title` text NOT NULL,
   `description` longtext NOT NULL,
-  `subtype` text NOT NULL,
-  `transaction_type` text,
-  `status` text,
-  `currency` text,
-  `quantity` text,
-  `order_id` text,
-  `shipping_fee` text,
-  `do_id` text,
-  `tax` text,
-  `sub_total` text,
-  `seller` text,
-  `shop_id` text,
-  `item_id` text
+  `subject_type` text,
+  `subject_id` bigint(20),
+  `status` text
  ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-
 
 DROP TABLE IF EXISTS `amely_products`; 
 CREATE TABLE `amely_products` (
@@ -645,6 +634,7 @@ CREATE TABLE `amely_events` (
   `time_created` int(11) NOT NULL,
   `title` text NOT NULL,
   `description` longtext NOT NULL,
+  `owners_id` text,
   `start_date` text,
   `end_date` text,
   `country` text,
@@ -654,10 +644,10 @@ CREATE TABLE `amely_events` (
   `status` text,
   `creator_id` text,
   `owners_id` text,
-  `members` text,
-  `invites` text,
   `friendly_url` text,
+  `invites_id` text,
   `published` text,
+  `creator_id` text,
   `avatar` text,
   `cover` text
  ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
