@@ -254,7 +254,7 @@ class NotificationService extends Services
 				$data['description'] = $description;
 				$obj->subject_id = (string) $subject_id;
 				$obj->subject_type = (string) $notification_type;
-				$obj->notification_id = (string) $notification_id;
+				$obj->id = (string) $notification_id;
 				$data['data'] = $obj;
 				Services::getInstance()->notify($data);
 			}
