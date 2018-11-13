@@ -81,23 +81,22 @@ $app->put($container['prefix'].'/groups', function (Request $request, Response $
 	if (!array_key_exists('description', $params)) $params['description'] = false;
 	if (!array_key_exists('privacy', $params)) $params['privacy'] = 0;
 	if (!array_key_exists('rule', $params)) $params['rule'] = 0;
-	if (!array_key_exists('owners', $params)) $params['owners_id'] = false;
+	if (!array_key_exists('owners', $params)) $params['owners'] = false;
 
-	
-	$group = new Group;
-	$group->data->owner_id = $loggedin_user->id;
-	$group->data->type = 'user';
-	$group->data->title = $params['name'];
-	$group->data->description = $params['description'];
-	$group->data->privacy = $params['privacy'];
-	$group->data->rule = $params['rule'];
-	array_push($params['owners_id'], $loggedin_user->id);
+	$group_params['owner_id'] = $loggedin_user->id;
+	$group_params['type'] = 'user';
+	$group_params['title'] = $params['name'];
+	$group_params['description'] = $params['description'];
+	$group_params['privacy'] = $params['privacy'];
+	$group_params['rule'] = $params['rule'];
+
+	array_push($params['owners'], $loggedin_user->id);
 	if ($params['owners']) {
 		$params['owners_id'] = array_unique($params['owners']);
-		$owners = implode(',', $params['owners_id']);
-		$group->data->owners_id = $owners;
+		$group_params['owners_id'] = implode(',', $params['owners_id']);
 	}
-	$group_id = $group->insert(true);
+
+	$group_id = $groupService->save($group_params);
 	if ($group_id) {
 		$inventoryService = InventoryService::getInstance();
 		$inventoryService->save($group_id, 'group', $loggedin_user->id);

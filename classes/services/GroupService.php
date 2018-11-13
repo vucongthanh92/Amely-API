@@ -17,6 +17,18 @@ class GroupService extends Services
         $this->table = "amely_groups";
     }
 
+    public function save($data)
+    {
+    	$group = new Group();
+    	foreach ($data as $key => $value) {
+    		$group->data->$key = $value;
+    	}
+    	if ($data['id']) {
+    		return $group->update();
+    	}
+    	return $group->insert(true);
+    }
+
     public function getGroupByType($input, $type ='id')
 	{	
 		$conditions = null;

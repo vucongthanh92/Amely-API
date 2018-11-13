@@ -33,10 +33,10 @@ class RelationshipService extends Services
 			if ($type == "friend:request") {
 				$type = "friend:".$type_relation;
 			}
-			$data = null;
-			$data['from'] = $from;
-			$data['to'] = $to;
-			return response($notificationService->save($data, $type));
+			$notify_params = null;
+			$notify_params['from'] = $from;
+			$notify_params['to'] = $to;
+			return response($notificationService->save($notify_params, $type));
 		}
 		return false;
     }

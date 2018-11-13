@@ -253,7 +253,7 @@ class NotificationService extends Services
 				$description = $data['from']->fullname." ".$target." ".$event->title;
 				break;
 			default:
-				return response(true);
+				return true;
 				break;
     	}
     		
