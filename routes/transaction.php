@@ -24,7 +24,7 @@ $app->post($container['prefix'].'/transaction', function (Request $request, Resp
 
 	$subjects_type = ['offer','gift','order','delivery','redeem', 'wallet'];
 	if (!in_array($params['subject_type'], $subjects_type)) return response(false);
-	if ($params['subjects_type'] == 'offer') {
+	if ($params['subject_type'] == 'offer') {
 		$conditions[] = [
 			'key' => 'owner_id',
 			'value' => "= '{$params['owner_id']}'",
