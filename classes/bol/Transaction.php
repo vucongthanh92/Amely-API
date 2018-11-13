@@ -13,7 +13,10 @@
         8 Bạn đã hủy yêu cầu trao đổi #1
         9 Đề xuất trao đổi # bị từ chối
         10 Đề xuất trao đổi # thành công.
-
+    order
+        11 Đơn hàng #1 chờ xử lý.
+        12 Đơn hàng #1 thành công.
+        13 Đơn hàng #1 thất bại.
 
 */
 class Transaction extends Object

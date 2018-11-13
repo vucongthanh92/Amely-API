@@ -45,7 +45,7 @@ class OPATM extends \Object implements \Amely\Payment\IPaymentMethod
 	{
 		global $settings;
 
-		$return_url = $settings['url'].$settings['prefix'].'/payment_response';
+		$return_url = $settings['url'].$settings['prefix'].'/payment_response?method=opatm';
 		$order_id = $this->order_id;
 		$order_type = $this->order_type;
 		$creator = $this->creator;
@@ -239,19 +239,24 @@ class OPATM extends \Object implements \Amely\Payment\IPaymentMethod
 		// to allow customers to try another transaction.
 		//TK//$againLink = URLDecode($_GET["AgainLink"]);
 
-
 		$transStatus = "";
+		$status = 0;
 		if($hashValidated=="CORRECT" && $txnResponseCode=="0"){
 			$transStatus = "Giao dịch thành công";
 			$paymentsService= \PaymentsService::getInstance();
 			$paymentsService->processOrder($order_id, $order_type);
+			$status = 1;
 		}elseif ($hashValidated=="INVALID HASH" && $txnResponseCode=="0"){
 			$transStatus = "Giao dịch Pendding";
+			$status = 0;
 		}else {
 			$transStatus = "Giao dịch thất bại";
+			$status = 2;
 		}
 
-		var_dump($transStatus);
-		die();
+		return  [
+			'order_id' => $order_id,
+			'status' => $status
+		];
 	}
 }

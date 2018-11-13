@@ -20,6 +20,14 @@ class CartService extends Services
 		$this->table = "amely_cart";
     }
 
+    public function updateStatus($cart_id, $status)
+    {
+        $cart = new Cart();
+        $cart->data->status = $status;
+        $cart->where = "id = {$cart_id}";
+        return $cart->update();
+    }
+
     public function checkCart($owner_id, $type, $creator_id, $status)
     {
         $this->table = "amely_cart";
