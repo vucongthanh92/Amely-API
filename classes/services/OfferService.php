@@ -24,29 +24,38 @@ class OfferService extends Services
 		$expried = strtotime("+{$hour} hours", $time);
 
 		$offer = new Offer();
-		$offer->data->owner_id = $data['owner_id'];
-		$offer->data->type = 'user';
-		$offer->data->title = "";
-		$offer->data->description = "";
-		$offer->data->target = $data['target'];
-		$offer->data->duration = $data['duration'];
-		$offer->data->offer_type = $data['offer_type'];
+		foreach ($data as $key => $value) {
+			$offer->data->$key = $value;
+		}
 		$offer->data->expried = $expried;
 		$offer->data->status = 0;
-		$offer->data->option = $data['option'];
-		$offer->data->limit_counter = $data['limit_counter'];
-		$offer->data->item_id = $data['item_id'];
-		$offer->data->note = $data['note'];
+		if ($data['id']) {
+			return false;
+		}
 		$offer_id = $offer->insert(true);
 		if ($offer_id) {
-			$item = new Item();
-			$item->data->status = 0;
-			$item->where = "id = {$data['item_id']}";
-			$item->update();
+			ItemService::getInstance()->updateStatus($data['item_id'], 0);
+			$transactionService = TransactionService::getInstance();
+			$transaction_params['owner_id'] = $data['owner_id'];
+			$transaction_params['type'] = 'user';
+			$transaction_params['title'] = "";
+			$transaction_params['description'] = "";
+			$transaction_params['subject_type'] = 'offer';
+			$transaction_params['subject_id'] = $offer_id;
+			$transaction_params['status'] = 3;
+			$transactionService->save($transaction_params);
 			return $offer_id;
 		}
 		return false;
-	}    
+	}
+
+	public function updateStatus($offer_id, $status)
+    {
+    	$offer = new Offer();
+    	$offer->data->status = $status;
+		$offer->where = "id = {$offer_id}";
+		return $offer->update();
+    }
 
     public function getOfferByType($input, $type ='id')
     {

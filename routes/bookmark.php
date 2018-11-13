@@ -140,7 +140,7 @@ $app->put($container['prefix'].'/bookmark', function (Request $request, Response
 			break;
 	}
 
-	return response($relationshipService->save($from, $tp, $type));
+	return response($relationshipService->save($from, $to, $type));
 });
 
 $app->delete($container['prefix'].'/bookmark', function (Request $request, Response $response, array $args) {

@@ -270,15 +270,8 @@ $app->patch($container['prefix'].'/offers', function (Request $request, Response
 	$itemService->changeOwnerItem($counter->creator_id, 'user', $offer->item_id);
 	$itemService->changeOwnerItem($offer->owner_id, 'user', $counter->item_id);
 
-	$offer = object_cast("Offer", $offer);
-	$offer->data->status = 1;
-	$offer->where = "id = {$offer->id}";
-	$offer->update();
-
-	$counter = object_cast("Counter", $counter);
-	$counter->data->status = 1;
-	$counter->where = "id = {$counter->id}";
-	$counter->update();
+	$offerService->updateStatus($offer->id, 1);
+	$counterService->updateStatus($counter->id, 1);
 
 	$noty_params = null;
 	$noty_params['offer_id'] = $offer->id;
@@ -358,16 +351,19 @@ $app->put($container['prefix'].'/offers', function (Request $request, Response $
 	if ($item->owner_id != $inventory->id) return response(false);
 	$item_id = $itemService->separateItem($params['item_id'], $params['quantity']);
 
-	$data = [];
-	$data['owner_id'] = $loggedin_user->id;
-	$data['target'] = $params['target'];
-	$data['duration'] = $params['duration'];
-	$data['offer_type'] = $params['offer_type'];
-	$data['limit_counter'] = $params['limit_counter'];
-	$data['item_id'] = $item_id;
-	$data['note'] = $params['note'];
-	$data['option'] = $params['option'];
-	$offer_id = $offerService->save($data);
+	$offer_params['owner_id'] = $loggedin_user->id;
+	$offer_params['type'] = 'user';
+	$offer_params['title'] = "";
+	$offer_params['description'] = "";
+	$offer_params['target'] = $params['target'];
+	$offer_params['duration'] = $params['duration'];
+	$offer_params['offer_type'] = $params['offer_type'];
+	$offer_params['option'] = $params['option'];
+	$offer_params['limit_counter'] = $params['limit_counter'];
+	$offer_params['item_id'] = $item_id;
+	$offer_params['note'] = $params['note'];
+
+	$offer_id = $offerService->save($offer_params);
 	if ($offer_id) {
 		if ($params['offer_type'] == 1) {
 			$counter_params = null;
@@ -401,13 +397,8 @@ $app->delete($container['prefix'].'/offers', function (Request $request, Respons
 	if (!$offer) return response(false);
 	if ($offer->status != 0) return response(false);
 	if ($offer->owner_id != $loggedin_user->id) return response(false);
-	$offer = object_cast("Offer", $offer);
-	$offer->data->status = 2;
-	$offer->where = "id = {$offer->id}";
-	$offer->update();
-
+	$offerService->updateStatus($offer->id, 2);
 	$itemService->changeOwnerItem($offer->owner_id, 'user', $offer->item_id);
-
 	$counter_params = null;
 	$counter_params[] = [
 		'key' => 'owner_id',
@@ -418,13 +409,20 @@ $app->delete($container['prefix'].'/offers', function (Request $request, Respons
 	if ($counters) {
 		foreach ($counters as $key => $counter) {
 			if ($counter->item_id) {
-				$counter = object_cast("Counter", $counter);
-				$counter->data->status = 2;
-				$counter->where = "id = {$counter->id}";
-				$counter->update();
+				$counterService->updateStatus($counter->id, 2);
 				$itemService->changeOwnerItem($counter->creator_id, 'user', $counter->item_id);
 			}
 		}
 	}
+
+	$transactionService = TransactionService::getInstance();
+	$transaction_params['owner_id'] = $offer->owner_id;
+	$transaction_params['type'] = 'user';
+	$transaction_params['title'] = "";
+	$transaction_params['description'] = "";
+	$transaction_params['subject_type'] = 'offer';
+	$transaction_params['subject_id'] = $offer->id;
+	$transaction_params['status'] = 4;
+	$transactionService->save($transaction_params);
 	return response(true);
 });

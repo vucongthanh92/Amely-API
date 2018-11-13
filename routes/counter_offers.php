@@ -310,21 +310,17 @@ $app->put($container['prefix'].'/counter_offers', function (Request $request, Re
 			break;
 	}
 
-	$data = [];
-	$data['offer_id'] = $params['offer_id'];
-	$data['item_id'] = $params['item_id'];
-	$data['creator_id'] = $loggedin_user->id;
-	$data['status'] = $status;
+	$counter_params['owner_id'] = $params['offer_id'];
+	$counter_params['creator_id'] = $loggedin_user->id;
+	$counter_params['item_id'] = $params['item_id'];
+	$counter_params['status'] = $status;
 
-	if ($counterService->save($data)) {
+	if ($counterService->save($counter_params)) {
 		if ($offer->offer_type == 2) {
 			if ($status == 1) {
 				$item = $itemService->getItemByType($offer->item_id, 'id');
 				if ($item->quantity == 1) {
-					$offer = object_cast("Offer", $offer);
-					$offer->data->status = 2;
-					$offer->where = "id = {$offer->id}";
-					$offer->update();
+					$offerService->updateStatus($offer->id, 2);
 				} else {
 					$item_id = $itemService->separateItem($offer->item_id, 1);
 					$item = $itemService->getItemByType($item_id, 'id');
@@ -353,15 +349,9 @@ $app->put($container['prefix'].'/counter_offers', function (Request $request, Re
 					if ($counter->item_id) {
 						$itemService->changeOwnerItem($counter->creator_id, 'user', $counter->item_id);
 					}
-
-					$counter_offer = new Counter();
-					$counter_offer->data->status = 1;
-					$counter_offer->where = "id = {$counter->id}";
-					$counter_offer->update();
+					$counterService->updateStatus($counter->id, 1);
 				}
-				$offer = object_cast("Offer", $offer);
-				$offer->data->status = 1;
-				$offer->update();
+				$offerService->updateStatus($offer->id, 1);
 			}
 		}
 		return response(true);
@@ -373,6 +363,7 @@ $app->delete($container['prefix'].'/counter_offers', function (Request $request,
 	$notificationService = NotificationService::getInstance();
 	$offerService = OfferService::getInstance();
 	$counterService = CounterService::getInstance();
+	$itemService = ItemService::getInstance();
 	$loggedin_user = loggedin_user();
 
 	$params = $request->getQueryParams();
@@ -387,13 +378,7 @@ $app->delete($container['prefix'].'/counter_offers', function (Request $request,
 		$noty_params['counter_id'] = $params['counter_id'];
 		$notificationService->save($noty_params, 'counter:reject');
 	}
-	$item = new Item();
-	$item->data->status = 1;
-	$item->where = "id = {$counter->item_id}";
-	$item->update();
-
-	$counter = object_cast("Counter", $counter);
-	$counter->data->status = 2;
-	$counter->where = "id = {$counter->id}";
-	return response($counter->update());
+	$itemService->updateStatus($counter->item_id, 1);
+	$counterService->updateStatus($counter->id, 2);
+	return response(true);
 });
