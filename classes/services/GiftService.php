@@ -117,6 +117,7 @@ class GiftService extends Services
 
 	public function updateStatus($gift_id, $status)
 	{
+		$gift = $this->getGiftByType($gift_id, 'id');
 		$notificationService = NotificationService::getInstance();
 		$notify_params['gift_id'] = $gift_id;
 		$gift = new Gift();
@@ -138,8 +139,8 @@ class GiftService extends Services
 				default:
 					break;
 			}
-			$transaction_params['owner_id'] = $data['from_id'];
-			$transaction_params['type'] = $data['from_type'];
+			$transaction_params['owner_id'] = $gift->from_id;
+			$transaction_params['type'] = $gift->from_type;
 			$transaction_params['title'] = "";
 			$transaction_params['description'] = "";
 			$transaction_params['subject_type'] = "gift";
