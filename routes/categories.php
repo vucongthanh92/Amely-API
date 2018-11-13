@@ -15,9 +15,7 @@ $app->post($container['prefix'].'/categories', function (Request $request, Respo
 	if (!array_key_exists('offset', $params)) $params['offset'] = 0;
 	if (!array_key_exists('limit', $params)) $params['limit'] = 10;
 	if (!array_key_exists('shop_id', $params)) $params['shop_id'] = false;
-	// type ['voucher','ticket','market']
-	if (!array_key_exists('type', $params)) $params['type'] = 0;
-
+	if (!array_key_exists('type', $params)) $params['type'] = 'market';
 	$offset = (double)$params['offset'];
 	$limit = (double)$params['limit'];
 	$shop_id = $params['shop_id'];
@@ -86,7 +84,20 @@ $app->put($container['prefix'].'/categories', function (Request $request, Respon
 	if (!array_key_exists('enabled', $params)) $params['enabled'] = 1;
 	if (!array_key_exists('parent_id', $params)) $params['parent_id'] = 0;
 	if (!array_key_exists('creator_id', $params)) $params['creator_id'] = $loggedin_user->id;
-	if (!array_key_exists('logo', $params)) $params['logo'] = 0;
+	if (!array_key_exists('logo', $params)) $params['logo'] = false;
 
-	return response($categoryService->save($params));
+	$category_params = null;
+	$category_params['owner_id'] = $params['owner_id'];
+	$category_params['type'] = $params['type'];
+	$category_params['title'] = $params['title'];
+	$category_params['description'] = $params['description'];
+	$category_params['subtype'] = $params['subtype'];
+	$category_params['friendly_url'] = $params['friendly_url'];
+	$category_params['sort_order'] = 0;
+	$category_params['enabled'] = 0;
+	$category_params['parent_id'] = $params['parent_id'];
+	$category_params['creator_id'] = $loggedin_user->id;
+	$category_params['logo'] = false;
+
+	return response($categoryService->save($category_params));
 });

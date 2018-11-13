@@ -49,7 +49,7 @@ class OfferService extends Services
 		return false;
 	}
 
-	public function updateStatus($offer_id, $status)
+	public function updateStatus($offer_id, $status, $counter_id = false)
     {
     	$transactionService = TransactionService::getInstance();
 		$transaction_params = null;
@@ -64,9 +64,15 @@ class OfferService extends Services
 					break;
 				case 1:
 					$transaction_params['status'] = 5;
+					if ($counter_id) {
+						$transaction_params['subject_type'] = 'counter';
+						$transaction_params['subject_id'] = $counter_id;
+					}
 					break;
 				case 2:
 					$transaction_params['status'] = 4;
+					$transaction_params['subject_type'] = 'offer';
+					$transaction_params['subject_id'] = $offer->id;
 					break;
 				default:
 					# code...
@@ -77,8 +83,7 @@ class OfferService extends Services
 			$transaction_params['type'] = 'user';
 			$transaction_params['title'] = "";
 			$transaction_params['description'] = "";
-			$transaction_params['subject_type'] = 'offer';
-			$transaction_params['subject_id'] = $offer->id;
+			
 			
 			return $transactionService->save($transaction_params);
 		}

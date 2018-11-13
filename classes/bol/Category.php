@@ -4,6 +4,7 @@
 		0 market
 		1 voucher
 		2 ticket
+		3 shop
 */
 class Category extends Object
 {

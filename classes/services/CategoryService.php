@@ -23,19 +23,14 @@ class CategoryService extends Services
     public function save($data)
     {
     	$category = new Category();
-    	$category->data->owner_id = $data['owner_id'];
-		$category->data->type = $data['type'];
-		$category->data->title = $data['title'];
-		$category->data->description = $data['description'];
-		$category->data->subtype = $data['subtype'];
-		$category->data->friendly_url = $data['friendly_url'];
-		$category->data->sort_order = $data['sort_order'];
-		$category->data->enabled = $data['enabled'];
-		$category->data->parent_id = $data['parent_id'];
-		$category->data->creator_id = $data['creator_id'];
-		$category->data->logo = $data['logo'];
-		$category_id = $category->insert(true);
-		return $category_id;
+    	foreach ($data as $key => $value) {
+    		$category->data->$key = $value;
+    	}
+    	if ($data['id']) {
+    		$category->where = "id = {$data['id']}";
+    		return $category->update(true);
+    	}
+		return $category->insert(true);
     }
 
     public function getCategoriesByType($input, $type ='id')

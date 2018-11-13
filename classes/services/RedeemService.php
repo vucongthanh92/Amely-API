@@ -38,6 +38,12 @@ class RedeemService extends Services
 		return response(false);
     }
 
+    public function result()
+    {
+    	$transactionService = TransactionService::getInstance();
+    	
+    }
+
     public function getRedeem($conditions)
 	{
 		$redeem = $this->searchObject($conditions, 0, 1);
