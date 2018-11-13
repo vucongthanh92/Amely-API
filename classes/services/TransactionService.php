@@ -22,6 +22,23 @@ class TransactionService extends Services
 
     public function save($data)
     {
+    	$conditions[] = [
+    		'key' => 'owner_id',
+    		'value' => "= '{$data['owner_id']}'",
+    		'operation' => ''
+    	];
+    	$conditions[] = [
+    		'key' => 'type',
+    		'value' => "= '{$data['type']}'",
+    		'operation' => 'AND'
+    	];
+    	$conditions[] = [
+    		'key' => 'subject_type',
+    		'value' => "= '{$data['subject_type']}'",
+    		'operation' => 'AND'
+    	];
+    	$transaction = $this->getTransaction($conditions);
+    	if ($transaction) return false;
     	$transaction = new Transaction();
     	foreach ($data as $key => $value) {
 			$transaction->data->$key = $value;
