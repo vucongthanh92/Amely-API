@@ -20,6 +20,22 @@ class UserService extends Services
         $this->table = "amely_users";
     }
 
+    public function login($username)
+    {
+    	$time = time();
+    	$user = new User();
+    	$user->data->last_login = $time;
+    	$user->where = "username = '{$username}'";
+    	if ($user->update()) {
+    		$obj = new stdClass;
+    		$obj->username = $username;
+    		$obj->last_login = $time;
+    		$this->connectServer("login", $obj);
+    		return true;
+    	}
+    	return false;
+    }
+
     public function getUserByType($input, $type ='id', $getAddr = true, $password = true)
 	{	
 		$conditions = null;

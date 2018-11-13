@@ -73,6 +73,7 @@ $app->post($container['prefix'].'/authtoken', function (Request $request, Respon
         if ($tokenService->save($token_code, $user->id, $params['type'])) {
         	$_SESSION["OSSN_USER"] = $user;
 			$_SESSION["TOKEN"] = $token_code;
+			$userService->login($user->username);
 			return response(["token" => $token_code]);
         }
     }
