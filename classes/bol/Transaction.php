@@ -17,6 +17,9 @@
         11 Đơn hàng #1 chờ xử lý.
         12 Đơn hàng #1 thành công.
         13 Đơn hàng #1 thất bại.
+    redeem
+        14 #1 sử dụng vật phẩm thành công.
+        15 #1 sử dụng vật phẩm thất bại.
 
 */
 class Transaction extends Object

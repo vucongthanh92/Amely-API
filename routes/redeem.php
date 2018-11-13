@@ -41,10 +41,12 @@ $app->get($container['prefix'].'/redeem', function (Request $request, Response $
 });
 
 $app->post($container['prefix'].'/redeem', function (Request $request, Response $response, array $args) {
+	$transactionService = TransactionService::getInstance();
 	$services = Services::getInstance();
 	$redeemService = RedeemService::getInstance();
 	$itemService = ItemService::getInstance();
 	$loggedin_user = loggedin_user();
+	if (!$loggedin_user->chain_store) return response(false);
 	$params = $request->getParsedBody();
 	if (!$params) $params = [];
 	if (!array_key_exists('code', $params)) $params['code'] = false;
@@ -73,6 +75,28 @@ $app->post($container['prefix'].'/redeem', function (Request $request, Response 
 	$redeem_params['code'] = $params['code'];
 	$redeem_params['status'] = 1;
 	$redeem_id = $redeemService->save($redeem_params);
+
+	$transaction_params = null;
+	$transaction_params['owner_id'] = $data['owner_id'];
+	$transaction_params['type'] = 'user';
+	$transaction_params['title'] = "";
+	$transaction_params['description'] = "";
+	$transaction_params['subject_type'] = 'redeem';
+	$transaction_params['subject_id'] = $redeem_id;
+	$transaction_params['status'] = 14;
+	$transactionService->save($transaction_params);
+
+	$transaction_params = null;
+	$transaction_params['owner_id'] = $loggedin_user->chain_store;
+	$transaction_params['type'] = 'store';
+	$transaction_params['title'] = "";
+	$transaction_params['description'] = "";
+	$transaction_params['subject_type'] = 'redeem';
+	$transaction_params['subject_id'] = $redeem_id;
+	$transaction_params['status'] = 14;
+	$transactionService->save($transaction_params);
+
+
 	return response(true);
 
 });
