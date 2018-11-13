@@ -271,7 +271,7 @@ $app->patch($container['prefix'].'/offers', function (Request $request, Response
 	$itemService->changeOwnerItem($counter->creator_id, 'user', $offer->item_id);
 	$itemService->changeOwnerItem($offer->owner_id, 'user', $counter->item_id);
 
-	$offerService->updateStatus($offer->id, 1);
+	$offerService->updateStatus($offer->id, 1, $counter->id);
 	$counterService->updateStatus($counter->id, 1);
 
 	$noty_params = null;
