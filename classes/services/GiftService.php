@@ -98,9 +98,9 @@ class GiftService extends Services
 			$services->giftFB($obj);
 			
 			$notificationService = NotificationService::getInstance();
-			$data = null;
-			$data['gift_id'] = $gift_id;
-			$notificationService->save($data, "gift:request");
+			$notify_params = null;
+			$notify_params['gift_id'] = $gift_id;
+			$notificationService->save($notify_params, "gift:request");
 
 			$transaction_params['owner_id'] = $data['from_id'];
 			$transaction_params['type'] = $data['from_type'];
