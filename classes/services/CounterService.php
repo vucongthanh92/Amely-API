@@ -19,6 +19,7 @@ class CounterService extends Services
 
 	public function save($data)
 	{
+		$transactionService = TransactionService::getInstance();
 		$notificationService = NotificationService::getInstance();
 		$counter = new Counter();
 		foreach ($data as $key => $value) {
@@ -28,6 +29,30 @@ class CounterService extends Services
 	    if ($data['item_id']) {
 	    	ItemService::getInstance()->updateStatus($data['item_id'], 0);
 	    }
+	    switch ($data['status']) {
+			case 0:
+				$transaction_params['status'] = 7;
+				break;
+			case 1:
+				$transaction_params['status'] = 10;
+				break;
+			case 2:
+				$transaction_params['status'] = 9;
+				break;
+			case 3:
+				$transaction_params['status'] = 8;
+			default:
+				# code...
+				break;
+		}
+		$transaction_params['owner_id'] = $data['creator_id'];
+		$transaction_params['type'] = 'user';
+		$transaction_params['title'] = "";
+		$transaction_params['description'] = "";
+		$transaction_params['subject_type'] = 'offer';
+		$transaction_params['subject_id'] = $data['owner_id'];
+		$transactionService->save($transaction_params);
+
 	    $notify_params = null;
 		$notify_params['offer_id'] = $data['offer_id'];
 		$notify_params['counter_id'] = $counter_id;
@@ -36,10 +61,38 @@ class CounterService extends Services
 
 	public function updateStatus($counter_id, $status)
     {
-    	$counter = new Counter();
+    	$transactionService = TransactionService::getInstance();
+    	$counter = $this->getCounterByType($counter_id, 'id');
+    	$counter = object_cast("Counter", $counter);
     	$counter->data->status = $status;
 		$counter->where = "id = {$counter_id}";
-		return $counter->update();
+		if ($counter->update()) {
+			switch ($status) {
+				case 0:
+					# code...
+					break;
+				case 1:
+					$transaction_params['status'] = 10;
+					break;
+				case 2:
+					$transaction_params['status'] = 9;
+					break;
+				case 3:
+					$transaction_params['status'] = 8;
+					break;
+				default:
+					# code...
+					break;
+			}
+			$transaction_params['owner_id'] = $counter->creator_id;
+			$transaction_params['type'] = 'user';
+			$transaction_params['title'] = "";
+			$transaction_params['description'] = "";
+			$transaction_params['subject_type'] = 'offer';
+			$transaction_params['subject_id'] = $counter->owner_id;
+			
+			return $transactionService->save($transaction_params);
+		}
     }
 
     public function getCounterByType($input, $type ='id')

@@ -51,10 +51,38 @@ class OfferService extends Services
 
 	public function updateStatus($offer_id, $status)
     {
-    	$offer = new Offer();
+    	$transactionService = TransactionService::getInstance();
+		$transaction_params = null;
+    	$offer = $this->getOfferByType($offer_id);
+    	$offer = object_cast("Offer", $offer);
     	$offer->data->status = $status;
 		$offer->where = "id = {$offer_id}";
-		return $offer->update();
+		if ($offer->update()) {
+			switch ($status) {
+				case 0:
+					# code...
+					break;
+				case 1:
+					$transaction_params['status'] = 5;
+					break;
+				case 2:
+					$transaction_params['status'] = 4;
+					break;
+				default:
+					# code...
+					break;
+			}
+			
+			$transaction_params['owner_id'] = $offer->owner_id;
+			$transaction_params['type'] = 'user';
+			$transaction_params['title'] = "";
+			$transaction_params['description'] = "";
+			$transaction_params['subject_type'] = 'offer';
+			$transaction_params['subject_id'] = $offer->id;
+			
+			return $transactionService->save($transaction_params);
+		}
+		return false;
     }
 
     public function getOfferByType($input, $type ='id')

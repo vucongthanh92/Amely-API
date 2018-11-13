@@ -283,10 +283,7 @@ $app->put($container['prefix'].'/counter_offers', function (Request $request, Re
 			if ($item->owner_id != $inventory->id) return response(false);
 			if ($item->quantity < $params['quantity']) return response(false);
 			$params['item_id'] = $itemService->separateItem($params['item_id'], $params['quantity']);
-			$item = new Item();
-			$item->data->status = 0;
-			$item->where = "id = {$params['item_id']}";
-			$item->update();
+			$itemService->updateStatus($params['item_id'], 0);
 		}
 	}
 
@@ -377,8 +374,12 @@ $app->delete($container['prefix'].'/counter_offers', function (Request $request,
 		$noty_params['offer_id'] = $offer->id;
 		$noty_params['counter_id'] = $params['counter_id'];
 		$notificationService->save($noty_params, 'counter:reject');
+		$counterService->updateStatus($counter->id, 2);
+	} else if ($counter->creator_id == $loggedin_user->id) {
+		$counterService->updateStatus($counter->id, 3);
 	}
-	$itemService->updateStatus($counter->item_id, 1);
-	$counterService->updateStatus($counter->id, 2);
+	if ($counter->item_id) {
+		$itemService->updateStatus($counter->item_id, 1);
+	}
 	return response(true);
 });

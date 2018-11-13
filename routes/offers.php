@@ -241,6 +241,7 @@ $app->post($container['prefix'].'/offers', function (Request $request, Response 
 
 $app->patch($container['prefix'].'/offers', function (Request $request, Response $response, array $args) {
 	$notificationService = NotificationService::getInstance();
+	$transactionService = TransactionService::getInstance();
 	$offerService = OfferService::getInstance();
 	$counterService = CounterService::getInstance();
 	$itemService = ItemService::getInstance();
@@ -293,6 +294,7 @@ $app->patch($container['prefix'].'/offers', function (Request $request, Response
 	if ($counters) {
 		foreach ($counters as $key => $counter) {
 			$itemService->changeOwnerItem($counter->creator_id, 'user', $counter->item_id);
+			$counterService->updateStatus($counter->id, 2);
 		}
 	}
 	return response(true);

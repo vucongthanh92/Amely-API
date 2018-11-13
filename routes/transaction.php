@@ -22,7 +22,7 @@ $app->post($container['prefix'].'/transaction', function (Request $request, Resp
 	if (!array_key_exists('owner_id', $params))  	$params['owner_id'] = $loggedin_user->id;
 	if (!array_key_exists('owner_type', $params))  	$params['owner_type'] = 'user';
 
-	$subjects_type = ['offer','gift','purchase','delivery','redeem'];
+	$subjects_type = ['offer','gift','order','delivery','redeem', 'wallet'];
 	if (!in_array($params['subject_type'], $subjects_type)) return response(false);
 	$transactions = $transactionService->getTransactionsByType($params['owner_id'], $params['owner_type'], $params['subject_type']);
 	if (!$transactions) return response(false);

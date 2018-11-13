@@ -31,10 +31,12 @@ class Services extends SlimDatabase
     {
     	global $settings;
 		$f = fsockopen($settings['nodejs']['host'], $settings['nodejs']['port'], $errno, $errstr, 30);
-		$obj->action = $action;
-		$jsonData = json_encode($obj);
-		fwrite($f, $jsonData);
-		fclose($f);
+		if ($f) {
+			$obj->action = $action;
+			$jsonData = json_encode($obj);
+			fwrite($f, $jsonData);
+			fclose($f);
+		}
 		return true;
     }
 

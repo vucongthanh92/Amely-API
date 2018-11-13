@@ -12,6 +12,7 @@
         7 Bạn đã tham gia trao đổi #1 
         8 Bạn đã hủy yêu cầu trao đổi #1
         9 Đề xuất trao đổi # bị từ chối
+        10 Đề xuất trao đổi # thành công.
 
 
 */
