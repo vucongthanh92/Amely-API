@@ -83,6 +83,7 @@ $app->put($container['prefix'].'/groups', function (Request $request, Response $
 	if (!array_key_exists('rule', $params)) $params['rule'] = 0;
 	if (!array_key_exists('owners', $params)) $params['owners_id'] = false;
 
+	
 	$group = new Group;
 	$group->data->owner_id = $loggedin_user->id;
 	$group->data->type = 'user';
@@ -91,8 +92,8 @@ $app->put($container['prefix'].'/groups', function (Request $request, Response $
 	$group->data->privacy = $params['privacy'];
 	$group->data->rule = $params['rule'];
 	array_push($params['owners_id'], $loggedin_user->id);
-	if ($params['owners_id']) {
-		$params['owners_id'] = array_unique($params['owners_id']);
+	if ($params['owners']) {
+		$params['owners_id'] = array_unique($params['owners']);
 		$owners = implode(',', $params['owners_id']);
 		$group->data->owners_id = $owners;
 	}
