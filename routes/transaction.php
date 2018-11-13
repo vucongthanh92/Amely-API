@@ -24,7 +24,26 @@ $app->post($container['prefix'].'/transaction', function (Request $request, Resp
 
 	$subjects_type = ['offer','gift','order','delivery','redeem', 'wallet'];
 	if (!in_array($params['subject_type'], $subjects_type)) return response(false);
-	$transactions = $transactionService->getTransactionsByType($params['owner_id'], $params['owner_type'], $params['subject_type']);
+	if ($params['subjects_type'] == 'offer') {
+		$conditions[] = [
+			'key' => 'owner_id',
+			'value' => "= '{$params['owner_id']}'",
+			'operation' => ''
+		];
+		$conditions[] = [
+			'key' => 'type',
+			'value' => "= '{$params['owner_type']}'",
+			'operation' => 'AND'
+		];
+		$conditions[] = [
+			'key' => 'subject_type',
+			'value' => "IN ('offer', 'counter')",
+			'operation' => 'AND'
+		];
+		$transactions = $transactionService->getTransactions($conditions, $params['offset'], $params['limit']);
+	} else {
+		$transactions = $transactionService->getTransactionsByType($params['owner_id'], $params['owner_type'], $params['subject_type']);
+	}
 	if (!$transactions) return response(false);
 	return response($transactions);
 });
