@@ -24,6 +24,11 @@ $app->post($container['prefix'].'/transaction', function (Request $request, Resp
 
 	$subjects_type = ['offer','gift','order','delivery','redeem', 'wallet'];
 	if (!in_array($params['subject_type'], $subjects_type)) return response(false);
+	$conditions[] = [
+		'key' => 'time_created',
+		'value' => "DESC",
+		'operation' => 'order_by'
+	];
 	switch ($params['subject_type']) {
 		case 'offer':
 			$conditions[] = [
@@ -57,7 +62,22 @@ $app->post($container['prefix'].'/transaction', function (Request $request, Resp
 			$transactions = $transactionService->getTransactions($conditions, $params['offset'], $params['limit']);
 			break;
 		default:
-			$transactions = $transactionService->getTransactionsByType($params['owner_id'], $params['owner_type'], $params['subject_type']);
+			$conditions[] = [
+				'key' => 'owner_id',
+				'value' => "= '{$params['owner_id']}'",
+				'operation' => ''
+			];
+			$conditions[] = [
+				'key' => 'type',
+				'value' => "= '{$params['owner_type']}'",
+				'operation' => 'AND'
+			];
+			$conditions[] = [
+				'key' => 'subject_type',
+				'value' => "= '{$params['subject_type']}'",
+				'operation' => 'AND'
+			];
+			$transactions = $transactionService->getTransactions($conditions, $params['offset'], $params['limit']);
 			break;
 	}
 
