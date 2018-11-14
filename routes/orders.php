@@ -33,6 +33,8 @@ $app->get($container['prefix'].'/orders', function (Request $request, Response $
 
 	$snapshots_id = implode(',', array_unique($snapshots_id));
 	$snapshots = $snapshotService->getSnapshotsByType($snapshots_id, 'id');
+
+	$result['total'] = 0;
 	foreach ($stores as $store) {
 		$total = $tax = 0;
 		foreach ($snapshots as $snapshot) {
@@ -60,6 +62,7 @@ $app->get($container['prefix'].'/orders', function (Request $request, Response $
 				$store->avatar = $shop->avatar;
 			}
 		}
+		$result['total'] = $result['total'] + $total;
 		$store->total = $total;
 		$store->tax = $tax;
 		$result['stores'][] = $store;
