@@ -20,6 +20,14 @@ class ItemService extends Services
         $this->table = "amely_items";
     }
 
+    public function renew($item, $duration)
+    {
+    	$item = object_cast("Item", $item);
+    	$item->data->stored_end = strtotime("+{$duration} days", $item->stored_end);
+    	$item->where = "id = {$item->id}";
+    	return $item->update();
+    }
+
     public function getQuantityOfItemBySnapshot($snapshot_id, $owner_id, $type = 'user')
     {
     	$inventoryService = InventoryService::getInstance();

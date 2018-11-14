@@ -75,6 +75,19 @@ class SnapshotService extends Services
 		return $snapshot;
     }
 
+    public function getSnapshotsByType($input, $type = 'id')
+	{
+		$conditions = null;
+		$conditions[] = [
+			'key' => $type,
+			'value' => "IN ({$input})",
+			'operation' => ''
+		];
+		$snapshots = $this->getSnapshots($conditions, 0, 99999999);
+		if (!$snapshots) return false;
+		return $snapshots;
+	}
+
     public function getSnapshotByType($input, $type = 'id')
 	{
 		$conditions = null;
@@ -83,9 +96,8 @@ class SnapshotService extends Services
 			'value' => "= '{$input}'",
 			'operation' => ''
 		];
-		$snapshot = $this->searchObject($conditions, 0, 1);
+		$snapshot = $this->getSnapshot($conditions);
 		if (!$snapshot) return false;
-		$snapshot = $this->changeStructureInfo($snapshot);
 		return $snapshot;
 	}
 

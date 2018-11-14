@@ -24,26 +24,43 @@ $app->post($container['prefix'].'/transaction', function (Request $request, Resp
 
 	$subjects_type = ['offer','gift','order','delivery','redeem', 'wallet'];
 	if (!in_array($params['subject_type'], $subjects_type)) return response(false);
-	if ($params['subject_type'] == 'offer') {
-		$conditions[] = [
-			'key' => 'owner_id',
-			'value' => "= '{$params['owner_id']}'",
-			'operation' => ''
-		];
-		$conditions[] = [
-			'key' => 'type',
-			'value' => "= '{$params['owner_type']}'",
-			'operation' => 'AND'
-		];
-		$conditions[] = [
-			'key' => 'subject_type',
-			'value' => "IN ('offer', 'counter')",
-			'operation' => 'AND'
-		];
-		$transactions = $transactionService->getTransactions($conditions, $params['offset'], $params['limit']);
-	} else {
-		$transactions = $transactionService->getTransactionsByType($params['owner_id'], $params['owner_type'], $params['subject_type']);
+	switch ($params['subject_type']) {
+		case 'offer':
+			$conditions[] = [
+				'key' => 'owner_id',
+				'value' => "= '{$params['owner_id']}'",
+				'operation' => ''
+			];
+			$conditions[] = [
+				'key' => 'type',
+				'value' => "= '{$params['owner_type']}'",
+				'operation' => 'AND'
+			];
+			$conditions[] = [
+				'key' => 'subject_type',
+				'value' => "IN ('offer', 'counter')",
+				'operation' => 'AND'
+			];
+			$transactions = $transactionService->getTransactions($conditions, $params['offset'], $params['limit']);
+			break;
+		case 'wallet':
+			$conditions[] = [
+				'key' => 'owner_id',
+				'value' => "= '{$loggedin_user->id}'",
+				'operation' => ''
+			];
+			$conditions[] = [
+				'key' => 'type',
+				'value' => "= 'wallet'",
+				'operation' => 'AND'
+			];
+			$transactions = $transactionService->getTransactions($conditions, $params['offset'], $params['limit']);
+			break;
+		default:
+			$transactions = $transactionService->getTransactionsByType($params['owner_id'], $params['owner_type'], $params['subject_type']);
+			break;
 	}
+
 	if (!$transactions) return response(false);
 	return response($transactions);
 });

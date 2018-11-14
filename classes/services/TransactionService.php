@@ -33,6 +33,11 @@ class TransactionService extends Services
     		'operation' => 'AND'
     	];
     	$conditions[] = [
+    		'key' => 'subject_id',
+    		'value' => "= '{$data['subject_id']}'",
+    		'operation' => 'AND'
+    	];
+    	$conditions[] = [
     		'key' => 'subject_type',
     		'value' => "= '{$data['subject_type']}'",
     		'operation' => 'AND'

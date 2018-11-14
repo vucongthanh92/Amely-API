@@ -45,15 +45,30 @@ class OPCreditCard extends \Object implements \Amely\Payment\IPaymentMethod
 	{
 		global $settings;
 
-		$return_url = $settings['url'].$settings['prefix'].'/payment_response?method=opcreditcard';
 		$order_id = $this->order_id;
 		$order_type = $this->order_type;
 		$creator = $this->creator;
-		if ($order_type == "HD") {
-			$purchaseOrderService = \PurchaseOrderService::getInstance();
-			$order = $purchaseOrderService->getPOByType($order_id);
+		switch ($order_type) {
+			case 'HD':
+				$purchaseOrderService = \PurchaseOrderService::getInstance();
+				$order = $purchaseOrderService->getPOByType($order_id);
+				$display_order = convertPrefixOrder($order_type, $order->id, $order->time_created);
+				break;
+			case 'WALLET':
+				$display_order = convertPrefixOrder($order_type, $order_id, time());
+				break;
+			default:
+				# code...
+				break;
 		}
-		$display_order = convertPrefixOrder($order_type, $order->id, $order->time_created);
+		$payment = new \Payment();
+		$payment->data->owner_id = $order_id;
+		$payment->data->type = $this->order_type;
+		$payment->data->payment_method = $this->payment_method;
+		$payment->data->request = serialize($requests);
+		$payment_id = $payment->insert(true);
+		$return_url = $settings['url'].$settings['prefix'].'/payment_response?method=opcreditcard&payment_id='.$payment_id;
+
 		$country = "Viet Nam";
 		$amout = $this->amount*100;
 		$address = $creator->address;
@@ -121,14 +136,6 @@ class OPCreditCard extends \Object implements \Amely\Payment\IPaymentMethod
 		    //$vpcURL .= "&vpc_SecureHash=" . strtoupper(md5($md5HashData));
 		    // Thay hàm mã hóa dữ liệu
 		    $vpcURL .= "&vpc_SecureHash=" . strtoupper(hash_hmac('SHA256', $md5HashData, pack('H*',$this->secure_secret)));
-		}
-
-		$payment = new \Payment();
-		$payment->data->owner_id = $order->id;
-		$payment->data->type = $this->order_type;
-		$payment->data->payment_method = $this->payment_method;
-		$payment->data->request = serialize($requests);
-		if ($payment->insert()) {
 			return $vpcURL;
 		}
 		return false;
@@ -158,7 +165,7 @@ class OPCreditCard extends \Object implements \Amely\Payment\IPaymentMethod
 		    // sort all the incoming vpc response fields and leave out any with no value
 		    $payment = new \Payment();
 		    $payment->data->response = serialize($_GET);
-		    $payment->where = "owner_id = '{$order_id}' AND type = '{$order_type}'";
+		    $payment->where = "id = {$_GET['payment_id']}";
 		    $payment->update();
 
 		    foreach ($_GET as $key => $value) {
@@ -251,8 +258,19 @@ class OPCreditCard extends \Object implements \Amely\Payment\IPaymentMethod
 		$status = 0;
 		if($hashValidated=="CORRECT" && $txnResponseCode=="0"){
 			$transStatus = "Giao dịch thành công";
-			$paymentsService= \PaymentsService::getInstance();
-			$paymentsService->processOrder($order_id, $order_type);
+			switch ($order_type) {
+				case 'HD':
+					$paymentsService= \PaymentsService::getInstance();
+					$paymentsService->processOrder($order_id, $order_type);
+					break;
+				case 'WALLET':
+					
+					break;
+				default:
+					# code...
+					break;
+			}
+			
 			$status = 1;
 		}elseif ($hashValidated=="INVALID HASH" && $txnResponseCode=="0"){
 			$transStatus = "Giao dịch Pendding";
@@ -267,6 +285,4 @@ class OPCreditCard extends \Object implements \Amely\Payment\IPaymentMethod
 			'status' => $status
 		];
 	}
-
-	
 }

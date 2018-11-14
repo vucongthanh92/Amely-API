@@ -48,5 +48,15 @@ $app->get($container['prefix'].'/item_inventory', function (Request $request, Re
 
 	$item->inventory = $obj;
 	return response($item);
+});
+
+$app->patch($container['prefix'].'/item_inventory', function (Request $request, Response $response, array $args) {
+	$loggedin_user = loggedin_user();
+	$params = $request->getParsedBody();
+	if (!$params) $params = [];
+	if (!array_key_exists('payment_method', $params)) $params['payment_method'] = $loggedin_user->id;
+	if (!array_key_exists('duration', $params)) $params['duration'] = 0;
+	if (!array_key_exists('item_id', $params)) $params['item_id'] = 10;
+
 
 });

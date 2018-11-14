@@ -2,6 +2,65 @@
 use Slim\Http\Request;
 use Slim\Http\Response;
 
+$app->get($container['prefix'].'/orders', function (Request $request, Response $response, array $args) {
+	$purchaseOrderService = PurchaseOrderService::getInstance();
+	$snapshotService = SnapshotService::getInstance();
+	$storeService = StoreService::getInstance();
+
+	$loggedin_user = loggedin_user();
+	$params = $request->getQueryParams();
+	if (!$params) $params = [];
+	if (!array_key_exists('order_id', $params)) return response(false);
+	$order = $purchaseOrderService->getPOByType($params['order_id'], 'id');
+	if (!$order) return response(false);
+	$order_items = unserialize($order->order_items_snapshot);
+
+	if (!$order_items) return response(false);
+	$result = $stores_id = $snapshots_id = [];
+	foreach ($order_items as $key => $order_item) {
+		array_push($stores_id, $order_item['store_id']);
+		array_push($snapshots_id, $order_item['snapshot_id']);
+	}
+	$stores_id = implode(',', array_unique($stores_id));
+	$stores = $storeService->getStoresByType($stores_id);
+
+	$snapshots_id = implode(',', array_unique($snapshots_id));
+	$snapshots = $snapshotService->getSnapshotsByType($snapshots_id, 'id');
+	foreach ($stores as $store) {
+		$total = $tax = 0;
+		foreach ($snapshots as $snapshot) {
+			foreach ($order_items as $order_item) {
+				if ($snapshot->id == $order_item['snapshot_id']) {
+					if ($order_item['quantity'] > 0) {
+						$snapshot->display_quantity = $order_item['quantity'];
+						$snapshot->redeem_quantity = 0;
+						if ($order_item['store_id'] == $store->id) {
+							$snapshot->store_id = $store->id;
+						}
+						$total += $snapshot->display_price * $order_item['quantity'];
+						$tax += $snapshot->tax;
+						$result['items'][] = $snapshot;
+					}
+					if ($order_item['redeem_quantity'] > 0) {
+						$snapshot_redeem = clone $snapshot;
+						$snapshot_redeem->display_quantity = 0;
+						$snapshot_redeem->redeem_quantity = $order_item['redeem_quantity'];
+						if ($order_item['store_id'] == $store->id) {
+							$snapshot_redeem->store_id = $store->id;
+						}
+						$result['items'][] = $snapshot_redeem;
+					}
+				}
+			}
+		}
+		$store->total = $total;
+		$store->tax = $tax;
+		$result['store'][$store->id] = $store;
+	}
+
+	return response($result);
+});
+
 $app->post($container['prefix'].'/orders', function (Request $request, Response $response, array $args) {
 	$paymentsService = PaymentsService::getInstance();
 	$shippingService = ShippingService::getInstance();
