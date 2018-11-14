@@ -8,6 +8,8 @@ class Payment extends Object
     private $payment_method;
     private $request;
     private $response;
+    private $options;
+    private $status;
 
 	public function __construct() 
 	{	

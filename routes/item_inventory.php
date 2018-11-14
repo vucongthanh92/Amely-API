@@ -51,12 +51,32 @@ $app->get($container['prefix'].'/item_inventory', function (Request $request, Re
 });
 
 $app->patch($container['prefix'].'/item_inventory', function (Request $request, Response $response, array $args) {
+	$itemService = ItemService::getInstance();
+	$walletService = WalletService::getInstance();
+	$snapshotService = SnapshotService::getInstance();
+	$paymentsService = PaymentsService::getInstance();
 	$loggedin_user = loggedin_user();
 	$params = $request->getParsedBody();
 	if (!$params) $params = [];
-	if (!array_key_exists('payment_method', $params)) $params['payment_method'] = $loggedin_user->id;
-	if (!array_key_exists('duration', $params)) $params['duration'] = 0;
-	if (!array_key_exists('item_id', $params)) $params['item_id'] = 10;
+	if (!array_key_exists('payment_method', $params)) return response(false);
+	if (!array_key_exists('duration', $params)) return response(false);
+	if (!array_key_exists('item_id', $params)) return response(false);
+	$item = $itemService->getItemByType($params['item_id']);
+	if ($item->status != 1) return response(false);
+
+	$snapshot = $snapshotService->getSnapshotByType($item->snapshot_id, 'id');
+	$total = $snapshot->adjourn_price * $item->quantity * $params['duration'];
+
+	$pm = $paymentsService->getMethod($params['payment_method']);
+	$pm->order_id = $item->id;
+	$pm->duration = $params['duration'];
+	$pm->amount = $total;
+	$pm->creator = $loggedin_user;
+	$pm->order_type = "ITEM";
+	$pm->payment_method = $params['payment_method'];
+	$url = $pm->process();
+	if (!$url) return response(false);
+	return response(["url" => $url]);
 
 
 });

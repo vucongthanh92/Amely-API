@@ -20,6 +20,15 @@
     redeem
         14 #1 sử dụng vật phẩm thành công.
         15 #1 sử dụng vật phẩm thất bại.
+    wallet
+        16 Nap tien vao vi
+        17 Rut tien tu vi
+        18 Thanh toan hoa don #1 
+        19 Gia han san pham #1
+        20 Quang cao san pham #1
+        21 Quang cao cua hang #1
+        22 Giao hang #1
+
 
 */
 class Transaction extends Object

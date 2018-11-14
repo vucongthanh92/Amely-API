@@ -18,8 +18,49 @@ class PaymentsService extends Services
 	{
 		$this->methods = [];
 		$this->capacities = [];
+		$this->table = "amely_payment";
+	}
+
+	public function getPaymentById($payment_id)
+	{
+		$conditions[] = [
+			'key' => 'id',
+			'value' => "= {$payment_id}",
+			'operation' => ''
+		];
+		$payment = $this->getPayment($conditions);
+		return $payment;
+	}
+
+	public function save($owner_id, $type, $payment_method, $options)
+	{
+		$payment = new Payment();
+		$payment->data->owner_id = $owner_id;
+		$payment->data->type = $type;
+		$payment->data->payment_method = $payment_method;
+		$payment->data->options = $options;
+		$payment->data->status = 0;
+		return $payment->insert(true);
 	}
 	
+	public function request($payment_id, $request, $status)
+	{
+		$payment = new Payment();
+		$payment->data->request = $request;
+		$payment->data->status = $status;
+		$payment->where = "id = {$payment_id}";
+		return $payment->update(true);
+	}
+
+	public function response($payment_id, $response, $status)
+	{
+		$payment = new Payment();
+		$payment->data->response = $response;
+		$payment->data->status = $status;
+		$payment->where = "id = {$payment_id}";
+		return $payment->update(true);
+	}
+
 	public function getMethods()
 	{
 		return $this->methods;
@@ -121,5 +162,12 @@ class PaymentsService extends Services
 			}
 		}
 		return false;
+	}
+
+	public function getPayment($conditions)
+	{
+		$payment = $this->searchObject($conditions, 0, 1);
+		if (!$payment) return false;
+		return $payment;
 	}
 }

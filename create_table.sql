@@ -23,7 +23,9 @@ CREATE TABLE `amely_payment` (
   `time_created` int(11) NOT NULL,
   `payment_method` text,
   `request` text,
-  `response` text
+  `response` text,
+  `options` text,
+  `status` text
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 DROP TABLE IF EXISTS `amely_shipping`;

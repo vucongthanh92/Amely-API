@@ -20,8 +20,9 @@ class ItemService extends Services
         $this->table = "amely_items";
     }
 
-    public function renew($item, $duration)
+    public function renew($item_id, $duration)
     {
+    	$item = $this->getItemByType($item_id);
     	$item = object_cast("Item", $item);
     	$item->data->stored_end = strtotime("+{$duration} days", $item->stored_end);
     	$item->where = "id = {$item->id}";

@@ -24,6 +24,8 @@ class OPCreditCard extends \Object implements \Amely\Payment\IPaymentMethod
 	public $creator;
 	public $order_type;
 	public $payment_method;
+	public $duration;
+	public $payment_id;
 
 	function __construct()
 	{
@@ -48,6 +50,7 @@ class OPCreditCard extends \Object implements \Amely\Payment\IPaymentMethod
 		$order_id = $this->order_id;
 		$order_type = $this->order_type;
 		$creator = $this->creator;
+		$extends = "";
 		switch ($order_type) {
 			case 'HD':
 				$purchaseOrderService = \PurchaseOrderService::getInstance();
@@ -57,17 +60,20 @@ class OPCreditCard extends \Object implements \Amely\Payment\IPaymentMethod
 			case 'WALLET':
 				$display_order = convertPrefixOrder($order_type, $order_id, time());
 				break;
+			case 'ITEM':
+				$options['duration'] = $this->duration;
+				$options['creator_id'] = $creator->id;
+				$display_order = convertPrefixOrder($order_type, $order_id, time());
+				break;
 			default:
 				# code...
 				break;
 		}
-		$payment = new \Payment();
-		$payment->data->owner_id = $order_id;
-		$payment->data->type = $this->order_type;
-		$payment->data->payment_method = $this->payment_method;
-		$payment->data->request = serialize($requests);
-		$payment_id = $payment->insert(true);
-		$return_url = $settings['url'].$settings['prefix'].'/payment_response?method=opcreditcard&payment_id='.$payment_id;
+		$options['amount'] = $this->amount;
+		$options = serialize($options);
+		$paymentsService = \PaymentsService::getInstance();
+		$payment_id = $paymentsService->save($order_id, $this->order_type, $this->payment_method, $options);
+		$return_url = $settings['url'].$settings['prefix'].'/payment_response?payment_id='.$payment_id;
 
 		$country = "Viet Nam";
 		$amout = $this->amount*100;
@@ -135,7 +141,8 @@ class OPCreditCard extends \Object implements \Amely\Payment\IPaymentMethod
 		if (strlen($this->secure_secret) > 0) {
 		    //$vpcURL .= "&vpc_SecureHash=" . strtoupper(md5($md5HashData));
 		    // Thay hàm mã hóa dữ liệu
-		    $vpcURL .= "&vpc_SecureHash=" . strtoupper(hash_hmac('SHA256', $md5HashData, pack('H*',$this->secure_secret)));
+		    $paymentsService->request($payment_id, serialize($requests), 0);
+		    $vpcURL .= "&payment_id=".$payment_id."&vpc_SecureHash=" . strtoupper(hash_hmac('SHA256', $md5HashData, pack('H*',$this->secure_secret)));
 			return $vpcURL;
 		}
 		return false;
@@ -143,6 +150,7 @@ class OPCreditCard extends \Object implements \Amely\Payment\IPaymentMethod
 
 	public function getResult()
 	{
+		$paymentsService = \PaymentsService::getInstance();
 		$SECURE_SECRET = $this->secure_secret;
 
 		$vpc_Txn_Secure_Hash = $_GET["vpc_SecureHash"];
@@ -151,8 +159,12 @@ class OPCreditCard extends \Object implements \Amely\Payment\IPaymentMethod
 		$order_arr = explode("-", $vpc_MerchTxnRef);
 		$order_id = $order_arr[2];
 		$order_type = $order_arr[0];
+
+		if ($order_id != $this->order_id || $order_type != $this->order_type) return false;
+
 		$vpc_AcqResponseCode = $_GET["vpc_AcqResponseCode"];
 		unset($_GET["vpc_SecureHash"]);
+		unset($_GET["payment_id"]);
 		// set a flag to indicate if hash has been validated
 		$errorExists = false;
 
@@ -163,10 +175,6 @@ class OPCreditCard extends \Object implements \Amely\Payment\IPaymentMethod
 		    //khởi tạo chuỗi mã hóa rỗng
 		    $md5HashData = "";
 		    // sort all the incoming vpc response fields and leave out any with no value
-		    $payment = new \Payment();
-		    $payment->data->response = serialize($_GET);
-		    $payment->where = "id = {$_GET['payment_id']}";
-		    $payment->update();
 
 		    foreach ($_GET as $key => $value) {
 		//        if ($key != "vpc_SecureHash" or strlen($value) > 0) {
@@ -257,31 +265,22 @@ class OPCreditCard extends \Object implements \Amely\Payment\IPaymentMethod
 		$transStatus = "";
 		$status = 0;
 		if($hashValidated=="CORRECT" && $txnResponseCode=="0"){
+			$paymentsService->response($this->payment_id, serialize($_GET), 1);
 			$transStatus = "Giao dịch thành công";
-			switch ($order_type) {
-				case 'HD':
-					$paymentsService= \PaymentsService::getInstance();
-					$paymentsService->processOrder($order_id, $order_type);
-					break;
-				case 'WALLET':
-					
-					break;
-				default:
-					# code...
-					break;
-			}
-			
 			$status = 1;
 		}elseif ($hashValidated=="INVALID HASH" && $txnResponseCode=="0"){
+			$paymentsService->response($this->payment_id, serialize($_GET), 0);
 			$transStatus = "Giao dịch Pendding";
 			$status = 0;
 		}else {
+			$paymentsService->response($this->payment_id, serialize($_GET), 2);
 			$transStatus = "Giao dịch thất bại";
 			$status = 2;
 		}
 
 		return  [
 			'order_id' => $order_id,
+			'order_type' => $order_type,
 			'status' => $status
 		];
 	}
