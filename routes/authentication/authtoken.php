@@ -56,6 +56,8 @@ $app->post($container['prefix'].'/authtoken', function (Request $request, Respon
 	$salt     = $user->salt;
     $password = md5($params['password'] . $salt);
     if ($password == $user->password) {
+    	$userService->login($user->username);
+    	$user = $userService->getUserByType($user->username, 'username', true, false);
 		unset($user->password);
 		unset($user->salt);
 		unset($user->verification_code);
@@ -73,7 +75,7 @@ $app->post($container['prefix'].'/authtoken', function (Request $request, Respon
         if ($tokenService->save($token_code, $user->id, $params['type'])) {
         	$_SESSION["OSSN_USER"] = $user;
 			$_SESSION["TOKEN"] = $token_code;
-			$userService->login($user->username);
+			
 			return response(["token" => $token_code]);
         }
     }
