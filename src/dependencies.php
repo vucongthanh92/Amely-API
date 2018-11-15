@@ -33,6 +33,10 @@ $container['prefix'] = function ($c) {
     return $c->get('settings')['prefix'];
 };
 
+$container['administrator'] = function ($c) {
+    return $c->get('settings')['administrator'];
+};
+
 $container['mail'] = function ($c) {
     return (object)$c->get('settings')['mail'];
 };
