@@ -38,6 +38,17 @@ class RedeemService extends Services
 		return response(false);
     }
 
+    public function getRedeemByType($input, $type = 'id')
+    {
+    	$conditions[] = [
+    		'key' => $type,
+    		'value' => "= {$input}",
+    		'operation' => ''
+    	];
+    	$redeem = $this->getRedeem($conditions);
+    	return $redeem;
+    }
+
     public function getRedeem($conditions)
 	{
 		$redeem = $this->searchObject($conditions, 0, 1);

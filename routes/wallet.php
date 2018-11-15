@@ -17,14 +17,6 @@ $app->put($container['prefix'].'/wallet', function (Request $request, Response $
 	$loggedin_user = loggedin_user();
 	$wallet = $walletService->getWalletByOwnerId($loggedin_user->id);
 	if ($wallet) return response(false);
-	$wallet = new Wallet();
-	$wallet->data->owner_id = $loggedin_user->id;
-	$wallet->data->type = 'user';
-	$wallet->data->title = "";
-	$wallet->data->description = "";
-	$wallet->data->balance = 0;
-	$wallet->data->currency = "VND";
-	return response($wallet->insert());
-
+	return response($walletService->save($loggedin_user->id));
 });
 

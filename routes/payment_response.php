@@ -55,8 +55,8 @@ $app->get($container['prefix'].'/payment_response', function (Request $request, 
 
 					$transaction_params['owner_id'] = $creator_id;
 					$transaction_params['type'] = 'wallet';
-					$transaction_params['title'] = $amount*1;
-					$transaction_params['description'] = $amount;
+					$transaction_params['title'] = $amount;
+					$transaction_params['description'] = "";
 					$transaction_params['subject_type'] = 'wallet';
 					$transaction_params['subject_id'] = $creator_id;
 					$transaction_params['status'] = 16;
@@ -64,7 +64,7 @@ $app->get($container['prefix'].'/payment_response', function (Request $request, 
 
 					$transaction_params['owner_id'] = $creator_id;
 					$transaction_params['type'] = 'wallet';
-					$transaction_params['title'] = $amount*(-1);
+					$transaction_params['title'] = $amount;
 					$transaction_params['description'] = "";
 					$transaction_params['subject_type'] = 'item';
 					$transaction_params['subject_id'] = $payment->owner_id;

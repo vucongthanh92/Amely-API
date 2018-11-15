@@ -4,40 +4,59 @@ use Slim\Http\Response;
 
 $app->get($container['prefix'].'/redeem', function (Request $request, Response $response, array $args) {
 	$services = Services::getInstance();
+	$userService = UserService::getInstance();
 	$redeemService = RedeemService::getInstance();
 	$itemService = ItemService::getInstance();
 	$snapshotService = SnapshotService::getInstance();
+	$shopService = ShopService::getInstance();
 	$loggedin_user = loggedin_user();
 	$params = $request->getQueryParams();
 	if (!$params) $params = [];
 	if (!array_key_exists('code', $params)) $params['code'] = false;
-	if (!$params['code']) return response(false);
+	if (!array_key_exists('redeem_id', $params)) $params['redeem_id'] = false;
 
-	$decrypt = $services->b64decode($params['code']);
-	$data = $services->decrypt($decrypt);
-	$data = unserialize($data);
-	$time = time();
-	$time_affter_5m = $data['time'] + (5*60);
+	if ($params['code']) {
+		$decrypt = $services->b64decode($params['code']);
+		$data = $services->decrypt($decrypt);
+		$data = unserialize($data);
+		$time = time();
+		$time_affter_5m = $data['time'] + (5*60);
 
-	if ($time > $time_affter_5m) return response(false);
-	$item = $itemService->getItemByType($data['item_id'],'id');
+		if ($time > $time_affter_5m) return response(false);
+		$item = $itemService->getItemByType($data['item_id'],'id');
 
-	if ($item->status != 1) return response(false);
+		if ($item->status != 1) return response(false);
 
-	$redeem_parmas = null;
-	$redeem_parmas[] = [
-		'key' => 'code',
-		'value' => "= '{$params['code']}'",
-		'operation' => ''
-	];
+		$redeem_parmas = null;
+		$redeem_parmas[] = [
+			'key' => 'code',
+			'value' => "= '{$params['code']}'",
+			'operation' => ''
+		];
 
-	$redeem = $redeemService->getRedeem($redeem_parmas);
-	if ($redeem) return response(false);
+		$redeem = $redeemService->getRedeem($redeem_parmas);
+		if ($redeem) return response(false);
 
-	$item->quantity = $data['quantity'];
-	$snapshot = $snapshotService->getSnapshotByType($item->snapshot_id, 'id');
-	$item->snapshot = $snapshot;
-	return response($item);
+		$item->quantity = $data['quantity'];
+		$snapshot = $snapshotService->getSnapshotByType($item->snapshot_id, 'id');
+		$item->snapshot = $snapshot;
+		return response($item);
+	}
+
+	if ($params['redeem_id']) {
+		$redeem = $redeemService->getRedeemByType($params['redeem_id'], 'id');
+		$item = $itemService->getItemByType($redeem->item_id, 'id');
+		$snapshot = $snapshotService->getSnapshotByType($item->snapshot_id, 'id');
+		$shop = $shopService->getShopByType($snapshot->owner_id, 'id');
+		$user = $userService->getUserByType($redeem->creator_id, 'id', false);
+		return response([
+			'item' => $item,
+			'shop' => $shop,
+			'user' => $user
+		]);
+	}
+
+	return response(false);
 });
 
 $app->post($container['prefix'].'/redeem', function (Request $request, Response $response, array $args) {
