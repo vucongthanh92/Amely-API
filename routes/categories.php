@@ -64,7 +64,7 @@ $app->put($container['prefix'].'/categories', function (Request $request, Respon
 	if (!array_key_exists('friendly_url', $params)) $params['friendly_url'] = "";
 	if (!array_key_exists('sort_order', $params)) $params['sort_order'] = 0;
 	if (!array_key_exists('enabled', $params)) $params['enabled'] = 1;
-	if (!array_key_exists('parent_id', $params)) $params['parent_id'] = 0;
+	if (!array_key_exists('parent_id', $params)) $params['parent_id'] = "";
 	if (!array_key_exists('creator_id', $params)) $params['creator_id'] = $loggedin_user->id;
 	if (!array_key_exists('logo', $params)) $params['logo'] = false;
 

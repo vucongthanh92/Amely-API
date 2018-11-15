@@ -307,12 +307,12 @@ $app->put($container['prefix'].'/counter_offers', function (Request $request, Re
 			break;
 	}
 
-	$counter_params['owner_id'] = $params['offer_id'];
-	$counter_params['creator_id'] = $loggedin_user->id;
-	$counter_params['item_id'] = $params['item_id'];
-	$counter_params['status'] = $status;
+	$counter_data['owner_id'] = $params['offer_id'];
+	$counter_data['creator_id'] = $loggedin_user->id;
+	$counter_data['item_id'] = $params['item_id'];
+	$counter_data['status'] = $status;
 
-	if ($counterService->save($counter_params)) {
+	if ($counterService->save($counter_data)) {
 		if ($offer->offer_type == 2) {
 			if ($status == 1) {
 				$item = $itemService->getItemByType($offer->item_id, 'id');

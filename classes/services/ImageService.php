@@ -16,6 +16,26 @@ class ImageService extends Services
 	{
     }
 
+    public function uploadImage($owner_id, $owner_type, $image_type, $file, $filename)
+    {
+        global $settings;
+        if (!in_array($image_type, ['avatar','cover','images'])) return response(false);
+        
+        $path = "/{$owner_type}/{$owner_id}/{$image_type}";
+        $dir = $settings['image']['path'].$path;
+        if (!file_exists($dir)) {
+            mkdir($dir, 0777, true);
+        }
+        $file->moveTo($dir . DIRECTORY_SEPARATOR . $filename);
+        $sizes = $this->image_sizes();
+        foreach ($sizes as $key => $size) {
+            $resize = new ResizeImage($dir . DIRECTORY_SEPARATOR . $filename);
+            $resize->resizeTo($size, $size, 'maxWidth');
+            $resize->saveImage("/{$dir}/{$key}_{$filename}");
+        }
+        return true;
+    }
+
     public function image_sizes() {
         return array(
             'icon' => 64,
