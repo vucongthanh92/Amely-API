@@ -283,14 +283,14 @@ class Services extends SlimDatabase
 				return response($feed->update());
 			case 'user':
 				$user = new User();
-				$user->id = $owner_id;
 				$user->data->$image_type = $filenames;
+				$user->where = "id = {$owner_id}";
 				return response($user->update());
 				break;
 			case 'comment':
 				$comment = new Annotation();
-				$comment->id = $owner_id;
 				$comment->data->images = $filenames;
+				$comment->where = "id = {$owner_id}";
 				return response($comment->update());
 				break;
 			default:
