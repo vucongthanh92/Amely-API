@@ -101,8 +101,8 @@ class ShopService extends Services
 		$addressService = AddressService::getInstance();
 		$imageService = ImageService::getInstance();
 
-		$shop->avatar = $imageService->showAvatar($shop->id, $shop->avatar, 'shop', 'larger');
-		$shop->cover = $imageService->showCover($shop->id, $shop->cover, 'shop', 'larger');
+		$shop->avatar = $imageService->showAvatar($shop->id, $shop->avatar, 'shop', 'large');
+		$shop->cover = $imageService->showCover($shop->id, $shop->cover, 'shop', 'large');
 
 	    $shop->description = html_entity_decode($shop->description);
 	    $shop->introduce = html_entity_decode($shop->introduce);

@@ -96,8 +96,8 @@ class BusinessService extends Services
 	{
 		$imageService = ImageService::getInstance();
 
-		$page->avatar = $imageService->showAvatar($page->id, $page->avatar, 'business', 'larger');
-		$page->cover = $imageService->showCover($page->id, $page->cover, 'business', 'larger');
+		$page->avatar = $imageService->showAvatar($page->id, $page->avatar, 'business', 'large');
+		$page->cover = $imageService->showCover($page->id, $page->cover, 'business', 'large');
 		
 		return $page;
 	}

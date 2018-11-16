@@ -153,8 +153,8 @@ class GroupService extends Services
 	{
 		$imageService = ImageService::getInstance();
 
-		$group->avatar = $imageService->showAvatar($group->id, $group->avatar, 'group', 'larger');
-		$group->cover = $imageService->showCover($group->id, $group->cover, 'group', 'larger');
+		$group->avatar = $imageService->showAvatar($group->id, $group->avatar, 'group', 'large');
+		$group->cover = $imageService->showCover($group->id, $group->cover, 'group', 'large');
 
 		return $group;
 	}

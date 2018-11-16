@@ -95,8 +95,8 @@ class UserService extends Services
 		}
 		$user->fullname = $user->last_name.' '.$user->first_name;
 
-		$user->avatar = $imageService->showAvatar($user->id, $user->avatar, 'user', 'larger');
-		$user->cover = $imageService->showCover($user->id, $user->cover, 'user', 'larger');
+		$user->avatar = $imageService->showAvatar($user->id, $user->avatar, 'user', 'large');
+		$user->cover = $imageService->showCover($user->id, $user->cover, 'user', 'large');
 
 		if ($getAddr) {
 			if ($user->province && $user->district && $user->ward) {
