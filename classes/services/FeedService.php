@@ -203,7 +203,7 @@ class FeedService extends Services
             $feed->images = null;
             $feed->images = [];
             foreach ($images as $image) {
-                array_push($feed->images, $imageService->showImage($feed->id, $image, 'feed', 'larger'));
+                array_push($feed->images, $imageService->showImage($feed->id, $image, 'feed', 'large'));
             }
         }
         
