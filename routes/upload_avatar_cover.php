@@ -18,23 +18,20 @@ $app->patch($container['prefix'].'/upload_avatar_cover', function (Request $requ
 	$owner_id = $params['owner_id'];
 	$images = $params['images'];
 
-	$obj = new stdClass;
-	$obj->image_type = $image_type;
-	$obj->images = $images;
 
 	switch ($type) {
 		case 'user':
 			if ($loggedin_user->id != $owner_id) return response(false);
-			$obj->owner_id = $loggedin_user->id;
-			$obj->owner_type = $type;
+			$services = Services::getInstance();
+			$services->downloadImage($owner_id, $type, $params['image_type'], $params['images']);
 			break;
 		case 'group':
 			$groupService = GroupService::getInstance();
 			$group = $groupService->getGroupById($owner_id);
 			if (!$group) return response(false);
 			if ($group->owner_id != $loggedin_user->id) return response(false);
-			$obj->owner_id = $owner_id->id;
-			$obj->owner_type = $type;
+			$services = Services::getInstance();
+			$services->downloadImage($owner_id, $type, $params['image_type'], $params['images']);
 		case 'event':
 		case 'business':
 		case 'shop':
@@ -42,6 +39,5 @@ $app->patch($container['prefix'].'/upload_avatar_cover', function (Request $requ
 			# code...
 			break;
 	}
-
-	return response($services->connectServer("uploads", $obj));
+	return response(true);
 });
