@@ -60,12 +60,14 @@ $app->put($container['prefix'].'/invitation', function (Request $request, Respon
 			}
 			break;
 		case 'group':
+			$groupService = GroupService::getInstance();
+			$group = $groupService->getGroupByType($from, 'id');
 			foreach ($tos as $key => $to) {
 				if (!$relationshipService->getRelationByType($from, $to, 'group:approve')) {
 					$user = $userService->getUserByType($to, 'id');
-					$relationshipService->save($to, $from, 'group:invite');
-					$relationshipService->save($from, $to, 'group:approve');
-					$services->memberGroupFB($from, $user->username, 'add');
+					$relationshipService->save($user, $group, 'group:invite');
+					$relationshipService->save($group, $user, 'group:approve');
+					$services->memberGroupFB($group->id, $user->username, 'add');
 				}
 			}
 			return response(true);
