@@ -67,6 +67,12 @@ $app->put($container['prefix'].'/invitation', function (Request $request, Respon
 					$user = $userService->getUserByType($to, 'id');
 					$relationshipService->save($user, $group, 'group:invite');
 					$relationshipService->save($group, $user, 'group:approve');
+
+					$notify_params = null;
+					$notify_params['from'] = $group;
+					$notify_params['to'] = $user;
+					$notificationService->save($notify_params, 'group:joined');
+					
 					$services->memberGroupFB($group->id, $user->username, 'add');
 				}
 			}

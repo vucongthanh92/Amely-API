@@ -60,6 +60,7 @@ $app->post($container['prefix'].'/groups', function (Request $request, Response 
 
 	foreach ($groups as $key => $group) {
 		$owner = arrayFilter($users, $group->owner_id);
+		$group->members_count = $groupService->countMembers($group->id);
 		$group->owners = $owner;
 		$group->inventory_items = 0;
 		$groups[$key] = $group;

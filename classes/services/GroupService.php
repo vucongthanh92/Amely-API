@@ -125,6 +125,14 @@ class GroupService extends Services
 		return $members;
 	}
 
+	public function countMembers($group_id)
+	{
+		$relationshipService = RelationshipService::getInstance();
+		$number = $relationshipService->countRelation($group_id, false, 'group:approve');
+		if (!$number) return false;
+		return $number;
+	}
+
 	public function checkMember($group_id, $member_id)
 	{
 		$relationshipService = RelationshipService::getInstance();

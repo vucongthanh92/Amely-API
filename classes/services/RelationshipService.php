@@ -36,7 +36,7 @@ class RelationshipService extends Services
 			$notify_params = null;
 			$notify_params['from'] = $from;
 			$notify_params['to'] = $to;
-			return response($notificationService->save($notify_params, $type));
+			return $notificationService->save($notify_params, $type);
 		}
 		return false;
     }
@@ -176,6 +176,39 @@ class RelationshipService extends Services
 	    $relation = $this->searchObject($relation_params, 0, 1);
 	    if (!$relation) return false;
 	    return $relation;
+	}
+
+	public function countRelation($from = false, $to = false, $type = false)
+	{
+		$relation_params = null;
+		if (!$type) return false;
+	    $relation_params[] = [
+	    	'key' => 'r.type',
+	    	'value' => "= '{$type}'",
+	    	'operation' => ''
+	    ];
+	    if ($from !== false) {
+		    $relation_params[] = [
+		    	'key' => 'r.relation_from',
+		    	'value' => "= {$from}",
+		    	'operation' => 'AND'
+		    ];
+		}
+		if ($to !== false) {
+		    $relation_params[] = [
+		    	'key' => 'r.relation_to',
+		    	'value' => "= {$to}",
+		    	'operation' => 'AND'
+		    ];
+		}
+	    $relation_params[] = [
+	    	'key' => '*',
+	    	'value' => "count",
+	    	'operation' => 'count'
+	    ];
+	    $relation = $this->searchObject($relation_params, 0, 1);
+	    if (!$relation) return false;
+	    return $relation->count;
 	}
 
 	public function getRelation($conditions)
