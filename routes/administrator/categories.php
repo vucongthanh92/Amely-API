@@ -33,11 +33,13 @@ $app->post($container['administrator'].'/categories', function (Request $request
 	
 	$uploadedFiles = $request->getUploadedFiles();
     $logo = false;
-    $uploadedFile = $uploadedFiles['logo'];
-    if ($uploadedFile->getError() === UPLOAD_ERR_OK) {
-        $files = $request->getUploadedFiles();
-        $logo = $files['logo'];
-        
+    if ($uploadedFiles) {
+	    $uploadedFile = $uploadedFiles['logo'];
+	    if ($uploadedFile->getError() === UPLOAD_ERR_OK) {
+	        $files = $request->getUploadedFiles();
+	        $logo = $files['logo'];
+	        
+	    }
     }
 	return response($categoryService->save($category_data, $logo));
 });
