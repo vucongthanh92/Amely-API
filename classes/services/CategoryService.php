@@ -27,7 +27,7 @@ class CategoryService extends Services
     		$category->data->$key = $value;
     	}
     	if ($logo) {
-    		$filename = time().rand();
+    		$filename = getFilename();
     		$category->data->logo = $filename;
     	}
     	if ($data['id']) {

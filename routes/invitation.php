@@ -63,8 +63,8 @@ $app->put($container['prefix'].'/invitation', function (Request $request, Respon
 			foreach ($tos as $key => $to) {
 				if (!$relationshipService->getRelationByType($from, $to, 'group:approve')) {
 					$user = $userService->getUserByType($to, 'id');
-					$relationshipService->save($user, $loggedin_user, 'group:invite');
-					$relationshipService->save($loggedin_user, $user, 'group:approve');
+					$relationshipService->save($to, $from, 'group:invite');
+					$relationshipService->save($from, $to, 'group:approve');
 					$services->memberGroupFB($from, $user->username, 'add');
 				}
 			}

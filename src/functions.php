@@ -2,6 +2,11 @@
 
 use Slim\Http\Response;
 
+function getFilename()
+{
+	return time().rand().".jpg";
+}
+
 function getInfo($owner_id, $owner_type)
 {
 	switch ($owner_type) {

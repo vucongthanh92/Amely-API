@@ -29,7 +29,6 @@ class LikeService extends Services
 		$like->owner = $data['owner'];
 
 		if ($like->insert()) {
-			
 			return true;
 		}
 
@@ -61,6 +60,7 @@ class LikeService extends Services
 
     public function countLike($from = false, $to = false, $type)
     {
+    	$str = "";
     	$conditions = null;
     	if ($from !== false) {
 		    $conditions[] = [
@@ -68,12 +68,13 @@ class LikeService extends Services
 		    	'value' => "= {$from}",
 		    	'operation' => ''
 		    ];
+		    $str = "AND";
     	}
 	    if ($to !== false) {
 		    $conditions[] = [
 		    	'key' => 'owner_id',
 		    	'value' => "= {$to}",
-		    	'operation' => 'AND'
+		    	'operation' => $str
 		    ];
 		     $conditions[] = [
 		    	'key' => 'type',

@@ -59,6 +59,7 @@ class CommentService extends Services
 
     public function countComment($from = false, $to = false, $type)
     {
+    	$str = "";
     	$conditions = null;
     	if ($from !== false) {
 		    $conditions[] = [
@@ -71,12 +72,13 @@ class CommentService extends Services
 		    	'value' => "= '{$type}'",
 		    	'operation' => 'AND'
 		    ];
+		    $str = "AND";
     	}
 	    if ($to !== false) {
 		    $conditions[] = [
 		    	'key' => 'creator_id',
 		    	'value' => "= {$to}",
-		    	'operation' => 'AND'
+		    	'operation' => $str
 		    ];
 	    }
 	    if (!$from && !$to) return false;
