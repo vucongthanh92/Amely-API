@@ -49,6 +49,11 @@ $app->post($container['prefix'].'/download_file', function (Request $request, Re
 	$filenames = implode(',', $filenames);
 
 	switch ($owner_type) {
+		case 'feed':
+			$feed = new Feed();
+			$feed->data->images = $filenames;
+			$feed->where = "id = {$owner_id}";
+			return response($feed->update());
 		case 'user':
 			$user = new User();
 			$user->id = $owner_id;
