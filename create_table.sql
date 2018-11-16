@@ -1,5 +1,5 @@
 DROP TABLE IF EXISTS `amely_report`;
-CREATE TABLE `amely_gifts` (
+CREATE TABLE `amely_report` (
   `id` bigint(20) NOT NULL AUTO_INCREMENT,
   PRIMARY KEY (`id`),
   `owner_id` bigint(20) NOT NULL,
@@ -84,6 +84,7 @@ CREATE TABLE `amely_redeem` (
   `item_id` bigint(255) NOT NULL,
   `creator_id` int(11) NOT NULL,
   `code` text NOT NULL,
+  `store_id` int(11) NOT NULL,
   `status` varchar(20) NOT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
@@ -657,11 +658,9 @@ CREATE TABLE `amely_events` (
   `has_inventory` text,
   `status` text,
   `creator_id` text,
-  `owners_id` text,
   `friendly_url` text,
   `invites_id` text,
   `published` text,
-  `creator_id` text,
   `avatar` text,
   `cover` text
  ) ENGINE=InnoDB DEFAULT CHARSET=utf8;

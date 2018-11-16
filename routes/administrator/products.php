@@ -16,13 +16,6 @@ $app->post($container['administrator'].'/products', function (Request $request, 
     
     
 	if (!$params) $params = [];
-	var_dump($files['logo']->getClientFilename());die();
-	$extension = pathinfo($files['logo']->getClientFilename(), PATHINFO_EXTENSION);
-    $basename = bin2hex(random_bytes(8)); // see http://php.net/manual/en/function.random-bytes.php
-    $filename = sprintf('%s.%0.8s');
-    var_dump($filename);
-	var_dump($files['logo']);
-	die();
 	if (!array_key_exists('owner_id', $params)) $params['owner_id'] = false;
 	if (!array_key_exists('type', $params)) $params['type'] = 'shop';
 	if (!array_key_exists('title', $params)) $params['title'] = 0;
@@ -52,8 +45,6 @@ $app->post($container['administrator'].'/products', function (Request $request, 
 	if (!array_key_exists('adjourn_price', $params)) $params['adjourn_price'] = 0;
 	if (!array_key_exists('images', $params)) $params['images'] = 0;
 	if (!array_key_exists('parent_id', $params)) $params['parent_id'] = 0;
-
-	
 
 	if (!$params['owner_id']) {
 		$shop = $shopService->getShopByType($loggedin_user->id, 'owner_id', false);

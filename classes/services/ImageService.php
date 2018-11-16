@@ -26,7 +26,7 @@ class ImageService extends Services
         if (!file_exists($dir)) {
             mkdir($dir, 0777, true);
         }
-        $file->moveTo($dir . DIRECTORY_SEPARATOR . $filename);
+        $file->moveTo($dir . DIRECTORY_SEPARATOR . $filename . "jpg");
         $sizes = $this->image_sizes();
         foreach ($sizes as $key => $size) {
             $resize = new ResizeImage($dir . DIRECTORY_SEPARATOR . $filename);
