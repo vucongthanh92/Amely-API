@@ -9,6 +9,7 @@ $app->get($container['prefix'].'/redeem', function (Request $request, Response $
 	$itemService = ItemService::getInstance();
 	$snapshotService = SnapshotService::getInstance();
 	$shopService = ShopService::getInstance();
+	$storeService = StoreService::getInstance();
 	$loggedin_user = loggedin_user();
 	$params = $request->getQueryParams();
 	if (!$params) $params = [];
@@ -47,7 +48,10 @@ $app->get($container['prefix'].'/redeem', function (Request $request, Response $
 		$redeem = $redeemService->getRedeemByType($params['redeem_id'], 'id');
 		$item = $itemService->getItemByType($redeem->item_id, 'id');
 		$snapshot = $snapshotService->getSnapshotByType($item->snapshot_id, 'id');
+		$item->snapshot = $snapshot;
 		$shop = $shopService->getShopByType($snapshot->owner_id, 'id');
+		$store = $storeService->getStoreByType($redeem->store_id, 'id', true);
+		$shop->store = $store;
 		$user = $userService->getUserByType($redeem->creator_id, 'id', false);
 		return response([
 			'item' => $item,
@@ -87,13 +91,14 @@ $app->post($container['prefix'].'/redeem', function (Request $request, Response 
 	if ($time > $time_affter_5m) return response(false);
 	$item_id = $itemService->separateItem($data['item_id'], $data['quantity']);
 
-	$redeem_params = null;
-	$redeem_params['owner_id'] = $data['owner_id'];
-	$redeem_params['item_id'] = $item_id;
-	$redeem_params['creator_id'] = $loggedin_user->id;
-	$redeem_params['code'] = $params['code'];
-	$redeem_params['status'] = 1;
-	$redeem_id = $redeemService->save($redeem_params);
+	$redeem_data = null;
+	$redeem_data['owner_id'] = $data['owner_id'];
+	$redeem_data['item_id'] = $item_id;
+	$redeem_data['creator_id'] = $loggedin_user->id;
+	$redeem_data['code'] = $params['code'];
+	$redeem_data['store_id'] = $loggedin_user->chain_store;
+	$redeem_data['status'] = 1;
+	$redeem_id = $redeemService->save($redeem_data);
 
 	$transaction_params = null;
 	$transaction_params['owner_id'] = $data['owner_id'];

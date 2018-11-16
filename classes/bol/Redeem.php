@@ -8,6 +8,7 @@ class Redeem extends Object
     private $item_id;
     private $creator_id;
     private $code;
+    private $store_id;
     private $status;
 
 	public function __construct() 

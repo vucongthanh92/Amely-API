@@ -23,19 +23,17 @@ class RedeemService extends Services
     public function save(array $data)
     {
     	$redeem = new Redeem();
-    	$redeem->data->owner_id = $data['owner_id'];
+    	foreach ($data as $key => $value) {
+    		$redeem->data->$key = $value;
+    	}
 		$redeem->data->type = 'user';
-		$redeem->data->item_id = $data['item_id'];
-		$redeem->data->creator_id = $data['creator_id'];
-		$redeem->data->code = $data['code'];
-		$redeem->data->status = $data['status'];
-		if ($redeem->insert(true)) {
-			$item = new Item();
-			$item->data->status = 2;
-			$item->where = "id = {$data['item_id']}";
-			return response($item->update());
+		$redeem_id = $redeem->insert(true);
+		if ($redeem_id) {
+			$itemService = ItemService::getInstance();
+			$itemService->updateStatus($data['item_id'], 2);
+			return $redeem_id;
 		}
-		return response(false);
+		return false;
     }
 
     public function getRedeemByType($input, $type = 'id')
