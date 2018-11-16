@@ -21,7 +21,7 @@ $app->post($container['prefix'].'/download_file', function (Request $request, Re
 
 	if (!in_array($image_type, ['avatar','cover','images'])) return response(false);
 	
-	$path = "/{$owner_type}/{$owner_id}/{$image_type}";
+	$path = DIRECTORY_SEPARATOR."{$owner_type}".DIRECTORY_SEPARATOR."{$owner_id}".DIRECTORY_SEPARATOR."{$image_type}";
 	$dir = $settings['image']['path'].$path;
 	if (!file_exists($dir)) {
 		mkdir($dir, 0777, true);
@@ -41,7 +41,7 @@ $app->post($container['prefix'].'/download_file', function (Request $request, Re
 		foreach ($sizes as $key => $size) {
 			$resize = new ResizeImage($image);
 			$resize->resizeTo($size, $size, 'maxWidth');
-			$resize->saveImage("/{$dir}/{$key}_{$filename}");
+			$resize->saveImage(DIRECTORY_SEPARATOR."{$dir}".DIRECTORY_SEPARATOR."{$key}_{$filename}");
 		}
 		unlink($image);
 	}

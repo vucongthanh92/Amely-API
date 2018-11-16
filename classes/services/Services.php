@@ -241,5 +241,61 @@ class Services extends SlimDatabase
 		return $this->connectServer("notify", $obj);
 	}
 
+	public function downloadImage($owner_id, $owner_type, $image_type, $images)
+	{
+		if (!in_array($image_type, ['avatar','cover','images'])) return response(false);
+		
+
+		$path = DIRECTORY_SEPARATOR."{$owner_type}".DIRECTORY_SEPARATOR."{$owner_id}".DIRECTORY_SEPARATOR."{$image_type}";
+		$dir = $settings['image']['path'].$path;
+		if (!file_exists($dir)) {
+			mkdir($dir, 0777, true);
+		}
+		array_map('unlink', array_filter((array) glob("{$dir}/*")));
+
+		$filenames = [];
+
+		foreach ($images as $key => $url) {
+			$filename = md5($url . rand() . time()) . '.jpg';
+			array_push($filenames, $filename);
+			$image = $dir.DIRECTORY_SEPARATOR.$filename;
+
+			file_put_contents($image, fopen($url, 'r'));
+
+			$sizes = $imageService->image_sizes();
+			foreach ($sizes as $key => $size) {
+				$resize = new ResizeImage($image);
+				$resize->resizeTo($size, $size, 'maxWidth');
+				$resize->saveImage(DIRECTORY_SEPARATOR."{$dir}".DIRECTORY_SEPARATOR."{$key}_{$filename}");
+			}
+			unlink($image);
+		}
+
+		$filenames = implode(',', $filenames);
+
+		switch ($owner_type) {
+			case 'feed':
+				$feed = new Feed();
+				$feed->data->images = $filenames;
+				$feed->where = "id = {$owner_id}";
+				return response($feed->update());
+			case 'user':
+				$user = new User();
+				$user->id = $owner_id;
+				$user->data->$image_type = $filenames;
+				return response($user->update());
+				break;
+			case 'comment':
+				$comment = new Annotation();
+				$comment->id = $owner_id;
+				$comment->data->images = $filenames;
+				return response($comment->update());
+				break;
+			default:
+				# code...
+				break;
+		}
+	}
+
 	// UPDATE amely_feeds SET description = REPLACE(description,',1',''), description = REPLACE(description,'1,',''),description = REPLACE(description,'1','') where id = 1;
 }

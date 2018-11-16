@@ -293,17 +293,13 @@ $app->put($container['prefix'].'/feeds', function (Request $request, Response $r
 		$feed->data->item_id = $item_id;	
 	}
 
-	$id = $feed->insert(true);
-	if ($id) {
+	$feed_id = $feed->insert(true);
+	if ($feed_id) {
 		if ($images) {
-			$obj = new stdClass;
-			$obj->image_type = 'images';
-			$obj->images = $params['images'];
-			$obj->owner_id = $id;
-			$obj->owner_type = 'feed';
-			$services->connectServer("uploads", $obj);
+			$services = Services::getInstance();
+			$services->downloadImage($feed_id, 'feed', 'images', $params['images']);
 		}
-		return response($id);
+		return response($feed_id);
 	}
 	return response(false);
 
