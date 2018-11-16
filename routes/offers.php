@@ -102,35 +102,6 @@ $app->post($container['prefix'].'/offers', function (Request $request, Response 
 	$offers = $offerService->getOffers($offer_params, $offset, $limit);
 	if (!$offers) return response(false);
 
-	// foreach ($offers as $key => $offer) {
-	// 	$owner = $userService->getUserByType($offer->owner_id, 'id', false);
-	// 	$offer->owner = $owner;
-	// 	$item = $itemService->getItemByType($offer->item_id, 'id');
-	// 	$snapshot = $snapshotService->getSnapshotByType($item->snapshot_id, 'id');
-	// 	$item->snapshot = $snapshot;
-	// 	$offer->item= $item;
-
-	// 	$counter_params = null;
-	// 	$counter_params[] = [
-	// 		'key' => '*',
-	// 		'value' => "count",
-	// 		'operation' => 'count'
-	// 	];
-	// 	$counter_params[] = [
-	// 		'key' => 'owner_id',
-	// 		'value' => "= {$offer->id}",
-	// 		'operation' => ''
-	// 	];
-	// 	$counter_params[] = [
-	// 		'key' => 'status',
-	// 		'value' => "= 0",
-	// 		'operation' => 'AND'
-	// 	];
-	// 	$counters = $counterService->getCounter($counter_params);
-	// 	$offer->counter_offers_number = $counters->count;
-	// 	$offers[$key] = $offer;
-	// }
-
 	$offers_id = $owners_id = $items_id = $snapshots_id = [];
 	foreach ($offers as $key => $offer) {
 		array_push($offers_id, $offer->id);
@@ -186,7 +157,7 @@ $app->post($container['prefix'].'/offers', function (Request $request, Response 
 	];
 
 	$counter_params[] = [
-		'key' => 'count (*) as `count` ',
+		'key' => 'count(*) as `count` ',
 		'value' => '',
 		'operation' => 'query_params'
 	];
@@ -370,7 +341,7 @@ $app->put($container['prefix'].'/offers', function (Request $request, Response $
 	if ($offer_id) {
 		if ($params['offer_type'] == 1) {
 			$counter_data = null;
-			$counter_data['offer_id'] = $offer_id;
+			$counter_data['owner_id'] = $offer_id;
 			$counter_data['item_id'] = $item_id;
 			$counter_data['creator_id'] = $loggedin_user->id;
 			$counter_data['status'] = 0;

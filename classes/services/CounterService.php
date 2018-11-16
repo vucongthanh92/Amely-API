@@ -27,6 +27,7 @@ class CounterService extends Services
 		foreach ($data as $key => $value) {
 			$counter->data->$key = $value;
 		}
+		$counter->data->type = "offer";
 	    $counter_id = $counter->insert(true);
 	    if ($data['item_id']) {
 	    	ItemService::getInstance()->updateStatus($data['item_id'], 0);
