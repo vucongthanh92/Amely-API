@@ -353,27 +353,28 @@ $app->put($container['prefix'].'/offers', function (Request $request, Response $
 	if ($item->owner_id != $inventory->id) return response(false);
 	$item_id = $itemService->separateItem($params['item_id'], $params['quantity']);
 
-	$offer_params['owner_id'] = $loggedin_user->id;
-	$offer_params['type'] = 'user';
-	$offer_params['title'] = "";
-	$offer_params['description'] = "";
-	$offer_params['target'] = $params['target'];
-	$offer_params['duration'] = $params['duration'];
-	$offer_params['offer_type'] = $params['offer_type'];
-	$offer_params['option'] = $params['option'];
-	$offer_params['limit_counter'] = $params['limit_counter'];
-	$offer_params['item_id'] = $item_id;
-	$offer_params['note'] = $params['note'];
+	$offer_data = null;
+	$offer_data['owner_id'] = $loggedin_user->id;
+	$offer_data['type'] = 'user';
+	$offer_data['title'] = "";
+	$offer_data['description'] = "";
+	$offer_data['target'] = $params['target'];
+	$offer_data['duration'] = $params['duration'];
+	$offer_data['offer_type'] = $params['offer_type'];
+	$offer_data['option'] = $params['option'];
+	$offer_data['limit_counter'] = $params['limit_counter'];
+	$offer_data['item_id'] = $item_id;
+	$offer_data['note'] = $params['note'];
 
-	$offer_id = $offerService->save($offer_params);
+	$offer_id = $offerService->save($offer_data);
 	if ($offer_id) {
 		if ($params['offer_type'] == 1) {
-			$counter_params = null;
-			$counter_params['offer_id'] = $offer_id;
-			$counter_params['item_id'] = $item_id;
-			$counter_params['creator_id'] = $loggedin_user->id;
-			$counter_params['status'] = 0;
-			$counter_id = $counterService->save($counter_params);
+			$counter_data = null;
+			$counter_data['offer_id'] = $offer_id;
+			$counter_data['item_id'] = $item_id;
+			$counter_data['creator_id'] = $loggedin_user->id;
+			$counter_data['status'] = 0;
+			$counter_id = $counterService->save($counter_data);
 			if ($counter_id) return response($offer_id);
 			return response(false);
 		}

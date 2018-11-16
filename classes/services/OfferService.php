@@ -19,6 +19,7 @@ class OfferService extends Services
 
 	public function save($data)
 	{
+		if ($data['id']) return false;
 		$time = time();
 		$hour = $data["duration"]*24;
 		$expried = strtotime("+{$hour} hours", $time);
@@ -29,21 +30,19 @@ class OfferService extends Services
 		}
 		$offer->data->expried = $expried;
 		$offer->data->status = 0;
-		if ($data['id']) {
-			return false;
-		}
 		$offer_id = $offer->insert(true);
 		if ($offer_id) {
 			ItemService::getInstance()->updateStatus($data['item_id'], 0);
 			$transactionService = TransactionService::getInstance();
-			$transaction_params['owner_id'] = $data['owner_id'];
-			$transaction_params['type'] = 'user';
-			$transaction_params['title'] = "";
-			$transaction_params['description'] = "";
-			$transaction_params['subject_type'] = 'offer';
-			$transaction_params['subject_id'] = $offer_id;
-			$transaction_params['status'] = 3;
-			$transactionService->save($transaction_params);
+			$transaction_data = null;
+			$transaction_data['owner_id'] = $data['owner_id'];
+			$transaction_data['type'] = 'user';
+			$transaction_data['title'] = "";
+			$transaction_data['description'] = "";
+			$transaction_data['subject_type'] = 'offer';
+			$transaction_data['subject_id'] = $offer_id;
+			$transaction_data['status'] = 3;
+			$transactionService->save($transaction_data);
 			return $offer_id;
 		}
 		return false;

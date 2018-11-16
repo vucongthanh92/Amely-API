@@ -20,17 +20,30 @@ class CategoryService extends Services
         $this->table = "amely_categories";
     }
 
-    public function save($data)
+    public function save($data, $logo = false)
     {
     	$category = new Category();
     	foreach ($data as $key => $value) {
     		$category->data->$key = $value;
     	}
+    	if ($logo) {
+    		$filename = time().rand();
+    		$category->data->logo = $filename;
+    	}
     	if ($data['id']) {
     		$category->where = "id = {$data['id']}";
-    		return $category->update(true);
+    		$category_id = $category->update(true);
+    	} else {
+			$category_id = $category->insert(true);
     	}
-		return $category->insert(true);
+    	if ($category_id) {
+			if ($logo) {
+				$imageService = ImageService::getInstance();			
+				$imageService->uploadImage($category_id, 'category', 'images', $logo, $filename);
+			}
+			return $category_id;
+    	}
+    	return false;
     }
 
     public function getCategoriesByType($input, $type ='id')

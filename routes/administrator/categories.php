@@ -4,7 +4,6 @@ use Slim\Http\Response;
 
 
 $app->post($container['administrator'].'/categories', function (Request $request, Response $response, array $args) {
-	$imageService = ImageService::getInstance();
 	$categoryService = CategoryService::getInstance();
 	$loggedin_user = loggedin_user();
 	$params = $request->getParsedBody();
@@ -20,31 +19,25 @@ $app->post($container['administrator'].'/categories', function (Request $request
 	if (!array_key_exists('parent_id', $params)) $params['parent_id'] = 0;
 	if (!array_key_exists('creator_id', $params)) $params['creator_id'] = $loggedin_user->id;
 
-	$category_params = null;
+	$category_data = null;
+	$category_data['owner_id'] = $params['owner_id'];
+	$category_data['type'] = $params['type'];
+	$category_data['title'] = $params['title'];
+	$category_data['description'] = $params['description'];
+	$category_data['subtype'] = $params['subtype'];
+	$category_data['friendly_url'] = $params['friendly_url'];
+	$category_data['sort_order'] = 0;
+	$category_data['enabled'] = 0;
+	$category_data['parent_id'] = $params['parent_id'];
+	$category_data['creator_id'] = $loggedin_user->id;
+	
 	$uploadedFiles = $request->getUploadedFiles();
-
-    // handle single input with single file upload
+    $logo = false;
     $uploadedFile = $uploadedFiles['logo'];
     if ($uploadedFile->getError() === UPLOAD_ERR_OK) {
         $files = $request->getUploadedFiles();
-        $file = $files['logo'];
-		$category_params['logo'] = $files['logo']->getClientFilename();
-		$filename = $category_params['logo'];
-		$imageService->uploadImage(99999, 'test', 'images', $file, rand());
+        $logo = $files['logo'];
+        
     }
-
-    die('2131');
-	$category_params['owner_id'] = $params['owner_id'];
-	$category_params['type'] = $params['type'];
-	$category_params['title'] = $params['title'];
-	$category_params['description'] = $params['description'];
-	$category_params['subtype'] = $params['subtype'];
-	$category_params['friendly_url'] = $params['friendly_url'];
-	$category_params['sort_order'] = 0;
-	$category_params['enabled'] = 0;
-	$category_params['parent_id'] = $params['parent_id'];
-	$category_params['creator_id'] = $loggedin_user->id;
-	
-
-	return response($categoryService->save($category_params));
+	return response($categoryService->save($category_data, $logo));
 });
