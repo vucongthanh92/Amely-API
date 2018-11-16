@@ -16,7 +16,7 @@ $app->patch($container['prefix'].'/upload_avatar_cover', function (Request $requ
 	$owner_type = $params['owner_type'];
 	$owner_id = $params['owner_id'];
 	$images = $params['images'];
-	$image_type = $params['image_type']
+	$image_type = $params['image_type'];
 
 
 	switch ($owner_type) {
