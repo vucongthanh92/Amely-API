@@ -243,6 +243,7 @@ class Services extends SlimDatabase
 
 	public function downloadImage($owner_id, $owner_type, $image_type, $images)
 	{
+		global $settings;
 		$imageService = ImageService::getInstance();
 		if (!in_array($image_type, ['avatar','cover','images'])) return response(false);
 		
