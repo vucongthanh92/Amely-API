@@ -33,8 +33,14 @@ $app->post($container['prefix'].'/shipping', function (Request $request, Respons
 
 		$shippingService = ShippingService::getInstance();
 		$sm = $shippingService->getMethod($params['shipping_method']);
-		$fee = $sm->checkFee($data);
-		return response($fee->fee->fee);
+		$shipping = $sm->checkFee($data);
+		if (!$shipping->fee->delivery) {
+			return response([
+				"status" => false,
+				"error" => "{$params['item_id']}"
+			]);
+		}
+		return response(["fee" => $shipping->fee->fee]);
 	}
 
 	if ($params['cart_id']) {
@@ -56,8 +62,12 @@ $app->post($container['prefix'].'/shipping', function (Request $request, Respons
 			$stores[$store->id]['address'] = $store->store_address;
 			$stores[$store->id]['weight'] += $product->weight * $cart_item->quantity;
 			$stores[$store->id]['total'] += $product->display_price * $cart_item->quantity;
+			$stores[$store->id]['products'][] = $product->id;
 		}
 
+		$erro = 0;
+		$str = [];
+		$total_fee = 0;
 		foreach ($stores as $key => $store) {
 			$data['province'] = $store['province'];
 			$data['district'] = $store['district'];
@@ -67,12 +77,26 @@ $app->post($container['prefix'].'/shipping', function (Request $request, Respons
 
 			$shippingService = ShippingService::getInstance();
 			$sm = $shippingService->getMethod($params['shipping_method']);
-			$fee = $sm->checkFee($data);
-			return response($fee->fee->fee);
+			$shipping = $sm->checkFee($data);
 
+			if (!$shipping->fee->delivery) {
+				$error += 1;
+				foreach ($store[$key]['products'] as $product_id) {
+					array_push($str, $product_id);
+				}
+			} else {
+				$total_fee += $shipping->fee->fee;
+			}
 		}
-
-
+		if ($erro == 0) {
+			return response(["fee" => $total_fee]);
+		} else {
+			$str = implode(',', $str);
+			return response([
+				"status" => false,
+				"error" => "{$str}"
+			]);
+		}
 	}
 
 	return response(false);

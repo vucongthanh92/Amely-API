@@ -15,7 +15,7 @@ $app->post($container['prefix'].'/categories', function (Request $request, Respo
 	if (!array_key_exists('offset', $params)) $params['offset'] = 0;
 	if (!array_key_exists('limit', $params)) $params['limit'] = 10;
 	if (!array_key_exists('shop_id', $params)) $params['shop_id'] = false;
-	if (!array_key_exists('type', $params)) $params['type'] = 'market';
+	if (!array_key_exists('type', $params)) $params['type'] = 0;
 	$offset = (double)$params['offset'];
 	$limit = (double)$params['limit'];
 	$shop_id = $params['shop_id'];
