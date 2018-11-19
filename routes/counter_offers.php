@@ -296,7 +296,7 @@ $app->put($container['prefix'].'/counter_offers', function (Request $request, Re
 			$status = 0;
 			break;
 		case 2:
-			if ($offer->option) {
+			if ($offer->option == 1) {
 				$status = 1;
 			} else {
 				$status = 0;
@@ -315,15 +315,13 @@ $app->put($container['prefix'].'/counter_offers', function (Request $request, Re
 	if ($counterService->save($counter_data)) {
 		if ($offer->offer_type == 2) {
 			if ($status == 1) {
-				$item = $itemService->getItemByType($offer->item_id, 'id');
+				$item_id = $offer->item_id;
 				if ($item->quantity == 1) {
 					$offerService->updateStatus($offer->id, 2);
 				} else {
 					$item_id = $itemService->separateItem($offer->item_id, 1);
-					$item = $itemService->getItemByType($item_id, 'id');
 				}
-				$item = object_cast("Item", $item);
-				return response($itemService->changeOwnerItem($loggedin_user->id, 'user', $item->id));
+				return response($itemService->changeOwnerItem($loggedin_user->id, 'user', $item_id));
 			}
 		}
 		if ($offer->offer_type == 1) {
