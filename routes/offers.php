@@ -311,19 +311,21 @@ $app->put($container['prefix'].'/offers', function (Request $request, Response $
 			# code...
 			break;
 	}
-	$item = $itemService->getItemByType($params['item_id']);
+	$item = $itemService->checkItemOfOwner($params['item_id'], $loggedin_user->id, 'user');
 	if (!$item) return response(false);
-	$inventory_params = null;
-	$inventory_params[] = [
-		'key' => 'id',
-		'value' => "= {$item->owner_id}",
-		'operation' => ''
-	];
-	$inventory = $inventoryService->getInventory($inventory_params);
-	if ($inventory->type != 'user') return response(false);
-	if ($item->owner_id != $inventory->id) return response(false);
+	// $item = $itemService->getItemByType($params['item_id']);
+	// if (!$item) return response(false);
+	// $inventory_params = null;
+	// $inventory_params[] = [
+	// 	'key' => 'id',
+	// 	'value' => "= {$item->owner_id}",
+	// 	'operation' => ''
+	// ];
+	// $inventory = $inventoryService->getInventory($inventory_params);
+	// if ($inventory->type != 'user') return response(false);
+	// if ($item->owner_id != $inventory->id) return response(false);
 	$item_id = $itemService->separateItem($params['item_id'], $params['quantity']);
-
+	
 	$offer_data = null;
 	$offer_data['owner_id'] = $loggedin_user->id;
 	$offer_data['type'] = 'user';
@@ -339,6 +341,7 @@ $app->put($container['prefix'].'/offers', function (Request $request, Response $
 
 	$offer_id = $offerService->save($offer_data);
 	if ($offer_id) {
+		$itemService->updateStatus($item_id, 0);
 		if ($params['offer_type'] == 1) {
 			$counter_data = null;
 			$counter_data['owner_id'] = $offer_id;

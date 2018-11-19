@@ -270,18 +270,9 @@ $app->put($container['prefix'].'/counter_offers', function (Request $request, Re
 
 	if ($offer->offer_type != 2) {
 		if ($params['item_id'] && $params['quantity']) {
-			$item = $itemService->getItemByType($params['item_id']);
-			if (!$item) return response(false);
-			$inventory_params = null;
-			$inventory_params[] = [
-				'key' => 'id',
-				'value' => "= {$item->owner_id}",
-				'operation' => ''
-			];
-			$inventory = $inventoryService->getInventory($inventory_params);
-			if ($inventory->type != 'user') return response(false);
-			if ($item->owner_id != $inventory->id) return response(false);
+			$item = $itemService->checkItemOfOwner($params['item_id'], $loggedin_user->id, 'user');
 			if ($item->quantity < $params['quantity']) return response(false);
+			if (!$item) return response(false);
 			$params['item_id'] = $itemService->separateItem($params['item_id'], $params['quantity']);
 			$itemService->updateStatus($params['item_id'], 0);
 		}
@@ -315,13 +306,17 @@ $app->put($container['prefix'].'/counter_offers', function (Request $request, Re
 	if ($counterService->save($counter_data)) {
 		if ($offer->offer_type == 2) {
 			if ($status == 1) {
-				$item_id = $offer->item_id;
+				$item = $itemService->getItemByType($offer->item_id, 'id');
+				if (!$item) return response(false);
+				if ($item->status != 0) return response(false);
 				if ($item->quantity == 1) {
+					$item_id = $item->id;
 					$offerService->updateStatus($offer->id, 2);
 				} else {
 					$item_id = $itemService->separateItem($offer->item_id, 1);
 				}
-				return response($itemService->changeOwnerItem($loggedin_user->id, 'user', $item_id));
+				$itemService->changeOwnerItem($loggedin_user->id, 'user', $item_id);
+				return response(true);
 			}
 		}
 		if ($offer->offer_type == 1) {
