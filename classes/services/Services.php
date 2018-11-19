@@ -210,6 +210,7 @@ class Services extends SlimDatabase
 		$obj->group_id = $group_id;
 		return $this->connectServer("deleteGroup", $obj);
 	}
+	
 	public function createGroupFB($owner_username, $group_id, $group_title)
 	{
 		global $settings;

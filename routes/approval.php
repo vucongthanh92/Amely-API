@@ -28,6 +28,7 @@ $app->put($container['prefix'].'/approval', function (Request $request, Response
 				$services->addFriendFB($loggedin_user, $user);
 				return response(true);
 			}
+			$services->addFriendFB($loggedin_user, $user);
 			$relationshipService->save($loggedin_user, $user, 'friend:request', 'approval');
 			return response(true);
 			break;

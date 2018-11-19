@@ -6,12 +6,6 @@ use Slim\Http\Response;
 // Routes
 // $app->get('/authtoken', function (Request $request, Response $response, array $args) {
 $app->get($container['prefix'].'/services', function (Request $request, Response $response, array $args) {
-	$advertiseService = AdvertiseService::getInstance();
-	$test = $advertiseService->getAdvertiseProduct();
-	var_dump($test);
-	die('12313');
-	
-
 	$current_time = time();
 	$siteSettingService = SiteSettingService::getInstance();
 	$conditions = null;
