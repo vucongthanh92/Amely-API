@@ -147,7 +147,6 @@ class ItemService extends Services
     {
 		$item = $this->getItemByType($item_id, 'id');
 		if (!$item) return false;
-		if ($item->status != 1) return false;
 		if ($item->quantity == $quantity) return $item->id;
 		if ($item->quantity < $quantity) return false;
 		if ($item->quantity > $quantity) {
