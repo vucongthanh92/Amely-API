@@ -98,7 +98,8 @@ class CounterService extends Services
 	    $notify_params = null;
 		$notify_params['offer_id'] = $data['offer_id'];
 		$notify_params['counter_id'] = $counter_id;
-		return response($notificationService->save($notify_params, 'counter:request'));
+		$notificationService->save($notify_params, 'counter:request');
+		return $counter_id;
 	}
 
 	public function updateStatus($counter_id, $status)
