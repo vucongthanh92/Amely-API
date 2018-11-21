@@ -46,6 +46,13 @@ class CategoryService extends Services
     	return false;
     }
 
+    public function delete($category_id)
+    {
+    	$category = new Category();
+    	$category->where = "id = {$category_id}";
+    	return $category->delete();
+    }
+
     public function getCategoriesByType($input, $type ='id')
     {
     	$conditions = null;

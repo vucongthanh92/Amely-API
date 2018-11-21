@@ -14,6 +14,8 @@ class Store extends Object
 	private $store_province;
 	private $store_district;
 	private $store_ward;
+	private $status;
+	private $approved;
 
 	public function __construct() 
 	{	

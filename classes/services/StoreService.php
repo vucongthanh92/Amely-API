@@ -20,6 +20,46 @@ class StoreService extends Services
         $this->table = "amely_stores";
     }
 
+    public function save($data)
+    {
+    	$store = new Store();
+    	foreach ($data as $key => $value) {
+    		$store->data->$key = $value;
+    	}
+    	$store->data->approved = 0;
+    	$store->data->status = 3;
+    	$store->data->type = 'shop';
+    	if ($data['id']) {
+    		$store->where = "id = {$data['id']}";
+    		return $store->update(true);
+    	} else {
+    		return $store->insert(true);
+    	}
+    	return false;
+    }
+
+    public function approval($store_id)
+    {
+    	$store = new Store();
+    	$store->data->approved = time();
+    	$store->data->status = 1;
+    	$store->where = "id = {$store_id}";
+    	return $store->update(true);
+    }
+
+    public function delete($store_id)
+    {
+    	return $this->updateStatus($store_id, 2);
+    }
+
+    public function updateStatus($store_id, $status)
+    {
+    	$store = new Store();
+    	$store->data->status = $status;
+    	$store->where = "id = {$store_id}";
+    	return $store->update(true);	
+    }
+
     public function getStoresByType($input, $type ='id', $getAddr = true)
     {
     	$conditions = null;

@@ -148,14 +148,11 @@ class PaymentsService extends Services
 					$so_id = $so->insert(true);
 					if ($so_id) {
 						$time = time();
-						foreach ($order_items_snapshot as $order_item_snapshot) {
-							$sp = $shippingService->getMethod($order->shipping_method);
-							$sp->so_id = $so_id;
-							$sp->creator_id = $order->owner_id;
-							$sp->item = $order_item_snapshot;
-							$sp->process();
-							
-						}
+						$sp = $shippingService->getMethod($order->shipping_method);
+						$sp->so_id = $so_id;
+						$sp->creator_id = $order->owner_id;
+						$sp->items = $order_items_snapshot;
+						$sp->process();
 					}
 				}
 				return true;

@@ -4,7 +4,7 @@ namespace Amely\Shipping\SQ;
 class Storage extends \Object
 {
 
-	public $item;
+	public $items;
 	public $creator_id;
 	public $so_id;
 
@@ -15,7 +15,7 @@ class Storage extends \Object
 	
 	public function process()
 	{	
-		$item = $this->item;
+		$items = $this->items;
 		$creator_id = $this->creator_id;
 		$so_id = $this->so_id;
 
@@ -36,21 +36,26 @@ class Storage extends \Object
 		if ($inventory) {
 			$inventory_id = $inventory->id;
 		} else {
-			$data = null;
-			$data['creator_id'] = $creator_id;
-			$data['owner_id'] = $creator_id;
-			$data['type'] = 'user';
-			$inventory_id = $inventoryService->save($data);
+			$inventory_data = null;
+			$inventory_data['creator_id'] = $creator_id;
+			$inventory_data['owner_id'] = $creator_id;
+			$inventory_data['type'] = 'user';
+			$inventory_id = $inventoryService->save($inventory_data);
 		}
-		$data = [];
-		$data['product_id'] = $item['product_id'];
-		$data['inventory_id'] = $inventory_id;
-		$data['quantity'] = $item['quantity'];
-		$data['snapshot_id'] = $item['snapshot_id'];
-		$data['store_id'] = $item['store_id'];
-		$data['price'] = $item['price'];
-		$data['so_id'] = $so_id;
-		return $itemService->save($data);
+
+		foreach ($items as $key => $item) {
+			$item_data = [];
+			$item_data['product_id'] = $item['product_id'];
+			$item_data['inventory_id'] = $inventory_id;
+			$item_data['quantity'] = $item['quantity'];
+			$item_data['snapshot_id'] = $item['snapshot_id'];
+			$item_data['store_id'] = $item['store_id'];
+			$item_data['price'] = $item['price'];
+			$item_data['so_id'] = $so_id;
+			$itemService->save($item_data);
+		}
+		return true;
+
 	}
 
 	public function checkFee()

@@ -20,9 +20,67 @@ class ShopService extends Services
         $this->table = "amely_shops";
     }
 
-    public function save($data)
+    public function save($data, $images)
     {
+    	$shop = new Shop();
+    	foreach ($data as $key => $value) {
+    		$shop->data->$key = $value;
+    	}
+    	$shop->data->status = 3;
+    	$shop->data->approved = 0;
+    	$shop->data->type = 'user';
+    	if ($data['id']) {
+    		$shop->where = "id = {$data['id']}";
+    		$shop_id = $shop->update(true);
+    	} else {
+    		$shop_id = $shop->insert(true);
+    	}
 
+    	if ($shop_id) {
+    		if ($images) {
+    			foreach ($images as $k => $v) {
+    				$filename = getFilename();
+    				$shop->data->$k = $filename;
+
+    				$imageService = ImageService::getInstance();
+					$imageService->uploadImage($shop_id, 'shop', $k, $v, $filename);
+    			}
+    			$shop->where = "id = {$shop_id}";
+    			return $shop->update(true);
+    		}
+    		return $shop_id;
+    	}
+    	return false;
+    }
+
+    public function approval($shop_id)
+    {
+    	$shop = new Shop();
+    	$shop->data->approved = time();
+    	$shop->data->status = 1;
+    	$shop->where = "id = {$shop_id}";
+    	return $shop->update(true);
+    }
+
+    public function delete($shop_id)
+    {
+    	return $this->updateStatus($shop_id, 2);
+    }
+
+    public function updateStatus($shop_id, $status)
+    {
+    	$shop = new Shop();
+    	$shop->data->status = $status;
+    	$shop->where = "id = {$shop_id}";
+    	if ($shop->update(true)) {
+    		$storeService = StoreService::getInstance();
+    		$stores = $storeService->getStoreByType($shop_id, 'owner_id', false);
+    		foreach ($stores as $key => $store) {
+    			$storeService->updateStatus($store->id, $status);
+    		}
+    		return $shop_id;
+    	}
+    	return false;
     }
 
     public function getShopByType($input, $type ='id', $getAddr = true)

@@ -20,6 +20,20 @@ class SiteSettingService extends Services
         $this->table = "amely_site_settings";
     }
 
+    public function save($data)
+    {
+    	$siteSetting = new SiteSetting();
+    	foreach ($data as $key => $value) {
+    		$siteSetting->data->$key = $value;
+    	}
+    	if ($data['id']) {
+    		$siteSetting->where = "id = {$data['id']}";
+    		return $siteSetting->update(true);
+    	} else {
+    		return $siteSetting->insert(true);
+    	}
+    }
+
 	public function getSiteSettings($conditions, $offset = 0, $limit = 10)
 	{
 		$settings = $this->searchObject($conditions, $offset, $limit);

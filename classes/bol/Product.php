@@ -66,6 +66,7 @@ class Product extends Object
 	private $adjourn_price;
 	private $images;
 	private $parent_id;
+	private $status;
 
 
 	public function __construct() 

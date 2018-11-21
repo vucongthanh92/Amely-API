@@ -33,7 +33,7 @@ return [
             "host" => "localhost",
             "dbname" => "amelyV1",
             "user" => "root",
-            "pass" => ""
+            "pass" => "thinhnez123"
         ],
         'mail' => [
             'mail_SMTPDebug' => 0,
@@ -62,6 +62,7 @@ return [
         ],
         'url' => "http://api.local",
         'prefix' => "/ws/v1",
+        'administrator' => "/ws/v1/administrator",
 
     ],
 ];

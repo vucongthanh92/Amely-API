@@ -20,7 +20,34 @@ class Express extends \Object
 	
 	public function process()
 	{	
-		
+		$url = $this->url."services/shipment/order";
+
+		$items = $this->items;
+		$creator_id = $this->creator_id;
+		$so_id = $this->so_id;
+
+		$userService = \UserService::getInstance();
+		$storeService = \StoreService::getInstance();
+		$supplyOrderService = \SupplyOrderService::getInstance();
+		$snapshotService = \SnapshotService::getInstance();
+
+		$so = $supplyOrderService->getSOByType($so_id, 'id');
+		$user = $userService->getUserByType($creator_id, 'id', true);
+		$store = $storeService->getStoreByType($so->store_id, 'id', true);
+
+		$products = [];
+		foreach ($items as $key => $item) {
+			$snapshot = $snapshotService->getSnapshotByType($item['snapshot_id'], 'id');
+			$parmas = null;
+			$parmas['name'] = $snapshot->title;
+			$parmas['weight'] = $snapshot->weight;
+			$parmas['quantity'] = $item['quantity'];
+
+			array_push($products, $parmas);
+		}
+		$products = json_encode($products);
+
+		return true;
 	}
 
 	public function checkFee($data)

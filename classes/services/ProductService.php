@@ -34,6 +34,11 @@ class ProductService extends Services
 		return $product->insert(true);
     }
 
+    public function updateStatus($product_id, $status)
+    {
+
+    }
+
     public function checkSKU($sku)
     {
     	$product = $this->getProductByType($sku, 'sku');

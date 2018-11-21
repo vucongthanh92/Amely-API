@@ -3,6 +3,7 @@
 class SiteSetting extends Object
 {
     private $time_created;
+    private $title;
     private $name;
     private $value;
 

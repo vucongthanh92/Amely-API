@@ -29,6 +29,7 @@ class Shop extends Object
 	private $avatar;
 	private $cover;
 	private $files_scan;
+	private $approved;
 
 	public function __construct() 
 	{	

@@ -298,7 +298,8 @@ CREATE TABLE `amely_products` (
   `category` text,
   `adjourn_price` text,
   `images` text,
-  `parent_id` text
+  `parent_id` text,
+  `status` text
  ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 DROP TABLE IF EXISTS `amely_snapshots`; 
@@ -382,23 +383,17 @@ CREATE TABLE `amely_delivery_order` (
   `time_created` int(11) NOT NULL,
   `title` text NOT NULL,
   `description` longtext NOT NULL,
-  `so_id` text, 
-  `status` text, 
-  `ghtk_result` text, 
-  `ghtk_status` text, 
-  `ghtk_status_text` text, 
-  `item` text, 
-  `quantity` text, 
-  `order_items_snapshot` text, 
-  `ghtk_success` text, 
-  `shipping_fullname` text, 
-  `shipping_phone` text, 
-  `shipping_address` text, 
-  `shipping_province` text, 
-  `shipping_district` text, 
-  `shipping_ward` text, 
-  `shipping_note` text, 
-  `shipping_method` text, 
+  `so_id` text,
+  `order_items_snapshot` text,
+  `status` text,
+  `shipping_fullname` text,
+  `shipping_phone` text,
+  `shipping_address` text,
+  `shipping_province` text,
+  `shipping_district` text,
+  `shipping_ward` text,
+  `shipping_note` text,
+  `shipping_method` text,
   `shipping_fee` text
  ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
@@ -482,6 +477,7 @@ CREATE TABLE `amely_shops` (
   `owner_district` text,
   `owner_ward` text,
   `owner_ssn` text,
+  `approved` text,
   `status` text,
   `introduce` text,
   `policy` text,
@@ -506,7 +502,9 @@ CREATE TABLE `amely_stores` (
   `store_address` text,
   `store_province` text,
   `store_district` text,
-  `store_ward` text
+  `store_ward` text,
+  `approved` text,
+  `status` text
  ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 
@@ -636,8 +634,9 @@ CREATE TABLE `amely_site_settings` (
   `id` bigint(20) NOT NULL AUTO_INCREMENT,
   PRIMARY KEY (`id`),
   `time_created` int(11) NOT NULL,
+  `title` text NOT NULL,
   `name` text NOT NULL,
-  `value` text
+  `value` text NOT NULL
  ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 DROP TABLE IF EXISTS `amely_events`; 
