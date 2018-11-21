@@ -2,12 +2,36 @@
 use Slim\Http\Request;
 use Slim\Http\Response;
 
+// thong tin chi tiet 1 danh muc
+$app->get($container['administrator'].'/categories', function (Request $request, Response $response, array $args) {
+	$categoryService = CategoryService::getInstance();
+	$shopService = ShopService::getInstance();
+	$userService = UserService::getInstance();
+	$loggedin_user = loggedin_user();
+	$params = $request->getQueryParams();
+	if (!$params) $params = [];
+	if (!array_key_exists('id', $params)) return response(false);
 
+	$category = $categoryService->getCategoryByType($params['id'], 'id');
+
+	if ($category->type == 'shop') {
+		$shop = $shopService->getShopByType($category->owner_id, 'id', true);
+	}
+	$creator = $userService->getUserByType($category->creator_id, 'id', false);
+
+	$category->shop = $shop;
+	$category->creator = $creator;
+
+	return response($category);
+});
+
+// them hoac chinh sua danh muc
 $app->post($container['administrator'].'/categories', function (Request $request, Response $response, array $args) {
 	$categoryService = CategoryService::getInstance();
 	$loggedin_user = loggedin_user();
 	$params = $request->getParsedBody();
 	if (!$params) $params = [];
+	if (!array_key_exists('id', $params)) $params['id'] = false;
 	if (!array_key_exists('owner_id', $params)) $params['owner_id'] = 0;
 	if (!array_key_exists('type', $params)) $params['type'] = 0;
 	if (!array_key_exists('title', $params)) $params['title'] = 0;
@@ -20,6 +44,9 @@ $app->post($container['administrator'].'/categories', function (Request $request
 	if (!array_key_exists('creator_id', $params)) $params['creator_id'] = $loggedin_user->id;
 
 	$category_data = null;
+	if ($params['id']) {
+		$category_data['id'] = $params['id'];	
+	}
 	$category_data['owner_id'] = $params['owner_id'];
 	$category_data['type'] = $params['type'];
 	$category_data['title'] = $params['title'];
@@ -38,8 +65,74 @@ $app->post($container['administrator'].'/categories', function (Request $request
 	    if ($uploadedFile->getError() === UPLOAD_ERR_OK) {
 	        $files = $request->getUploadedFiles();
 	        $logo = $files['logo'];
-	        
 	    }
     }
 	return response($categoryService->save($category_data, $logo));
 });
+
+// thong tin nhieu danh muc
+$app->put($container['administrator'].'/categories', function (Request $request, Response $response, array $args) {
+	$categoryService = CategoryService::getInstance();
+	$loggedin_user = loggedin_user();
+	$params = $request->getParsedBody();
+	if (!$params) $params = [];
+	if (!array_key_exists('offset', $params)) $params['offset'] = 0;
+	if (!array_key_exists('limit', $params)) $params['limit'] = 10;
+	if (!array_key_exists('shop_id', $params)) $params['shop_id'] = false;
+	if (!array_key_exists('type', $params)) $params['type'] = 0;
+	$offset = (double)$params['offset'];
+	$limit = (double)$params['limit'];
+	$shop_id = $params['shop_id'];
+	$type = $params['type'];
+
+	$category_params[] = [
+		'key' => 'CAST(`sort_order` AS SIGNED)',
+		'value' => "ASC",
+		'operation' => 'order_by'
+	];
+
+	if ($shop_id) {
+		$category_params[] = [
+			'key' => 'owner_id',
+			'value' => "= {$shop_id}",
+			'operation' => ''
+		];
+		$category_params[] = [
+			'key' => 'type',
+			'value' => "= 'shop'",
+			'operation' => 'AND'
+		];
+	} else {
+		$category_params[] = [
+			'key' => 'subtype',
+			'value' => "= {$params['type']}",
+			'operation' => ''
+		];
+	}
+
+	$categories = $categoryService->getCategories($category_params, $offset, $limit);
+	if (!$categories) return response(false);
+	return response($categories);
+});
+
+// xoa danh muc
+$app->delete($container['administrator'].'/categories', function (Request $request, Response $response, array $args) {
+	$categoryService = CategoryService::getInstance();
+	$loggedin_user = loggedin_user();
+	$params = $request->getQueryParams();
+	if (!$params) $params = [];
+	if (!array_key_exists('id', $params)) return response(false);
+
+	$category = $categoryService->getCategoryByType($params['id'], 'id');
+
+	if ($loggedin_user->type == 'admin') {
+		return response($categoryService->delete($category->id));
+	}
+
+	if ($loggedin_user->shop->id == $category->owner_id && $category->type == 'shop') {
+		return response($categoryService->delete($category->id));
+	}
+
+	return response(false);
+});
+
