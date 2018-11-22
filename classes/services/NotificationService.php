@@ -256,7 +256,8 @@ class NotificationService extends Services
 				return true;
 				break;
     	}
-    		
+    	
+    	if ($from_id == $to_id && $from_type == 'user' && $to_type == 'user') return true;
     	$notification = new Notification();
 		$notification->data->owner_id = $owner_id;
 		$notification->data->type = $owner_type;
