@@ -22,7 +22,7 @@ class CounterService extends Services
 		$transactionService = TransactionService::getInstance();
 		$notificationService = NotificationService::getInstance();
 		$offerService = OfferService::getInstance();
-		$offer = $offerService->getOfferByType($data['offer_id'], 'id');
+		$offer = $offerService->getOfferByType($data['owner_id'], 'id');
 		$counter = new Counter();
 		foreach ($data as $key => $value) {
 			$counter->data->$key = $value;
@@ -96,7 +96,7 @@ class CounterService extends Services
 		}
 
 	    $notify_params = null;
-		$notify_params['offer_id'] = $data['offer_id'];
+		$notify_params['offer_id'] = $offer->id;
 		$notify_params['counter_id'] = $counter_id;
 		$notificationService->save($notify_params, 'counter:request');
 		return $counter_id;
