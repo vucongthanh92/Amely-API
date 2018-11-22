@@ -31,12 +31,47 @@ class ProductService extends Services
 		$product->data->product_order = 0;
 		$product->data->approved = 0;
 		$product->data->enabled = 0;
-		return $product->insert(true);
+
+        if ($data['id']) {
+            $product->where = "id = {$data['id']}";
+            return $product->update(true);
+        } else {
+            return $product->insert(true);
+        }
+    }
+
+    public function approval($product_id)
+    {
+    	$snapshotService = SnapshotService::getInstance();
+		$product_properties = $this->getPropertyProductByType($product_id);
+        if (!$product_properties) return response(false);
+        $key = $snapshotService->generateSnapshotKey($product_properties);
+        $snapshot = $snapshotService->checkExistKey($key);
+        if ($snapshot) {
+            $snapshot_id = $snapshot->id;
+        } else {
+            $snapshot_data = null;
+            foreach ($product_properties as $property => $product_property) {
+                $snapshot_data[$property] = $product_property;
+            }
+            unset($snapshot_data['id']);
+            $snapshot_data['code'] = $key;
+            $snapshot_id = $snapshotService->save($snapshot_data);
+        }
+
+        $product = new Product();
+        $product->data->approved = time();
+        $product->data->snapshot_id = $snapshot_id;
+        $product->where = "id = {$product_id}";
+        return $product->update(true);
     }
 
     public function updateStatus($product_id, $status)
     {
-
+    	$product = new Product();
+    	$product->data->status = $status;
+    	$product->where = "id = {$product_id}";
+    	return $product->update(true);
     }
 
     public function checkSKU($sku)
@@ -44,6 +79,18 @@ class ProductService extends Services
     	$product = $this->getProductByType($sku, 'sku');
     	if (!$product) return response(false);
     	return response($product);
+    }
+
+    public function getPropertyProductByType($input, $type = 'id')
+    {
+        $conditions[] = [
+            'key' => $type,
+            'value' => "= '{$input}'",
+            'operation' => ''
+        ];
+        $product = $this->searchObject($conditions, 0, 1);
+        if (!$product) return false;
+        return $product;
     }
 
     public function getPropertyProduct($conditions)

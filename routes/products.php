@@ -90,7 +90,7 @@ $app->post($container['prefix'].'/products', function (Request $request, Respons
 		'operation' => 'order_by'
 	];
 	$product_params[] = [
-		'key' => "enabled",
+		'key' => "status",
 		'value' => "= 1",
 		'operation' => ''
 	];

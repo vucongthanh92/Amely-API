@@ -23,12 +23,9 @@ class CommentService extends Services
     public function save($data)
     {
     	$comment = new Annotation();
-		$comment->data->owner_id = $data['owner_id'];
-		$comment->data->type = $data['type'];
-		$comment->data->creator_id = $data['creator']->id;
-		if ($data['content']) {
-			$comment->data->content = $data['content'];
-		}
+    	foreach ($data as $key => $value) {
+    		$comment->data->$key = $value;
+    	}
 		return $comment->insert(true);
     }
 
@@ -138,7 +135,7 @@ class CommentService extends Services
     private function changeStructureInfo($comment)
 	{
 		$imageService = ImageService::getInstance();
-		if ($comment->images) {
+		if (isset($comment->images)) {
 			$images = explode(',', $comment->images);
 			foreach ($images as $key => $image) {
 				$images[$key] = $imageService->showImage($comment->id, $image, 'comment', 'large');

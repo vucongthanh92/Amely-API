@@ -74,23 +74,26 @@ $app->put($container['prefix'].'/comments', function (Request $request, Response
 			# code...
 			break;
 	}
-	$data = null;
-	$data['owner_id'] = $params['subject_id'];
-	$data['type'] = $params['type'];
-	$data['creator'] = $loggedin_user;
-	$data['owner'] = $user;
-	$data['content'] = $params['content'];
-	$data['images'] = $params['images'];
+	$comment_data = null;
+	$comment_data['owner_id'] = $params['subject_id'];
+	$comment_data['type'] = $params['type'];
+	$comment_data['creator_id'] = $loggedin_user->id;
+	$comment_data['content'] = $params['content'];
+	$comment_id = $commentService->save($comment_data);
+	if ($comment_id) {
+		if ($params['images']) {
+			$services = Services::getInstance();
+			$services->downloadImage($comment_id, 'comment', 'images', $params['images']);
+		}
 
-	if ($commentService->save($data)) {
 		$notificationService = NotificationService::getInstance();
 		$notify_params = null;
-		switch ($data['type']) {
+		switch ($comment_data['type']) {
 			case 'feed':
 				$notification_type = "comment:feed";
 				$notify_params['from'] = $loggedin_user;
 				$notify_params['to'] = $user;
-				$notify_params['subject_id']  = $data['owner_id'];
+				$notify_params['subject_id']  = $comment_data['owner_id'];
 				break;
 			case 'shop':
 				return response(false);

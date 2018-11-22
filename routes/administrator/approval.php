@@ -4,10 +4,10 @@ use Slim\Http\Response;
 
 // thong tin he thong
 $app->get($container['administrator'].'/approval', function (Request $request, Response $response, array $args) {
-	$siteSettingService = SiteSettingService::getInstance();
-	$loggedin_user = loggedin_user();
-	$settings = $siteSettingService->getSiteSettings(null, 0, 99999999);
-	return response($settings);
+	// $siteSettingService = SiteSettingService::getInstance();
+	// $loggedin_user = loggedin_user();
+	// $settings = $siteSettingService->getSiteSettings(null, 0, 99999999);
+	// return response($settings);
 });
 
 // them hoac chinh sua thong tin he thong
