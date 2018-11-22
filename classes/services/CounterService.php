@@ -95,10 +95,12 @@ class CounterService extends Services
 				break;
 		}
 
-	    $notify_params = null;
-		$notify_params['offer_id'] = $offer->id;
-		$notify_params['counter_id'] = $counter_id;
-		$notificationService->save($notify_params, 'counter:request');
+		if ($offer->owner_id != $data['creator_id']) {
+		    $notify_params = null;
+			$notify_params['offer_id'] = $offer->id;
+			$notify_params['counter_id'] = $counter_id;
+			$notificationService->save($notify_params, 'counter:request');
+		}
 		return $counter_id;
 	}
 

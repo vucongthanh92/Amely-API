@@ -70,7 +70,6 @@ $app->post($container['administrator'].'/shops', function (Request $request, Res
 		$shop_data['id'] = $params['id'];	
 	}
 	$shop_data['owner_id'] = $params['owner_id'];
-	$shop_data['type'] = $params['type'];
 	$shop_data['title'] = $params['title'];
 	$shop_data['description'] = $params['description'];
 	$shop_data['shop_bidn'] = $params['shop_bidn'];
