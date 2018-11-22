@@ -20,6 +20,26 @@ class UserService extends Services
         $this->table = "amely_users";
     }
 
+    public function save($data)
+    {
+    	$user = new User();
+    	foreach ($data as $key => $value) {
+    		$user->data->$key = $value;
+    	}
+    	if ($data['id']) {
+    		$user->where = "id = {$data['id']}";
+    		return $user->update(true);
+    	} else {
+    		$user_id = $user->insert(true);
+
+    		$walletService = WalletService::getInstance();
+			$walletService->save($user_id);
+			$inventoryService = InventoryService::getInstance();
+			$inventoryService->save($user_id, 'user', $user_id);
+    		return $user_id;
+    	}
+    }
+
     public function login($username)
     {
     	$time = time();

@@ -286,11 +286,15 @@ class SlimDatabase
 		$params['names']  = [];
 		$params['values'] = [];
 		$params['sets'] = [];
+		$id_response = 0;
 		if (!$object->data) return false;
 		foreach ($object->data as $key => $value) {
 			$params['sets'][] = "`{$key}` = '{$value}'";
 			array_push($params['names'], $key);
 			array_push($params['values'], $value);
+			if ($key == 'id') {
+				$id_response = $value;
+			}
 		}
 
 		switch ($action) {
@@ -320,7 +324,14 @@ class SlimDatabase
 		if ($query === false) return false;
 		$db = $connectDB->query($query);
 		if ($show_id) {
-			return $connectDB->insert_id;
+			switch ($action) {
+				case 'update':
+					return $id_response;
+					break;
+				default:
+					return $connectDB->insert_id;
+					break;
+			}
 		}
 		return true;
 	}
