@@ -70,7 +70,6 @@ $app->put($container['prefix'].'/register', function (Request $request, Response
 	$user_data['gender'] = "male";
 	$user_data['usercurrency'] = "VND";
 	$user_id = $userService->save($user_data);
-
 	// $user = new User;
 	// $user->data->type = "normal";
 	// $user->data->username = $username;
@@ -88,8 +87,8 @@ $app->put($container['prefix'].'/register', function (Request $request, Response
 	// $user->data->birthdate = "1993-08-03";
 	// $user->data->gender = "male";
 	// $user->data->usercurrency = "VND";
-
-	$user_id = $user->insert(true);
+	// $user_id = $user->insert(true);
+	
 	if ($user_id) {
 		return response(Services::getInstance()->sendByMobile($mobile, $code));
 	}
