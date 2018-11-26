@@ -91,7 +91,7 @@ $app->post($container['prefix'].'/cart', function (Request $request, Response $r
 	$data['time'] = time();
 	$encrypt = $services->encrypt(serialize($data));
 	$code = $services->b64encode($encrypt);
-	return response($code);
+	return response(["code" => $code]);
 });
 
 $app->patch($container['prefix'].'/cart', function (Request $request, Response $response, array $args) {
