@@ -29,6 +29,9 @@ $app->get($container['prefix'].'/cart', function (Request $request, Response $re
 		$time_affter_5m = $data['time'] + (5*60);
 		if ($time > $time_affter_5m) return response(false);
 		
+		$cart = $cartService->getCartByType($data['cart_id'], 'id');
+		if (!$cart) return response($carts);
+
 		$type = 'store';
 		$owner_id = $data['owner_id'];
 		$creator_id = $data['creator_id'];
@@ -48,10 +51,10 @@ $app->get($container['prefix'].'/cart', function (Request $request, Response $re
 				return response(false);
 				break;
 		}
+		$cart = $cartService->checkCart($owner_id, $type, $creator_id, 0);
+		if (!$cart) return response($carts);
 	}
 
-	$cart = $cartService->checkCart($owner_id, $type, $creator_id, 0);
-	if (!$cart) return response($carts);
 	$carts['cart'] = $cart;
 	$cart_items = $cartService->getCartItems($cart->id);
 	if (!$cart_items) return response($carts);
@@ -79,18 +82,22 @@ $app->get($container['prefix'].'/cart', function (Request $request, Response $re
 });
 
 $app->post($container['prefix'].'/cart', function (Request $request, Response $response, array $args) {
+	$cartService = CartService::getInstance();
 	$services = Services::getInstance();
 	$loggedin_user = loggedin_user();
 	$params = $request->getParsedBody();
 	if (!$params) $params = [];
-	if (!array_key_exists('owner_id', $params))  		$params['owner_id'] = false;
-	$data = [];
-	$data['type'] = "store";
-	$data['owner_id'] = $params['owner_id'];
-	$data['creator_id'] = $loggedin_user->id;
-	$data['time'] = time();
-	$encrypt = $services->encrypt(serialize($data));
+	if (!array_key_exists('cart_id', $params)) return response(false);
+
+
+	$cart = $cartService->getCartByType($params['cart_id'], 'id');
+	if (!$cart || $cart->status != 0) return response(false);
+	
+	$cart_data['cart_id'] = $cart->id;
+	$cart_data['time'] = time();
+	$encrypt = $services->encrypt(serialize($cart_data));
 	$code = $services->b64encode($encrypt);
+
 	return response(["code" => $code]);
 });
 
