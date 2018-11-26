@@ -27,6 +27,32 @@ class NotificationService extends Services
 		$str = "";
     	$notify_token = false;
     	switch ($notification_type) {
+    		case 'order:request':
+    			$target = ORDER_REQUEST;
+				$owner_id = $data['to']->id;
+				$owner_type = 'user';
+				$notify_token = $tokenService->getNotifyToken($owner_id, $owner_type);
+				$from_id = $data['from']->id;
+				$from_type = 'user';
+				$to_id = $data['to']->id;
+				$to_type = 'user';
+				$title = $data['from']->fullname;
+				$subject_id = $data['subject_id'];
+				$description = $target;
+    			break;
+    		case 'order:request:quickpay':
+    			$target = ORDER_REQUEST_QUICKPAY;
+				$owner_id = $data['to']->id;
+				$owner_type = 'user';
+				$notify_token = $tokenService->getNotifyToken($owner_id, $owner_type);
+				$from_id = $data['from']->id;
+				$from_type = 'user';
+				$to_id = $data['to']->id;
+				$to_type = 'user';
+				$title = $data['from']->fullname;
+				$subject_id = $data['subject_id'];
+				$description = $target;
+    			break;
     		case 'comment:feed': 
     			$target = COMMENT_FEED;
 				$owner_id = $data['to']->id;
@@ -303,11 +329,16 @@ class NotificationService extends Services
     	return $notification->update();
     }
 
-    public function getNotificationsByType($input, $type = 'id', $offset = 0, $limit = 10)
+    public function getNotificationsByType($input, $type = 'user', $offset = 0, $limit = 10)
 	{
 		$conditions = null;
 		$conditions[] = [
-			'key' => $type,
+			'key' => 'type',
+			'value' => "= '{$type}'",
+			'operation' => ''
+		];
+		$conditions[] = [
+			'key' => 'owner_id',
 			'value' => "= '{$input}'",
 			'operation' => ''
 		];

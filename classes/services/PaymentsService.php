@@ -99,12 +99,13 @@ class PaymentsService extends Services
 		$shippingService = ShippingService::getInstance();
 		$productService = ProductService::getInstance();
 		$snapshotService = SnapshotService::getInstance();
+		$supplyOrderService = SupplyOrderService::getInstance();
 		$itemService = ItemService::getInstance();
 		if ($order_type == 'HD') {
 			$purchaseOrderService = PurchaseOrderService::getInstance();
-			$order = $purchaseOrderService->getPOByType($order_id, 'id');
-			if (!$order) return false;
-			$order_items = unserialize($order->order_items_snapshot);
+			$po = $purchaseOrderService->getPOByType($order_id, 'id');
+			if (!$po) return false;
+			$order_items = unserialize($po->order_items_snapshot);
 			if (!$order_items) return false;
 			$items_sos = [];
 			foreach ($order_items as $key => $order_item) {
@@ -134,23 +135,34 @@ class PaymentsService extends Services
 						$quantity += $item_so['quantity'];
 						$total += $product->display_price * $item_so['quantity'];
 					}
-					
-					$so = new SupplyOrder();
-					$so->data->time_created = $order->time_created;
-					$so->data->owner_id = $order->id;
-					$so->data->type = $order_type;
-					$so->data->status = 0;
-					$so->data->store_id = $kitems_so;
-					$so->data->shipping_fee = 0;
-					$so->data->order_items_snapshot = serialize($order_items_snapshot);
-					$so->data->total = $total;
-					$so->data->quantity = $quantity;
-					$so_id = $so->insert(true);
+
+					$so_data['owner_id'] = $po->id;
+					$so_data['type'] = $order_type;
+					$so_data['time_created'] = $po->time_created;
+					$so_data['status'] = 0;
+					$so_data['store_id'] = $kitems_so;
+					$so_data['shipping_fee'] = 0;
+					$so_data['order_items_snapshot'] = serialize($order_items_snapshot);
+					$so_data['total'] = $total;
+					$so_data['quantity'] = $quantity;
+					$so_id = $supplyOrderService->save($so_data);
+
+					// $so = new SupplyOrder();
+					// $so->data->time_created = $order->time_created;
+					// $so->data->owner_id = $order->id;
+					// $so->data->type = $order_type;
+					// $so->data->status = 0;
+					// $so->data->store_id = $kitems_so;
+					// $so->data->shipping_fee = 0;
+					// $so->data->order_items_snapshot = serialize($order_items_snapshot);
+					// $so->data->total = $total;
+					// $so->data->quantity = $quantity;
+					// $so_id = $so->insert(true);
 					if ($so_id) {
 						$time = time();
-						$sp = $shippingService->getMethod($order->shipping_method);
+						$sp = $shippingService->getMethod($po->shipping_method);
 						$sp->so_id = $so_id;
-						$sp->creator_id = $order->owner_id;
+						$sp->creator_id = $po->owner_id;
 						$sp->items = $order_items_snapshot;
 						$sp->process();
 					}

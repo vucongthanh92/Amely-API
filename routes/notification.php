@@ -17,7 +17,23 @@ $app->post($container['prefix'].'/notification', function (Request $request, Res
 		$tokenService = TokenService::getInstance();
 		$tokenService->updateNotifyToken($params['notify_token'], $loggedin_user->id, "user");
 	}
-	$notifications = $notificationService->getNotificationsByType($loggedin_user->id, 'owner_id', $params['offset'], $params['limit']);
+	$owner_id = false;
+	switch ($params['type']) {
+		case 'user':
+			$owner_id = $loggedin_user->id;
+			$owner_type = 'user';
+			break;
+		case 'store':
+			if ($loggedin_user->chain_store) {
+				$owner_id = $loggedin_user->chain_store;
+			}
+			$owner_type = 'user';
+			break;
+		default:
+			break;
+	}
+	if (!$owner_id) return response(false);
+	$notifications = $notificationService->getNotificationsByType($owner_id, $owner_type, $params['offset'], $params['limit']);
 
 	if (!$notifications) return response(false);
 

@@ -1,25 +1,15 @@
 <?php
 
-class PurchaseOrder extends Object
+class DeliveryOrder extends Object
 {
     private $owner_id;
     private $type;
     private $time_created;
     private $title;
     private $description;
-    private $payment_method;
-    private $shipping_method;
-    private $status;
-    private $payment_fullname;
-    private $payment_phone;
-    private $payment_address;
-    private $payment_province;
-    private $payment_district;
-    private $payment_ward;
-    private $note;
+    private $so_id;
     private $order_items_snapshot;
-    private $total;
-    private $quantity;
+    private $status;
     private $shipping_fullname;
     private $shipping_phone;
     private $shipping_address;
@@ -27,12 +17,13 @@ class PurchaseOrder extends Object
     private $shipping_district;
     private $shipping_ward;
     private $shipping_note;
+    private $shipping_method;
     private $shipping_fee;
     
 	public function __construct() 
 	{	
 		parent::__construct();
-		$this->table = "amely_purchase_order";
+		$this->table = "amely_delivery_order";
 	}
 
 	public function __set($key, $value)

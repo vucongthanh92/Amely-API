@@ -435,10 +435,16 @@ CREATE TABLE `amely_purchase_order` (
   `note` text,
   `order_items_snapshot` text,
   `total` text,
-  `quantity` text
+  `quantity` text,
+  `shipping_fullname` text,
+  `shipping_phone` text,
+  `shipping_address` text,
+  `shipping_province` text,
+  `shipping_district` text,
+  `shipping_ward` text,
+  `shipping_note` text,
+  `shipping_fee` text
  ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-
-
 
 
 DROP TABLE IF EXISTS `amely_business_pages`; 

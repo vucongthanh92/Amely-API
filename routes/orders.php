@@ -88,6 +88,7 @@ $app->put($container['prefix'].'/orders', function (Request $request, Response $
 	$productService = ProductService::getInstance();
 	$snapshotService = SnapshotService::getInstance();
 	$productStoreService = ProductStoreService::getInstance();
+	$userService = UserService::getInstance();
 
 	$loggedin_user = loggedin_user();
 	$params = $request->getParsedBody();
@@ -141,27 +142,53 @@ $app->put($container['prefix'].'/orders', function (Request $request, Response $
 		];
 	}
 
+	$po_data['owner_id'] = $loggedin_user->id;
+	$po_data['type'] = 'user';
+	$po_data['payment_method'] = $params['payment_method'];
+	$po_data['shipping_method'] = $params['shipping_method'];
+	$po_data['status'] = 0;
+	$po_data['payment_fullname'] = $params['payment_fullname'];
+	$po_data['payment_phone'] = $params['payment_phone'];
+	$po_data['payment_address'] = $params['payment_address'];
+	$po_data['payment_province'] = $params['payment_province'];
+	$po_data['payment_district'] = $params['payment_district'];
+	$po_data['payment_ward'] = $params['payment_ward'];
+	$po_data['note'] = $params['payment_note'];
+	$po_data['order_items_snapshot'] = serialize($order_items_snapshot);
+	$po_data['total'] = $total;
+	$po_data['quantity'] = $quantity;
+	$po_data['shipping_fullname'] = $params['shipping_fullname'];
+	$po_data['shipping_phone'] = $params['shipping_phone'];
+	$po_data['shipping_address'] = $params['shipping_address'];
+	$po_data['shipping_province'] = $params['shipping_province'];
+	$po_data['shipping_district'] = $params['shipping_district'];
+	$po_data['shipping_ward'] = $params['shipping_ward'];
+	$po_data['shipping_note'] = $params['shipping_note'];
+	$po_data['shipping_fee'] = $params['shipping_fee'];
+	$po_id = $purchaseOrderService->save($po_data);
 
-	$po = new PurchaseOrder;
-	$po->data->owner_id = $loggedin_user->id;
-	$po->data->type = 'user';
-	$po->data->payment_method = $params['payment_method'];
-	$po->data->shipping_method = $params['shipping_method'];
-	$po->data->status = 0;
-	$po->data->payment_fullname = $params['payment_fullname'];
-	$po->data->payment_phone = $params['payment_phone'];
-	$po->data->payment_address = $params['payment_address'];
-	$po->data->payment_province = $params['payment_province'];
-	$po->data->payment_district = $params['payment_district'];
-	$po->data->payment_ward = $params['payment_ward'];
-	$po->data->note = $params['payment_note'];
-	$po->data->order_items_snapshot = serialize($order_items_snapshot);
-	$po->data->total = $total;
-	$po->data->quantity = $quantity;
-	$po_id = $po->insert(true);
+	// $po = new PurchaseOrder;
+	// $po->data->owner_id = $loggedin_user->id;
+	// $po->data->type = 'user';
+	// $po->data->payment_method = $params['payment_method'];
+	// $po->data->shipping_method = $params['shipping_method'];
+	// $po->data->status = 0;
+	// $po->data->payment_fullname = $params['payment_fullname'];
+	// $po->data->payment_phone = $params['payment_phone'];
+	// $po->data->payment_address = $params['payment_address'];
+	// $po->data->payment_province = $params['payment_province'];
+	// $po->data->payment_district = $params['payment_district'];
+	// $po->data->payment_ward = $params['payment_ward'];
+	// $po->data->note = $params['payment_note'];
+	// $po->data->order_items_snapshot = serialize($order_items_snapshot);
+	// $po->data->total = $total;
+	// $po->data->quantity = $quantity;
+	// $po_id = $po->insert(true);
 	if ($po_id) {
 		$cartService->updateStatus($cart->id, 1);
 		$pm = $paymentsService->getMethod($params['payment_method']);
+		$owner_cart = $userService->getUserByType($cart->creator_id, 'id', false);
+		$pm->owner_cart = $owner_cart;
 		$pm->order_id = $po_id;
 		$pm->amount = $total;
 		$pm->creator = $loggedin_user;

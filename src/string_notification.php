@@ -28,5 +28,12 @@ define("LIKE_FEED", "đã thích bài viết của bạn");
 define("LIKE_SHOP", "đã thích cửa hàng của bạn");
 define("COMMENT_FEED", "đã bình luận bài viết của bạn");
 
+define("ORDER_REQUEST", "Bạn có 1 đơn hàng");
+define("ORDER_APPROVAL", "Đơn hàng đã thanh toán");
+define("ORDER_REJECT", "Đơn hàng đã bị từ chối");
+
+define("ORDER_REQUEST_QUICKPAY", "Bạn có 1 đơn hàng thanh toán nhanh");
+
+
 define("EVENT_INVITATION", "đã mời bạn tham gia sự kiện");
 define("EVENT_APPROVAL", "đã đồng ý tham gia sự kiện");
