@@ -294,6 +294,11 @@ class Services extends SlimDatabase
 				$comment->where = "id = {$owner_id}";
 				return response($comment->update());
 				break;
+			case 'group':
+				$group = new Group();
+				$group->data->$image_type = $filenames;
+				$group->where = "id = {$owner_id}";
+				return response($group->update());
 			default:
 				# code...
 				break;
