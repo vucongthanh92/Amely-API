@@ -17,9 +17,8 @@ $app->get($container['prefix'].'/cart', function (Request $request, Response $re
 	$params = $request->getQueryParams();
 	if (!$params) $params = [];
 	if (!array_key_exists('code', $params))  			$params['code'] = false;
-	$type = 'user';
-	$owner_id = $loggedin_user->id;
-	$creator_id = $loggedin_user->id;
+	if (!array_key_exists('type', $params))  			$params['type'] = 'user';
+	
 	if ($params['code']) {
 		$itemService = ItemService::getInstance();
 		$services = Services::getInstance();
@@ -33,6 +32,22 @@ $app->get($container['prefix'].'/cart', function (Request $request, Response $re
 		$type = 'store';
 		$owner_id = $data['owner_id'];
 		$creator_id = $data['creator_id'];
+	} else {
+		switch ($params['type']) {
+			case 'user':
+				$type = 'user';
+				$owner_id = $loggedin_user->id;
+				$creator_id = $loggedin_user->id;
+				break;
+			case 'store':
+				$type = 'store';
+				$owner_id = $loggedin_user->chain_store;
+				$creator_id = $loggedin_user->id;
+				break
+			default:
+				return response(false);
+				break;
+		}
 	}
 
 	$cart = $cartService->checkCart($owner_id, $type, $creator_id, 0);
