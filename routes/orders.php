@@ -4,6 +4,7 @@ use Slim\Http\Response;
 
 $app->get($container['prefix'].'/orders', function (Request $request, Response $response, array $args) {
 	$purchaseOrderService = PurchaseOrderService::getInstance();
+	$supplyOrderService = SupplyOrderService::getInstance();
 	$snapshotService = SnapshotService::getInstance();
 	$storeService = StoreService::getInstance();
 	$shopService = ShopService::getInstance();
@@ -11,8 +12,18 @@ $app->get($container['prefix'].'/orders', function (Request $request, Response $
 	$loggedin_user = loggedin_user();
 	$params = $request->getQueryParams();
 	if (!$params) $params = [];
-	if (!array_key_exists('order_id', $params)) return response(false);
-	$order = $purchaseOrderService->getPOByType($params['order_id'], 'id');
+	if (!array_key_exists('po_id', $params)) $params['po_id'] = false;
+	if (!array_key_exists('so_id', $params)) $params['so_id'] = false;
+
+	if (!$params['po_id'] && !$params['so_id']) return response(false);
+
+	if ($params['po_id']) {
+		$order = $purchaseOrderService->getPOByType($params['po_id'], 'id');
+	}
+	if ($params['so_id']) {
+		$order = $supplyOrderService->getSOByType($params['po_id'], 'id');	
+	}
+
 	if (!$order) return response(false);
 	$order_items = unserialize($order->order_items_snapshot);
 
@@ -199,4 +210,22 @@ $app->put($container['prefix'].'/orders', function (Request $request, Response $
 		return response(["url" => $url]);
 	}
 	return response(false);
+});
+
+$app->patch($container['prefix'].'/orders', function (Request $request, Response $response, array $args) {
+	$purchaseOrderService = PurchaseOrderService::getInstance();
+	$paymentsService = PaymentsService::getInstance();
+	$loggedin_user = loggedin_user();
+	$params = $request->getParsedBody();
+	if (!$params) $params = [];
+	if (!array_key_exists('order_id', $params))	 return response(false);
+	if (!array_key_exists('status', $params))	 return response(false);
+
+	$po = $purchaseOrderService->getPOByType($params['order_id'], 'id');
+	if ($po->status != 0) return response(false);
+	$pm = $paymentsService->getMethod($po->payment_method);
+	$pm->creator = $loggedin_user;
+	$pm->order_id = $po->id;
+	$pm->status = $params['status'];
+	return response($pm->getResult());
 });

@@ -60,7 +60,7 @@ class Storage extends \Object
 
 	public function checkFee()
 	{
-		
+		return false;
 	}
 
 	public function redeemDelivery()

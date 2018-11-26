@@ -29,6 +29,14 @@ class PurchaseOrderService extends Services
     	return $po->insert(true);
     }
 
+    public function updateStatus($po_id, $status)
+    {
+    	$po = new PurchaseOrder();
+    	$po->data->status = $status;
+    	$po->where = "id = {$po_id}";
+    	return $po->update(true);
+    }
+
     public function getPOByType($input, $type ='id')
     {
     	$conditions = null;

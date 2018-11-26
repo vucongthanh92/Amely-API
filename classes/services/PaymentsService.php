@@ -135,7 +135,7 @@ class PaymentsService extends Services
 						$quantity += $item_so['quantity'];
 						$total += $product->display_price * $item_so['quantity'];
 					}
-
+					$so_data['owner_id_po'] = $po->owner_id;
 					$so_data['owner_id'] = $po->id;
 					$so_data['type'] = $order_type;
 					$so_data['time_created'] = $po->time_created;

@@ -27,6 +27,32 @@ class NotificationService extends Services
 		$str = "";
     	$notify_token = false;
     	switch ($notification_type) {
+    		case 'order:reject':
+    			$target = ORDER_REJECT;
+				$owner_id = $data['to']->id;
+				$owner_type = 'user';
+				$notify_token = $tokenService->getNotifyToken($owner_id, $owner_type);
+				$from_id = $data['from']->id;
+				$from_type = 'user';
+				$to_id = $data['to']->id;
+				$to_type = 'user';
+				$title = $data['from']->fullname;
+				$subject_id = $data['subject_id'];
+				$description = $target;
+    			break;
+    		case 'order:approval':
+    			$target = ORDER_APROVAL;
+				$owner_id = $data['to']->id;
+				$owner_type = 'user';
+				$notify_token = $tokenService->getNotifyToken($owner_id, $owner_type);
+				$from_id = $data['from']->id;
+				$from_type = 'user';
+				$to_id = $data['to']->id;
+				$to_type = 'user';
+				$title = $data['from']->fullname;
+				$subject_id = $data['subject_id'];
+				$description = $target;
+    			break;
     		case 'order:request':
     			$target = ORDER_REQUEST;
 				$owner_id = $data['to']->id;
