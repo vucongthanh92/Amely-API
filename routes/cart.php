@@ -43,7 +43,7 @@ $app->get($container['prefix'].'/cart', function (Request $request, Response $re
 				$type = 'store';
 				$owner_id = $loggedin_user->chain_store;
 				$creator_id = $loggedin_user->id;
-				break
+				break;
 			default:
 				return response(false);
 				break;
