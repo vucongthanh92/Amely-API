@@ -26,7 +26,12 @@ class SupplyOrderService extends Services
     	foreach ($data as $key => $value) {
     		$so->data->$key = $value;
     	}
-    	return $so->insert(true);
+    	$so_id = $so->insert(true);
+    	$userService = UserService::getInstance();
+    	$user = $userService->getUserByType($data['store_id'], 'chain_store');
+    	
+    	
+
     }
 
     public function getSOByType($input, $type ='id')

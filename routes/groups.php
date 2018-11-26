@@ -83,6 +83,7 @@ $app->put($container['prefix'].'/groups', function (Request $request, Response $
 	if (!array_key_exists('privacy', $params)) $params['privacy'] = 0;
 	if (!array_key_exists('rule', $params)) $params['rule'] = 0;
 	if (!array_key_exists('owners', $params)) $params['owners'] = false;
+	if (!array_key_exists('member_invite', $params)) $params['member_invite'] = false;
 
 	$group_params['owner_id'] = $loggedin_user->id;
 	$group_params['type'] = 'user';
@@ -109,6 +110,19 @@ $app->put($container['prefix'].'/groups', function (Request $request, Response $
 				$relationshipService->save($user, $group, 'group:invite');
 				$relationshipService->save($group, $user, 'group:approve');
 				if ($owner_id != $loggedin_user->id) {
+					$relationshipService->save($group, $user, 'group:joined');
+				}
+
+				$services->memberGroupFB($group_id, $user->username, 'add');
+			}
+		}
+		if ($params['member_invite']) {
+			foreach ($params['member_invite'] as $key => $member_id) {
+				$user = $userService->getUserByType($member_id, 'id', false);
+
+				$relationshipService->save($user, $group, 'group:invite');
+				$relationshipService->save($group, $user, 'group:approve');
+				if ($member_id != $loggedin_user->id) {
 					$relationshipService->save($group, $user, 'group:joined');
 				}
 

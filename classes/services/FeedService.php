@@ -132,7 +132,7 @@ class FeedService extends Services
 
         $like_params = null;
         $like_params[] = [
-            'key' => 'subject_id',
+            'key' => 'owner_id',
             'value' => "IN ({$feeds_id})",
             'operation' => ''
         ];
@@ -147,12 +147,12 @@ class FeedService extends Services
             'operation' => 'count'
         ];
         $like_params[] = [
-            'key' => 'subject_id',
+            'key' => 'owner_id',
             'value' => "",
             'operation' => 'query_params'
         ];
         $like_params[] = [
-            'key' => 'subject_id',
+            'key' => 'owner_id',
             'value' => "",
             'operation' => 'group_by'
         ];
@@ -166,7 +166,7 @@ class FeedService extends Services
 
         $like_params = null;
         $like_params[] = [
-            'key' => 'subject_id',
+            'key' => 'owner_id',
             'value' => "IN ({$feeds_id})",
             'operation' => ''
         ];
@@ -181,12 +181,12 @@ class FeedService extends Services
             'operation' => 'AND'
         ];
         $like_params[] = [
-            'key' => 'subject_id',
+            'key' => 'owner_id',
             'value' => "",
             'operation' => 'query_params'
         ];
         $like_params[] = [
-            'key' => 'subject_id',
+            'key' => 'owner_id',
             'value' => "",
             'operation' => 'group_by'
         ];

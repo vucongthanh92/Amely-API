@@ -174,7 +174,7 @@ $app->post($container['prefix'].'/feeds', function (Request $request, Response $
 		$feed->likes = 0;
 		if ($feeds_likes) {
 			foreach ($feeds_likes as $feed_likes) {
-				if ($feed_likes->subject_id == $feed->id) {
+				if ($feed_likes->owner_id == $feed->id) {
 					$feed->likes = $feed_likes->count;
 				}
 			}
@@ -182,7 +182,7 @@ $app->post($container['prefix'].'/feeds', function (Request $request, Response $
 		$feed->liked = false;
 		if ($feeds_liked) {
 			foreach ($feeds_liked as $feed_liked) {
-				if ($feed_liked->subject_id == $feed->id) {
+				if ($feed_liked->owner_id == $feed->id) {
 					$feed->liked = true;
 				}
 			}

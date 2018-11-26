@@ -99,6 +99,7 @@ class ItemService extends Services
     	$inventory = $inventoryService->getInventoryByType($owner_id, $type);
     	if (!$inventory) return false;
     	$item = new Item();
+    	$item->data->time_created = time();
     	$item->data->owner_id = $inventory->id;
     	$item->data->givelist = 0;
     	$item->data->wishlist = 0;
