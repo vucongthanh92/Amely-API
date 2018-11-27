@@ -75,6 +75,7 @@ $app->get($container['prefix'].'/cart', function (Request $request, Response $re
 		if ($params['code']) {
 			$max_redemm_quantity = $itemService->getQuantityOfItemBySnapshot($product->snapshot_id, $loggedin_user->id, 'user');
 			$product->max_redemm_quantity = $max_redemm_quantity;
+			if ($max_redemm_quantity <= $cart_item->redeem_quantity) return response(false);
 		}
 		$carts['items'][] = $product;
 	}

@@ -48,6 +48,7 @@ class COS extends \Object implements \Amely\Payment\IPaymentMethod
 		$status = $this->status;
 		$creator = $this->creator;
 
+		$shippingService = \ShippingService::getInstance();
 	    $notificationService = \NotificationService::getInstance();
 		$purchaseOrderService = \PurchaseOrderService::getInstance();
 		$supplyOrderService = \SupplyOrderService::getInstance();
@@ -80,9 +81,14 @@ class COS extends \Object implements \Amely\Payment\IPaymentMethod
 				$so_data['order_items_snapshot'] = $po->order_items_snapshot;
 				$so_data['total'] = $total;
 				$so_data['quantity'] = $quantity;
-				$supplyOrderService->save($so_data);
+				$so_id = $supplyOrderService->save($so_data);
 				$purchaseOrderService->updateStatus($po->id, 1);
 
+				$sm = $shippingService->getMethod($po->shipping_method);
+				$items = $this->items;
+				$creator_id = $this->creator_id;
+				$so_id = $this->so_id;
+				$sm->process();
 				break;
 			case 2:
 				$notify_type = "order:reject";

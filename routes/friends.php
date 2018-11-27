@@ -10,13 +10,7 @@ $app->get($container['prefix'].'/friends', function (Request $request, Response 
     $params = $request->getQueryParams();
 
     if (array_key_exists("user_id", $params) && is_numeric($params['user_id'])) {
-    	$user_params = null;
-    	$user_params[] = [
-    		'key' => 'id',
-    		'value' => "= {$params['user_id']}",
-    		'operation' => ''
-    	];
-        $user = $userService->getUser($user_params,false);
+        $user = $userService->getUserByType($params['user_id'], 'id', false);
     } else {
         $user = $loggedin_user;
     }

@@ -42,6 +42,17 @@ class Express extends \Object
 
 		$products = [];
 		$weight = $total = 0;
+
+		$order_items = unserialize($so->order_items_snapshot);
+    	$quantity = $store_id = $weight = $total = 0;
+		foreach ($order_items as $key => $order_item) {
+			$snapshot = $snapshotService->getSnapshotByType($order_item['snapshot_id'], 'id');
+			$weight += $snapshot->weight * $order_item['quantity'];
+			$total += $snapshot->display_price * $order_item['quantity'];
+			$quantity += ($order_item['quantity'] + $order_item['redeem_quantity']);
+			if ($owner_cart->chain_store != $order_item['store_id']) return false;
+		}
+		
 		foreach ($items as $key => $item) {
 			$snapshot = $snapshotService->getSnapshotByType($item['snapshot_id'], 'id');
 			$parmas = null;
