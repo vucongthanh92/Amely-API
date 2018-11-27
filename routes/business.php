@@ -37,8 +37,8 @@ $app->post($container['prefix'].'/business', function (Request $request, Respons
 		$pages_liked = array_map(create_function('$o', 'return $o->subject_id;'), $pages_liked);
 	}
 
-	$page_params = null;
-	$page_params = [
+	$page_params[] = null;
+	$page_params[] = [
 		'key' => 'owner_id',
 		'value' => "= {$loggedin_user->id}",
 		'operation' => ''
@@ -46,7 +46,7 @@ $app->post($container['prefix'].'/business', function (Request $request, Respons
 
 	if ($pages_liked && count($pages_liked) > 0) {
 		$pages_liked = implode(',', $pages_liked);
-		$page_params = [
+		$page_params[] = [
 			'key' => 'id',
 			'value' => "IN ($pages_liked)",
 			'operation' => 'OR'
