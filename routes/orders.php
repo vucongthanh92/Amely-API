@@ -94,6 +94,7 @@ $app->post($container['prefix'].'/orders', function (Request $request, Response 
 });
 
 $app->put($container['prefix'].'/orders', function (Request $request, Response $response, array $args) {
+	$purchaseOrderService = PurchaseOrderService::getInstance();
 	$cartService = CartService::getInstance();
 	$paymentsService = PaymentsService::getInstance();
 	$productService = ProductService::getInstance();
