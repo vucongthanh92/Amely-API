@@ -79,7 +79,7 @@ class SupplyOrderService extends Services
 		$sm = $shippingService->getMethod($po->shipping_method);
 		$shipping = $sm->checkFee($checkFee_data);
 		if ($shipping) {
-			$so_data['shipping_fee'] = $shipping->fee->fee
+			$so_data['shipping_fee'] = $shipping->fee->fee;
 		} else {
 			$so_data['shipping_fee'] = 0;
 		}

@@ -11,6 +11,7 @@ $app->get($container['prefix'].'/cart', function (Request $request, Response $re
 	$loggedin_user = loggedin_user();
 	$carts['cart'] = [];
 	$carts['items'] = [];
+	$carts['stores'] = [];
 	$carts['tax'] = 0;
 	$carts['total'] = 0;
 	$carts['quantity'] = 0;
@@ -27,7 +28,7 @@ $app->get($container['prefix'].'/cart', function (Request $request, Response $re
 		$data = unserialize($data);
 		$time = time();
 		$time_affter_5m = $data['time'] + (5*60);
-		if ($time > $time_affter_5m) return response(false);
+		// if ($time > $time_affter_5m) return response(false);
 		
 		$cart = $cartService->getCartByType($data['cart_id'], 'id');
 		if (!$cart) return response($carts);
@@ -59,9 +60,11 @@ $app->get($container['prefix'].'/cart', function (Request $request, Response $re
 	$cart_items = $cartService->getCartItems($cart->id);
 	if (!$cart_items) return response($carts);
 	$total = $tax = $quantity = 0;
+	$stores = [];
 	foreach ($cart_items as $key => $cart_item) {
 		$product = $productService->getProductByType($cart_item->product_id, 'id');
 		$store = $storeService->getStoreByType($cart_item->store_id, 'id');
+		$carts['stores'][] = $store;
 		$product->store = $store;
 		$product->display_quantity = $cart_item->quantity;
 		$product->redeem_quantity = $cart_item->redeem_quantity;
