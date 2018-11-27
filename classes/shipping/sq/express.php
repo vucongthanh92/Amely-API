@@ -21,11 +21,7 @@ class Express extends \Object
 	public function process()
 	{	
 		$url = $this->url."services/shipment/order";
-
-		$items = $this->items;
-		$creator_id = $this->creator_id;
 		$so_id = $this->so_id;
-
 		$purchaseOrderService = \PurchaseOrderService::getInstance();
 		$deliveryOrderService = \DeliveryOrderService::getInstance();
 		$userService = \UserService::getInstance();
@@ -35,7 +31,6 @@ class Express extends \Object
 
 		$so = $supplyOrderService->getSOByType($so_id, 'id');
 		$po = $purchaseOrderService->getPOByType($so->owner_id, 'id');
-		$creator = $userService->getUserByType($creator_id, 'id', true);
 
 		$store = $storeService->getStoreByType($so->store_id, 'id', true);
 		$owner_store = $userService->getUserByType($store->id, 'chain_store');
@@ -51,27 +46,16 @@ class Express extends \Object
 			$total += $snapshot->display_price * $order_item['quantity'];
 			$quantity += ($order_item['quantity'] + $order_item['redeem_quantity']);
 			if ($owner_cart->chain_store != $order_item['store_id']) return false;
-		}
-		
-		foreach ($items as $key => $item) {
-			$snapshot = $snapshotService->getSnapshotByType($item['snapshot_id'], 'id');
+
 			$parmas = null;
 			$parmas['name'] = $snapshot->title;
 			$parmas['weight'] = $snapshot->weight;
 			$parmas['quantity'] = $item['quantity'];
-			$weight += $snapshot->weight * $item->quantity;
-			$total += $snapshot->display_price * $item->quantity;
 			array_push($products, $parmas);
 		}
-		$checkFee_data['province'] = $store->store_province_name;
-		$checkFee_data['district'] = $store->store_district_name;
-		$checkFee_data['address'] = $store->store_address;
-		$checkFee_data['weight'] = $weight;
-		$checkFee_data['total'] = $total;
-		$shipping = $this->checkFee($checkFee_data);
 		
 
-		$do_data['owner_id'] = $creator_id;
+		$do_data['owner_id'] = $po->owner_id;
 		$do_data['type'] = 'user';
 		$do_data['so_id'] = $so_id;
 		$do_data['order_items_snapshot'] = $so->order_items_snapshot;
@@ -84,7 +68,7 @@ class Express extends \Object
 		$do_data['shipping_ward'] = $po->shipping_ward;
 		$do_data['shipping_note'] = $po->shipping_note;
 		$do_data['shipping_method'] = $po->shipping_method;
-		$do_data['shipping_fee'] = $shipping->fee->fee;
+		$do_data['shipping_fee'] = $so->shipping_fee;
 		$do_id = $deliveryOrderService->save($do_data);
 
     // private $shipping_fullname;

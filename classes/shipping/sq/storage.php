@@ -3,8 +3,6 @@ namespace Amely\Shipping\SQ;
 
 class Storage extends \Object
 {
-
-	public $items;
 	public $creator_id;
 	public $so_id;
 
@@ -15,11 +13,15 @@ class Storage extends \Object
 	
 	public function process()
 	{	
-		$items = $this->items;
-		$creator_id = $this->creator_id;
 		$so_id = $this->so_id;
 
 		$inventoryService = \InventoryService::getInstance();
+		$supplyOrderService = \SupplyOrderService::getInstance();
+		$purchaseOrderService = \PurchaseOrderService::getInstance();
+
+		$so = $supplyOrderService->getSOByType($so_id, 'id');
+		$po = $purchaseOrderService->getPOByType($so->owner_id, 'id');
+
 		$itemService = \ItemService::getInstance();
 		$inventory_params = null;
 		$inventory_params[] = [
@@ -29,7 +31,7 @@ class Storage extends \Object
 		];
 		$inventory_params[] = [
 			'key' => 'owner_id',
-			'value' => "= {$creator_id}",
+			'value' => "= {$po->owner_id}",
 			'operation' => 'AND'
 		];
 		$inventory = $inventoryService->getInventory($inventory_params);
@@ -37,14 +39,18 @@ class Storage extends \Object
 			$inventory_id = $inventory->id;
 		} else {
 			$inventory_data = null;
-			$inventory_data['creator_id'] = $creator_id;
-			$inventory_data['owner_id'] = $creator_id;
+			$inventory_data['creator_id'] = $po->owner_id;
+			$inventory_data['owner_id'] = $po->owner_id;
 			$inventory_data['type'] = 'user';
 			$inventory_id = $inventoryService->save($inventory_data);
 		}
 
-		foreach ($items as $key => $item) {
-			$item_data = [];
+		$order_items = unserialize($so->order_items_snapshot);
+		if (!$order_items) return false;
+		$items_sos = [];
+		foreach ($order_items as $key => $item) {
+
+			$item_data = null;
 			$item_data['product_id'] = $item['product_id'];
 			$item_data['inventory_id'] = $inventory_id;
 			$item_data['quantity'] = $item['quantity'];
@@ -55,7 +61,6 @@ class Storage extends \Object
 			$itemService->save($item_data);
 		}
 		return true;
-
 	}
 
 	public function checkFee()

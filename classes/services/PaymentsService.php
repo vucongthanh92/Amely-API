@@ -101,9 +101,12 @@ class PaymentsService extends Services
 		$snapshotService = SnapshotService::getInstance();
 		$supplyOrderService = SupplyOrderService::getInstance();
 		$itemService = ItemService::getInstance();
+		$storeService = StoreService::getInstance();
+		$userService = UserService::getInstance();
 		if ($order_type == 'HD') {
 			$purchaseOrderService = PurchaseOrderService::getInstance();
 			$po = $purchaseOrderService->getPOByType($order_id, 'id');
+			$user = $userService->getUserByType($po->owner_id, 'id', true);
 			if (!$po) return false;
 			$order_items = unserialize($po->order_items_snapshot);
 			if (!$order_items) return false;
@@ -118,22 +121,40 @@ class PaymentsService extends Services
 
 			if ($items_sos) {
 				foreach ($items_sos as $kitems_so => $items_so) {
+
+					$store = $storeService->getStoreByType($kitems_so, 'id');
 					$order_items_snapshot = null;
-					$total = $quantity = 0;
+					$weight = $total = $quantity = 0;
 					foreach ($items_so as $kproduct_id => $item_so) {
-						$product = $productService->getProductByType($kproduct_id, 'id');
-						if ($product->snapshot_id != $item_so['snapshot_id']) return false;
+						$snapshot = $snapshotService->getSnapshotByType($item_so['snapshot_id'], 'id');
 						
 						$order_items_snapshot[] = [
 							'product_id' => $kproduct_id,
-							'price' => $product->display_price,
-							'snapshot_id' => $product->snapshot_id,
+							'price' => $snapshot->display_price,
+							'snapshot_id' => $snapshot->id,
 							'store_id' => $kitems_so,
 							'quantity' => $item_so['quantity'],
 							'redeem_quantity' => $item_so['redeem_quantity']
 						];
 						$quantity += $item_so['quantity'];
 						$total += $product->display_price * $item_so['quantity'];
+
+						$weight += $snapshot->weight * $item_so['quantity'];
+					}
+					$fee_data = null;
+					$fee_data['pick_province'] = $store->store_province_name;
+					$fee_data['pick_district'] = $store->store_district_name;
+					$fee_data['province'] = $user->province_name;
+					$fee_data['district'] = $user->district_name;
+					$fee_data['address'] = $user->full_address;
+					$fee_data['weight'] = $weight;
+					$fee_data['value'] = $total;
+
+					$so_data['shipping_fee'] = 0;
+					$sm = $shippingService->getMethod($po->shipping_method);
+					$shipping = $sm->checkFee($fee_data);
+					if ($shipping) {
+						$so_data['shipping_fee'] = $shipping->fee->fee;
 					}
 					$so_data['owner_id_po'] = $po->owner_id;
 					$so_data['owner_id'] = $po->id;
@@ -141,7 +162,6 @@ class PaymentsService extends Services
 					$so_data['time_created'] = $po->time_created;
 					$so_data['status'] = 0;
 					$so_data['store_id'] = $kitems_so;
-					$so_data['shipping_fee'] = 0;
 					$so_data['order_items_snapshot'] = serialize($order_items_snapshot);
 					$so_data['total'] = $total;
 					$so_data['quantity'] = $quantity;
@@ -160,11 +180,10 @@ class PaymentsService extends Services
 					// $so_id = $so->insert(true);
 					if ($so_id) {
 						$time = time();
-						$sp = $shippingService->getMethod($po->shipping_method);
-						$sp->so_id = $so_id;
-						$sp->creator_id = $po->owner_id;
-						$sp->items = $order_items_snapshot;
-						$sp->process();
+						$sm->so_id = $so_id;
+						$sm->creator_id = $po->owner_id;
+						$sm->items = $order_items_snapshot;
+						$sm->process();
 					}
 				}
 				return true;

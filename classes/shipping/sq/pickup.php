@@ -10,7 +10,7 @@ class Pickup extends \Object
 	
 	public function process()
 	{	
-		
+		return true;
 	}
 
 	public function checkFee()

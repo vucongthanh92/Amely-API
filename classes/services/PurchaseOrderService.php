@@ -26,6 +26,9 @@ class PurchaseOrderService extends Services
     	foreach ($data as $key => $value) {
     		$po->data->$key = $value;
     	}
+    	if ($data['payment_method'] == "quickpay/cos") {
+    		$po->data->shipping_method = "sq/storage";
+    	}
     	return $po->insert(true);
     }
 

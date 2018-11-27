@@ -52,6 +52,10 @@ $app->post($container['administrator'].'/shops', function (Request $request, Res
 	if (!array_key_exists('store_district', $params)) 	$params['store_district'] = 0;
 	if (!array_key_exists('store_ward', $params)) 		$params['store_ward'] = 0;
 
+	$shop = $shopService->getShopByType($params['owner_id'], 'owner_id');
+	if ($shop) return response(false);
+
+
 	if ($params['owner_id'] == $loggedin_user->id) {
 		$user = $loggedin_user;
 	} else {

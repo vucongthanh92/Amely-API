@@ -20,6 +20,7 @@ $app->post($container['administrator'].'/approval', function (Request $request, 
 	$loggedin_user = loggedin_user();
 	$params = $request->getParsedBody();
 	if (!$params) $params = [];
+	// subject_id array number
 	if (!array_key_exists('subject_id', $params)) 	return response(false);
 	if (!array_key_exists('subject_type', $params)) return response(false);
 

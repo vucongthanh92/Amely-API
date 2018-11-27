@@ -85,9 +85,7 @@ class COS extends \Object implements \Amely\Payment\IPaymentMethod
 				$purchaseOrderService->updateStatus($po->id, 1);
 
 				$sm = $shippingService->getMethod($po->shipping_method);
-				$items = $this->items;
-				$creator_id = $this->creator_id;
-				$so_id = $this->so_id;
+				$sm->so_id = $so_id;
 				$sm->process();
 				break;
 			case 2:
