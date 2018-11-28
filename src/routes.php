@@ -79,21 +79,21 @@ $paymentsService->registerMethod([
     'capacity' => ['process','deposit']
 ]);
 
-// $paymentsService->registerMethod([
-//     'filename' => 'quickpay/cod',
-//     'component' => 'Amely',
-//     'classname' => 'QuickPay\\COD',
-//     'displayname' => "Tiền mặt giao hàng",
-//     'capacity' => ['process','deposit']
-// ]);
+$paymentsService->registerMethod([
+    'filename' => 'quickpay/cod',
+    'component' => 'Amely',
+    'classname' => 'QuickPay\\COD',
+    'displayname' => "Tiền mặt giao hàng",
+    'capacity' => ['process','deposit']
+]);
 
-// $paymentsService->registerMethod([
-//     'filename' => 'quickpay/cos',
-//     'component' => 'Amely',
-//     'classname' => 'QuickPay\\COS',
-//     'displayname' => "Tiền mặt, hàng vào kho",
-//     'capacity' => ['process','deposit']
-// ]);
+$paymentsService->registerMethod([
+    'filename' => 'quickpay/cos',
+    'component' => 'Amely',
+    'classname' => 'QuickPay\\COS',
+    'displayname' => "Tiền mặt, hàng vào kho",
+    'capacity' => ['process','deposit']
+]);
 
 foreach ($routes as $key => $route) {
     require $route;
