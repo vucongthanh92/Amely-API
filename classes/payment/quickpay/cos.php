@@ -31,7 +31,8 @@ class COS extends \Object implements \Amely\Payment\IPaymentMethod
     	$supplyOrderService = \SupplyOrderService::getInstance();
     	$storeService = \StoreService::getInstance();
     	$snapshotService = \SnapshotService::getInstance();
-
+    	$userService = \UserService::getInstance();
+    	
     	$po = $purchaseOrderService->getPOByType($po_id, 'id');
     	$to = $userService->getUserByType($po->owner_id, 'id');
     	$notify_data['from'] = $owner_cart;
