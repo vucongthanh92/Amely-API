@@ -27,10 +27,10 @@ class COS extends \Object implements \Amely\Payment\IPaymentMethod
 		$owner_cart = $this->owner_cart;
 
 		$notificationService = \NotificationService::getInstance();
-		$purchaseOrderService = PurchaseOrderService::getInstance();
-    	$supplyOrderService = SupplyOrderService::getInstance();
-    	$storeService = StoreService::getInstance();
-    	$snapshotService = SnapshotService::getInstance();
+		$purchaseOrderService = \PurchaseOrderService::getInstance();
+    	$supplyOrderService = \SupplyOrderService::getInstance();
+    	$storeService = \StoreService::getInstance();
+    	$snapshotService = \SnapshotService::getInstance();
 
     	$po = $purchaseOrderService->getPOByType($po_id, 'id');
     	$to = $userService->getUserByType($po->owner_id, 'id');
