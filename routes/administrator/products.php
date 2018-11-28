@@ -57,7 +57,6 @@ $app->get($container['administrator'].'/products', function (Request $request, R
 	return response($product);
 });
 
-
 $app->post($container['administrator'].'/products', function (Request $request, Response $response, array $args) {
 	$productService = ProductService::getInstance();
 	$snapshotService = SnapshotService::getInstance();
@@ -71,6 +70,7 @@ $app->post($container['administrator'].'/products', function (Request $request, 
     
     
 	if (!$params) $params = [];
+	if (!array_key_exists('id', $params)) $params['id'] = false;
 	if (!array_key_exists('owner_id', $params)) $params['owner_id'] = false;
 	if (!array_key_exists('type', $params)) $params['type'] = 'shop';
 	if (!array_key_exists('title', $params)) $params['title'] = 0;
@@ -112,6 +112,9 @@ $app->post($container['administrator'].'/products', function (Request $request, 
 	$product = $productService->checkSKU($params['sku']);
 	$product_data = [];
 	if ($product) return response(false);
+	if ($params['id']) {
+		$product_data['id'] = $params['id'];
+	}
 	if ($params['tag']) {
 		$params['tag'] = implode(',', $params['tag']);
 	}
@@ -161,4 +164,150 @@ $app->post($container['administrator'].'/products', function (Request $request, 
 	$product_data['images'] = $params['images'];
 
 	return response($productService->save($product_data));
+});
+
+$app->put($container['administrator'].'/products', function (Request $request, Response $response, array $args) {
+	$productService = ProductService::getInstance();
+	$shopService = ShopService::getInstance();
+	$storeService = StoreService::getInstance();
+	$categoryService = CategoryService::getInstance();
+	$loggedin_user = loggedin_user();
+	$params = $request->getParsedBody();
+	if (!$params) $params = [];
+	if (!array_key_exists('shop_id', $params)) 		$params['shop_id'] = false;
+	if (!array_key_exists('type_product', $params)) 	$params['type_product'] = false;
+	if (!array_key_exists('category_id', $params)) 	$params['category_id'] = false;
+	if (!array_key_exists('product_filter', $params)) 	$params['product_filter'] = false;
+	if (!array_key_exists('offset', $params)) 			$params['offset'] = 0;
+	if (!array_key_exists('limit', $params)) 			$params['limit'] = 10;
+
+	$shop_id = $params['shop_id'];
+	$type_product = $params['type_product'];
+	$category_id = $params['category_id'];
+	$product_filter = $params['product_filter'];
+	$offset = $params['offset'];
+	$limit = $params['limit'];
+
+	$product_params[] = [
+		'key' => 'id',
+		'value' => 'DESC',
+		'operation' => 'order_by'
+	];
+	$product_params[] = [
+		'key' => "status",
+		'value' => "= 1",
+		'operation' => ''
+	];
+	if ($product_filter) {
+		$product_params[] = [
+			'key' => 'product_group',
+			'value' => "= {$product_filter}",
+			'operation' => 'AND'
+		];
+	}
+
+	if ($category_id) {
+		$product_params[] = [
+			'key' => 'approved',
+			'value' => "REGEXP '^[0-9]+$'",
+			'operation' => 'AND'
+		];
+
+		$product_params[] = [
+			'key' => "FIND_IN_SET({$category_id}, category)",
+			'value' => '',
+			'operation' => 'AND'
+		];
+
+	} else {
+		if ($shop_id) {
+			$product_params[] = [
+				'key' => 'approved',
+				'value' => "REGEXP '^[0-9]+$'",
+				'operation' => 'AND'
+			];
+			$product_params[] = [
+				'key' => 'owner_id',
+				'value' => "= {$shop_id}",
+				'operation' => 'AND'
+			];
+		}
+	}
+	if ($params['type_product']) {
+		switch ($type_product) {
+			case 'featured':
+				$product_params[] = [
+					'key' => 'featured',
+					'value' => "= 1",
+					'operation' => 'AND'
+				];
+				break;
+			case 'default':
+				$product_params[] = [
+					'key' => 'is_special',
+					'value' => "= 0",
+					'operation' => 'AND'
+				];
+				break;
+			case 'voucher':
+				$product_params[] = [
+					'key' => 'is_special',
+					'value' => "= 1",
+					'operation' => 'AND'
+				];
+				break;
+			case 'ticket':
+			    $product_params[] = [
+					'key' => 'is_special',
+					'value' => "= 2",
+					'operation' => 'AND'
+				];
+				break;
+			default:
+				break;
+		}
+	}
+
+	$products = $productService->getProducts($product_params, $offset, $limit);
+	if (!$products) return response(false);
+
+	$categories = $categories_id = [];
+	foreach ($products as $product) {
+		if ($product->category) {
+			$arr = explode(',', $product->category);
+			$categories_id = array_merge((array)$categories_id, (array)$arr);
+		}
+	}
+
+	if ($categories_id) {
+		$categories_id = array_unique($categories_id);
+		if ($categories_id) {
+			$categories_id = implode(',', $categories_id);
+			$categories = $categoryService->getCategoriesByType($categories_id, 'id');
+			foreach ($products as $key => $product) {
+				if ($params['shop_id']) {
+					$product->quantity = 0;
+					$store_quantity = ProductStoreService::getInstance()->checkQuantityInStore($product->id, $loggedin_user->chain_store);
+					if ($store_quantity) {
+						$product->quantity = $store_quantity->quantity;
+					}
+				}
+				if ($categories) $product->categories = $categories;
+				$products[$key] = $product;
+			}
+		}
+	}
+
+	return response(array_values($products));
+});
+
+$app->delete($container['administrator'].'/products', function (Request $request, Response $response, array $args) {
+	$productService = ProductService::getInstance();
+	$params = $request->getQueryParams();
+	if (!$params) $params = [];
+	if (!array_key_exists('id', $params)) $params['id'] = false;
+	$product = $productService->getProductByType($params['id'], 'id');
+	if (!$product) return response(false);
+	
+	return response($productService->updateStatus($product->id, 2));
 });
