@@ -208,7 +208,18 @@ $app->put($container['prefix'].'/orders', function (Request $request, Response $
 		$pm->payment_method = $params['payment_method'];
 		$url = $pm->process();
 		if (!$url) return response(false);
-		return response(["url" => $url]);
+
+		if ($params['payment_method'] == 'quickpay/cod' || $params['payment_method'] == 'quickpay/cos') {
+			return response([
+				"status" => false,
+				"url" => ""
+			]);
+		} else {
+			return response([
+				"status" => true,
+				"url" => $url
+			]);
+		}
 	}
 	return response(false);
 });
