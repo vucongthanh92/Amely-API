@@ -56,7 +56,7 @@ class NotificationService extends Services
     		case 'order:request':
     			$target = ORDER_REQUEST;
 				$owner_id = $data['to']->id;
-				$owner_type = 'user';
+				$owner_type = 'store';
 				$notify_token = $tokenService->getNotifyToken($owner_id, $owner_type);
 				$from_id = $data['from']->id;
 				$from_type = 'user';
@@ -69,7 +69,7 @@ class NotificationService extends Services
     		case 'order:request:quickpay':
     			$target = ORDER_REQUEST_QUICKPAY;
 				$owner_id = $data['to']->id;
-				$owner_type = 'user';
+				$owner_type = 'store';
 				$notify_token = $tokenService->getNotifyToken($owner_id, $owner_type);
 				$from_id = $data['from']->id;
 				$from_type = 'user';
