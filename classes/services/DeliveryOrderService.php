@@ -64,6 +64,14 @@ class DeliveryOrderService extends Services
 	private function changeStructureInfo($do)
 	{
 		$do->display_order = convertPrefixOrder("GH", $do->id, $do->time_created);
+
+		$do_shipping_province = $addressService->getAddress($do->shipping_province, 'province');
+		$do_shipping_district = $addressService->getAddress($do->shipping_district, 'district');
+		$do_shipping_ward = $addressService->getAddress($do->shipping_ward, 'ward');
+
+	    $do->shipping_province_name = $do_shipping_province->name;
+	    $do->shipping_district_name = $do_shipping_district->name;
+	    $do->shipping_ward_name = $do_shipping_ward->name;
 		return $do;
 	}
 

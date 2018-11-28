@@ -8,7 +8,8 @@ $app->get($container['prefix'].'/orders', function (Request $request, Response $
 	$snapshotService = SnapshotService::getInstance();
 	$storeService = StoreService::getInstance();
 	$shopService = ShopService::getInstance();
-
+	$userService = UserService::getInstance();
+	$deliveryOrderService = DeliveryOrderService::getInstance();
 	$loggedin_user = loggedin_user();
 	$params = $request->getQueryParams();
 	if (!$params) $params = [];
@@ -18,14 +19,15 @@ $app->get($container['prefix'].'/orders', function (Request $request, Response $
 	if (!$params['po_id'] && !$params['so_id']) return response(false);
 
 	if ($params['po_id']) {
-		$order = $purchaseOrderService->getPOByType($params['po_id'], 'id');
+		$po = $purchaseOrderService->getPOByType($params['po_id'], 'id');
+		$order_items = unserialize($po->order_items_snapshot);
 	}
 	if ($params['so_id']) {
-		$order = $supplyOrderService->getSOByType($params['po_id'], 'id');	
+		$so = $supplyOrderService->getSOByType($params['so_id'], 'id');
+		$order_items = unserialize($so->order_items_snapshot);
+		$po = $purchaseOrderService->getPOByType($so->owner_id, 'id');
 	}
 
-	if (!$order) return response(false);
-	$order_items = unserialize($order->order_items_snapshot);
 
 	if (!$order_items) return response(false);
 	$result = $shops_id = $stores_id = $snapshots_id = [];
@@ -45,6 +47,13 @@ $app->get($container['prefix'].'/orders', function (Request $request, Response $
 	$snapshots_id = implode(',', array_unique($snapshots_id));
 	$snapshots = $snapshotService->getSnapshotsByType($snapshots_id, 'id');
 
+	$result['po'] = $po;
+	if ($params['so_id']) {
+		$do = $deliveryOrderService->getDOByType($so->id, 'so_id');
+		if ($do) {
+			$result['do'] = $do;
+		}
+	}
 	$result['total'] = 0;
 	foreach ($stores as $store) {
 		$total = $tax = 0;
@@ -77,7 +86,12 @@ $app->get($container['prefix'].'/orders', function (Request $request, Response $
 		$store->total = $total;
 		$store->tax = $tax;
 		$result['stores'][] = $store;
+		$result['owner_store'][] = $userService->getUserByType($store->id, 'chain_store', true);
 	}
+
+	$result['customer'] = $userService->getUserByType($po->owner_id, 'id', true);
+
+
 
 	return response($result);
 });
