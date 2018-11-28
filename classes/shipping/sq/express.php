@@ -22,6 +22,8 @@ class Express extends \Object
 	{	
 		$url = $this->url."services/shipment/order";
 		$so_id = $this->so_id;
+
+
 		$purchaseOrderService = \PurchaseOrderService::getInstance();
 		$deliveryOrderService = \DeliveryOrderService::getInstance();
 		$userService = \UserService::getInstance();
@@ -31,7 +33,6 @@ class Express extends \Object
 
 		$so = $supplyOrderService->getSOByType($so_id, 'id');
 		$po = $purchaseOrderService->getPOByType($so->owner_id, 'id');
-
 		$store = $storeService->getStoreByType($so->store_id, 'id', true);
 		$owner_store = $userService->getUserByType($store->id, 'chain_store');
 

@@ -77,7 +77,6 @@ $app->get($container['prefix'].'/payment_response', function (Request $request, 
 					# code...
 					break;
 			}
-
 			break;
 		case 1:
 			return response(true);

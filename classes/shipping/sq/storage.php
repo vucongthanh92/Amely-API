@@ -18,10 +18,13 @@ class Storage extends \Object
 		$inventoryService = \InventoryService::getInstance();
 		$supplyOrderService = \SupplyOrderService::getInstance();
 		$purchaseOrderService = \PurchaseOrderService::getInstance();
+		$userService = \UserService::getInstance();
+		$notificationService = \NotificationService::getInstance();
+		$storeService = \StoreService::getInstance();
 
 		$so = $supplyOrderService->getSOByType($so_id, 'id');
 		$po = $purchaseOrderService->getPOByType($so->owner_id, 'id');
-
+		
 		$itemService = \ItemService::getInstance();
 		$inventory_params = null;
 		$inventory_params[] = [
@@ -60,6 +63,7 @@ class Storage extends \Object
 			$item_data['so_id'] = $so_id;
 			$itemService->save($item_data);
 		}
+
 		return true;
 	}
 

@@ -32,7 +32,7 @@ class NotificationService extends Services
 				$owner_id = $data['to']->id;
 				$owner_type = 'user';
 				$notify_token = $tokenService->getNotifyToken($owner_id, $owner_type);
-				$from_id = $data['from']->id;
+				$from_id = 1;
 				$from_type = 'user';
 				$to_id = $data['to']->id;
 				$to_type = 'user';
@@ -45,7 +45,7 @@ class NotificationService extends Services
 				$owner_id = $data['to']->id;
 				$owner_type = 'user';
 				$notify_token = $tokenService->getNotifyToken($owner_id, $owner_type);
-				$from_id = $data['from']->id;
+				$from_id = 1;
 				$from_type = 'user';
 				$to_id = $data['to']->id;
 				$to_type = 'user';

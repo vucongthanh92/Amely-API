@@ -96,6 +96,7 @@ class PaymentsService extends Services
 
 	public function processOrder($order_id, $order_type = 'HD')
 	{
+		$notificationService = NotificationService::getInstance();
 		$shippingService = ShippingService::getInstance();
 		$productService = ProductService::getInstance();
 		$snapshotService = SnapshotService::getInstance();
@@ -103,8 +104,8 @@ class PaymentsService extends Services
 		$itemService = ItemService::getInstance();
 		$storeService = StoreService::getInstance();
 		$userService = UserService::getInstance();
+		$purchaseOrderService = PurchaseOrderService::getInstance();
 		if ($order_type == 'HD') {
-			$purchaseOrderService = PurchaseOrderService::getInstance();
 			$po = $purchaseOrderService->getPOByType($order_id, 'id');
 			$user = $userService->getUserByType($po->owner_id, 'id', true);
 			if (!$po) return false;
@@ -188,6 +189,14 @@ class PaymentsService extends Services
 				}
 				return true;
 			}
+
+			$owner_store = $userService->getUserByType($store->id, 'chain_store');
+			$to = $userService->getUserByType($po->owner_id, 'id');
+
+			$notify_data['from'] = 1;
+	    	$notify_data['to'] = $to;
+	    	$notify_data['subject_id'] = $po->id;
+	    	$notificationService->save($notify_data, "order:approval");
 		}
 		return false;
 	}
