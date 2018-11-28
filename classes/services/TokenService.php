@@ -45,7 +45,7 @@ class TokenService extends Services
 		];
 		$conditions[] = [
 			'key' => 'type',
-			'value' => "= 'user'",
+			'value' => "= '{$type}'",
 			'operation' => "AND"
 		];
 		$token = $this->searchObject($conditions, 0, 1);
