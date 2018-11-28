@@ -75,7 +75,7 @@ $app->get($container['prefix'].'/profile', function (Request $request, Response 
 });
 
 $app->patch($container['prefix'].'/profile', function (Request $request, Response $response, array $args) {
-
+	$userService = UserService::getInstance();
 	$loggedin_user = loggedin_user();
 	$params = $request->getParsedBody();
 	if (!$params) $params = [];
@@ -92,20 +92,21 @@ $app->patch($container['prefix'].'/profile', function (Request $request, Respons
 	if (!array_key_exists('ward', $params)) 			$params['ward'] = false;
 	if (!array_key_exists('address', $params)) 			$params['address'] = false;
 
-	$user = new User();
-	$user->id = $loggedin_user->id;
-	$user->data->first_name = $params['firstname'];
-	$user->data->last_name = $params['lastname'];
-	$user->data->gender = $params['gender'];
-	$user->data->birthdate = $params['birthdate'];
-	$user->data->usercurrency = $params['usercurrency'];
-	$user->data->friends_hidden = $params['friends_hidden'];
-	$user->data->birthdate_hidden = $params['birthdate_hidden'];
-	$user->data->mobile_hidden = $params['mobile_hidden'];
-	$user->data->province = $params['province'];
-	$user->data->district = $params['district'];
-	$user->data->ward = $params['ward'];
-	$user->data->address = $params['address'];
-	$user->where = "id = {$loggedin_user->id}";
-	return response($user->update());
+	$user_data['id'] = $loggedin_user->id;
+	$user_data['first_name'] = $params['firstname'];
+	$user_data['last_name'] = $params['lastname'];
+	$user_data['birthdate'] = $params['birthdate'];
+	$user_data['gender'] = $params['gender'];
+	$user_data['usercurrency'] = $params['usercurrency'];
+	$user_data['province'] = $params['province'];
+	$user_data['district'] = $params['district'];
+	$user_data['ward'] = $params['ward'];
+	$user_data['address'] = $params['address'];
+	$user_data['friends_hidden'] = $params['friends_hidden'];
+	$user_data['birthdate_hidden'] = $params['birthdate_hidden'];
+	$user_data['mobile_hidden'] = $params['mobile_hidden'];
+	$user_data['language'] = "VN";
+	$userService->save($user_data);
+
+	return response(true);
 });

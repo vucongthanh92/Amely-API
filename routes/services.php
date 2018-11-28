@@ -24,17 +24,17 @@ $app->get($container['prefix'].'/services', function (Request $request, Response
 })->setName('services');
 
 $app->post($container['prefix'].'/services', function (Request $request, Response $response, array $args) {
-	$imageService = ImageService::getInstance();
-	$uploadedFile = $uploadedFiles['logo'];
-    if ($uploadedFile->getError() === UPLOAD_ERR_OK) {
-        $files = $request->getUploadedFiles();
-        $file = $files['logo'];
-		$category_params['logo'] = $files['logo']->getClientFilename();
-		$filename = $category_params['logo'];
-		$filename = rand();
-		$imageService->uploadImage(99999, 'test', 'images', $file, $filename);
-		return response($filename);
-    }
+	// $imageService = ImageService::getInstance();
+	// $uploadedFile = $uploadedFiles['logo'];
+ //    if ($uploadedFile->getError() === UPLOAD_ERR_OK) {
+ //        $files = $request->getUploadedFiles();
+ //        $file = $files['logo'];
+	// 	$category_params['logo'] = $files['logo']->getClientFilename();
+	// 	$filename = $category_params['logo'];
+	// 	$filename = rand();
+	// 	$imageService->uploadImage(99999, 'test', 'images', $file, $filename);
+	// 	return response($filename);
+ //    }
     return response(false);
 
 })->setName('services');

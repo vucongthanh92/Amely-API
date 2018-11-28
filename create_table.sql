@@ -49,7 +49,8 @@ CREATE TABLE `amely_shipping` (
   `time_created` int(11) NOT NULL,
   `shipping_method` text,
   `request` text,
-  `response` text
+  `response` text,
+  `status` text
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 DROP TABLE IF EXISTS `amely_usertokens`;

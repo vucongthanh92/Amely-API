@@ -74,6 +74,9 @@ class PurchaseOrderService extends Services
 
 	private function changeStructureInfo($po)
 	{
+		if (!$po->shipping_fee) {
+			$po->shipping_fee = 0;
+		}
 		$addressService = AddressService::getInstance();
 		$po->display_order = convertPrefixOrder("HD", $po->id, $po->time_created);
 		if ($po->payment_province && $po->payment_district && $po->payment_ward) {
@@ -84,6 +87,12 @@ class PurchaseOrderService extends Services
 		    $po->payment_province_name = $po_payment_province->name;
 		    $po->payment_district_name = $po_payment_district->name;
 		    $po->payment_ward_name = $po_payment_ward->name;
+
+		    $po_payment_province = $po_payment_province->type .' '. $po_payment_province->name;
+		    $po_payment_district = $po_payment_district->type .' '. $po_payment_district->name;
+		    $po_payment_ward = $po_payment_ward->type .' '. $po_payment_ward->name;
+
+		    $po->payment_full_address = $po->payment_address.', '.$po_payment_ward.', '.$po_payment_district.', '.$po_payment_province;
 		}
 
 		if ($po->shipping_province && $po->shipping_district && $po->shipping_ward) {
@@ -94,6 +103,12 @@ class PurchaseOrderService extends Services
 		    $po->shipping_province_name = $po_shipping_province->name;
 		    $po->shipping_district_name = $po_shipping_district->name;
 		    $po->shipping_ward_name = $po_shipping_ward->name;
+
+		    $po_shipping_province = $po_shipping_province->type .' '. $po_shipping_province->name;
+		    $po_shipping_district = $po_shipping_district->type .' '. $po_shipping_district->name;
+		    $po_shipping_ward = $po_shipping_ward->type .' '. $po_shipping_ward->name;
+
+		    $po->shipping_full_address = $po->shipping_address.', '.$po_shipping_ward.', '.$po_shipping_district.', '.$po_shipping_province;
 		}
 
 		return $po;
