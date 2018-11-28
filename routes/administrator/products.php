@@ -2,6 +2,61 @@
 use Slim\Http\Request;
 use Slim\Http\Response;
 
+$app->get($container['administrator'].'/products', function (Request $request, Response $response, array $args) {
+	$productService = ProductService::getInstance();
+	$shopService = ShopService::getInstance();
+	$storeService = StoreService::getInstance();
+	$categoryService = CategoryService::getInstance();
+	$productStoreService = ProductStoreService::getInstance();
+	$params = $request->getQueryParams();
+	if (!$params) $params = [];
+	if (!array_key_exists('id', $params)) $params['id'] = false;
+	$input = $type = false;
+	$input = $params['id'];
+	$type = 'id';
+	
+	if (!$input && !$type) return response(false);
+	$product = $productService->getProductByType($input, $type);
+	if (!$product) return response(false);
+	
+	$product_stores = $productStoreService->getQuantityByType($product->id, 'product_id');
+	$stores = array_map(create_function('$o', 'return $o->store_id;'), $product_stores);
+	$stores = implode(',', $stores);
+
+	$shop = $shopService->getShopByType($product->owner_id, 'id');
+	if (!$shop) return response(false);
+	if (!$stores) return response(false);
+
+	$stores = $storeService->getStoresByType($stores, 'id');
+	foreach ($stores as $key => $store) {
+		foreach ($product_stores as $product_store) {
+			if ($product_store->store_id == $store->id) {
+				$store->quantity = $product_store->quantity;
+			}
+		}
+		$stores[$key] = $store;
+	}
+	$shop->stores = $stores;
+
+	$product->shop = $shop;
+	if ($product->category) {
+		$categories_id = $product->category;
+		if ($categories_id) {
+			$category_params = null;
+			$category_params[] = [
+				'key' => 'id',
+				'value' => "IN ({$categories_id})",
+				'operation' => ''
+			];
+			$categories = $categoryService->getCategories($category_params, 0, 99999999);
+			if (!$categories) return response(false);
+			$product->categories = $categories;
+		}
+	}
+	if (!$product) return response(false);
+	return response($product);
+});
+
 
 $app->post($container['administrator'].'/products', function (Request $request, Response $response, array $args) {
 	$productService = ProductService::getInstance();
