@@ -12,7 +12,10 @@ $app->get($container['administrator'].'/users', function (Request $request, Resp
 
 	$user = $userService->getUserByType($params['username'], 'username', true);
 	$shop = $shopService->getShopByType($user->id, 'owner_id', false);
-	if ($shop) return response(false);
+	if ($shop) return response([
+		'status' => false,
+		'error' => "shop_exist"
+	]);
 	return response($user);
 });
 
