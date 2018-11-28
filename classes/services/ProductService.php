@@ -77,8 +77,8 @@ class ProductService extends Services
     public function checkSKU($sku)
     {
     	$product = $this->getProductByType($sku, 'sku');
-    	if (!$product) return response(false);
-    	return response($product);
+    	if (!$product) return false;
+    	return $product;
     }
 
     public function getPropertyProductByType($input, $type = 'id')
