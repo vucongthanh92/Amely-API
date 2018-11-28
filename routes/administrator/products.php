@@ -195,7 +195,7 @@ $app->put($container['administrator'].'/products', function (Request $request, R
 	];
 	$product_params[] = [
 		'key' => "status",
-		'value' => "= 1",
+		'value' => "IN (0,1)",
 		'operation' => ''
 	];
 	if ($product_filter) {
