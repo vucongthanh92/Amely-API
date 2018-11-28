@@ -15,7 +15,7 @@ $app->post($container['prefix'].'/notification', function (Request $request, Res
 
 	if ($params['notify_token']) {
 		$tokenService = TokenService::getInstance();
-		$tokenService->updateNotifyToken($params['notify_token'], $loggedin_user->id, "user");
+		$tokenService->updateNotifyToken($params['notify_token'], $loggedin_user->id, $params['type']);
 	}
 	$owner_id = false;
 	switch ($params['type']) {
