@@ -83,10 +83,11 @@ $app->get($container['prefix'].'/orders', function (Request $request, Response $
 			}
 		}
 		$result['total'] = $result['total'] + $total;
+
+		$store->owner = $userService->getUserByType($store->id, 'chain_store', true);
 		$store->total = $total;
 		$store->tax = $tax;
 		$result['stores'][] = $store;
-		$result['owner_store'][] = $userService->getUserByType($store->id, 'chain_store', true);
 	}
 
 	$result['customer'] = $userService->getUserByType($po->owner_id, 'id', true);
