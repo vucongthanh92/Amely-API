@@ -23,7 +23,7 @@ $app->post($container['prefix'].'/notification', function (Request $request, Res
 			$owner_id = $loggedin_user->id;
 			$owner_type = 'user';
 			break;
-		case 'store':
+		case 'shop':
 			if ($loggedin_user->chain_store) {
 				$owner_id = $loggedin_user->chain_store;
 			}
