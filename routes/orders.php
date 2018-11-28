@@ -85,7 +85,7 @@ $app->get($container['prefix'].'/orders', function (Request $request, Response $
 $app->post($container['prefix'].'/orders', function (Request $request, Response $response, array $args) {
 	$paymentsService = PaymentsService::getInstance();
 	$shippingService = ShippingService::getInstance();
-	
+
     return response([
 		"shipping_methods" => $shippingService->getMethods(),
 		"payment_methods" => $paymentsService->findMethodsByCapacity('process')
@@ -210,10 +210,7 @@ $app->put($container['prefix'].'/orders', function (Request $request, Response $
 		if (!$url) return response(false);
 
 		if ($params['payment_method'] == 'quickpay/cod' || $params['payment_method'] == 'quickpay/cos') {
-			return response([
-				"status" => false,
-				"url" => ""
-			]);
+			return response(true);
 		} else {
 			return response([
 				"status" => true,

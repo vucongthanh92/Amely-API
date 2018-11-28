@@ -35,8 +35,8 @@ class COS extends \Object implements \Amely\Payment\IPaymentMethod
     	
     	$po = $purchaseOrderService->getPOByType($po_id, 'id');
     	$to = $userService->getUserByType($po->owner_id, 'id');
-    	$notify_data['from'] = $owner_cart;
-    	$notify_data['to'] = $to;
+    	$notify_data['from'] = $to;
+    	$notify_data['to'] = $owner_cart;
     	$notify_data['subject_id'] = $po->id;
     	$notificationService->save($notify_data, "order:request:quickpay");
 
