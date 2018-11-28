@@ -39,7 +39,7 @@ $app->post($container['prefix'].'/authtoken', function (Request $request, Respon
 		];
 	}
 	$input = $params['username'];
-	if ($params['type'] == 'shop') {
+	if ($params['type'] == 'store') {
 		$user_params[] = [
 			'key' => 'chain_store',
 			'value' => "<> ''",
