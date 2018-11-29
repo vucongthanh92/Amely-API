@@ -179,11 +179,11 @@ class PaymentsService extends Services
 					// $so->data->total = $total;
 					// $so->data->quantity = $quantity;
 					// $so_id = $so->insert(true);
+					var_dump($so_id);die('123');
 					if ($so_id) {
 						$sm = $shippingService->getMethod($po->shipping_method);
 						$time = time();
 						$sm->so_id = $so_id;
-						var_dump($sm);die();
 						$sm->process();
 					}
 				}
