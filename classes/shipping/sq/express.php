@@ -32,6 +32,7 @@ class Express extends \Object
 		$snapshotService = \SnapshotService::getInstance();
 
 		$so = $supplyOrderService->getSOByType($so_id, 'id');
+		var_dump($so);die('test so');
 		if (!$so) return false;
 		$po = $purchaseOrderService->getPOByType($so->owner_id, 'id');
 		$store = $storeService->getStoreByType($so->store_id, 'id', true);
