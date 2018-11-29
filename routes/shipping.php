@@ -3,37 +3,46 @@ use Slim\Http\Request;
 use Slim\Http\Response;
 
 $app->post($container['prefix'].'/shipping', function (Request $request, Response $response, array $args) {
+	$itemService = ItemService::getInstance();
+	$storeService = StoreService::getInstance();
+	$snapshotService = SnapshotService::getInstance();
+	$addressService = AddressService::getInstance();
+
 	$loggedin_user = loggedin_user();
 	$params = $request->getParsedBody();
 	if (!$params) $params = [];
 	if (!array_key_exists('shipping_method', $params)) $params['shipping_method'] = false;
-	if (!array_key_exists('pick_province', $params)) $params['pick_province'] = false;
-	if (!array_key_exists('pick_district', $params)) $params['pick_district'] = false;
-	if (!array_key_exists('pick_address', $params)) $params['pick_address'] = false;
 	if (!array_key_exists('item_id', $params)) $params['item_id'] = false;
 	if (!array_key_exists('cart_id', $params)) $params['cart_id'] = false;
+	if (!array_key_exists('shipping_province', $params)) $params['shipping_province'] = false;
+	if (!array_key_exists('shipping_district', $params)) $params['shipping_district'] = false;
+	if (!array_key_exists('shipping_address', $params)) $params['shipping_address'] = false;
 
-	$data = [];
-	$data['pick_province'] = $params['pick_province'];
-	$data['pick_district'] = $params['pick_district'];
-	$data['pick_address'] = $params['pick_address'];
+	$fee_data = [];
+	$shipping_province = $addressService->getAddress($params['shipping_province'], 'province');
+	$shipping_district = $addressService->getAddress($params['shipping_district'], 'district');
+    $shipping_province_name = $shipping_province->name;
+    $shipping_district_name = $shipping_district->name;
+
+	$fee_data['province'] = $shipping_province_name;
+	$fee_data['district'] = $shipping_district_name;
+	$fee_data['address'] = $params['shipping_address'];
+
+
 	if ($params['item_id']) {
-		$itemService = ItemService::getInstance();
-		$storeService = StoreService::getInstance();
-		$snapshotService = SnapshotService::getInstance();
 		$item = $itemService->getItemByType($params['item_id'], 'id');
 		$snapshot = $snapshotService->getSnapshotByType($item->snapshot_id, 'id');
 		$store = $storeService->getStoreByType($item->store_id, 'id');
 		
-		$data['province'] = $store->store_province_name;
-		$data['district'] = $store->store_district_name;
-		$data['address'] = $store->store_address;
-		$data['weight'] = $snapshot->weight * $item->quantity;
-		$data['total'] = $snapshot->display_price * $item->quantity;
+		$fee_data['pick_province'] = $store->store_province_name;
+		$fee_data['pick_district'] = $store->store_district_name;
+		$fee_data['address'] = $store->store_address;
+		$fee_data['weight'] = $snapshot->weight * $item->quantity;
+		$fee_data['total'] = $snapshot->display_price * $item->quantity;
 
 		$shippingService = ShippingService::getInstance();
 		$sm = $shippingService->getMethod($params['shipping_method']);
-		$shipping = $sm->checkFee($data);
+		$shipping = $sm->checkFee($fee_data);
 		if (!$shipping->fee->delivery) {
 			return response([
 				"status" => false,
@@ -69,15 +78,15 @@ $app->post($container['prefix'].'/shipping', function (Request $request, Respons
 		$str = [];
 		$total_fee = 0;
 		foreach ($stores as $key => $store) {
-			$data['province'] = $store['province'];
-			$data['district'] = $store['district'];
-			$data['address'] = $store['address'];
-			$data['weight'] = $store['weight'];
-			$data['total'] = $store['total'];
+			$fee_data['pick_province'] = $store['province'];
+			$fee_data['pick_district'] = $store['district'];
+			$fee_data['address'] = $store['address'];
+			$fee_data['weight'] = $store['weight'];
+			$fee_data['total'] = $store['total'];
 
 			$shippingService = ShippingService::getInstance();
 			$sm = $shippingService->getMethod($params['shipping_method']);
-			$shipping = $sm->checkFee($data);
+			$shipping = $sm->checkFee($fee_data);
 
 			if (!$shipping->fee->delivery) {
 				$error += 1;
