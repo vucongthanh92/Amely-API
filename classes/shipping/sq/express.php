@@ -3,7 +3,7 @@ namespace Amely\Shipping\SQ;
 
 class Express extends \Object
 {
-	private $so_id;
+	public $so_id;
 	private $url;
 	private $ghtk_token;
 	private $return_transfer;
