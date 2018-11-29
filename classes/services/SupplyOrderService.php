@@ -24,7 +24,9 @@ class SupplyOrderService extends Services
     {
     	$notificationService = NotificationService::getInstance();
     	$owner_id_po = $data['owner_id_po'];
+    	$po = $data['po'];
     	unset($data['owner_id_po']);
+    	unset($data['po']);
     	$so = new SupplyOrder();
     	foreach ($data as $key => $value) {
     		$so->data->$key = $value;
@@ -33,14 +35,12 @@ class SupplyOrderService extends Services
     	$userService = UserService::getInstance();
     	$from = $userService->getUserByType($owner_id_po, 'id');
     	$to = $userService->getUserByType($data['store_id'], 'chain_store');
-
-    	if (!$notify_type) {
+    	
+    	if ($po) {
 	    	$notify_data['from'] = $from;
 	    	$notify_data['to'] = $to;
 	    	$notify_data['subject_id'] = $so_id;
-	    	if ($data['po']) {
-	    		$notify_data['display_order'] = $data['po']->display_order;
-	    	}
+    		$notify_data['display_order'] = $po->display_order;
 	    	$notificationService->save($notify_data, $notify_type);
     	}
     	return $so_id;
