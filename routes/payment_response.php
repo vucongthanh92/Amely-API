@@ -35,7 +35,6 @@ $app->get($container['prefix'].'/payment_response', function (Request $request, 
 							break;
 						case 1:
 							$paymentsService->processOrder($response['order_id'], $response['order_type']);
-							die('131254');
 							$transaction_params['status'] = 12;
 							break;
 						case 2:

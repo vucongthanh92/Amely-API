@@ -3,6 +3,7 @@ namespace Amely\Shipping\SQ;
 
 class Express extends \Object
 {
+	private $so_id;
 	private $url;
 	private $ghtk_token;
 	private $return_transfer;
@@ -22,7 +23,6 @@ class Express extends \Object
 	{	
 		$url = $this->url."services/shipment/order";
 		$so_id = $this->so_id;
-
 
 		$purchaseOrderService = \PurchaseOrderService::getInstance();
 		$deliveryOrderService = \DeliveryOrderService::getInstance();
