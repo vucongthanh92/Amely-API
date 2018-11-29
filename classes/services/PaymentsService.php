@@ -152,8 +152,8 @@ class PaymentsService extends Services
 					$fee_data['value'] = $total;
 
 					$so_data['shipping_fee'] = 0;
-					$sm = $shippingService->getMethod($po->shipping_method);
-					$shipping = $sm->checkFee($fee_data);
+					$shipping_fee = $shippingService->getMethod($po->shipping_method);
+					$shipping = $shipping_fee->checkFee($fee_data);
 					if ($shipping) {
 						$so_data['shipping_fee'] = $shipping->fee->fee;
 					}
@@ -183,8 +183,7 @@ class PaymentsService extends Services
 						$sm = $shippingService->getMethod($po->shipping_method);
 						$time = time();
 						$sm->so_id = $so_id;
-						$sm->creator_id = $po->owner_id;
-						$sm->items = $order_items_snapshot;
+						var_dump($sm);die();
 						$sm->process();
 					}
 				}
