@@ -43,6 +43,7 @@ class StoreService extends Services
     	$store = new Store();
     	$store->data->approved = time();
     	$store->data->status = 1;
+    	$store->data->id = $store_id;
     	$store->where = "id = {$store_id}";
     	return $store->update(true);
     }
@@ -56,6 +57,7 @@ class StoreService extends Services
     {
     	$store = new Store();
     	$store->data->status = $status;
+    	$store->data->id = $store_id;
     	$store->where = "id = {$store_id}";
     	return $store->update(true);	
     }

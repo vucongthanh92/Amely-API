@@ -22,33 +22,33 @@ class TransactionService extends Services
 
     public function save($data)
     {
-    	$conditions[] = [
-    		'key' => 'owner_id',
-    		'value' => "= '{$data['owner_id']}'",
-    		'operation' => ''
-    	];
-    	$conditions[] = [
-    		'key' => 'type',
-    		'value' => "= '{$data['type']}'",
-    		'operation' => 'AND'
-    	];
-    	$conditions[] = [
-    		'key' => 'subject_id',
-    		'value' => "= '{$data['subject_id']}'",
-    		'operation' => 'AND'
-    	];
-    	$conditions[] = [
-    		'key' => 'subject_type',
-    		'value' => "= '{$data['subject_type']}'",
-    		'operation' => 'AND'
-    	];
-    	$transaction = $this->getTransaction($conditions);
-    	if ($transaction) return false;
+    	// $conditions[] = [
+    	// 	'key' => 'owner_id',
+    	// 	'value' => "= '{$data['owner_id']}'",
+    	// 	'operation' => ''
+    	// ];
+    	// $conditions[] = [
+    	// 	'key' => 'type',
+    	// 	'value' => "= '{$data['type']}'",
+    	// 	'operation' => 'AND'
+    	// ];
+    	// $conditions[] = [
+    	// 	'key' => 'subject_id',
+    	// 	'value' => "= '{$data['subject_id']}'",
+    	// 	'operation' => 'AND'
+    	// ];
+    	// $conditions[] = [
+    	// 	'key' => 'subject_type',
+    	// 	'value' => "= '{$data['subject_type']}'",
+    	// 	'operation' => 'AND'
+    	// ];
+    	// $transaction = $this->getTransaction($conditions);
+    	// if ($transaction) return false;
     	$transaction = new Transaction();
     	foreach ($data as $key => $value) {
 			$transaction->data->$key = $value;
 		}
-		return $transaction->insert();
+		return $transaction->insert(true);
     }
 
     public function getTransactionsByType($owner_id, $type, $subject_type, $offset = 0, $limit = 10)

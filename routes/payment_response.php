@@ -58,8 +58,8 @@ $app->get($container['prefix'].'/payment_response', function (Request $request, 
 							$item_id = $options['item_id'];
 							$itemService->renew($item_id, $duration);
 
-							$walletService->deposit($owner_id, $total, 16);
-							$walletService->withdraw($owner_id, $total, 19);
+							$walletService->deposit($owner_id, $total, 16, $owner_id, "Wallet");
+							$walletService->withdraw($owner_id, $total, 19, $item_id, "Item");
 							return response(true);
 							break;
 						case 'DELIVERY_ITEM':
@@ -70,8 +70,8 @@ $app->get($container['prefix'].'/payment_response', function (Request $request, 
 							$sm->item_id = $item_id;
 							$sm->shipping_info = $options;
 							$sm->redeemDelivery();
-							$walletService->deposit($owner_id, $total, 16);
-							$walletService->withdraw($owner_id, $total, 22);
+							$walletService->deposit($owner_id, $total, 16, $owner_id, "Wallet");
+							$walletService->withdraw($owner_id, $total, 22, $item_id, "Item");
 							return response(true);
 							break;
 						default:

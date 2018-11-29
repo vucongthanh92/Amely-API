@@ -112,7 +112,7 @@ HTTP_BODY;
 
 
         $services = \Services::getInstance();
-		$response = $services->connectServerGHTK($this->ghtk_token, $url, $parmas, "POST");
+		$response = $services->connectServerGHTK($this->ghtk_token, $url, $order, "POST");
 
 		return $response;
 	}
@@ -216,7 +216,7 @@ HTTP_BODY;
 
 
         $services = \Services::getInstance();
-		$response = $services->connectServerGHTK($this->ghtk_token, $url, $parmas, "POST");
+		$response = $services->connectServerGHTK($this->ghtk_token, $url, $order, "POST");
 
 		return $response;
     }

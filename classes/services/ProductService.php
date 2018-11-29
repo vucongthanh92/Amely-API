@@ -50,6 +50,7 @@ class ProductService extends Services
                 }
                 $product = new Product();
                 $product->data->images = implode(',', $filenames);
+                $product->data->id = $product_id;
                 $product->where = "id = {$product_id}";
                 $product->update(true);
             }
@@ -80,6 +81,7 @@ class ProductService extends Services
         $product = new Product();
         $product->data->approved = time();
         $product->data->snapshot_id = $snapshot_id;
+        $product->data->id = $product_id;
         $product->where = "id = {$product_id}";
         return $product->update(true);
     }
@@ -88,6 +90,7 @@ class ProductService extends Services
     {
     	$product = new Product();
     	$product->data->status = $status;
+        $product->data->id = $product_id;
     	$product->where = "id = {$product_id}";
     	return $product->update(true);
     }

@@ -48,6 +48,7 @@ class PaymentsService extends Services
 		$payment = new Payment();
 		$payment->data->request = $request;
 		$payment->data->status = $status;
+		$payment->data->id = $payment_id;
 		$payment->where = "id = {$payment_id}";
 		return $payment->update(true);
 	}
@@ -57,6 +58,7 @@ class PaymentsService extends Services
 		$payment = new Payment();
 		$payment->data->response = $response;
 		$payment->data->status = $status;
+		$payment->data->id = $payment_id;
 		$payment->where = "id = {$payment_id}";
 		return $payment->update(true);
 	}

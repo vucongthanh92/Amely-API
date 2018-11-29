@@ -58,6 +58,7 @@ class ShopService extends Services
     	$shop = new Shop();
     	$shop->data->approved = time();
     	$shop->data->status = 1;
+    	$shop->data->id = $shop_id;
     	$shop->where = "id = {$shop_id}";
     	return $shop->update(true);
     }
@@ -71,6 +72,7 @@ class ShopService extends Services
     {
     	$shop = new Shop();
     	$shop->data->status = $status;
+    	$shop->data->id = $shop_id;
     	$shop->where = "id = {$shop_id}";
     	if ($shop->update(true)) {
     		$storeService = StoreService::getInstance();

@@ -36,6 +36,7 @@ class PurchaseOrderService extends Services
     {
     	$po = new PurchaseOrder();
     	$po->data->status = $status;
+    	$po->data->id = $po_id;
     	$po->where = "id = {$po_id}";
     	return $po->update(true);
     }
