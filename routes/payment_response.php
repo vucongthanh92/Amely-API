@@ -30,7 +30,6 @@ $app->get($container['prefix'].'/payment_response', function (Request $request, 
 					$transaction_params['subject_id'] = $po->id;
 					switch ($response['status']) {
 						case 0:
-							die('0');
 							$transaction_params['status'] = 11;
 							break;
 						case 1:
@@ -38,7 +37,6 @@ $app->get($container['prefix'].'/payment_response', function (Request $request, 
 							$transaction_params['status'] = 12;
 							break;
 						case 2:
-							die('2');
 							$transaction_params['status'] = 13;
 							break;
 						default:
@@ -81,7 +79,6 @@ $app->get($container['prefix'].'/payment_response', function (Request $request, 
 			}
 			break;
 		case 1:
-			die('gion mat voi t ha');
 			return response(true);
 			break;
 		case 2:
