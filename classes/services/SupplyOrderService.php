@@ -38,6 +38,9 @@ class SupplyOrderService extends Services
 	    	$notify_data['from'] = $from;
 	    	$notify_data['to'] = $to;
 	    	$notify_data['subject_id'] = $so_id;
+	    	if ($data['po']) {
+	    		$notify_data['display_order'] = $data['po']->display_order;
+	    	}
 	    	$notificationService->save($notify_data, $notify_type);
     	}
     	return $so_id;

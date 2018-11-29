@@ -38,10 +38,10 @@ class NotificationService extends Services
 				$to_type = 'user';
 				$title = $data['from']->fullname;
 				$subject_id = $data['subject_id'];
-				$description = $target;
+				$description = $target." ".$data['display_order'];
     			break;
     		case 'order:approval':
-    			$target = ORDER_APROVAL;
+    			$target = ORDER_APPROVAL;
 				$owner_id = $data['to']->id;
 				$owner_type = 'user';
 				$notify_token = $tokenService->getNotifyToken($owner_id, $owner_type);
@@ -51,20 +51,20 @@ class NotificationService extends Services
 				$to_type = 'user';
 				$title = $data['from']->fullname;
 				$subject_id = $data['subject_id'];
-				$description = $target;
+				$description = $target." ".$data['display_order'];
     			break;
     		case 'order:request':
     			$target = ORDER_REQUEST;
-				$owner_id = $data['to']->id;
+				$owner_id = $data['to']->chain_store;
 				$owner_type = 'store';
-				$notify_token = $tokenService->getNotifyToken($owner_id, $owner_type);
+				$notify_token = $tokenService->getNotifyToken($data['to']->id, $owner_type);
 				$from_id = $data['from']->id;
 				$from_type = 'user';
 				$to_id = $data['to']->id;
 				$to_type = 'user';
 				$title = $data['from']->fullname;
 				$subject_id = $data['subject_id'];
-				$description = $target;
+				$description = $target." ".$data['display_order'];
     			break;
     		case 'order:request:quickpay':
     			$target = ORDER_REQUEST_QUICKPAY;
@@ -77,7 +77,7 @@ class NotificationService extends Services
 				$to_type = 'user';
 				$title = $data['from']->fullname;
 				$subject_id = $data['subject_id'];
-				$description = $target;
+				$description = $target." ".$data['display_order'];
     			break;
     		case 'comment:feed': 
     			$target = COMMENT_FEED;

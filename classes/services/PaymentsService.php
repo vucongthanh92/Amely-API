@@ -157,6 +157,7 @@ class PaymentsService extends Services
 					if ($shipping) {
 						$so_data['shipping_fee'] = $shipping->fee->fee;
 					}
+					$so_data['po'] = $po;
 					$so_data['owner_id_po'] = $po->owner_id;
 					$so_data['owner_id'] = $po->id;
 					$so_data['type'] = $order_type;
@@ -195,6 +196,7 @@ class PaymentsService extends Services
 			$notify_data['from'] = 1;
 	    	$notify_data['to'] = $to;
 	    	$notify_data['subject_id'] = $po->id;
+	    	$notify_data['display_order'] = $po->display_order;
 	    	$notificationService->save($notify_data, "order:approval");
 		}
 		return false;

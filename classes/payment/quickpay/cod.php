@@ -37,6 +37,7 @@ class COD extends \Object implements \Amely\Payment\IPaymentMethod
     	$notify_data['from'] = $to;
     	$notify_data['to'] = $owner_cart;
     	$notify_data['subject_id'] = $po->id;
+    	$notify_data['display_order'] = $po->display_order;
     	$notificationService->save($notify_data, "order:request:quickpay");
 
 		return true;
@@ -59,7 +60,7 @@ class COD extends \Object implements \Amely\Payment\IPaymentMethod
 		$supplyOrderService = \SupplyOrderService::getInstance();
 		$userService = \UserService::getInstance();
 		$snapshotService = \SnapshotService::getInstance();
-		
+
 		$po = $purchaseOrderService->getPOByType($po_id, 'id');
 		switch ($status) { 
 			case 0:
@@ -75,7 +76,7 @@ class COD extends \Object implements \Amely\Payment\IPaymentMethod
 					$total += $snapshot->display_price * $order_item['quantity'];
 					$quantity += ($order_item['quantity'] + $order_item['redeem_quantity']);
 				}
-
+				$so_data['po'] = $po;
 		    	$so_data['owner_id_po'] = $po->owner_id;
 				$so_data['owner_id'] = $po->id;
 				$so_data['type'] = "HD";
@@ -108,6 +109,7 @@ class COD extends \Object implements \Amely\Payment\IPaymentMethod
 		$notify_data['from'] = $creator;
     	$notify_data['to'] = $to;
     	$notify_data['subject_id'] = $po_id;
+    	$notify_data['display_order'] = $po->display_order;
     	$notificationService->save($notify_data, $notify_type);
 
 		return true;
