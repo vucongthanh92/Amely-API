@@ -180,6 +180,7 @@ class PaymentsService extends Services
 					// $so->data->quantity = $quantity;
 					// $so_id = $so->insert(true);
 					if ($so_id) {
+						$sm = $shippingService->getMethod($po->shipping_method);
 						$time = time();
 						$sm->so_id = $so_id;
 						$sm->creator_id = $po->owner_id;
