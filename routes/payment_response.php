@@ -13,7 +13,6 @@ $app->get($container['prefix'].'/payment_response', function (Request $request, 
 	$payment = $paymentsService->getPaymentById($params['payment_id']);
 	switch ($payment->status) {
 		case 0:
-			var_dump($payment);die();
 			$pm = $paymentsService->getMethod($payment->payment_method);
 			$pm->order_id = $payment->owner_id;
 			$pm->order_type = $payment->type;
@@ -23,6 +22,9 @@ $app->get($container['prefix'].'/payment_response', function (Request $request, 
 			switch ($payment->type) {
 				case 'HD':
 					$po = $purchaseOrderService->getPOByType($response['order_id'], 'id');
+					var_dump($response);
+					var_dump($po);
+					die();
 					$transaction_params['owner_id'] = $po->owner_id;
 					$transaction_params['type'] = 'user';
 					$transaction_params['title'] = "";
