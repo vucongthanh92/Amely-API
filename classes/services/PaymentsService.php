@@ -105,6 +105,9 @@ class PaymentsService extends Services
 		$storeService = StoreService::getInstance();
 		$userService = UserService::getInstance();
 		$purchaseOrderService = PurchaseOrderService::getInstance();
+		var_dump($order_id);
+		var_dump($order_type);
+		die('123');
 		if ($order_type == 'HD') {
 			$po = $purchaseOrderService->getPOByType($order_id, 'id');
 			$user = $userService->getUserByType($po->owner_id, 'id', true);
