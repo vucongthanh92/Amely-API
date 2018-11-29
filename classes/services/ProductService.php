@@ -20,7 +20,7 @@ class ProductService extends Services
         $this->table = "amely_products";
     }
 
-    public function save($data)
+    public function save($data, $images)
     {
     	$product = new Product();
     	foreach ($data as $key => $value) {
@@ -34,10 +34,28 @@ class ProductService extends Services
 
         if ($data['id']) {
             $product->where = "id = {$data['id']}";
-            return $product->update(true);
+            $product_id = $product->update(true);
         } else {
-            return $product->insert(true);
+            $product_id = $product->insert(true);
         }
+
+        if ($product_id) {
+            if ($images) {
+                $imageService = ImageService::getInstance();
+                $filenames = [];
+                foreach ($images as $image) {
+                    $filename = getFilename();
+                    $filenames[] = $filename;
+                    $imageService->uploadImage($product_id, 'product', 'images', $image, $filename);
+                }
+                $product = new Product();
+                $product->data->images = implode(',', $filenames);
+                $product->where = "id = {$product_id}";
+                $product->update(true);
+            }
+            return true;
+        }
+        return false;
     }
 
     public function approval($product_id)

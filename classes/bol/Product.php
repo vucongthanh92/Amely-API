@@ -16,12 +16,16 @@
 
     * approved
     	0 cho duyet
-    	1 da duyet
-    	2 cam
+    	>0 da tuyet (thoi gian phe duyet)
 
     * enabled
     	0 tat
     	1 mo
+
+    * status
+    	0 tat
+    	1 mo
+    	2 da xoa
 */
 class Product extends Object
 {

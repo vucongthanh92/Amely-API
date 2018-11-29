@@ -97,6 +97,10 @@ $app->post($container['administrator'].'/products', function (Request $request, 
 	if (!array_key_exists('sale_price', $params)) $params['sale_price'] = 0;
 	if (!array_key_exists('unit', $params)) $params['unit'] = 0;
 	if (!array_key_exists('category', $params)) $params['category'] = 0;
+	if (!array_key_exists('voucher_category', $params)) $params['voucher_category'] = 0;
+	if (!array_key_exists('ticket_category', $params)) $params['ticket_category'] = 0;
+	if (!array_key_exists('shop_category', $params)) $params['shop_category'] = 0;
+	if (!array_key_exists('market_category', $params)) $params['market_category'] = 0;
 	if (!array_key_exists('adjourn_price', $params)) $params['adjourn_price'] = 0;
 	if (!array_key_exists('images', $params)) $params['images'] = 0;
 	if (!array_key_exists('parent_id', $params)) $params['parent_id'] = 0;
@@ -161,9 +165,19 @@ $app->post($container['administrator'].'/products', function (Request $request, 
 	$product_data['approved'] = 0;
 	$product_data['enabled'] = 0;
 	$product_data['adjourn_price'] = $params['adjourn_price'];
-	$product_data['images'] = $params['images'];
+	$product_data['adjourn_price'] = $params['adjourn_price'];
+	$product_data['voucher_category'] = $params['voucher_category'];
+	$product_data['ticket_category'] = $params['ticket_category'];
+	$product_data['shop_category'] = $params['shop_category'];
+	$product_data['market_category'] = $params['market_category'];
 
-	return response($productService->save($product_data));
+	$uploadedFiles = $request->getUploadedFiles();
+    $images = false;
+    if ($uploadedFiles) {
+	    $images = $uploadedFiles['images'];
+    }
+
+    return response($productService->save($product_data, $images));
 });
 
 $app->put($container['administrator'].'/products', function (Request $request, Response $response, array $args) {
@@ -174,17 +188,37 @@ $app->put($container['administrator'].'/products', function (Request $request, R
 	$loggedin_user = loggedin_user();
 	$params = $request->getParsedBody();
 	if (!$params) $params = [];
+	// lay theo trang thai phe duyet || khong truyen approved se lay theo status
+	// approved ( false la chua phe duyet || true la da phe duyet)
+	if (!array_key_exists('approved', $params)) 	$params['approved'] = false;
+	/* lay theo trang thai  status ( kieu status la number (0,1,2))
+		khong truyen status se lay tat ca
+	*/
+	if (!array_key_exists('status', $params)) 		$params['status'] = "0,1";
+	/* lay theo cua hang ( kieu gia tri cua shop_id la number)
+		khong truyen shop_id se lay tat ca
+	*/
 	if (!array_key_exists('shop_id', $params)) 		$params['shop_id'] = false;
-	if (!array_key_exists('type_product', $params)) 	$params['type_product'] = false;
+	/* loc theo loai sp ( kieu gia tri cua type_product la string )
+		featured: la sp noi bat
+		default: la sp binh thuong
+		voucher: la sp voucher
+		ticket: la sp ticket
+		all: la lay tat ca
+	*/
+	if (!array_key_exists('type_product', $params)) 	$params['type_product'] = "all";
+	/* lay theo danh muc ( kieu gia tri cua category_id la number)
+		khong truyen category_id se lay tat ca
+	*/
 	if (!array_key_exists('category_id', $params)) 	$params['category_id'] = false;
-	if (!array_key_exists('product_filter', $params)) 	$params['product_filter'] = false;
 	if (!array_key_exists('offset', $params)) 			$params['offset'] = 0;
 	if (!array_key_exists('limit', $params)) 			$params['limit'] = 10;
 
+	$approved = $params['approved'];
+	$status = $params['status'];
 	$shop_id = $params['shop_id'];
 	$type_product = $params['type_product'];
 	$category_id = $params['category_id'];
-	$product_filter = $params['product_filter'];
 	$offset = $params['offset'];
 	$limit = $params['limit'];
 
@@ -193,79 +227,72 @@ $app->put($container['administrator'].'/products', function (Request $request, R
 		'value' => 'DESC',
 		'operation' => 'order_by'
 	];
+	if ($approved) {
+		$product_params[] = [
+			'key' => "approved",
+			'value' => "> 0",
+			'operation' => ''
+		];
+	} else {
+		$product_params[] = [
+			'key' => "approved",
+			'value' => "= 0",
+			'operation' => ''
+		];
+	}
 	$product_params[] = [
 		'key' => "status",
-		'value' => "IN (0,1)",
-		'operation' => ''
+		'value' => "IN ({$status})",
+		'operation' => 'AND'
 	];
-	if ($product_filter) {
+
+	if ($shop_id) {
 		$product_params[] = [
-			'key' => 'product_group',
-			'value' => "= {$product_filter}",
+			'key' => "owner_id",
+			'value' => "= {$shop_id}",
 			'operation' => 'AND'
 		];
 	}
 
 	if ($category_id) {
 		$product_params[] = [
-			'key' => 'approved',
-			'value' => "REGEXP '^[0-9]+$'",
-			'operation' => 'AND'
-		];
-
-		$product_params[] = [
 			'key' => "FIND_IN_SET({$category_id}, category)",
 			'value' => '',
 			'operation' => 'AND'
 		];
-
-	} else {
-		if ($shop_id) {
-			$product_params[] = [
-				'key' => 'approved',
-				'value' => "REGEXP '^[0-9]+$'",
-				'operation' => 'AND'
-			];
-			$product_params[] = [
-				'key' => 'owner_id',
-				'value' => "= {$shop_id}",
-				'operation' => 'AND'
-			];
-		}
 	}
-	if ($params['type_product']) {
-		switch ($type_product) {
-			case 'featured':
-				$product_params[] = [
-					'key' => 'featured',
-					'value' => "= 1",
-					'operation' => 'AND'
-				];
-				break;
-			case 'default':
-				$product_params[] = [
-					'key' => 'is_special',
-					'value' => "= 0",
-					'operation' => 'AND'
-				];
-				break;
-			case 'voucher':
-				$product_params[] = [
-					'key' => 'is_special',
-					'value' => "= 1",
-					'operation' => 'AND'
-				];
-				break;
-			case 'ticket':
-			    $product_params[] = [
-					'key' => 'is_special',
-					'value' => "= 2",
-					'operation' => 'AND'
-				];
-				break;
-			default:
-				break;
-		}
+	
+	switch ($type_product) {
+		case 'featured':
+			$product_params[] = [
+				'key' => 'featured',
+				'value' => "= 1",
+				'operation' => 'AND'
+			];
+			break;
+		case 'default':
+			$product_params[] = [
+				'key' => 'is_special',
+				'value' => "= 0",
+				'operation' => 'AND'
+			];
+			break;
+		case 'voucher':
+			$product_params[] = [
+				'key' => 'is_special',
+				'value' => "= 1",
+				'operation' => 'AND'
+			];
+			break;
+		case 'ticket':
+		    $product_params[] = [
+				'key' => 'is_special',
+				'value' => "= 2",
+				'operation' => 'AND'
+			];
+			break;
+		default:
+			break;
 	}
 
 	$products = $productService->getProducts($product_params, $offset, $limit);
