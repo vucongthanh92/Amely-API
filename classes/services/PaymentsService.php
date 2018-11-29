@@ -105,7 +105,6 @@ class PaymentsService extends Services
 		$storeService = StoreService::getInstance();
 		$userService = UserService::getInstance();
 		$purchaseOrderService = PurchaseOrderService::getInstance();
-
 		if ($order_type == 'HD') {
 			$po = $purchaseOrderService->getPOByType($order_id, 'id');
 			$user = $userService->getUserByType($po->owner_id, 'id', true);
@@ -120,7 +119,6 @@ class PaymentsService extends Services
 					'redeem_quantity' => $order_item['redeem_quantity']
 				];
 			}
-			
 
 			if ($items_sos) {
 				foreach ($items_sos as $kitems_so => $items_so) {
@@ -168,7 +166,7 @@ class PaymentsService extends Services
 					$so_data['order_items_snapshot'] = serialize($order_items_snapshot);
 					$so_data['total'] = $total;
 					$so_data['quantity'] = $quantity;
-					$so_id = $supplyOrderService->save($so_data);
+					$so_id = $supplyOrderService->save($so_data, "order:request");
 
 					// $so = new SupplyOrder();
 					// $so->data->time_created = $order->time_created;

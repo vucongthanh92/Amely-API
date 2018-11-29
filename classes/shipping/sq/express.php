@@ -23,7 +23,6 @@ class Express extends \Object
 	{	
 		$url = $this->url."services/shipment/order";
 		$so_id = $this->so_id;
-
 		$purchaseOrderService = \PurchaseOrderService::getInstance();
 		$deliveryOrderService = \DeliveryOrderService::getInstance();
 		$userService = \UserService::getInstance();
@@ -34,9 +33,9 @@ class Express extends \Object
 		$so = $supplyOrderService->getSOByType($so_id, 'id');
 		if (!$so) return false;
 		$po = $purchaseOrderService->getPOByType($so->owner_id, 'id');
+		
 		$store = $storeService->getStoreByType($so->store_id, 'id', true);
 		$owner_store = $userService->getUserByType($store->id, 'chain_store');
-
 		$products = [];
 		$weight = $total = 0;
 
@@ -47,14 +46,14 @@ class Express extends \Object
 			$weight += $snapshot->weight * $order_item['quantity'];
 			$total += $snapshot->display_price * $order_item['quantity'];
 			$quantity += ($order_item['quantity'] + $order_item['redeem_quantity']);
-			if ($owner_cart->chain_store != $order_item['store_id']) return false;
 
 			$parmas = null;
 			$parmas['name'] = $snapshot->title;
 			$parmas['weight'] = $snapshot->weight;
-			$parmas['quantity'] = $item['quantity'];
+			$parmas['quantity'] = $order_item['quantity'];
 			array_push($products, $parmas);
 		}
+
 		
 
 		$do_data['owner_id'] = $po->owner_id;
@@ -106,6 +105,7 @@ class Express extends \Object
             "order": {$order_info}
         }
 HTTP_BODY;
+
 
         $services = \Services::getInstance();
 		$response = $services->connectServerGHTK($this->ghtk_token, $url, $parmas, "POST");
