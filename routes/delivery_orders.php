@@ -38,6 +38,7 @@ $app->put($container['prefix'].'/delivery_orders', function (Request $request, R
 	$pm->amount = $params['shipping_fee'];
 	$pm->creator = $loggedin_user;
 	$pm->order_type = "WALLET";
+	$pm->payment_method = $params['payment_method'];
 	$url = $pm->process();
 	if (!$url) return response(false);
 	return response(["url" => $url]);

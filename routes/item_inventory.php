@@ -73,6 +73,7 @@ $app->patch($container['prefix'].'/item_inventory', function (Request $request, 
 	$pm->amount = $total;
 	$pm->creator = $loggedin_user;
 	$pm->order_type = "WALLET";
+	$pm->payment_method = $params['payment_method'];
 	$url = $pm->process();
 	if (!$url) return response(false);
 	return response(["url" => $url]);
