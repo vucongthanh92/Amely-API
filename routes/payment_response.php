@@ -7,7 +7,6 @@ $app->get($container['prefix'].'/payment_response', function (Request $request, 
 	$shippingService = ShippingService::getInstance();
 	$purchaseOrderService = PurchaseOrderService::getInstance();
 	$paymentsService = PaymentsService::getInstance();
-	$paymentsService = PaymentsService::getInstance();
 	$params = $request->getQueryParams();
 	if (!$params) $params = [];
 	if (!array_key_exists('payment_id', $params)) return response(false);
