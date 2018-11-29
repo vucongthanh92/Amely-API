@@ -80,6 +80,7 @@ $app->get($container['prefix'].'/payment_response', function (Request $request, 
 			}
 			break;
 		case 1:
+			die('gion mat voi t ha');
 			return response(true);
 			break;
 		case 2:
