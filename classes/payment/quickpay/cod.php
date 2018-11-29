@@ -74,7 +74,6 @@ class COD extends \Object implements \Amely\Payment\IPaymentMethod
 					$weight += $snapshot->weight * $order_item['quantity'];
 					$total += $snapshot->display_price * $order_item['quantity'];
 					$quantity += ($order_item['quantity'] + $order_item['redeem_quantity']);
-					if ($owner_cart->chain_store != $order_item['store_id']) return false;
 				}
 
 		    	$so_data['owner_id_po'] = $po->owner_id;

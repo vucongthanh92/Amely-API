@@ -14,7 +14,6 @@ class Storage extends \Object
 	public function process()
 	{	
 		$so_id = $this->so_id;
-
 		$inventoryService = \InventoryService::getInstance();
 		$supplyOrderService = \SupplyOrderService::getInstance();
 		$purchaseOrderService = \PurchaseOrderService::getInstance();
