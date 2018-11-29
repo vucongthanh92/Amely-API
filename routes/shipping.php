@@ -13,6 +13,7 @@ $app->post($container['prefix'].'/shipping', function (Request $request, Respons
 	if (!$params) $params = [];
 	if (!array_key_exists('shipping_method', $params)) $params['shipping_method'] = false;
 	if (!array_key_exists('item_id', $params)) $params['item_id'] = false;
+	if (!array_key_exists('quantity', $params)) $params['quantity'] = false;
 	if (!array_key_exists('cart_id', $params)) $params['cart_id'] = false;
 	if (!array_key_exists('shipping_province', $params)) $params['shipping_province'] = false;
 	if (!array_key_exists('shipping_district', $params)) $params['shipping_district'] = false;
@@ -34,6 +35,8 @@ $app->post($container['prefix'].'/shipping', function (Request $request, Respons
 
 
 	if ($params['item_id']) {
+		if (!$params['quantity']) return response(false);
+
 		$item = $itemService->getItemByType($params['item_id'], 'id');
 		$snapshot = $snapshotService->getSnapshotByType($item->snapshot_id, 'id');
 		$store = $storeService->getStoreByType($item->store_id, 'id');
@@ -41,8 +44,8 @@ $app->post($container['prefix'].'/shipping', function (Request $request, Respons
 		$fee_data['pick_province'] = $store->store_province_name;
 		$fee_data['pick_district'] = $store->store_district_name;
 		$fee_data['address'] = $store->store_address;
-		$fee_data['weight'] = $snapshot->weight * $item->quantity;
-		$fee_data['total'] = $snapshot->display_price * $item->quantity;
+		$fee_data['weight'] = $snapshot->weight * $params['quantity'];
+		$fee_data['total'] = $snapshot->display_price * $params['quantity'];
 
 		$shippingService = ShippingService::getInstance();
 		$sm = $shippingService->getMethod($params['shipping_method']);

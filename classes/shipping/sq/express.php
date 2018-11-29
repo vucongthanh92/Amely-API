@@ -3,12 +3,16 @@ namespace Amely\Shipping\SQ;
 
 class Express extends \Object
 {
-	public $so_id;
 	private $url;
 	private $ghtk_token;
 	private $return_transfer;
 	private $version;
 	private $currency;
+
+	public $so_id;
+	public $creator;
+	public $item_id;
+	public $shipping_info;
 
 	function __construct()
 	{
@@ -133,5 +137,81 @@ HTTP_BODY;
 
 	public function redeemDelivery()
     {
+    	$item_id = $this->item_id;
+    	$itemService = ItemService::getInstance();
+    	$supplyOrderService = SupplyOrderService::getInstance();
+    	$snapshotService = SnapshotService::getInstance();
+
+    	$item = $itemService->getItemByType($item_id, 'id');
+    	$snapshot = $snapshotService->getSnapshotByType($item->snapshot_id, 'id');
+    	$so = $supplyOrderService->getSOByType($item->so_id, 'id');
+    	$store = $storeService->getStoreByType($so->store_id, 'id', true);
+		$owner_store = $userService->getUserByType($store->id, 'chain_store');
+
+    	$shipping_info = $this->shipping_info;
+
+    	$do_data['owner_id'] = $shipping_info['creator_id'];
+		$do_data['type'] = 'user';
+		$do_data['so_id'] = $item->so_id;
+		$do_data['item_id'] = $item->id;
+		$do_data['order_items_snapshot'] = $so->order_items_snapshot;
+		$do_data['status'] = 0;
+		$do_data['shipping_fullname'] = $shipping_info['shipping_fullname'];
+		$do_data['shipping_phone'] = $shipping_info['shipping_phone'];
+		$do_data['shipping_address'] = $shipping_info['shipping_address'];
+		$do_data['shipping_province'] = $shipping_info['shipping_province'];
+		$do_data['shipping_district'] = $shipping_info['shipping_district'];
+		$do_data['shipping_ward'] = $shipping_info['shipping_ward'];
+		$do_data['shipping_note'] = $shipping_info['shipping_note'];
+		$do_data['shipping_method'] = $shipping_info['shipping_method'];
+		$do_data['shipping_fee'] = $shipping_info['shipping_fee'];
+		$do_id = $deliveryOrderService->save($do_data);
+
+    // private $shipping_fullname;
+    // private $shipping_phone;
+    // private $shipping_address;
+    // private $shipping_province;
+    // private $shipping_district;
+    // private $shipping_ward;
+    // private $shipping_note;
+
+		$order_info["id"] = $do_id;
+        $order_info["pick_name"] = $owner_store->fullname;
+        $order_info["pick_address"] = $store->store_address;
+        $order_info["pick_province"] = $store->store_province_name;
+        $order_info["pick_district"] = $store->store_district_name;
+        $order_info["pick_tel"] = $po->store_phone;
+
+        $order_info["tel"] = $shipping_info['shipping_phone'];
+        $order_info["name"] = $shipping_info['shipping_fullname'];
+        $order_info["address"] = $shipping_info['shipping_address'];
+        $order_info["province"] = $shipping_info['shipping_province_name'];
+        $order_info["district"] = $shipping_info['shipping_district_name'];
+        $order_info["is_freeship"] = 1;
+        $order_info["pick_money"] = 0;
+        $order_info["note"] = $shipping_info['shipping_note'];
+        
+
+        $products = [];
+        $parmas = null;
+		$parmas['name'] = $snapshot->title;
+		$parmas['weight'] = $snapshot->weight;
+		$parmas['quantity'] = $item->quantity;
+		array_push($products, $parmas);
+
+		$products = json_encode($products);
+        $order_info = json_encode($order_info);
+        $order = <<<HTTP_BODY
+        {
+            "products": {$products},
+            "order": {$order_info}
+        }
+HTTP_BODY;
+
+
+        $services = \Services::getInstance();
+		$response = $services->connectServerGHTK($this->ghtk_token, $url, $parmas, "POST");
+
+		return $response;
     }
 }

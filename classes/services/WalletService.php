@@ -29,6 +29,46 @@ class WalletService extends Services
 		return $wallet->insert(true);
     }
 
+    public function deposit($owner_id, $total, $status)
+    {
+    	$transactionService = TransactionService::getInstance();
+    	$wallet = $this->getWalletByOwnerId($owner_id);
+    	$wallet->data->balance = $wallet->balance + $total;
+    	$wallet->where = "id = {$wallet->id}";
+    	if ($wallet->update(true)) {
+
+    		$transaction_params['owner_id'] = $wallet->id;
+			$transaction_params['type'] = 'wallet';
+			$transaction_params['title'] = $total;
+			$transaction_params['description'] = "";
+			$transaction_params['subject_type'] = 'wallet';
+			$transaction_params['subject_id'] = $wallet->id;
+			$transaction_params['status'] = $status;
+			$transactionService->save($transaction_params);
+    		return true;
+    	}
+    	return false;
+    }
+
+    public function withdraw($owner_id, $total, $status)
+    {
+    	$wallet = $this->getWalletByOwnerId($owner_id);
+    	$wallet->data->balance = $wallet->balance - $total;
+    	$wallet->where = "id = {$wallet->id}";
+    	if ($wallet->update(true)) {
+    		$transaction_params['owner_id'] = $wallet->id;
+			$transaction_params['type'] = 'wallet';
+			$transaction_params['title'] = $total;
+			$transaction_params['description'] = "";
+			$transaction_params['subject_type'] = 'wallet';
+			$transaction_params['subject_id'] = $wallet->id;
+			$transaction_params['status'] = $status;
+			$transactionService->save($transaction_params);
+    		return true;	
+    	}
+    	return false;
+    }
+
     public function getWalletByOwnerId($owner_id)
     {
     	$conditions = null;

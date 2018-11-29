@@ -26,6 +26,7 @@ class OPATM extends \Object implements \Amely\Payment\IPaymentMethod
 	public $payment_method;
 	public $duration;
 	public $payment_id;
+	public $shipping_method;
 
 	function __construct()
 	{
@@ -62,6 +63,11 @@ class OPATM extends \Object implements \Amely\Payment\IPaymentMethod
 			case 'ITEM':
 				$options['duration'] = $this->duration;
 				$options['creator_id'] = $creator->id;
+				$display_order = convertPrefixOrder($order_type, $order_id, time());
+				break;
+			case 'DELIVERY_ITEM':
+				$options['creator_id'] = $creator->id;
+				$options['shipping_method'] = $this->shipping_method;
 				$display_order = convertPrefixOrder($order_type, $order_id, time());
 				break;
 			default:

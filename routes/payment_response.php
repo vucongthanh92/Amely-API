@@ -4,7 +4,9 @@ use Slim\Http\Response;
 
 $app->get($container['prefix'].'/payment_response', function (Request $request, Response $response, array $args) {
 	$transactionService = TransactionService::getInstance();
+	$shippingService = ShippingService::getInstance();
 	$purchaseOrderService = PurchaseOrderService::getInstance();
+	$paymentsService = PaymentsService::getInstance();
 	$paymentsService = PaymentsService::getInstance();
 	$params = $request->getQueryParams();
 	if (!$params) $params = [];
@@ -45,33 +47,36 @@ $app->get($container['prefix'].'/payment_response', function (Request $request, 
 					}
 					return response($transactionService->save($transaction_params));
 					break;
-				case 'ITEM':
-					$itemService = ItemService::getInstance();
+				case 'WALLET':
 					$options = unserialize($payment->options);
-					$duration = $options['duration'];
-					$creator_id = $options['creator_id'];
-					$amount = $options['amount'];
-					$itemService->renew($payment->owner_id, $duration);
+					$total = $options['total'];
+					$owner_id = $options['creator_id'];
+					$walletService = WalletService::getInstance();
+					switch ($options['action']) {
+						case 'RENEW':
+							$itemService = ItemService::getInstance();
+							$duration = $options['duration'];
+							$item_id = $options['item_id'];
+							$itemService->renew($item_id, $duration);
 
-					$transaction_params['owner_id'] = $creator_id;
-					$transaction_params['type'] = 'wallet';
-					$transaction_params['title'] = $amount;
-					$transaction_params['description'] = "";
-					$transaction_params['subject_type'] = 'wallet';
-					$transaction_params['subject_id'] = $creator_id;
-					$transaction_params['status'] = 16;
-					$transactionService->save($transaction_params);
-
-					$transaction_params['owner_id'] = $creator_id;
-					$transaction_params['type'] = 'wallet';
-					$transaction_params['title'] = $amount;
-					$transaction_params['description'] = "";
-					$transaction_params['subject_type'] = 'item';
-					$transaction_params['subject_id'] = $payment->owner_id;
-					$transaction_params['status'] = 19;
-					$transactionService->save($transaction_params);
-					return response(true);
-
+							$walletService->deposit($owner_id, $total, 16);
+							$walletService->withdraw($owner_id, $total, 19);
+							break;
+						case 'DELIVERY_ITEM':
+							$shipping_method = $options['shipping_method'];
+							$item_id = $options['item_id'];
+							
+							$sm = $shippingService->getMethod($shipping_method);
+							$sm->item_id = $item_id;
+							$sm->shipping_info = $options;
+							$sm->redeemDelivery();
+							$walletService->deposit($owner_id, $total, 16);
+							$walletService->withdraw($owner_id, $total, 22);
+							break;
+						default:
+							return response(false);
+							break;
+					}
 					break;
 				default:
 					# code...

@@ -385,6 +385,7 @@ CREATE TABLE `amely_delivery_order` (
   `title` text NOT NULL,
   `description` longtext NOT NULL,
   `so_id` text,
+  `item_id` text,
   `order_items_snapshot` text,
   `status` text,
   `shipping_fullname` text,
