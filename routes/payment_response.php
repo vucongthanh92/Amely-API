@@ -22,9 +22,6 @@ $app->get($container['prefix'].'/payment_response', function (Request $request, 
 			switch ($payment->type) {
 				case 'HD':
 					$po = $purchaseOrderService->getPOByType($response['order_id'], 'id');
-					var_dump($response);
-					var_dump($po);
-					die();
 					$transaction_params['owner_id'] = $po->owner_id;
 					$transaction_params['type'] = 'user';
 					$transaction_params['title'] = "";
@@ -33,6 +30,7 @@ $app->get($container['prefix'].'/payment_response', function (Request $request, 
 					$transaction_params['subject_id'] = $po->id;
 					switch ($response['status']) {
 						case 0:
+							die('0');
 							$transaction_params['status'] = 11;
 							break;
 						case 1:
@@ -41,6 +39,7 @@ $app->get($container['prefix'].'/payment_response', function (Request $request, 
 							$transaction_params['status'] = 12;
 							break;
 						case 2:
+							die('2');
 							$transaction_params['status'] = 13;
 							break;
 						default:

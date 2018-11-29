@@ -366,7 +366,7 @@ class NotificationService extends Services
 		$conditions[] = [
 			'key' => 'owner_id',
 			'value' => "= '{$input}'",
-			'operation' => ''
+			'operation' => 'AND'
 		];
 		$conditions[] = [
 			'key' => 'from_id',

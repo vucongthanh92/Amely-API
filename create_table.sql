@@ -103,7 +103,7 @@ CREATE TABLE `amely_notifications` (
   `to_id` bigint(20) NOT NULL,
   `to_type` varchar(20) DEFAULT NULL,
   `subject_id` bigint(20),
-  `subject_type` varchar(20) DEFAULT NULL,
+  `subject_type` text DEFAULT NULL,
   `item_id` bigint(20),
   `viewed` int(1) DEFAULT NULL,
   PRIMARY KEY (`id`)
