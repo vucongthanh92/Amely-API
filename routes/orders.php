@@ -168,6 +168,7 @@ $app->put($container['prefix'].'/orders', function (Request $request, Response $
 			'redeem_quantity' => $cart_item->redeem_quantity
 		];
 	}
+	$total = $params['shipping_fee'];
 
 	$po_data['owner_id'] = $loggedin_user->id;
 	$po_data['type'] = 'user';

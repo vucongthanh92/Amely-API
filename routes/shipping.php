@@ -16,16 +16,20 @@ $app->post($container['prefix'].'/shipping', function (Request $request, Respons
 	if (!array_key_exists('cart_id', $params)) $params['cart_id'] = false;
 	if (!array_key_exists('shipping_province', $params)) $params['shipping_province'] = false;
 	if (!array_key_exists('shipping_district', $params)) $params['shipping_district'] = false;
+	if (!array_key_exists('shipping_ward', $params)) $params['shipping_ward'] = false;
 	if (!array_key_exists('shipping_address', $params)) $params['shipping_address'] = false;
 
 	$fee_data = [];
 	$shipping_province = $addressService->getAddress($params['shipping_province'], 'province');
 	$shipping_district = $addressService->getAddress($params['shipping_district'], 'district');
+	$shipping_ward = $addressService->getAddress($params['shipping_ward'], 'ward');
     $shipping_province_name = $shipping_province->name;
     $shipping_district_name = $shipping_district->name;
+    $shipping_ward_name = $shipping_ward->name;
 
 	$fee_data['province'] = $shipping_province_name;
 	$fee_data['district'] = $shipping_district_name;
+	$fee_data['ward'] = $shipping_ward_name;
 	$fee_data['address'] = $params['shipping_address'];
 
 
