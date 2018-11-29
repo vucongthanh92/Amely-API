@@ -13,6 +13,7 @@ $app->get($container['prefix'].'/payment_response', function (Request $request, 
 	$payment = $paymentsService->getPaymentById($params['payment_id']);
 	switch ($payment->status) {
 		case 0:
+			var_dump($payment);die();
 			$pm = $paymentsService->getMethod($payment->payment_method);
 			$pm->order_id = $payment->owner_id;
 			$pm->order_type = $payment->type;
