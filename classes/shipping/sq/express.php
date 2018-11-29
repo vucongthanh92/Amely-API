@@ -138,16 +138,22 @@ HTTP_BODY;
 	public function redeemDelivery()
     {
     	$item_id = $this->item_id;
-    	$itemService = ItemService::getInstance();
-    	$supplyOrderService = SupplyOrderService::getInstance();
-    	$snapshotService = SnapshotService::getInstance();
+    	$itemService = \ItemService::getInstance();
+    	$supplyOrderService = \SupplyOrderService::getInstance();
+    	$snapshotService = \SnapshotService::getInstance();
+    	$storeService = \StoreService::getInstance();
+    	$userService = \UserService::getInstance();
+    	$deliveryOrderService = \DeliveryOrderService::getInstance();
 
     	$item = $itemService->getItemByType($item_id, 'id');
+    	$item = object_cast("Item", $item);
+    	$item->data->status = 2;
+    	$item->where = "id = {$item->id}";
+    	$item->update(true);
     	$snapshot = $snapshotService->getSnapshotByType($item->snapshot_id, 'id');
     	$so = $supplyOrderService->getSOByType($item->so_id, 'id');
     	$store = $storeService->getStoreByType($so->store_id, 'id', true);
 		$owner_store = $userService->getUserByType($store->id, 'chain_store');
-
     	$shipping_info = $this->shipping_info;
 
     	$do_data['owner_id'] = $shipping_info['creator_id'];

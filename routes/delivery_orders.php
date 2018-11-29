@@ -31,7 +31,9 @@ $app->put($container['prefix'].'/delivery_orders', function (Request $request, R
 
 	$item = $itemService->getItemByType($params['item_id']);
 	if ($item->status != 1) return response(false);
-	
+	$params['total'] = $params['shipping_fee'];
+	$params['action'] = "DELIVERY_ITEM";
+	$params['creator_id'] = $loggedin_user->id;
 	$pm = $paymentsService->getMethod($params['payment_method']);
 	$pm->options = $params;
 	$pm->order_id = $loggedin_user->id;

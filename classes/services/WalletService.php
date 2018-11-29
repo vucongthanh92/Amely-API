@@ -33,6 +33,7 @@ class WalletService extends Services
     {
     	$transactionService = TransactionService::getInstance();
     	$wallet = $this->getWalletByOwnerId($owner_id);
+        $wallet = object_cast("Wallet", $wallet);
     	$wallet->data->balance = $wallet->balance + $total;
     	$wallet->where = "id = {$wallet->id}";
     	if ($wallet->update(true)) {
@@ -52,7 +53,9 @@ class WalletService extends Services
 
     public function withdraw($owner_id, $total, $status)
     {
+        $transactionService = TransactionService::getInstance();
     	$wallet = $this->getWalletByOwnerId($owner_id);
+        $wallet = object_cast("Wallet", $wallet);
     	$wallet->data->balance = $wallet->balance - $total;
     	$wallet->where = "id = {$wallet->id}";
     	if ($wallet->update(true)) {

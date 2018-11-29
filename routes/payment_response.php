@@ -60,17 +60,19 @@ $app->get($container['prefix'].'/payment_response', function (Request $request, 
 
 							$walletService->deposit($owner_id, $total, 16);
 							$walletService->withdraw($owner_id, $total, 19);
+							return response(true);
 							break;
 						case 'DELIVERY_ITEM':
+							$itemService = ItemService::getInstance();
 							$shipping_method = $options['shipping_method'];
 							$item_id = $itemService->separateItem($options['item_id'], $options['quantity']);
-
 							$sm = $shippingService->getMethod($shipping_method);
 							$sm->item_id = $item_id;
 							$sm->shipping_info = $options;
 							$sm->redeemDelivery();
 							$walletService->deposit($owner_id, $total, 16);
 							$walletService->withdraw($owner_id, $total, 22);
+							return response(true);
 							break;
 						default:
 							return response(false);
