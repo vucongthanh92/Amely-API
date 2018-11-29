@@ -41,7 +41,7 @@ $app->post($container['administrator'].'/authtoken', function (Request $request,
 
 	$user = $userService->getUser($user_params, true, false);
 	if (!$user) return response(false);
-	if ($user->type != 'admin' || $user->type != 'manager') return response(false);
+	if ($user->type != 'admin' && $user->type != 'manager') return response(false);
 
 	$salt     = $user->salt;
     $password = md5($params['password'] . $salt);
