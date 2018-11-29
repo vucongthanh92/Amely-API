@@ -62,17 +62,6 @@ class OPCreditCard extends \Object implements \Amely\Payment\IPaymentMethod
 			case 'WALLET':
 				$display_order = convertPrefixOrder($order_type, $order_id, time());
 				break;
-			case 'ITEM':
-				// $options['duration'] = $this->duration;
-				// $options['creator_id'] = $creator->id;
-				$display_order = convertPrefixOrder($order_type, $order_id, time());
-				break;
-			case 'DELIVERY_ITEM':
-				// $options['creator_id'] = $creator->id;
-				// $options['shipping_method'] = $this->shipping_method;
-
-				$display_order = convertPrefixOrder($order_type, $order_id, time());
-				break;
 			default:
 				# code...
 				break;

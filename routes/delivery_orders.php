@@ -31,14 +31,11 @@ $app->put($container['prefix'].'/delivery_orders', function (Request $request, R
 
 	$item = $itemService->getItemByType($params['item_id']);
 	if ($item->status != 1) return response(false);
-
-
-	$item_id = $itemService->separateItem($item->id, $params['quantity']);
-
+	
 	$pm = $paymentsService->getMethod($params['payment_method']);
 	$pm->options = $params;
 	$pm->order_id = $loggedin_user->id;
-	$pm->total = $params['shipping_fee'];
+	$pm->amount = $params['shipping_fee'];
 	$pm->creator = $loggedin_user;
 	$pm->order_type = "WALLET";
 	$url = $pm->process();

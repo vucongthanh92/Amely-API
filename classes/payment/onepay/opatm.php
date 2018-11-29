@@ -27,6 +27,7 @@ class OPATM extends \Object implements \Amely\Payment\IPaymentMethod
 	public $duration;
 	public $payment_id;
 	public $shipping_method;
+	public $options;
 
 	function __construct()
 	{
@@ -58,24 +59,13 @@ class OPATM extends \Object implements \Amely\Payment\IPaymentMethod
 				$display_order = convertPrefixOrder($order_type, $order->id, $order->time_created);
 				break;
 			case 'WALLET':
-				
-				break;
-			case 'ITEM':
-				$options['duration'] = $this->duration;
-				$options['creator_id'] = $creator->id;
-				$display_order = convertPrefixOrder($order_type, $order_id, time());
-				break;
-			case 'DELIVERY_ITEM':
-				$options['creator_id'] = $creator->id;
-				$options['shipping_method'] = $this->shipping_method;
 				$display_order = convertPrefixOrder($order_type, $order_id, time());
 				break;
 			default:
 				$options = null;
 				break;
 		}
-		$options['amount'] = $this->amount;
-		$options = serialize($options);
+		$options = serialize($this->options);
 		$paymentsService = \PaymentsService::getInstance();
 		$payment_id = $paymentsService->save($order_id, $this->order_type, $this->payment_method, $options);
 		$return_url = $settings['url'].$settings['prefix'].'/payment_response?payment_id='.$payment_id;

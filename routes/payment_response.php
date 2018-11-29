@@ -64,8 +64,8 @@ $app->get($container['prefix'].'/payment_response', function (Request $request, 
 							break;
 						case 'DELIVERY_ITEM':
 							$shipping_method = $options['shipping_method'];
-							$item_id = $options['item_id'];
-							
+							$item_id = $itemService->separateItem($options['item_id'], $options['quantity']);
+
 							$sm = $shippingService->getMethod($shipping_method);
 							$sm->item_id = $item_id;
 							$sm->shipping_info = $options;

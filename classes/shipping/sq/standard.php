@@ -20,5 +20,6 @@ class Standard extends \Object
 
 	public function redeemDelivery()
     {
+    	return true;
     }
 }

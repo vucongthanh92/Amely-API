@@ -73,5 +73,6 @@ class Storage extends \Object
 
 	public function redeemDelivery()
     {
+    	return true;
     }
 }

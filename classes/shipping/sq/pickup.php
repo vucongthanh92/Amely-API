@@ -20,6 +20,7 @@ class Pickup extends \Object
 
 	public function redeemDelivery()
     {
+    	return true;
     }
 }
 

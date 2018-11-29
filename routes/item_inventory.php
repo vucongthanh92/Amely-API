@@ -68,12 +68,11 @@ $app->patch($container['prefix'].'/item_inventory', function (Request $request, 
 	$total = $snapshot->adjourn_price * $item->quantity * $params['duration'];
 
 	$pm = $paymentsService->getMethod($params['payment_method']);
-	$pm->order_id = $item->id;
-	$pm->duration = $params['duration'];
+	$pm->options = $params;
+	$pm->order_id = $loggedin_user->id;
 	$pm->amount = $total;
 	$pm->creator = $loggedin_user;
-	$pm->order_type = "ITEM";
-	$pm->payment_method = $params['payment_method'];
+	$pm->order_type = "WALLET";
 	$url = $pm->process();
 	if (!$url) return response(false);
 	return response(["url" => $url]);
