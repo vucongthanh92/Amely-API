@@ -58,7 +58,8 @@ class COD extends \Object implements \Amely\Payment\IPaymentMethod
 		$purchaseOrderService = \PurchaseOrderService::getInstance();
 		$supplyOrderService = \SupplyOrderService::getInstance();
 		$userService = \UserService::getInstance();
-
+		$snapshotService = \SnapshotService::getInstance();
+		
 		$po = $purchaseOrderService->getPOByType($po_id, 'id');
 		switch ($status) { 
 			case 0:

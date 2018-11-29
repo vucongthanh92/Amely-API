@@ -119,6 +119,9 @@ class PaymentsService extends Services
 					'redeem_quantity' => $order_item['redeem_quantity']
 				];
 			}
+			var_dump($po);
+			var_dump($items_sos);
+			die('123');
 
 			if ($items_sos) {
 				foreach ($items_sos as $kitems_so => $items_so) {
@@ -179,7 +182,7 @@ class PaymentsService extends Services
 					// $so->data->total = $total;
 					// $so->data->quantity = $quantity;
 					// $so_id = $so->insert(true);
-					var_dump($so_id);die('123');
+
 					if ($so_id) {
 						$sm = $shippingService->getMethod($po->shipping_method);
 						$time = time();
