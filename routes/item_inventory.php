@@ -68,6 +68,7 @@ $app->patch($container['prefix'].'/item_inventory', function (Request $request, 
 	$total = $snapshot->adjourn_price * $item->quantity * $params['duration'];
 	$params['total'] = $total;
 	$params['action'] = "RENEW";
+	$params['creator_id'] = $loggedin_user->id;
 	$pm = $paymentsService->getMethod($params['payment_method']);
 	$pm->options = $params;
 	$pm->order_id = $loggedin_user->id;

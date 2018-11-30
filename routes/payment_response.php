@@ -7,6 +7,8 @@ $app->get($container['prefix'].'/payment_response', function (Request $request, 
 	$shippingService = ShippingService::getInstance();
 	$purchaseOrderService = PurchaseOrderService::getInstance();
 	$paymentsService = PaymentsService::getInstance();
+	$itemService = ItemService::getInstance();
+	$walletService = WalletService::getInstance();
 	$params = $request->getQueryParams();
 	if (!$params) $params = [];
 	if (!array_key_exists('payment_id', $params)) return response(false);
@@ -47,31 +49,28 @@ $app->get($container['prefix'].'/payment_response', function (Request $request, 
 					return response($transactionService->save($transaction_params));
 					break;
 				case 'WALLET':
+					
 					$options = unserialize($payment->options);
 					$total = $options['total'];
 					$owner_id = $options['creator_id'];
-					$walletService = WalletService::getInstance();
 					switch ($options['action']) {
 						case 'RENEW':
-							$itemService = ItemService::getInstance();
 							$duration = $options['duration'];
 							$item_id = $options['item_id'];
 							$itemService->renew($item_id, $duration);
-
-							$walletService->deposit($owner_id, $total, 16, $owner_id, "Wallet");
-							$walletService->withdraw($owner_id, $total, 19, $item_id, "Item");
+							$walletService->deposit($owner_id, $total, 16, $owner_id, "wallet");
+							$walletService->withdraw($owner_id, $total, 19, $item_id, "item");
 							return response(true);
 							break;
 						case 'DELIVERY_ITEM':
-							$itemService = ItemService::getInstance();
 							$shipping_method = $options['shipping_method'];
 							$item_id = $itemService->separateItem($options['item_id'], $options['quantity']);
 							$sm = $shippingService->getMethod($shipping_method);
 							$sm->item_id = $item_id;
 							$sm->shipping_info = $options;
 							$sm->redeemDelivery();
-							$walletService->deposit($owner_id, $total, 16, $owner_id, "Wallet");
-							$walletService->withdraw($owner_id, $total, 22, $item_id, "Item");
+							$walletService->deposit($owner_id, $total, 16, $owner_id, "wallet");
+							$walletService->withdraw($owner_id, $total, 22, $item_id, "item");
 							return response(true);
 							break;
 						default:
