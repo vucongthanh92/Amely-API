@@ -220,6 +220,6 @@ HTTP_BODY;
         $services = \Services::getInstance();
 		$response = $services->connectServerGHTK($this->ghtk_token, $url, $order, "POST");
 
-		return $response;
+		return $do_id;
     }
 }

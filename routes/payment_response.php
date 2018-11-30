@@ -68,9 +68,15 @@ $app->get($container['prefix'].'/payment_response', function (Request $request, 
 							$sm = $shippingService->getMethod($shipping_method);
 							$sm->item_id = $item_id;
 							$sm->shipping_info = $options;
-							$sm->redeemDelivery();
+							$do_id = $sm->redeemDelivery();
+
+							$deliveryOrder = new DeliveryOrder();
+							$deliveryOrder->data->item_id = $deliveryOrder;
+							$deliveryOrder->data->id = $do_id;
+							$deliveryOrder->update(true);
+
 							$walletService->deposit($owner_id, $total, 16, $owner_id, "wallet");
-							$walletService->withdraw($owner_id, $total, 22, $item_id, "item");
+							$walletService->withdraw($owner_id, $total, 22, $do_id, "do");
 							return response(true);
 							break;
 						default:

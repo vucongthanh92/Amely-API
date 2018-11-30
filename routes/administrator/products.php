@@ -19,24 +19,25 @@ $app->get($container['administrator'].'/products', function (Request $request, R
 	$product = $productService->getProductByType($input, $type);
 	if (!$product) return response(false);
 	
-	$product_stores = $productStoreService->getQuantityByType($product->id, 'product_id');
-	$stores = array_map(create_function('$o', 'return $o->store_id;'), $product_stores);
-	$stores = implode(',', $stores);
 
 	$shop = $shopService->getShopByType($product->owner_id, 'id');
 	if (!$shop) return response(false);
-	if (!$stores) return response(false);
 
-	$stores = $storeService->getStoresByType($stores, 'id');
-	foreach ($stores as $key => $store) {
-		foreach ($product_stores as $product_store) {
-			if ($product_store->store_id == $store->id) {
-				$store->quantity = $product_store->quantity;
+	$product_stores = $productStoreService->getQuantityByType($product->id, 'product_id');
+	if ($product_stores) {
+		$stores_id = array_map(create_function('$o', 'return $o->store_id;'), $product_stores);
+		$stores_id = implode(',', $stores_id);
+		$stores = $storeService->getStoresByType($stores_id, 'id');
+		foreach ($stores as $key => $store) {
+			foreach ($product_stores as $product_store) {
+				if ($product_store->store_id == $store->id) {
+					$store->quantity = $product_store->quantity;
+				}
 			}
+			$stores[$key] = $store;
 		}
-		$stores[$key] = $store;
+		$shop->stores = $stores;
 	}
-	$shop->stores = $stores;
 
 	$product->shop = $shop;
 	if ($product->category) {

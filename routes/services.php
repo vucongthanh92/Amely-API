@@ -79,7 +79,7 @@ curl_setopt_array($curl, array(
     CURLOPT_POSTFIELDS => $order,
     CURLOPT_HTTPHEADER => array(
         "Content-Type: application/json",
-        "Token: 899afa32455Be620511626F58E173294B2285E09",
+        "Token: DDC3c40bB1C218c35a45929D64F66cE44c415785",
         "Content-Length: " . strlen($order),
     ),
 ));
