@@ -10,6 +10,7 @@ $app->get($container['prefix'].'/delivery_orders', function (Request $request, R
 	$userService = UserService::getInstance();
 	$storeService = StoreService::getInstance();
 	$itemService = ItemService::getInstance();
+	$shopService = ShopService::getInstance();
 
 	$loggedin_user = loggedin_user();
 	$time = time();
@@ -27,7 +28,11 @@ $app->get($container['prefix'].'/delivery_orders', function (Request $request, R
 	if (!$po) return response(false);
 	$do->po = $po;
 	$store = $storeService->getStoreByType($do->store_id, 'id', true);
-	$do->store = $store;
+	if (!$store) return response(false);
+	$shop = $shopService->getShopByType($store->owner_id, 'id');
+	if (!$shop) return response(false);
+	$shop->store = $store;
+	$do->shop = $shop;
 	$owner = $userService->getUserByType($do->owner_id, 'id');
 	$do->owner = $owner;
 
