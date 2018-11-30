@@ -71,7 +71,7 @@ $app->get($container['prefix'].'/payment_response', function (Request $request, 
 							$do_id = $sm->redeemDelivery();
 
 							$deliveryOrder = new DeliveryOrder();
-							$deliveryOrder->data->item_id = $deliveryOrder;
+							$deliveryOrder->data->item_id = $item_id;
 							$deliveryOrder->data->id = $do_id;
 							$deliveryOrder->update(true);
 
