@@ -73,6 +73,7 @@ $app->get($container['prefix'].'/payment_response', function (Request $request, 
 							$deliveryOrder = new DeliveryOrder();
 							$deliveryOrder->data->item_id = $item_id;
 							$deliveryOrder->data->id = $do_id;
+							$deliveryOrder->where = "id = {$do_id}";
 							$deliveryOrder->update(true);
 
 							$walletService->deposit($owner_id, $total, 16, $owner_id, "wallet");
