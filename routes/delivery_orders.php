@@ -2,6 +2,57 @@
 use Slim\Http\Request;
 use Slim\Http\Response;
 
+$app->get($container['prefix'].'/delivery_orders', function (Request $request, Response $response, array $args) {
+	$purchaseOrderService = PurchaseOrderService::getInstance();
+	$supplyOrderService = SupplyOrderService::getInstance();
+	$deliveryOrderService = DeliveryOrderService::getInstance();
+	$snapshotService = SnapshotService::getInstance();
+	$userService = UserService::getInstance();
+	$storeService = StoreService::getInstance();
+	$itemService = ItemService::getInstance();
+
+	$loggedin_user = loggedin_user();
+	$time = time();
+
+	$params = $request->getQueryParams();
+	if (!$params) $params = [];
+	if (!array_key_exists('do_id', $params)) return response(false);
+
+	$do = $deliveryOrderService->getDOByType($params['do_id'], 'id');
+	if (!$do) return response(false);
+	$so = $supplyOrderService->getSOByType($do->so_id, 'id');
+	if (!$so) return response(false);
+	$do->so = $so;
+	$po = $purchaseOrderService->getPOByType($so->owner_id, 'id');
+	if (!$po) return response(false);
+	$do->po = $po;
+	$store = $storeService->getStoreByType($do->store_id, 'id', true);
+	$do->store = $store;
+	$owner = $userService->getUserByType($do->owner_id, 'id');
+	$do->owner = $owner;
+
+	$items = [];
+	if ($do->item_id) {
+		$item = $itemService->getItemByType($do->item_id, 'id');
+		$snapshot = $snapshotService->getSnapshotByType($item->snapshot_id, 'id');
+		$snapshot->display_quantity = $item->quantity;
+		$items[] = $snapshot;
+	} else {
+		$order_items = unserialize($do->order_items_snapshot);
+		foreach ($order_items as $key => $order_item) {
+			$snapshot = $snapshotService->getSnapshotByType($order_item['snapshot_id'], 'id');
+			$snapshot->display_quantity = $order_item['quantity'];
+			$snapshot->redeem_quantity = $order_item['redeem_quantity'];
+			$items[] = $snapshot;
+		}
+	}
+	if (!$items) return response(false);
+	$do->items = $items;
+
+
+	return response($do);
+});
+
 $app->post($container['prefix'].'/delivery_orders', function (Request $request, Response $response, array $args) {
 	$deliveryOrderService = DeliveryOrderService::getInstance();
 	$loggedin_user = loggedin_user();
@@ -14,13 +65,13 @@ $app->post($container['prefix'].'/delivery_orders', function (Request $request, 
 
 	switch ($params['type']) {
 		case 'user':
-			$dos = $deliveryOrderService->getDOsByUser($params['owner_id'], $params['offset'], $params['limit']);
+			$dos = $deliveryOrderService->getDOsByUser($params['owner_id'], $params['offset'], $params['limit'], false);
 			break;
 		case 'store':
-			$dos = $deliveryOrderService->getDOsByStore($params['owner_id'], $params['offset'], $params['limit']);
+			$dos = $deliveryOrderService->getDOsByStore($params['owner_id'], $params['offset'], $params['limit'], false);
 			break;
 		case 'so':
-			$dos = $deliveryOrderService->getDOsBySO($params['owner_id'], $params['offset'], $params['limit']);
+			$dos = $deliveryOrderService->getDOsBySO($params['owner_id'], $params['offset'], $params['limit'], false);
 			break;
 		default:
 			return response(false);

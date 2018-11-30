@@ -26,10 +26,19 @@ class DeliveryOrderService extends Services
     	foreach ($data as $key => $value) {
     		$do->data->$key = $value;
     	}
+    	$do->data->status = 1;
     	return $do->insert(true);
     }
 
-    public function getDOsBySO($so_id, $offset = 0, $limit = 10)
+    public function updateStatus($do_id, $status)
+    {
+    	$do = new DeliveryOrder();
+    	$do->data->id = $do_id;
+    	$do->data->status = $status;
+    	return $do->update(true);
+    }
+
+    public function getDOsBySO($so_id, $offset = 0, $limit = 10, $getAddr = true)
     {    	
     	$conditions = null;
 		$conditions[] = [
@@ -37,12 +46,12 @@ class DeliveryOrderService extends Services
 			'value' => "= '{$so_id}'",
 			'operation' => ''
 		];
-		$dos = $this->getDOs($conditions, $offset, $limit);
+		$dos = $this->getDOs($conditions, $offset, $limit, $getAddr);
 		if (!$dos) return false;
 		return $dos;
     }
 
-    public function getDOsByStore($store_id, $offset = 0, $limit = 10)
+    public function getDOsByStore($store_id, $offset = 0, $limit = 10, $getAddr = true)
     {    	
     	$conditions = null;
 		$conditions[] = [
@@ -50,12 +59,12 @@ class DeliveryOrderService extends Services
 			'value' => "= '{$store_id}'",
 			'operation' => ''
 		];
-		$dos = $this->getDOs($conditions, $offset, $limit);
+		$dos = $this->getDOs($conditions, $offset, $limit, $getAddr);
 		if (!$dos) return false;
 		return $dos;
     }
 
-    public function getDOsByUser($owner_id, $offset = 0, $limit = 10)
+    public function getDOsByUser($owner_id, $offset = 0, $limit = 10, $getAddr = true)
     {    	
     	$conditions = null;
 		$conditions[] = [
@@ -63,7 +72,7 @@ class DeliveryOrderService extends Services
 			'value' => "= '{$owner_id}'",
 			'operation' => ''
 		];
-		$dos = $this->getDOs($conditions, $offset, $limit);
+		$dos = $this->getDOs($conditions, $offset, $limit, $getAddr);
 		if (!$dos) return false;
 		return $dos;
     }
@@ -89,35 +98,37 @@ class DeliveryOrderService extends Services
 		return $do;
 	}
 
-	public function getDOs($conditions, $offset = 0, $limit = 10)
+	public function getDOs($conditions, $offset = 0, $limit = 10, $getAddr = true)
 	{
 		$dos = $this->searchObject($conditions, $offset, $limit);
 		if (!$dos) return false;
 		foreach ($dos as $key => $do) {
-			$do = $this->changeStructureInfo($do);
+			$do = $this->changeStructureInfo($do, $getAddr);
 			$dos[$key] = $do;
 		}
 		return array_values($dos);
 	}
 
-	private function changeStructureInfo($do)
+	private function changeStructureInfo($do, $getAddr = true)
 	{
 		$addressService = AddressService::getInstance();
 		$do->display_order = convertPrefixOrder("GH", $do->id, $do->time_created);
 
-		$do_shipping_province = $addressService->getAddress($do->shipping_province, 'province');
-		$do_shipping_district = $addressService->getAddress($do->shipping_district, 'district');
-		$do_shipping_ward = $addressService->getAddress($do->shipping_ward, 'ward');
+		if ($getAddr) {
+			$do_shipping_province = $addressService->getAddress($do->shipping_province, 'province');
+			$do_shipping_district = $addressService->getAddress($do->shipping_district, 'district');
+			$do_shipping_ward = $addressService->getAddress($do->shipping_ward, 'ward');
 
-	    $do->shipping_province_name = $do_shipping_province->name;
-	    $do->shipping_district_name = $do_shipping_district->name;
-	    $do->shipping_ward_name = $do_shipping_ward->name;
+		    $do->shipping_province_name = $do_shipping_province->name;
+		    $do->shipping_district_name = $do_shipping_district->name;
+		    $do->shipping_ward_name = $do_shipping_ward->name;
 
-	    $do_shipping_province = $do_shipping_province->type .' '. $do_shipping_province->name;
-	    $do_shipping_district = $do_shipping_district->type .' '. $do_shipping_district->name;
-	    $do_shipping_ward = $do_shipping_ward->type .' '. $do_shipping_ward->name;
+		    $do_shipping_province = $do_shipping_province->type .' '. $do_shipping_province->name;
+		    $do_shipping_district = $do_shipping_district->type .' '. $do_shipping_district->name;
+		    $do_shipping_ward = $do_shipping_ward->type .' '. $do_shipping_ward->name;
 
-	    $do->shipping_full_address = $do->shipping_address.', '.$do_shipping_ward.', '.$do_shipping_district.', '.$do_shipping_province;
+		    $do->shipping_full_address = $do->shipping_address.', '.$do_shipping_ward.', '.$do_shipping_district.', '.$do_shipping_province;
+		}
 
 		return $do;
 	}
