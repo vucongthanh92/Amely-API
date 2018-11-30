@@ -29,6 +29,45 @@ class DeliveryOrderService extends Services
     	return $do->insert(true);
     }
 
+    public function getDOsBySO($so_id, $offset = 0, $limit = 10)
+    {    	
+    	$conditions = null;
+		$conditions[] = [
+			'key' => 'so_id',
+			'value' => "= '{$so_id}'",
+			'operation' => ''
+		];
+		$dos = $this->getDOs($conditions, $offset, $limit);
+		if (!$dos) return false;
+		return $dos;
+    }
+
+    public function getDOsByStore($store_id, $offset = 0, $limit = 10)
+    {    	
+    	$conditions = null;
+		$conditions[] = [
+			'key' => 'store_id',
+			'value' => "= '{$store_id}'",
+			'operation' => ''
+		];
+		$dos = $this->getDOs($conditions, $offset, $limit);
+		if (!$dos) return false;
+		return $dos;
+    }
+
+    public function getDOsByUser($owner_id, $offset = 0, $limit = 10)
+    {    	
+    	$conditions = null;
+		$conditions[] = [
+			'key' => 'owner_id',
+			'value' => "= '{$owner_id}'",
+			'operation' => ''
+		];
+		$dos = $this->getDOs($conditions, $offset, $limit);
+		if (!$dos) return false;
+		return $dos;
+    }
+
     public function getDOByType($input, $type ='id')
     {
     	$conditions = null;
@@ -63,6 +102,7 @@ class DeliveryOrderService extends Services
 
 	private function changeStructureInfo($do)
 	{
+		$addressService = AddressService::getInstance();
 		$do->display_order = convertPrefixOrder("GH", $do->id, $do->time_created);
 
 		$do_shipping_province = $addressService->getAddress($do->shipping_province, 'province');
@@ -72,6 +112,13 @@ class DeliveryOrderService extends Services
 	    $do->shipping_province_name = $do_shipping_province->name;
 	    $do->shipping_district_name = $do_shipping_district->name;
 	    $do->shipping_ward_name = $do_shipping_ward->name;
+
+	    $do_shipping_province = $do_shipping_province->type .' '. $do_shipping_province->name;
+	    $do_shipping_district = $do_shipping_district->type .' '. $do_shipping_district->name;
+	    $do_shipping_ward = $do_shipping_ward->type .' '. $do_shipping_ward->name;
+
+	    $do->shipping_full_address = $do->shipping_address.', '.$do_shipping_ward.', '.$do_shipping_district.', '.$do_shipping_province;
+
 		return $do;
 	}
 

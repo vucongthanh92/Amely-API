@@ -2,6 +2,33 @@
 use Slim\Http\Request;
 use Slim\Http\Response;
 
+$app->post($container['prefix'].'/delivery_orders', function (Request $request, Response $response, array $args) {
+	$deliveryOrderService = DeliveryOrderService::getInstance();
+	$loggedin_user = loggedin_user();
+	$params = $request->getParsedBody();
+	if (!$params) $params = [];
+	if (!array_key_exists('owner_id', $params)) $params['owner_id'] = $loggedin_user->id;
+	if (!array_key_exists('type', $params)) $params['type'] = 'user';
+	if (!array_key_exists('offset', $params)) $params['offset'] = 0;
+	if (!array_key_exists('limit', $params)) $params['limit'] = 10;
+
+	switch ($params['type']) {
+		case 'user':
+			$dos = $deliveryOrderService->getDOsByUser($params['owner_id'], $params['offset'], $params['limit']);
+			break;
+		case 'store':
+			$dos = $deliveryOrderService->getDOsByStore($params['owner_id'], $params['offset'], $params['limit']);
+			break;
+		case 'so':
+			$dos = $deliveryOrderService->getDOsBySO($params['owner_id'], $params['offset'], $params['limit']);
+			break;
+		default:
+			return response(false);
+			break;
+	}
+	return response($dos);
+});
+
 $app->put($container['prefix'].'/delivery_orders', function (Request $request, Response $response, array $args) {
 	$itemService = ItemService::getInstance();
 	$storeService = StoreService::getInstance();

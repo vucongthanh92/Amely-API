@@ -63,6 +63,7 @@ class Express extends \Object
 		$do_data['owner_id'] = $po->owner_id;
 		$do_data['type'] = 'user';
 		$do_data['so_id'] = $so_id;
+		$do_data['store_id'] = $store->id;
 		$do_data['order_items_snapshot'] = $so->order_items_snapshot;
 		$do_data['status'] = 0;
 		$do_data['shipping_fullname'] = $po->shipping_fullname;
@@ -159,6 +160,7 @@ HTTP_BODY;
     	$do_data['owner_id'] = $shipping_info['creator_id'];
 		$do_data['type'] = 'user';
 		$do_data['so_id'] = $item->so_id;
+		$do_data['store_id'] = $store->id;
 		$do_data['item_id'] = $item->id;
 		$do_data['order_items_snapshot'] = $so->order_items_snapshot;
 		$do_data['status'] = 0;
