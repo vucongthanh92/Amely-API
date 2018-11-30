@@ -2,6 +2,25 @@
 use Slim\Http\Request;
 use Slim\Http\Response;
 
+$app->get($container['administrator'].'/stores', function (Request $request, Response $response, array $args) {
+	$storeService = StoreService::getInstance();
+	$shopService = ShopService::getInstance();
+	$loggedin_user = loggedin_user();
+
+	$params = $request->getQueryParams();
+	if (!$params) $params = [];
+	if (!array_key_exists('store_id', $params)) return response(false);
+
+	$store = $storeService->getStoreByType($params['store_id'], 'id');
+	if (!$store) return response(false);
+	$shop = $shopService->getShopByType($store->owner_id, 'id');
+	if (!$shop) return response(false);
+	$shop->store = $store;
+
+	return response($shop);
+
+});
+
 // them hoac chinh sua cua hang
 $app->post($container['administrator'].'/stores', function (Request $request, Response $response, array $args) {
 	$storeService = StoreService::getInstance();
