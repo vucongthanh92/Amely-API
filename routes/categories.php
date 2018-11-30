@@ -39,11 +39,40 @@ $app->post($container['prefix'].'/categories', function (Request $request, Respo
 			'operation' => 'AND'
 		];
 	} else {
-		$category_params[] = [
-			'key' => 'subtype',
-			'value' => "= {$params['type']}",
-			'operation' => ''
-		];
+		switch ($params['type']) {
+			case 0: 
+				$category_params[] = [
+					'key' => 'subtype',
+					'value' => "= 'market'",
+					'operation' => ''
+				];
+				break;
+			case 1: 
+				$category_params[] = [
+					'key' => 'subtype',
+					'value' => "= 'voucher'",
+					'operation' => ''
+				];
+				break;
+			case 2: 
+				$category_params[] = [
+					'key' => 'subtype',
+					'value' => "= 'ticket'",
+					'operation' => ''
+				];
+				break;
+			case 3: 
+				$category_params[] = [
+					'key' => 'subtype',
+					'value' => "= 'shop'",
+					'operation' => ''
+				];
+				break;
+			default:
+				return response(false);
+				break;
+		}
+		
 	}
 
 	$categories = $categoryService->getCategories($category_params, $offset, $limit);
