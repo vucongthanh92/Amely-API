@@ -31,7 +31,7 @@ $app->post($container['prefix'].'/vouchers', function (Request $request, Respons
 		'operation' => "order_by"
 	];
 
-	$products = $productService->getProducts($product_params, $offset, $limit);
+	$products = $productService->getProducts($product_params, $params['offset'], $params['limit']);
 	
 	return response($products);
 });
