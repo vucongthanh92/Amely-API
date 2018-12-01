@@ -173,9 +173,9 @@ $app->post($container['administrator'].'/products', function (Request $request, 
 	$product_data['market_category'] = $params['market_category'];
 
 	$uploadedFiles = $request->getUploadedFiles();
-    $images = false;
+    $images = [];
     if ($uploadedFiles) {
-	    $images = $uploadedFiles['images'];
+    	array_push($images, $uploadedFiles['images']);
     }
 
     return response($productService->save($product_data, $images));
