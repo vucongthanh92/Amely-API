@@ -67,7 +67,7 @@ class ImageService extends Services
         global $settings;
         $path = DIRECTORY_SEPARATOR."{$type}".DIRECTORY_SEPARATOR."{$id}".DIRECTORY_SEPARATOR."images".DIRECTORY_SEPARATOR."{$size}_{$image}";
         if (file_exists($settings['image']['path'].$path)) return $settings['image']['url'].$path;
-        return $settings['image']['cover'];
+        return $settings['image']['avatar'];
     }
 
 }

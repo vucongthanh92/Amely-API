@@ -21,6 +21,11 @@ $app->get($container['administrator'].'/shops', function (Request $request, Resp
 		'value' => "= {$shop->id}",
 		'operation' => ''
 	];
+	$store_params[] = [
+		'key' => 'status',
+		'value' => "IN (0,1)",
+		'operation' => 'AND'
+	];
 
 	$stores = $storeService->getStores($store_params, 0, 999999999);
 	$shop->stores = $stores;
