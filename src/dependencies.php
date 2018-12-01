@@ -37,6 +37,10 @@ $container['administrator'] = function ($c) {
     return $c->get('settings')['administrator'];
 };
 
+$container['response'] = function ($c) {
+    return $c->get('settings')['response'];
+};
+
 $container['mail'] = function ($c) {
     return (object)$c->get('settings')['mail'];
 };

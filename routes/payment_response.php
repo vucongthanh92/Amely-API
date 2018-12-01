@@ -10,8 +10,12 @@ $app->get($container['prefix'].'/payment_response', function (Request $request, 
 	$itemService = ItemService::getInstance();
 	$walletService = WalletService::getInstance();
 	$params = $request->getQueryParams();
+
+	$error = $container['response']."/error";
+	$success = $container['response']."/error";
+
 	if (!$params) $params = [];
-	if (!array_key_exists('payment_id', $params)) return response(false);
+	if (!array_key_exists('payment_id', $params)) return redirect($error);
 
 	$payment = $paymentsService->getPaymentById($params['payment_id']);
 	switch ($payment->status) {
@@ -21,7 +25,7 @@ $app->get($container['prefix'].'/payment_response', function (Request $request, 
 			$pm->order_type = $payment->type;
 			$pm->payment_id = $payment->id;
 			$response = $pm->getResult();
-			if (!$response) return response(false);
+			if (!$response) return redirect($error);
 			switch ($payment->type) {
 				case 'HD':
 					$po = $purchaseOrderService->getPOByType($response['order_id'], 'id');
@@ -60,7 +64,7 @@ $app->get($container['prefix'].'/payment_response', function (Request $request, 
 							$itemService->renew($item_id, $duration);
 							$walletService->deposit($owner_id, $total, 16, $owner_id, "wallet");
 							$walletService->withdraw($owner_id, $total, 19, $item_id, "item");
-							return response(true);
+							return redirect($success);
 							break;
 						case 'DELIVERY_ITEM':
 							$shipping_method = $options['shipping_method'];
@@ -78,10 +82,10 @@ $app->get($container['prefix'].'/payment_response', function (Request $request, 
 
 							$walletService->deposit($owner_id, $total, 16, $owner_id, "wallet");
 							$walletService->withdraw($owner_id, $total, 22, $do_id, "do");
-							return response(true);
+							return redirect($success);
 							break;
 						default:
-							return response(false);
+							return redirect($error);
 							break;
 					}
 					break;
@@ -91,13 +95,13 @@ $app->get($container['prefix'].'/payment_response', function (Request $request, 
 			}
 			break;
 		case 1:
-			return response(true);
+			return redirect($success);
 			break;
 		case 2:
-			return response(false);
+			return redirect($error);
 			break;
 		default:
-			return response(false);
+			return redirect($error);
 			break;
 	}
 

@@ -2,6 +2,12 @@
 
 use Slim\Http\Response;
 
+function redirect($url)
+{
+	header("Location: ".$url);
+	die();
+}
+
 function getFilename()
 {
 	return time().rand().".jpg";
