@@ -24,6 +24,92 @@ $app->get($container['prefix'].'/services', function (Request $request, Response
 })->setName('services');
 
 $app->post($container['prefix'].'/services', function (Request $request, Response $response, array $args) {
+	global $elasticsearch;
+// 	$params = [
+// 	    'index' => 'my_index',
+// 	    'body' => [
+// 	        'settings' => [
+// 	            'number_of_shards' => 3,
+// 	            'number_of_replicas' => 2
+// 	        ],
+// 	        'mappings' => [
+// 	            'my_type' => [
+// 	                '_source' => [
+// 	                    'enabled' => true
+// 	                ],
+// 	                'properties' => [
+// 	                    'first_name' => [
+// 	                        'type' => 'keyword',
+// 	                        'analyzer' => 'standard'
+// 	                    ],
+// 	                    'age' => [
+// 	                        'type' => 'integer'
+// 	                    ]
+// 	                ]
+// 	            ]
+// 	        ]
+// 	    ]
+// 	];
+
+
+// 	// Create the index with mappings and settings now
+// 	$response = $client->indices()->create($params);
+
+// 	$params = null;
+// 	$params = [
+// 	    'index' => "test",
+// 	    'type' => "test",
+// 	    'id' => 1,
+// 	    'body' => [
+// 	    	'Title' => '',
+// 	    	'Phone' => '',
+// 	    	'Username' => '',
+// 	    	'Fullname' => '',
+// 	    	'Email' => '',
+// 	    	'Price' => '',
+// 	    	'Image' => '',
+// 	    	'Shop'  => ''
+// 	    ]
+// 	];
+
+// 	$elasticsearch->index($params);
+
+// {
+//   "mappings": {
+//     "shop": {
+//       "properties": {
+//         "location": {
+//           "type": "geo_point"
+//         },
+//         "Title": {
+//           "type": "string"
+//         },
+//         "Description": {
+//           "type": "string"
+//         },
+//         "id": {
+//           "type": "string"
+//         },
+//         "Image": {
+//           "type": "string"
+//         },
+//         "Phone": {
+//           "type": "string"
+//         },
+//         "Address": {
+//           "type": "string"
+//         },
+//         "OwnerID": {
+//           "type": "string"
+//         }
+//       }
+//     }
+//   }
+// }
+
+
+
+	die('2131231');
 	// $imageService = ImageService::getInstance();
 	// $uploadedFile = $uploadedFiles['logo'];
  //    if ($uploadedFile->getError() === UPLOAD_ERR_OK) {
