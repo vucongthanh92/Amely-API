@@ -92,6 +92,11 @@ class ShopService extends Services
 			'value' => "= '{$input}'",
 			'operation' => ''
 		];
+		$conditions[] = [
+			'key' => 'status',
+			'value' => "!= 2",
+			'operation' => 'AND'
+		];
 		$shop = $this->getShop($conditions, $getAddr);
 		if (!$shop) return false;
 		return $shop;
@@ -104,6 +109,11 @@ class ShopService extends Services
 			'key' => $type,
 			'value' => "IN ({$input})",
 			'operation' => ''
+		];
+		$conditions[] = [
+			'key' => 'status',
+			'value' => "!= 2",
+			'operation' => 'AND'
 		];
 		$shops = $this->getShops($conditions, $offset, $limit, $getAddr);
 		if (!$shops) return false;
