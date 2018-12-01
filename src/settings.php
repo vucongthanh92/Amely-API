@@ -57,8 +57,8 @@ return [
         'image' => [
             'url' => 'https://userdata.amely.com',
             'path' => '/home/thinhnez/api_userdata',
-            'avatar' => 'https://i1.wp.com/grueneroadpharmacy.com/wp-content/uploads/2017/02/user-placeholder-1.jpg',
-            'cover' => 'https://i1.wp.com/grueneroadpharmacy.com/wp-content/uploads/2017/02/user-placeholder-1.jpg'
+            'avatar' => 'http://userdata.amely.com/default1.png',
+            'cover' => 'http://userdata.amely.com/default2.jpg'
         ],
         'url' => "http://api.local",
         'prefix' => "/ws/v1",
