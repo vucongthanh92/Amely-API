@@ -26,7 +26,6 @@ class ShopService extends Services
     	foreach ($data as $key => $value) {
     		$shop->data->$key = $value;
     	}
-    	$shop->data->status = 3;
     	$shop->data->approved = 0;
     	$shop->data->type = 'user';
     	if ($data['id']) {

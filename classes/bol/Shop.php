@@ -4,6 +4,7 @@
         0 tat
         1 mo
         2 cam
+        3 cho phe duyet
 */
 class Shop extends Object
 {
