@@ -54,11 +54,17 @@ class Services extends SlimDatabase
 
 	public function sendByMobile($mobile, $message = false)
 	{
+		global $settings;
 		$phone = preg_replace("/^0/i", "84", $mobile);
+		$data = null;
+		$data['sms'] = "true";
+		$data['phone'] = $phone;
+		$data['message'] = $message;
+		$url = $settings['sms'].'?'. http_build_query($data);
+			
 		$obj = new stdClass;
 		$obj->action = "sms";
-		$obj->phone = $phone;
-		$obj->message = $message;
+		$obj->url = $url;
 		return $this->connectServer("sms", $obj);
 
 		// global $settings;

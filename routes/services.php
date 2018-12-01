@@ -24,7 +24,10 @@ $app->get($container['prefix'].'/services', function (Request $request, Response
 })->setName('services');
 
 $app->post($container['prefix'].'/services', function (Request $request, Response $response, array $args) {
-	global $elasticsearch;
+	// $services = Services::getInstance();
+	// $services->sendByMobile("0349692858", "test nha");
+
+	// global $elasticsearch;
 // 	$params = [
 // 	    'index' => 'my_index',
 // 	    'body' => [
