@@ -141,38 +141,10 @@ $app->put($container['administrator'].'/shops', function (Request $request, Resp
 	$offset = (double)$params['offset'];
 	$limit = (double)$params['limit'];
 
-	$shops_liked = $shopService->getShopsLiked($loggedin_user->id);
-	$shop_params = null;
-	if ($shops_liked) {
-		$shops_liked = array_map(create_function('$o', 'return $o->subject_id;'), $shops_liked);
-		$shops_liked = implode(',', $shops_liked);
-		$shop_params[] = [
-			'key' => 'id',
-			'value' => "IN ($shops_liked)",
-			'operation' => ''
-		];
-		if ($params['friends']) {
-			$friends = implode(',', $params['friends']);
-			$shop_params[] = [
-				'key' => 'owner_id',
-				'value' => "IN ($friends)",
-				'operation' => 'OR'
-			];
-		}
-	} else {
-		if ($params['friends']) {
-			$friends = implode(',', $params['friends']);
-			$shop_params[] = [
-				'key' => 'owner_id',
-				'value' => "IN ($friends)",
-				'operation' => ''
-			];
-		}
-	}
 	$shop_params[] = [
 		'key' => 'status',
 		'value' => "IN (0,1)",
-		'operation' => 'AND'
+		'operation' => ''
 	];
 
 	$shops = $shopService->getShops($shop_params, $offset, $limit, false);

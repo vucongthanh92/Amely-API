@@ -27,7 +27,6 @@ class StoreService extends Services
     		$store->data->$key = $value;
     	}
     	$store->data->approved = 0;
-    	$store->data->status = 3;
     	$store->data->type = 'shop';
     	if ($data['id']) {
     		$store->where = "id = {$data['id']}";
