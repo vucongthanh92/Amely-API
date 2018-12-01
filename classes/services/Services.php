@@ -55,14 +55,13 @@ class Services extends SlimDatabase
 	public function sendByMobile($mobile, $message = false)
 	{
 		global $settings;
-		return true;
 		if (!$message) return false;
 		$ch = curl_init();
 		curl_setopt($ch, CURLOPT_URL, $settings['sms']);
 		curl_setopt($ch, CURLOPT_POST, 1);
 		$phone = preg_replace("/^0/i", "84", $mobile);
 		curl_setopt($ch, CURLOPT_POSTFIELDS,
-            "sms=sms&message=$message&phone=$phone");
+            "sms=true&message={$message}&phone={$phone}");
 		curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
 		$server_output = curl_exec ($ch);
 		curl_close ($ch);

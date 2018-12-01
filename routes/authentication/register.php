@@ -66,8 +66,8 @@ $app->put($container['prefix'].'/register', function (Request $request, Response
 	$user_data['mobilelogin'] = $mobile;
 	$user_data['verification_code'] = $code;
 	$user_data['time_created'] = time();
-	$user_data['birthdate'] = "1993-08-03";
-	$user_data['gender'] = "male";
+	$user_data['birthdate'] = $params['birthdate'];
+	$user_data['gender'] = $params["gender"];
 	$user_data['usercurrency'] = "VND";
 	$user_id = $userService->save($user_data);
 	// $user = new User;
