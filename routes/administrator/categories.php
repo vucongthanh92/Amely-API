@@ -53,8 +53,8 @@ $app->post($container['administrator'].'/categories', function (Request $request
 	$category_data['description'] = $params['description'];
 	$category_data['subtype'] = $params['subtype'];
 	$category_data['friendly_url'] = $params['friendly_url'];
-	$category_data['sort_order'] = 0;
-	$category_data['enabled'] = 0;
+	$category_data['sort_order'] = $params['sort_order'];
+	$category_data['enabled'] = $params['enabled'];
 	$category_data['parent_id'] = $params['parent_id'];
 	$category_data['creator_id'] = $loggedin_user->id;
 	
