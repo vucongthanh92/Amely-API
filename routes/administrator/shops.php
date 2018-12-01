@@ -80,23 +80,23 @@ $app->post($container['administrator'].'/shops', function (Request $request, Res
 	if ($params['id']) {
 		$shop_data['id'] = $params['id'];	
 	}
-	// $shop_data['owner_id'] = $params['owner_id'];
-	// $shop_data['title'] = $params['title'];
-	// $shop_data['description'] = $params['description'];
-	// $shop_data['shop_bidn'] = $params['shop_bidn'];
-	// $shop_data['friendly_url'] = $params['friendly_url'];
-	// $shop_data['shipping_method'] = $params['shipping_method'];
-	// $shop_data['owner_name'] = $params['owner_name'];
-	// $shop_data['owner_phone'] = $params['owner_phone'];
-	// $shop_data['owner_address'] = $params['owner_address'];
-	// $shop_data['owner_province'] = $params['owner_province'];
-	// $shop_data['owner_district'] = $params['owner_district'];
-	// $shop_data['owner_ward'] = $params['owner_ward'];
-	// $shop_data['owner_ssn'] = $params['owner_ssn'];
-	// $shop_data['status'] = $params['status'];
-	// $shop_data['introduce'] = $params['introduce'];
-	// $shop_data['policy'] = $params['policy'];
-	// $shop_data['contact'] = $params['contact'];
+	$shop_data['owner_id'] = $params['owner_id'];
+	$shop_data['title'] = $params['title'];
+	$shop_data['description'] = $params['description'];
+	$shop_data['shop_bidn'] = $params['shop_bidn'];
+	$shop_data['friendly_url'] = $params['friendly_url'];
+	$shop_data['shipping_method'] = $params['shipping_method'];
+	$shop_data['owner_name'] = $params['owner_name'];
+	$shop_data['owner_phone'] = $params['owner_phone'];
+	$shop_data['owner_address'] = $params['owner_address'];
+	$shop_data['owner_province'] = $params['owner_province'];
+	$shop_data['owner_district'] = $params['owner_district'];
+	$shop_data['owner_ward'] = $params['owner_ward'];
+	$shop_data['owner_ssn'] = $params['owner_ssn'];
+	$shop_data['status'] = $params['status'];
+	$shop_data['introduce'] = $params['introduce'];
+	$shop_data['policy'] = $params['policy'];
+	$shop_data['contact'] = $params['contact'];
 
 	$files = $request->getUploadedFiles();
     $images = false;
