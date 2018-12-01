@@ -37,6 +37,7 @@ class ShopService extends Services
 
     	if ($shop_id) {
     		if ($images) {
+    			$shop = new Shop();
     			foreach ($images as $k => $v) {
     				$filename = getFilename();
     				$shop->data->$k = $filename;
@@ -44,6 +45,7 @@ class ShopService extends Services
     				$imageService = ImageService::getInstance();
 					$imageService->uploadImage($shop_id, 'shop', $k, $v, $filename);
     			}
+    			$shop->data->id = $shop_id;
     			$shop->where = "id = {$shop_id}";
     			return $shop->update(true);
     		}
