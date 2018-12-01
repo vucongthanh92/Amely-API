@@ -15,7 +15,7 @@ $app->get($container['prefix'].'/payment_response', function (Request $request, 
 	$success = $container['response']."/error";
 
 	if (!$params) $params = [];
-	if (!array_key_exists('payment_id', $params)) return redirect($error);
+	if (!array_key_exists('payment_id', $params)) return redirectURL($error);
 
 	$payment = $paymentsService->getPaymentById($params['payment_id']);
 	switch ($payment->status) {
@@ -25,7 +25,7 @@ $app->get($container['prefix'].'/payment_response', function (Request $request, 
 			$pm->order_type = $payment->type;
 			$pm->payment_id = $payment->id;
 			$response = $pm->getResult();
-			if (!$response) return redirect($error);
+			if (!$response) return redirectURL($error);
 			switch ($payment->type) {
 				case 'HD':
 					$po = $purchaseOrderService->getPOByType($response['order_id'], 'id');
@@ -64,7 +64,7 @@ $app->get($container['prefix'].'/payment_response', function (Request $request, 
 							$itemService->renew($item_id, $duration);
 							$walletService->deposit($owner_id, $total, 16, $owner_id, "wallet");
 							$walletService->withdraw($owner_id, $total, 19, $item_id, "item");
-							return redirect($success);
+							return redirectURL($success);
 							break;
 						case 'DELIVERY_ITEM':
 							$shipping_method = $options['shipping_method'];
@@ -82,10 +82,10 @@ $app->get($container['prefix'].'/payment_response', function (Request $request, 
 
 							$walletService->deposit($owner_id, $total, 16, $owner_id, "wallet");
 							$walletService->withdraw($owner_id, $total, 22, $do_id, "do");
-							return redirect($success);
+							return redirectURL($success);
 							break;
 						default:
-							return redirect($error);
+							return redirectURL($error);
 							break;
 					}
 					break;
@@ -95,13 +95,13 @@ $app->get($container['prefix'].'/payment_response', function (Request $request, 
 			}
 			break;
 		case 1:
-			return redirect($success);
+			return redirectURL($success);
 			break;
 		case 2:
-			return redirect($error);
+			return redirectURL($error);
 			break;
 		default:
-			return redirect($error);
+			return redirectURL($error);
 			break;
 	}
 

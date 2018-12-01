@@ -63,6 +63,6 @@ return [
         'url' => "http://api.local",
         'prefix' => "/ws/v1",
         'administrator' => "/ws/v1/administrator",
-        'response' => 'http://template.local/auth/response'
+        'responseURL' => 'http://template.local/auth/response'
     ],
 ];

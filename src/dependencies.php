@@ -37,8 +37,8 @@ $container['administrator'] = function ($c) {
     return $c->get('settings')['administrator'];
 };
 
-$container['response'] = function ($c) {
-    return $c->get('settings')['response'];
+$container['responseURL'] = function ($c) {
+    return $c->get('settings')['responseURL'];
 };
 
 $container['mail'] = function ($c) {

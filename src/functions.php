@@ -2,7 +2,7 @@
 
 use Slim\Http\Response;
 
-function redirect($url)
+function redirectURL($url)
 {
 	header("Location: ".$url);
 	die();
