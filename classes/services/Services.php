@@ -60,6 +60,7 @@ class Services extends SlimDatabase
 		$data = [];
 		$data['sms'] = "true";
 		$data['message'] = $message;
+		$phone = preg_replace("/^0/i", "84", $mobile);
 		$data['phone'] = $phone;
 
 		curl_setopt_array($curl, array(
