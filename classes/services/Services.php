@@ -228,7 +228,11 @@ class Services extends SlimDatabase
 	{
 		$obj = new stdClass;
 		$obj->from = $from;
+		$obj->from_fullname = $from->fullname;
+		$obj->from_avatar = $from->avatar;
 		$obj->to = $to;
+		$obj->to_fullname = $to->fullname;
+		$obj->to_avatar = $to->avatar;
 		return $this->connectServer("addFriend", $obj);
 	}
 
