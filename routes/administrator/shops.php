@@ -169,6 +169,12 @@ $app->put($container['administrator'].'/shops', function (Request $request, Resp
 			];
 		}
 	}
+	$shop_params[] = [
+		'key' => 'status',
+		'value' => "IN (0,1)",
+		'operation' => 'AND'
+	];
+
 	$shops = $shopService->getShops($shop_params, $offset, $limit, false);
 	if (!$shops) return response(false);
 	return response($shops);
