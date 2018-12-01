@@ -51,11 +51,22 @@ $app->post($container['administrator'].'/categories', function (Request $request
 	$category_data['type'] = $params['type'];
 	$category_data['title'] = $params['title'];
 	$category_data['description'] = $params['description'];
+	$category_data['parent_id'] = 0;
+	if ($params['subtype'] == 0) {
+		$category_data['parent_id'] = $params['parent_id'];
+	}
 	$category_data['subtype'] = $params['subtype'];
-	$category_data['friendly_url'] = $params['friendly_url'];
+	$category_data['friendly_url'] = time();
 	$category_data['sort_order'] = $params['sort_order'];
+	if ($params['sort_order'] == "undefined") {
+		$category_data['sort_order'] = 0;
+	}
+
 	$category_data['enabled'] = $params['enabled'];
-	$category_data['parent_id'] = $params['parent_id'];
+	if ($params['enabled'] == "undefined") {
+		$category_data['enabled'] = 0;
+	}
+	
 	$category_data['creator_id'] = $loggedin_user->id;
 	
 	$uploadedFiles = $request->getUploadedFiles();
