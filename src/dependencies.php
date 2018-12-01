@@ -41,11 +41,21 @@ $container['responseURL'] = function ($c) {
     return $c->get('settings')['responseURL'];
 };
 
+$container['elasticsearch_host'] = function ($c) {
+    return $c->get('settings')['elasticsearch_host'];
+};
+
 $container['mail'] = function ($c) {
     return (object)$c->get('settings')['mail'];
 };
 
-global $settings, $connectDB, $email;
+
+
+global $settings, $connectDB, $email, $elasticsearch;
 $settings = $container['settings'];
 $connectDB = $container['db'];
 $mail = $container['mail'];
+
+$elasticsearch = \Elasticsearch\ClientBuilder::create()           // Instantiate a new ClientBuilder
+                    ->setHosts(array($container['elasticsearch_host']))     // Set the hosts
+                    ->build(); 

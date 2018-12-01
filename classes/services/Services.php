@@ -54,21 +54,27 @@ class Services extends SlimDatabase
 
 	public function sendByMobile($mobile, $message = false)
 	{
-		global $settings;
-		if (!$message) return false;
-		$curl = curl_init();
-		$data = [];
-		$data['sms'] = "true";
-		$data['message'] = $message;
 		$phone = preg_replace("/^0/i", "84", $mobile);
-		$data['phone'] = $phone;
+		$obj = new stdClass;
+		$obj->action = "sms";
+		$obj->phone = $phone;
+		$obj->message = $message;
+		return $this->connectServer("sms", $obj);
 
-		curl_setopt_array($curl, array(
-            CURLOPT_URL => $settings['sms'].'?'. http_build_query($data),
-        ));
-		$response = curl_exec($curl);
-        curl_close($curl);
-        return true;
+		// global $settings;
+		// if (!$message) return false;
+		// $curl = curl_init();
+		// $data = [];
+		// $data['sms'] = "true";
+		// $data['message'] = $message;
+		// $data['phone'] = $phone;
+
+		// curl_setopt_array($curl, array(
+  //           CURLOPT_URL => $settings['sms'].'?'. http_build_query($data),
+  //       ));
+		// $response = curl_exec($curl);
+  //       curl_close($curl);
+  //       return true;
 	}
 
 	public function sendByEmail($email, $subject, $body)

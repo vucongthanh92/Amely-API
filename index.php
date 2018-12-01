@@ -13,6 +13,7 @@ if (PHP_SAPI == 'cli-server') {
 
 require __DIR__ . '/vendor/autoload.php';
 
+// use Elasticsearch\ClientBuilder;
 session_start();
 
 // Instantiate the app

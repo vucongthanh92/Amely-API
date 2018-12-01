@@ -48,6 +48,28 @@ class CategoryService extends Services
 
     public function delete($category_id)
     {
+    	$productService = ProductService::getInstance();
+    	$category = $this->getCategoryByType($category_id, 'id');
+
+    	$product_params = null;
+    	$product_params[] = [
+			'key' => "FIND_IN_SET({$category_id}, category)",
+			'value' => '',
+			'operation' => ''
+		];
+
+    	$products = $productService->getProducts($product_params, 0, 9999999999);
+    	if ($products) {
+    		foreach ($products as $key => $product) {
+    			$category = explode(',', $product->category);
+    			foreach ($categories as $key => $value) {
+    				# code...
+    			}
+    		}
+    	}
+    	var_dump($products);
+    	die();
+
     	$category = new Category();
     	$category->where = "id = {$category_id}";
     	return $category->delete();

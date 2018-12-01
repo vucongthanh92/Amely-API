@@ -114,21 +114,23 @@ $app->post($container['administrator'].'/shops', function (Request $request, Res
 	
 	$shop_id = $shopService->save($shop_data, $images);
 	if ($shop_id) {
-		$storeService = StoreService::getInstance();
-		$store_data = null;
-		$store_data['owner_id'] = $shop_id;
-		$store_data['title'] = $params['title'];
-		$store_data['description'] = $params['description'];
-		$store_data['lat'] = $params['lat'];
-		$store_data['lng'] = $params['lng'];
-		$store_data['store_phone'] = $params['store_phone'];
-		$store_data['store_address'] = $params['store_address'];
-		$store_data['store_province'] = $params['store_province'];
-		$store_data['store_district'] = $params['store_district'];
-		$store_data['store_ward'] = $params['store_ward'];
-		$store_data['status'] = $params['status'];
-		$storeService->save($store_data);
-		return response(true);
+		if ($params['id']) {
+			$storeService = StoreService::getInstance();
+			$store_data = null;
+			$store_data['owner_id'] = $shop_id;
+			$store_data['title'] = $params['title'];
+			$store_data['description'] = $params['description'];
+			$store_data['lat'] = $params['lat'];
+			$store_data['lng'] = $params['lng'];
+			$store_data['store_phone'] = $params['store_phone'];
+			$store_data['store_address'] = $params['store_address'];
+			$store_data['store_province'] = $params['store_province'];
+			$store_data['store_district'] = $params['store_district'];
+			$store_data['store_ward'] = $params['store_ward'];
+			$store_data['status'] = $params['status'];
+			$storeService->save($store_data);
+			return response(true);
+		}
 	}
 
 	return response(false);
