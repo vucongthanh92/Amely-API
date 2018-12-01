@@ -154,6 +154,7 @@ $app->put($container['administrator'].'/shops', function (Request $request, Resp
 
 // xoa cua hang
 $app->delete($container['administrator'].'/shops', function (Request $request, Response $response, array $args) {
+	$productService = ProductService::getInstance();
 	$shopService = ShopService::getInstance();
 	$loggedin_user = loggedin_user();
 	$params = $request->getQueryParams();
@@ -162,11 +163,15 @@ $app->delete($container['administrator'].'/shops', function (Request $request, R
 
 	$shop = $shopService->getShopByType($params['id'], 'id');
 
-	if ($loggedin_user->type == 'admin') {
-		return response($shopService->delete($shop->id));
+	$product = $productService->getProductByType($params['id'], 'owner_id');
+	if ($product) {
+		return response([
+			'status' => false,
+			'error' => "product_exist"
+		]);
 	}
 
-	if ($loggedin_user->shop->id == $category->owner_id && $category->type == 'shop') {
+	if ($loggedin_user->type == 'admin') {
 		return response($shopService->delete($shop->id));
 	}
 

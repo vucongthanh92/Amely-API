@@ -64,7 +64,10 @@ class ShopService extends Services
 
     public function delete($shop_id)
     {
-    	return $this->updateStatus($shop_id, 2);
+    	$shop = new Shop();
+    	$shop->data->id = $shop_id;
+    	$shop->where = "id = {$shop_id}";
+    	return $shop->delete();
     }
 
     public function updateStatus($shop_id, $status)
@@ -92,11 +95,6 @@ class ShopService extends Services
 			'value' => "= '{$input}'",
 			'operation' => ''
 		];
-		$conditions[] = [
-			'key' => 'status',
-			'value' => "!= 2",
-			'operation' => 'AND'
-		];
 		$shop = $this->getShop($conditions, $getAddr);
 		if (!$shop) return false;
 		return $shop;
@@ -109,11 +107,6 @@ class ShopService extends Services
 			'key' => $type,
 			'value' => "IN ({$input})",
 			'operation' => ''
-		];
-		$conditions[] = [
-			'key' => 'status',
-			'value' => "!= 2",
-			'operation' => 'AND'
 		];
 		$shops = $this->getShops($conditions, $offset, $limit, $getAddr);
 		if (!$shops) return false;
