@@ -60,19 +60,23 @@ $app->get($container['prefix'].'/orders', function (Request $request, Response $
 		foreach ($snapshots as $snapshot) {
 			foreach ($order_items as $order_item) {
 				if ($snapshot->id == $order_item['snapshot_id']) {
-					if ($order_item['quantity'] > 0) {
-						$snapshot->display_quantity = $order_item['quantity'];
-						$snapshot->redeem_quantity = 0;
-						$total += $snapshot->display_price * $order_item['quantity'];
-						$tax += $snapshot->tax;
-						$result['items'][$store->id][] = $snapshot;
-					}
-					if ($order_item['redeem_quantity'] > 0) {
-						$snapshot_redeem = clone $snapshot;
-						$snapshot_redeem->display_quantity = 0;
-						$snapshot_redeem->redeem_quantity = $order_item['redeem_quantity'];
-						$result['items'][$store->id][] = $snapshot_redeem;
-					}
+					$snapshot->display_quantity = $order_item['quantity'];
+					$snapshot->redeem_quantity = $order_item['redeem_quantity'];
+					$total += $snapshot->display_price * $order_item['quantity'];
+					$tax += $snapshot->tax;
+					// if ($order_item['quantity'] > 0) {
+					// 	$snapshot->display_quantity = $order_item['quantity'];
+					// 	$snapshot->redeem_quantity = 0;
+					// 	$total += $snapshot->display_price * $order_item['quantity'];
+					// 	$tax += $snapshot->tax;
+					// 	$result['items'][$store->id][] = $snapshot;
+					// }
+					// if ($order_item['redeem_quantity'] > 0) {
+					// 	$snapshot_redeem = clone $snapshot;
+					// 	$snapshot_redeem->display_quantity = 0;
+					// 	$snapshot_redeem->redeem_quantity = $order_item['redeem_quantity'];
+					// 	$result['items'][$store->id][] = $snapshot_redeem;
+					// }
 				}
 			}
 		}
