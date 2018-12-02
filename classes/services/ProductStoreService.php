@@ -20,6 +20,19 @@ class ProductStoreService extends Services
         $this->table = "amely_product_store";
     }
 
+    public function save($data)
+    {
+        $productStore = new ProductStore();
+        foreach ($data as $key => $value) {
+            $productStore->data->$key = $value;
+        }
+        if ($data['id']) {
+            $productStore->where = "id = {$data['id']}";
+            return $productStore->update(true);
+        }
+        return $productStore->insert(true);
+    }
+
     public function checkQuantityInStore($product_id, $store_id)
     {
     	$conditions = null;

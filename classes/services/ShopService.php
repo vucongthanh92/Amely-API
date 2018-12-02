@@ -66,6 +66,15 @@ class ShopService extends Services
 
     public function delete($shop_id)
     {
+    	$supplyOrderService = SupplyOrderService::getInstance();
+    	$storeService = StoreService::getInstance();
+    	$stores = $storeService->getStoresByType($shop_id, 'owner_id', false);
+		foreach ($stores as $key => $store) {
+			$so = $supplyOrderService->getSOByType($store->id, 'store_id');
+			if ($so) {
+				$storeService->delete($store->id);
+			}
+		}
     	$shop = new Shop();
     	$shop->data->id = $shop_id;
     	$shop->where = "id = {$shop_id}";

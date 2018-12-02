@@ -49,7 +49,24 @@ class StoreService extends Services
 
     public function delete($store_id)
     {
-    	return $this->updateStatus($store_id, 2);
+    	$storeService = StoreService::getInstance();
+    	$productStoreService = ProductStoreService::getInstance();
+    	$deleted = true;
+    	$ps = $productStoreService->getQuantityByType($store_id, 'store_id', 0, 9999999999);
+    	if ($ps) {
+	    	foreach ($ps as $key => $value) {
+	    		if ($value->quantity > 0) {
+	    			$deleted = false;
+	    			break;
+	    		}
+	    	}
+    	}
+    	if ($deleted) {
+    		$store = new Store();
+	    	$store->where = "id = {$store_id}";
+	    	return $store->delete();
+    	}
+    	return false;
     }
 
     public function updateStatus($store_id, $status)
