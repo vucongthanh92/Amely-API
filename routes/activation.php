@@ -31,6 +31,8 @@ $app->post($container['prefix'].'/activation', function (Request $request, Respo
 			$user->data->activation = '';
 		}
 		$user->data->verification_code = '';
+		$user->data->id = $user->id;
+		$user->where = "id = {$user->id}";
 		return response($user->update());
 	}
 	return response(false);
@@ -61,6 +63,8 @@ $app->put($container['prefix'].'/activation', function (Request $request, Respon
 	$user = object_cast("User", $user);
 	$code = rand(100000, 999999);
 	$user->data->verification_code = $code;
+	$user->data->id = $user->id;
+	$user->where = "id = {$user->id}";
 	if ($user) {
 		if ($params['email']) {
 			if ($services->sendByEmail($user->email, "AMELY", $code)) {
