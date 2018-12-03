@@ -54,7 +54,7 @@ class ProductService extends Services
                 $product->where = "id = {$product_id}";
                 $product->update(true);
             }
-            return true;
+            return $product_id;
         }
         return false;
     }

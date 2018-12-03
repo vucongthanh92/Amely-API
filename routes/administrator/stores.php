@@ -73,10 +73,6 @@ $app->delete($container['administrator'].'/stores', function (Request $request, 
 		return response($storeService->delete($store->id));
 	}
 
-	if ($loggedin_user->shop->id == $store->owner_id) {
-		return response($storeService->delete($store->id));
-	}
-
 	return response(false);
 });
 

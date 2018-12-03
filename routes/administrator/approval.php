@@ -16,6 +16,7 @@ $app->post($container['administrator'].'/approval', function (Request $request, 
 	$shopService = ShopService::getInstance();
 	$storeService = StoreService::getInstance();
 	$productService = ProductService::getInstance();
+	$userService = UserService::getInstance();
 
 	$loggedin_user = loggedin_user();
 	$params = $request->getParsedBody();
@@ -34,11 +35,14 @@ $app->post($container['administrator'].'/approval', function (Request $request, 
 					$shop = $shopService->getShopByType($subject_id, 'id', false);
 					if ($shop) {
 						if ($shopService->approval($subject_id)) {
-							$user = new User();
-							$user->data->type = "manager";
-							$user->data->id = $shop->owner_id;
-							$user->where = "id = {$shop->owner_id}";
-							return $user->update();
+							$user = $userService->getUserByType($shop->owner_id, 'id', false);
+							if ($user->type != 'admin') {
+								$user = object_cast("User", $user);
+								$user->data->type = 'manager';
+								$user->data->id = $user->id;
+								$user->where = "id = {$user->id}";
+								$user->update();
+							}
 						}
 					}
 				}

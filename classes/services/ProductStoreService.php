@@ -22,15 +22,22 @@ class ProductStoreService extends Services
 
     public function save($data)
     {
-        $productStore = new ProductStore();
-        foreach ($data as $key => $value) {
-            $productStore->data->$key = $value;
-        }
-        if ($data['id']) {
-            $productStore->where = "id = {$data['id']}";
+        $data['type'] = 'shop';
+        $ps = $this->checkQuantityInStore($data['product_id'], $data['store_id']);
+        if ($ps) {
+            $productStore = new ProductStore();
+            $productStore->data->quantity = $data['quantity'];
+            $productStore->data->id = $ps->id;
+            $productStore->where = "store_id = {$data['store_id']} AND product_id = {$data['product_id']}";
             return $productStore->update(true);
+        } else {
+            $productStore = new ProductStore();
+            foreach ($data as $key => $value) {
+                $productStore->data->$key = $value;
+            }
+            return $productStore->insert(true);
         }
-        return $productStore->insert(true);
+        return true;
     }
 
     public function checkQuantityInStore($product_id, $store_id)

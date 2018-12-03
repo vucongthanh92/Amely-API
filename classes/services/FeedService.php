@@ -177,11 +177,6 @@ class FeedService extends Services
         ];
         $like_params[] = [
             'key' => 'owner_id',
-            'value' => "= {$owner_id}",
-            'operation' => 'AND'
-        ];
-        $like_params[] = [
-            'key' => 'owner_id',
             'value' => "",
             'operation' => 'query_params'
         ];
