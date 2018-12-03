@@ -114,7 +114,7 @@ $app->post($container['administrator'].'/shops', function (Request $request, Res
 	
 	$shop_id = $shopService->save($shop_data, $images);
 	if ($shop_id) {
-		if ($params['id']) {
+		if (!$params['id']) {
 			$storeService = StoreService::getInstance();
 			$store_data = null;
 			$store_data['owner_id'] = $shop_id;
