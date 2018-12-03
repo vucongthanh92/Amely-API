@@ -108,5 +108,8 @@ $app->patch($container['prefix'].'/profile', function (Request $request, Respons
 	$user_data['language'] = "VN";
 	$userService->save($user_data);
 
+	$user = $userService->getUserByType($loggedin_user->id, 'id', true);
+	$_SESSION["OSSN_USER"] = $user;
+
 	return response(true);
 });
