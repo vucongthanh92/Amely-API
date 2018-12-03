@@ -31,7 +31,16 @@ $app->post($container['administrator'].'/approval', function (Request $request, 
 		case 'shop':
 			if (is_array($params['subject_id'])) {
 				foreach ($params['subject_id'] as $subject_id) {
-					$shopService->approval($subject_id);
+					$shop = $shopService->getShopByType($subject_id, 'id', false);
+					if ($shop) {
+						if ($shopService->approval($subject_id)) {
+							$user = new User();
+							$user->data->type = "manager";
+							$user->data->id = $shop->owner_id;
+							$user->where = "id = {$shop->owner_id}";
+							return $user->update();
+						}
+					}
 				}
 				return response(true);
 			}
