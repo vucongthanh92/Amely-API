@@ -33,7 +33,7 @@ $app->post($container['prefix'].'/activation', function (Request $request, Respo
 		$user->data->verification_code = '';
 		$user->data->id = $user->id;
 		$user->where = "id = {$user->id}";
-		return response($user->update());
+		return response($user->update(true));
 	}
 	return response(false);
 })->setName('activation');
@@ -68,13 +68,13 @@ $app->put($container['prefix'].'/activation', function (Request $request, Respon
 	if ($user) {
 		if ($params['email']) {
 			if ($services->sendByEmail($user->email, "AMELY", $code)) {
-				return response($user->update());
+				return response($user->update(true));
 			}
 		}
 		if ($params['mobilelogin']) {
 			$mobilelogin = preg_replace("/^\\+?84/i", "0", $user->mobilelogin);
 			if ($services->sendByMobile($mobilelogin, $code)) {
-				return response($user->update());
+				return response($user->update(true));
 			}
 		}
 	}
