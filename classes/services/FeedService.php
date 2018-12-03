@@ -87,7 +87,7 @@ class FeedService extends Services
     public function countComment($feed_id)
     {
         $commentService = CommentService::getInstance();
-        $count = $commentService->countComment(false, $feed_id, 'feed');
+        $count = $commentService->countComment($feed_id, false, 'feed');
         if (!$count) return 0;
         return $count;
     }
