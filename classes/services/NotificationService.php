@@ -282,10 +282,10 @@ class NotificationService extends Services
 				$owner_id = $data['from']->id;
 				$owner_type = 'user';
 				$notify_token = $tokenService->getNotifyToken($owner_id, $owner_type);
-				$from_id = $data['from']->id;
-				$from_type = 'user';
-				$to_id = $event->id;
-				$to_type = 'event';
+				$from_id = $event->id;
+				$from_type = 'event';
+				$to_id = $data['from']->id;
+				$to_type = 'user';
 				$subject_id = $event->id;
 				$description = $user->fullname." ".$target." ".$event->title;
 				break;
@@ -297,10 +297,10 @@ class NotificationService extends Services
 				$owner_id = $event->creator_id;
 				$owner_type = 'user';
 				$notify_token = $tokenService->getNotifyToken($owner_id, $owner_type);
-				$from_id = $event->id;
+				$from_id = $data['from']->id;
 				$from_type = 'event';
-				$to_id = $data['from']->id;
-				$to_type = 'user';
+				$to_id = $event->id;
+				$to_type = 'event';
 				$subject_id = $event->id;
 				$description = $data['from']->fullname." ".$target." ".$event->title;
 				break;

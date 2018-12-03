@@ -30,10 +30,9 @@ class EventService extends Services
 		}
 		if ($data['id']) {
 			$event->where = "id = {$data['id']}";
-			$event->update();
-			$event_id = $data['id'];
+			$event_id = $event->update(true);
 		} else {
-			$event_id = $event->insert();
+			$event_id = $event->insert(true);
 		}
 		if ($event_id) {
 			$owners = $userService->getUsersByType($data['owners_id'], 'id');
@@ -41,6 +40,7 @@ class EventService extends Services
 			foreach ($owners as $key => $owner) {
 				$relationshipService->save($owner, $event, 'event:invitation');
 				$relationshipService->save($event, $owner, 'event:approve');
+				$relationshipService->save($event, $owner, 'event:joined');
 			}
 			return true;
 		}
@@ -61,6 +61,19 @@ class EventService extends Services
 		}
 		return true;
 	}
+
+	public function getEventsByType($input, $type ='id', $offset = 0, $limit = 10)
+    {
+    	$conditions = null;
+		$conditions[] = [
+			'key' => $type,
+			'value' => "IN ({$input})",
+			'operation' => ''
+		];
+		$events = $this->getEvents($conditions, $offset, $limit);
+		if (!$events) return false;
+		return $events;
+    }
 
     public function getEventByType($input, $type ='id')
     {

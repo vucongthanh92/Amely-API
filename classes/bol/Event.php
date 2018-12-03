@@ -1,6 +1,6 @@
 <?php
 
-class Events extends Object
+class Event extends Object
 {
 	private $owner_id;
 	private $type;

@@ -5,6 +5,8 @@ use Slim\Http\Response;
 $app->put($container['prefix'].'/approval', function (Request $request, Response $response, array $args) {
 	$services = Services::getInstance();
 	$relationshipService = RelationshipService::getInstance();
+	$userService = UserService::getInstance();
+	$eventService = EventService::getInstance();
 	$loggedin_user = loggedin_user();
 	$params = $request->getParsedBody();
 	if (!$params) $params = [];
@@ -18,7 +20,7 @@ $app->put($container['prefix'].'/approval', function (Request $request, Response
 	$type = $params['type'];
 	switch ($type) {
 		case 'user':
-			$userService = UserService::getInstance();
+			
 			$from = $loggedin_user->id;
 			$user = $userService->getUserByType($to, 'id');
 			
@@ -36,7 +38,13 @@ $app->put($container['prefix'].'/approval', function (Request $request, Response
 			# code...
 			break;
 		case 'event':
-			# code...
+			$event = $eventService->getEventByType($to, 'id');
+			if ($relationshipService->getRelationByType($loggedin_user->id, $event->id, 'event:invitation')) {
+				if ($relationshipService->getRelationByType($event->id, $loggedin_user->id, 'event:approve')) return response(false);
+				$relationshipService->save($event, $loggedin_user, 'event:approve');
+				return response(true);
+			}
+			return response(false);
 			break;
 		default:
 			# code...
