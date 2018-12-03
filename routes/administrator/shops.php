@@ -129,8 +129,9 @@ $app->post($container['administrator'].'/shops', function (Request $request, Res
 			$store_data['store_ward'] = $params['store_ward'];
 			$store_data['status'] = $params['status'];
 			$storeService->save($store_data);
-			return response(true);
+			return response($shop_id);
 		}
+		return response($shop_id);
 	}
 
 	return response(false);
