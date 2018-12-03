@@ -55,7 +55,7 @@ $app->post($container['administrator'].'/categories', function (Request $request
 	if ($params['subtype'] == 0) {
 		$category_data['parent_id'] = $params['parent_id'];
 	}
-	if ($category_data['parent_id']) {
+	if (!$category_data['parent_id']) {
 		$category_data['parent_id'] = null;
 	}
 	$category_data['subtype'] = $params['subtype'];
