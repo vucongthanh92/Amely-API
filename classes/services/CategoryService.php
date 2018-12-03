@@ -61,15 +61,49 @@ class CategoryService extends Services
     	$products = $productService->getProducts($product_params, 0, 9999999999);
     	if ($products) {
     		foreach ($products as $key => $product) {
-    			$category = explode(',', $product->category);
-    			foreach ($categories as $key => $value) {
-    				# code...
+    			switch ($category->subtype) {
+    				case 0:
+    					$market_categories = explode(',', $product->market_category);
+		    			if ($market_categories) {
+		    				array_diff($market_categories, [$category_id]);
+		    			}
+		    			$market_categories = implode(',', $market_categories);
+    					break;
+    				case 1:
+    					$voucher_categories = explode(',', $product->voucher_category);
+		    			if ($voucher_categories) {
+		    				array_diff($voucher_categories, [$category_id]);
+		    			}
+		    			$voucher_categories = implode(',', $voucher_categories);
+    					break;
+    				case 2:
+    					$ticket_categories = explode(',', $product->ticket_category);
+		    			if ($ticket_categories) {
+		    				array_diff($ticket_categories, [$category_id]);
+		    			}
+		    			$ticket_categories = implode(',', $ticket_categories);
+    					break;
+    				default:
+    					# code...
+    					break;
     			}
-    		}
-    	}
-    	var_dump($products);
-    	die();
+    			$categories = explode(',', $product->category);
+    			if ($categories) {
+    				array_diff($categories, [$category_id]);
+    			}
+    			$categories = implode(',', $categories);
 
+
+    			$product = object_cast("Product", $product);
+    			$product->data->id = $product;
+    			$product->data->category = $categories;
+    			$product->data->market_category = $market_categories;
+    			$product->data->voucher_category = $voucher_categories;
+    			$product->data->ticket_category = $ticket_categories;
+    			$product->update();
+    		}
+    		return true;
+    	}
     	$category = new Category();
     	$category->where = "id = {$category_id}";
     	return $category->delete();

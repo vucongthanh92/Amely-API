@@ -105,6 +105,7 @@ $app->post($container['administrator'].'/products', function (Request $request, 
 	if (!array_key_exists('adjourn_price', $params)) $params['adjourn_price'] = 0;
 	if (!array_key_exists('images', $params)) $params['images'] = 0;
 	if (!array_key_exists('parent_id', $params)) $params['parent_id'] = 0;
+	if (!array_key_exists('status', $params)) $params['status'] = 0;
 
 	if (!$params['owner_id']) {
 		$shop = $shopService->getShopByType($loggedin_user->id, 'owner_id', false);
@@ -171,6 +172,7 @@ $app->post($container['administrator'].'/products', function (Request $request, 
 	$product_data['ticket_category'] = $params['ticket_category'];
 	$product_data['shop_category'] = $params['shop_category'];
 	$product_data['market_category'] = $params['market_category'];
+	$product_data['status'] = $params['status'];
 
 	$uploadedFiles = $request->getUploadedFiles();
     $images = [];
