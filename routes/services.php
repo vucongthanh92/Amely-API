@@ -122,40 +122,38 @@ $app->post($container['prefix'].'/services', function (Request $request, Respons
 	// 	$imageService->uploadImage(99999, 'test', 'images', $file, $filename);
 	// 	return response($filename);
  //    }
-die('321312');
-$order = <<<HTTP_BODY
-{
+/*
+
+
+$order = 
+'{
     "products": [{
         "name": "bút",
-        "weight": 0.1,
-        "quantity": 1
+        "weight": 0.1
     }, {
         "name": "tẩy",
-        "weight": 0.2,
-        "quantity": 1
+        "weight": 0.2
     }],
     "order": {
-        "id": "a4",
-        "pick_name": "HCM-nội thành",
+        "id": "a410e9",
+        "pick_name": "HN-nội thành",
         "pick_address": "590 CMT8 P.11",
-        "pick_province": "TP. Hồ Chí Minh",
-        "pick_district": "Quận 3",
+        "pick_province": "Hà Nội",
+        "pick_district": "Quận Thanh Xuan",
         "pick_tel": "0911222333",
         "tel": "0911222333",
         "name": "GHTK - HCM - Noi Thanh",
         "address": "123 nguyễn chí thanh",
-        "province": "TP. Hồ Chí Minh",
-        "district": "Quận 1",
+        "province": "Hà Nội",
+        "district": "Quận Thanh Xuan",
         "is_freeship": "1",
-        "pick_date": "2016-09-30",
         "pick_money": 47000,
         "note": "Khối lượng tính cước tối đa: 1.00 kg",
-        "value": 3000000,
-        "transport": "fly",
+        "value": 3000000
     }
-}
-HTTP_BODY;
-
+}'
+;
+//echo $order; die;
 $curl = curl_init();
 
 curl_setopt_array($curl, array(
@@ -166,16 +164,67 @@ curl_setopt_array($curl, array(
     CURLOPT_POSTFIELDS => $order,
     CURLOPT_HTTPHEADER => array(
         "Content-Type: application/json",
-        "Token: DDC3c40bB1C218c35a45929D64F66cE44c415785",
+        "Token: D40e85e1d0D72901BA5e3C01aA17AEB5D9AC35Db",
         "Content-Length: " . strlen($order),
     ),
 ));
 
 $response = curl_exec($curl);
 curl_close($curl);
+echo  $response;*/
 
-echo $response;
+$url = 'https://dev.giaohangtietkiem.vn/services/shipment/order';
+$dataSend = array
+(
+    'products' => array
+        (
+            0 => array
+                (
+                    'name' => 'bút',
+                    'weight' => 0.1
+                ),
+            1 => array
+                (
+                    'name' => 'tẩy',
+                    'weight' => 0.2
+                )
+        ),
+    'order' => array
+        (
+            'id' => 'a410d',
+            'pick_name' => 'HCM-nội thành',
+            'pick_address' => '590 CMT8 P.11',
+            'pick_province' => 'TP. Hồ Chí Minh',
+            'pick_district' => 'Quận 3',
+            'pick_tel' => '0911222333',
+            'tel' => '0911222333',
+            'name' => 'GHTK - HCM - Noi Thanh',
+            'address' => '123 nguyễn chí thanh',
+            'province' => 'TP. Hồ Chí Minh',
+            'district' => 'Quận 1',
+            'is_freeship' => 1,
+            'pick_date' => '2016-09-30',
+            'pick_money' => 47000,
+            'note' => 'Khối lượng tính cước tối đa: 1.00 kg',
+            'value' => 3000000
+        )
 
+);
+    $data_string = json_encode($dataSend);// echo $data_string; die;
+    var_dump($data_string);die();
+    $ch=curl_init($url);
+    curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "POST");
+    curl_setopt($ch,CURLOPT_RETURNTRANSFER, true);
+    curl_setopt($ch, CURLOPT_POSTFIELDS, $data_string);
+    curl_setopt($ch, CURLOPT_HTTPHEADER,
+               array('Content-Type:application/json',
+                     'Token: 1dEBE0fE1Ff091213571585C541E42f98d5bf8D6',
+                      'Content-Length: ' . strlen($data_string),
+                     )
+               );
+    $response =  curl_exec($ch);
+    echo $response;
+    curl_close($ch);
 
     // return response(false);
 

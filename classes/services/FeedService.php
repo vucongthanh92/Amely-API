@@ -191,7 +191,10 @@ class FeedService extends Services
     }
 
     private function changeStructureInfo($feed)
-    {
+    {   
+        foreach ($variable as $key => $value) {
+            # code...
+        }
         $imageService = ImageService::getInstance();
         if ($feed->images) {
             $images = explode(',', $feed->images);

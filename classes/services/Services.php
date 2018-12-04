@@ -22,9 +22,19 @@ class Services extends SlimDatabase
     	$result = $this->getData($this->table, $conditions, $offest, $limit);
     	if (!$result) return false;
     	if ($limit == 1) {
-    		return $result[0];
+    		$obj = $result[0];
+    		foreach ($obj as $key => $value) {
+    			$obj->$key = html_entity_decode($value);
+    		}
+    		return $obj;
     	}
-    	return $result;
+    	foreach ($result as $k => $obj) {
+    		foreach ($obj as $key => $value) {
+    			$obj->$key = html_entity_decode($value);
+    		}
+    		$result[$k] = $obj;
+    	}
+    	return array_values($result);
     }
 
     public function connectServer($action, $obj)
