@@ -88,13 +88,13 @@ $app->post($container['prefix'].'/events', function (Request $request, Response 
 			$relations = $relationshipService->getRelationsByType(false, $loggedin_user->id, 'event:approve', $offset, $limit);
 			if ($relations) {
 				foreach ($relations as $key => $relation) {
-					array_push($events_id, $relation->relation_to);
+					array_push($events_id, $relation->relation_from);
 				}
 			}
 			if (!$events_id) return response(false);
 			$events_id = array_unique($events_id);
 			$events_id = implode(',', $events_id);
-			$events = $eventService->getEventsByType($events_id, $offset, $limit);
+			$events = $eventService->getEventsByType($events_id, 'id', $offset, $limit);
 			break;
 		case 'myself':
 			$event_params[] = [
