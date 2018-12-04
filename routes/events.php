@@ -39,8 +39,12 @@ $app->get($container['prefix'].'/events', function (Request $request, Response $
 	    	'operation' => 'AND'
 	    ];
 	    $relations = $relationshipService->getRelations($relation_params, 0, 99999999);
-	    foreach ($invite as $key => $invite) {
-			array_push($invites_accepted, $invite);
+	    foreach ($relations as $key => $relation) {
+	    	foreach ($invites as $key => $invite) {
+	    		if ($relation->relation_to == $invite->id) {
+					array_push($invites_accepted, $invite);
+	    		}
+	    	}
 		}
 	}
 	$event->invites_accepted = $invites_accepted;
@@ -114,7 +118,7 @@ $app->post($container['prefix'].'/events', function (Request $request, Response 
 			$relations = $relationshipService->getRelationsByType(false, $loggedin_user->id, 'event:joined', 0, 999999999);
 			if ($relations) {
 				foreach ($relations as $key => $relation) {
-					array_push($events_id, $relation->relation_from);
+					array_push($events_joined_id, $relation->relation_from);
 				}
 			}
 			$relation_params = null;
@@ -129,11 +133,11 @@ $app->post($container['prefix'].'/events', function (Request $request, Response 
 				'operation' => 'AND'
 			];
 
-			if ($events_id) {
-				$events_id = implode(',', $events_id);
+			if ($events_joined_id) {
+				$events_joined_id = implode(',', $events_joined_id);
 				$relation_params[] = [
 					'key' => 'relation_from',
-					'value' => "NOT IN ($events_id)",
+					'value' => "NOT IN ({$events_joined_id})",
 					'operation' => 'AND'
 				];
 			}
