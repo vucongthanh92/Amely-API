@@ -60,11 +60,7 @@ $app->put($container['administrator'].'/product_store', function (Request $reque
 
 	foreach ($ps as $key => $value) {
 		array_push($products_id, $value->product_id);
-		$result['items'][] = [
-			'store_id' => $value->store_id,
-			'product_id' => $value->product_id,
-			'quantity' => $value->quantity
-		];
+		$result['items'][$value->store_id][$value->product_id] = $value->quantity;
 	}
 	$products_id = array_unique($products_id);
 	$products_id = implode(',', $products_id);
