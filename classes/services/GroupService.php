@@ -26,7 +26,11 @@ class GroupService extends Services
     	if ($data['id']) {
     		return $group->update();
     	}
-    	return $group->insert(true);
+    	$group_id = $group->insert(true);
+    	if ($group_id) {
+    		InventoryService::getInstance()->save($group_id, "group", $data['owner_id']);
+    		return $group_id;
+    	}
     }
 
     public function getGroupByType($input, $type ='id')

@@ -35,6 +35,7 @@ class EventService extends Services
 			$event_id = $event->insert(true);
 		}
 		if ($event_id) {
+			InventoryService::getInstance()->save($event_id, "event", $data['creator_id']);
 			$owners = $userService->getUsersByType($data['owners_id'], 'id');
 			$event = $this->getEventByType($event_id, 'id');
 			foreach ($owners as $key => $owner) {
@@ -92,6 +93,7 @@ class EventService extends Services
 	{
 		$event = $this->searchObject($conditions, 0, 1);
 		if (!$event) return false;
+		$event = $this->changeStructureInfo($event);
 		return $event;
 	}
 
@@ -99,6 +101,20 @@ class EventService extends Services
 	{
 		$events = $this->searchObject($conditions, $offset, $limit);
 		if (!$events) return false;
+		foreach ($events as $key => $event) {
+			$event = $this->changeStructureInfo($event);
+			$events[$key] = $event;
+		}
 		return array_values($events);
+	}
+
+	private function changeStructureInfo($event)
+	{
+		$imageService = ImageService::getInstance();
+
+		$event->avatar = $imageService->showAvatar($event->id, $event->avatar, 'event', 'large');
+		$event->cover = $imageService->showCover($event->id, $event->cover, 'event', 'large');
+
+		return $event;
 	}
 }

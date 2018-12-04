@@ -3,6 +3,7 @@ use Slim\Http\Request;
 use Slim\Http\Response;
 
 $app->get($container['prefix'].'/events', function (Request $request, Response $response, array $args) {
+	$relationshipService = RelationshipService::getInstance();
 	$eventService = EventService::getInstance();
 	$userService = UserService::getInstance();
 	$time = time();
@@ -15,16 +16,38 @@ $app->get($container['prefix'].'/events', function (Request $request, Response $
 
 	$owners = $userService->getUsersByType($event->owners_id, 'id', false);
 	$event->owners = $owners;
+	$invites_accepted = [];
 
 	if ($event->invites_id) {
 		$invites = $userService->getUsersByType($event->invites_id, 'id', false);
 		$event->invites = $invites;
+		
+
+		$relation_params[] = [
+	    	'key' => 'r.type',
+	    	'value' => "= 'event:approve'",
+	    	'operation' => ''
+	    ];
+	    $relation_params[] = [
+	    	'key' => 'r.relation_from',
+	    	'value' => "= {$event->id}",
+	    	'operation' => 'AND'
+	    ];
+	    $relation_params[] = [
+	    	'key' => 'r.relation_to',
+	    	'value' => "IN ({$event->invites_id})",
+	    	'operation' => 'AND'
+	    ];
+	    $relations = $relationshipService->getRelations($relation_params, 0, 99999999);
+	    foreach ($invite as $key => $invite) {
+			array_push($invites_accepted, $invite);
+		}
 	}
+	$event->invites_accepted = $invites_accepted;
 
 	if ($event->end_date < $time) {
 		$event->history = true;
 	}
-
 	return response($event);
 });
 
@@ -54,6 +77,18 @@ $app->post($container['prefix'].'/events', function (Request $request, Response 
 	];
 
 	switch ($event_type) {
+		case 'all':
+			$relations = $relationshipService->getRelationsByType(false, $loggedin_user->id, 'event:approve', $offset, $limit);
+			if ($relations) {
+				foreach ($relations as $key => $relation) {
+					array_push($events_id, $relation->relation_to);
+				}
+			}
+			if (!$events_id) return response(false);
+			$events_id = array_unique($events_id);
+			$events_id = implode(',', $events_id);
+			$events = $eventService->getEventsByType($events_id, $offset, $limit);
+			break;
 		case 'myself':
 			$event_params[] = [
 				'key' => "FIND_IN_SET({$loggedin_user->id}, owners_id)",
@@ -69,7 +104,7 @@ $app->post($container['prefix'].'/events', function (Request $request, Response 
 			break;
 		case 'guest':
 			$events_id = [];
-			$relations = $relationshipService->getRelationsByType(false, $loggedin_user->id, 'event:approve', $offset = 0, $limit = 10);
+			$relations = $relationshipService->getRelationsByType(false, $loggedin_user->id, 'event:approve', $offset, $limit);
 			if ($relations) {
 				foreach ($relations as $key => $relation) {
 					array_push($events_id, $relation->relation_to);
@@ -197,8 +232,8 @@ $app->put($container['prefix'].'/events', function (Request $request, Response $
 		$event_params['invites_id'] = array_unique($params['invites_id']);
 		$event_params['invites_id'] = implode(',', $event_params['invites_id']);	
 	}
-	$event_params['start_date'] = strtotime($params['start_date']);
-	$event_params['end_date'] = strtotime($params['end_date']);
+	$event_params['start_date'] = $params['start_date'];
+	$event_params['end_date'] = $params['end_date'];
 	$event_params['country'] = $params['country'];
 	$event_params['location'] = $params['location'];
 	$event_params['template'] = $params['template'];

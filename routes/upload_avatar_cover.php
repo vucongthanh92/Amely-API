@@ -30,7 +30,14 @@ $app->patch($container['prefix'].'/upload_avatar_cover', function (Request $requ
 			if (!$group) return response(false);
 			if ($group->owner_id != $loggedin_user->id) return response(false);
 			$services->downloadImage($owner_id, $owner_type, $image_type, $images);
+			break;
 		case 'event':
+			$eventService = EventService::getInstance();
+			$event = $eventService->getGroupById($owner_id);
+			if (!$event) return response(false);
+			if ($event->creator_id != $loggedin_user->id) return response(false);
+			$services->downloadImage($owner_id, $owner_type, $image_type, $images);
+			break;
 		case 'business':
 		case 'shop':
 		default:

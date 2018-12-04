@@ -317,6 +317,11 @@ class Services extends SlimDatabase
 				$group->data->$image_type = $filenames;
 				$group->where = "id = {$owner_id}";
 				return response($group->update());
+			case 'event':
+				$event = new Event();
+				$event->data->$image_type = $filenames;
+				$event->where = "id = {$owner_id}";
+				return response($event->update());
 			default:
 				# code...
 				break;
