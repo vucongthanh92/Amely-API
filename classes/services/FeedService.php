@@ -200,6 +200,8 @@ class FeedService extends Services
             foreach ($images as $image) {
                 array_push($feed->images, $imageService->showImage($feed->id, $image, 'feed', 'large'));
             }
+        } else {
+            unset($feed->images);
         }
         
         return $feed;
