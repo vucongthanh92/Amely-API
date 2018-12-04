@@ -114,7 +114,7 @@ $app->post($container['prefix'].'/events', function (Request $request, Response 
 			$relations = $relationshipService->getRelationsByType(false, $loggedin_user->id, 'event:joined', $offset, $limit);
 			if ($relations) {
 				foreach ($relations as $key => $relation) {
-					array_push($events_id, $relation->relation_to);
+					array_push($events_id, $relation->relation_from);
 				}
 			}
 			$relation_params = null;
@@ -132,7 +132,7 @@ $app->post($container['prefix'].'/events', function (Request $request, Response 
 			if ($events_id) {
 				$events_id = implode(',', $events_id);
 				$relation_params[] = [
-					'key' => 'relation_to',
+					'key' => 'relation_from',
 					'value' => "NOT IN ($events_id)",
 					'operation' => 'AND'
 				];
