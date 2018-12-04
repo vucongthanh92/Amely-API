@@ -44,7 +44,7 @@ class EventService extends Services
 					$notify = false;
 				}
 				$relationshipService->save($owner, $event, 'event:invitation', '', $notify);
-				$relationshipService->save($event, $owner, 'event:approve', '', $notify);
+				$relationshipService->save($event, $owner, 'event:approve', '', false);
 				$relationshipService->save($event, $owner, 'event:joined', '', $notify);
 			}
 			return true;
