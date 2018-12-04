@@ -281,7 +281,7 @@ $app->patch($container['prefix'].'/events', function (Request $request, Response
 	// if (!array_key_exists('invites', $params))	 	$params['invites_id'] = false;
 
 	$event = $eventService->getEventByType($params['id'], 'id');
-	if ($event->status != 2) return response(false);
+	if ($event->status == 2) return response(false);
 
 	if ($params['published']) {
 		if ($event->published) return response(false);
