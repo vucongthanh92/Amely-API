@@ -189,7 +189,7 @@ $app->post($container['prefix'].'/events', function (Request $request, Response 
 		if ($event->end_date < $time) {
 			$event->history = 1;
 		}
-		
+
 		foreach ($owners as $key => $owner) {
 			if ($event->creator_id == $owner->id) {
 				$event->owners = array($owner);
@@ -259,7 +259,7 @@ $app->patch($container['prefix'].'/events', function (Request $request, Response
 	$params = $request->getParsedBody();
 	if (!$params) $params = [];
 	if (!array_key_exists('id', $params)) return response(false);
-	if (!array_key_exists('type', $params)) $params['type'] = false;
+	if (!array_key_exists('published', $params)) $params['published'] = 0;
 	if (!array_key_exists('status', $params))	 	$params['status'] = 1;
 
 	// if (!array_key_exists('title', $params))	 	$params['title'] = 10;
@@ -278,7 +278,7 @@ $app->patch($container['prefix'].'/events', function (Request $request, Response
 	$event = $eventService->getEventByType($params['id'], 'id');
 	if ($event->status != 2) return response(false);
 
-	if ($params['type'] == 'publish') {
+	if ($params['published']) {
 		if ($event->published) return response(false);
 		if ($event->invites_id) {
 			$invites_id = explode(',', $event->invites_id);

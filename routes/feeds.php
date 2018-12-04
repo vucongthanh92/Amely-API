@@ -217,10 +217,8 @@ $app->post($container['prefix'].'/feeds', function (Request $request, Response $
 		$owner->title = $feed->title;
 		$feed->owner = $owner;
 		$feed->poster = $feeds_users[$feed->poster_id];
-		
 		$feeds[$key] = $feed;
 	}
-	
 	return response($feeds);
 });
 
@@ -255,7 +253,7 @@ $app->put($container['prefix'].'/feeds', function (Request $request, Response $r
 	$item_type 		=  $params['item_type'];
 	$item_id 		=  $params['item_id'];
 
-	$description = htmlspecialchars($description, ENT_QUOTES, 'UTF-8');
+	// $description = htmlspecialchars($description, ENT_QUOTES, 'UTF-8');
 
 	// check rule of user when post feed
 	// switch ($type) {
