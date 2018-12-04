@@ -129,6 +129,8 @@ class SnapshotService extends Services
         }
         if ($images) {
         	$snapshot->images = $images;
+        } else {
+            unset($snapshot->images);
         }
         $snapshot->display_price = $this->getPrice($snapshot);
         $snapshot->display_currency = "VND";

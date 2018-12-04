@@ -2,6 +2,92 @@
 use Slim\Http\Request;
 use Slim\Http\Response;
 
+$app->get($container['prefix'].'/invitation', function (Request $request, Response $response, array $args) {
+	$relationshipService = RelationshipService::getInstance();
+	$eventService = EventService::getInstance();
+	$loggedin_user = loggedin_user();
+	$params = $request->getQueryParams();
+	if (!$params) $params = [];
+	// type (user group event business)
+	if (!array_key_exists('type', $params)) 		$params['type'] = "user";
+	if (!array_key_exists('owner_id', $params))	 	$params['owner_id'] = $loggedin_user->id;
+	// khi type = user thi invitation_type (user group event business)
+	if (!array_key_exists('invitation_type', $params)) 		$params['invitation_type'] = "user";
+
+	$owners = [];
+	
+	switch ($params['type']) {
+		case 'user':
+			switch ($params['invitation_type']) {
+				case 'user':
+					# code...
+					break;
+				case 'event':
+					$events_approve_id = [];
+
+					$events_approve = $relationshipService->getRelationsByType(false, $loggedin_user->id, 'event:approve', 0, 99999999);
+					if ($events_approve) {
+						foreach ($events_approve as $key => $events_approve) {
+							array_push($events_approve_id, $events_approve->relation_from);
+						}
+					}
+					$events_approve_id = array_unique($events_approve_id);
+					$events_approve_id = implode(',', $events_approve_id);
+
+					$relation_params[] = [
+						'key' => 'type',
+						'value' => "= 'event:invitation'",
+						'operation' => ''
+					];
+					$relation_params[] = [
+						'key' => 'relation_to',
+						'value' => "NOT IN ($events_approve_id)",
+						'operation' => 'AND'
+					];
+					$relation_params[] = [
+						'key' => 'relation_from',
+						'value' => "= $loggedin_user->id",
+						'operation' => 'AND'
+					];
+					$events_invitation_id = [];
+					$relations = $relationshipService->getRelations($relation_params, 0, 9999999);
+					if (!$relations) return response(false);
+					foreach ($relations as $key => $relation) {
+						array_push($events_invitation_id, $relation->relation_to);
+					}
+
+					$events_invitation_id = array_unique($events_invitation_id);
+					$events_invitation_id = implode(',', $events_invitation_id);
+
+					$events = $eventService->getEventsByType($events_invitation_id, 'id', 0, 99999999);
+
+					if (!$events) return response(false);
+					foreach ($events as $key => $event) {
+						array_push($owners, [
+							'id' => $event->id,
+							'type' => 'event',
+							'title' => $event->title,
+							'image' => $event->avatar
+						]);
+					}
+
+					break;
+				default:
+					# code...
+					break;
+			}
+
+
+			break;
+		
+		default:
+			# code...
+			break;
+	}
+
+	return response($owners);
+});
+
 $app->post($container['prefix'].'/invitation', function (Request $request, Response $response, array $args) {
 	$relationshipService = RelationshipService::getInstance();
 	$userService = UserService::getInstance();

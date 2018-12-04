@@ -188,6 +188,8 @@ class ProductService extends Services
         }
         if ($images) {
         	$product->images = $images;
+        } else {
+            unset($product->images);
         }
         $product->display_price = $this->getPrice($product);
         $product->display_currency = "VND";

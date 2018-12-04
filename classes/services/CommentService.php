@@ -141,6 +141,8 @@ class CommentService extends Services
 				$images[$key] = $imageService->showImage($comment->id, $image, 'comment', 'large');
 			}
 			$comment->images = $images;
+		} else {
+			unset($comment->images);
 		}
 
 		return $comment;
