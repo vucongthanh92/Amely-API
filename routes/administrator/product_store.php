@@ -38,6 +38,8 @@ $app->put($container['administrator'].'/product_store', function (Request $reque
 	if (!array_key_exists('offset', $params)) 	$params['offset'] = 0;
 	if (!array_key_exists('limit', $params)) 	$params['limit'] = 10;
 
+	$result['stores'] = $result['products'] = $result['items'] = [];
+
 	$shop = $shopService->getShopByType($params['shop_id'], 'id');
 	$stores = $storeService->getStoresByType($shop->id, 'owner_id', false);
 	$products_id = $stores_id = [];
@@ -46,8 +48,9 @@ $app->put($container['administrator'].'/product_store', function (Request $reque
 	}
 	$stores_id = array_unique($stores_id);
 	$stores_id = implode(',', $stores_id);
-
-	$result['stores'] = $stores;
+	if ($stores) {
+		$result['stores'] = $stores;
+	}
 
 	$ps_params = null;
 	$ps_params[] = [
@@ -57,16 +60,19 @@ $app->put($container['administrator'].'/product_store', function (Request $reque
 	];
 
 	$ps = $productStoreService->getQuantityProducts($ps_params, $params['offset'], $params['limit']);
-
-	foreach ($ps as $key => $value) {
-		array_push($products_id, $value->product_id);
-		$result['items'][$value->store_id][$value->product_id] = $value->quantity;
+	if ($ps) {
+		foreach ($ps as $key => $value) {
+			array_push($products_id, $value->product_id);
+			$result['items'][$value->store_id][$value->product_id] = $value->quantity;
+		}
 	}
 	$products_id = array_unique($products_id);
 	$products_id = implode(',', $products_id);
 
 	$products = $productService->getProductsByType($products_id, 'id');
-	$result['products'] = $products;
+	if ($products) {
+		$result['products'] = $products;
+	}
 
 	return response($result);
 

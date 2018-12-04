@@ -111,7 +111,7 @@ $app->post($container['prefix'].'/events', function (Request $request, Response 
 			break;
 		case 'guest':
 			$events_id = [];
-			$relations = $relationshipService->getRelationsByType(false, $loggedin_user->id, 'event:approve', $offset, $limit);
+			$relations = $relationshipService->getRelationsByType(false, $loggedin_user->id, 'event:joined', $offset, $limit);
 			if ($relations) {
 				foreach ($relations as $key => $relation) {
 					array_push($events_id, $relation->relation_to);
