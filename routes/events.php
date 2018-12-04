@@ -110,8 +110,8 @@ $app->post($container['prefix'].'/events', function (Request $request, Response 
 			$events = $eventService->getEvents($event_params, $offset, $limit);
 			break;
 		case 'guest':
-			$events_id = [];
-			$relations = $relationshipService->getRelationsByType(false, $loggedin_user->id, 'event:joined', $offset, $limit);
+			$events_joined_id = [];
+			$relations = $relationshipService->getRelationsByType(false, $loggedin_user->id, 'event:joined', 0, 999999999);
 			if ($relations) {
 				foreach ($relations as $key => $relation) {
 					array_push($events_id, $relation->relation_from);
@@ -141,7 +141,7 @@ $app->post($container['prefix'].'/events', function (Request $request, Response 
 			$events_id = [];
 			if ($relations) {
 				foreach ($relations as $key => $relation) {
-					array_push($events_id, $relation->relation_to);
+					array_push($events_id, $relation->relation_from);
 				}
 			}
 
@@ -155,7 +155,7 @@ $app->post($container['prefix'].'/events', function (Request $request, Response 
 			];
 			$event_params[] = [
 				'key' => 'id',
-				'value' => "IN {$events_id}",
+				'value' => "IN ({$events_id})",
 				'operation' => 'AND'
 			];
 			$events = $eventService->getEvents($event_params, $offset, $limit);

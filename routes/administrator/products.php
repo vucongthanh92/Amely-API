@@ -122,10 +122,10 @@ $app->post($container['administrator'].'/products', function (Request $request, 
 		$product_data['id'] = $params['id'];
 	}
 	if ($params['tag']) {
-		$params['tag'] = implode(',', $params['tag']);
+		$params['tag'] = $params['tag'];
 	}
 	if ($params['images']) {
-		$params['images'] = implode(',', $params['images']);
+		$params['images'] = $params['images'];
 	}
 	if ($params['begin_day']) {
 		$params['begin_day'] = strtotime($params['begin_day']);
@@ -134,7 +134,7 @@ $app->post($container['administrator'].'/products', function (Request $request, 
 		$params['end_day'] = strtotime($params['end_day']);
 	}
 	if ($params['category']) {
-		$product_data['category'] = implode(',', $params['category']);
+		$product_data['category'] = $params['category'];
 	}
 	$product_data['owner_id'] = $params['owner_id'];
 	$product_data['type'] = 'shop';
