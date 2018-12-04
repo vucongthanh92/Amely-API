@@ -13,6 +13,7 @@
         8 Bạn đã hủy yêu cầu trao đổi #1
         9 Đề xuất trao đổi # bị từ chối
         10 Đề xuất trao đổi # thành công.
+        25 Trao đổi của bạn đã hết hạn.
     order
         11 Đơn hàng #1 chờ xử lý.
         12 Đơn hàng #1 thành công.
