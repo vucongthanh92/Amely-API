@@ -273,6 +273,21 @@ class NotificationService extends Services
 				$subject_id = $counter->id;
 				$description = $target." ".$from_title;
 				break;
+			case 'event:joined':
+				$target = EVENT_JOINED;
+				$eventService = EventService::getInstance();
+				$userService = UserService::getInstance();
+				$event = $eventService->getEventByType($data['from']->id, 'id');
+				$owner_id = $event->creator_id;
+				$owner_type = 'user';
+				$notify_token = $tokenService->getNotifyToken($owner_id, $owner_type);
+				$from_id = $data['from']->id;
+				$from_type = 'event';
+				$to_id = $event->id;
+				$to_type = 'event';
+				$subject_id = $event->id;
+				$description = $data['from']->fullname." ".$target." ".$event->title;
+				break;
 			case 'event:invitation':
 				$target = EVENT_INVITATION;
 				$eventService = EventService::getInstance();

@@ -35,5 +35,6 @@ define("ORDER_REJECT", "Đơn hàng đã bị từ chối");
 define("ORDER_REQUEST_QUICKPAY", "Bạn có 1 đơn hàng thanh toán nhanh");
 
 
+define("EVENT_JOINED", "Bạn đã tham gia sự kiện");
 define("EVENT_INVITATION", "đã mời bạn tham gia sự kiện");
 define("EVENT_APPROVAL", "đã đồng ý tham gia sự kiện");

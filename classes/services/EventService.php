@@ -39,9 +39,13 @@ class EventService extends Services
 			$owners = $userService->getUsersByType($data['owners_id'], 'id');
 			$event = $this->getEventByType($event_id, 'id');
 			foreach ($owners as $key => $owner) {
-				$relationshipService->save($owner, $event, 'event:invitation');
-				$relationshipService->save($event, $owner, 'event:approve');
-				$relationshipService->save($event, $owner, 'event:joined');
+				$notify = true;
+				if ($data['creator_id'] == $owner->id) {
+					$notify = false;
+				}
+				$relationshipService->save($owner, $event, 'event:invitation', '', $notify);
+				$relationshipService->save($event, $owner, 'event:approve', '', $notify);
+				$relationshipService->save($event, $owner, 'event:joined', '', $notify);
 			}
 			return true;
 		}

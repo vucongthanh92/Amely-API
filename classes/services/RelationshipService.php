@@ -20,7 +20,7 @@ class RelationshipService extends Services
         $this->table = "amely_relationships r";
     }
 
-    public function save($from, $to, $type, $type_relation = 'invitation')
+    public function save($from, $to, $type, $type_relation = 'invitation', $notify = true)
     {
     	$notificationService = NotificationService::getInstance();
     	$tokenService = TokenService::getInstance();
@@ -33,10 +33,13 @@ class RelationshipService extends Services
 			if ($type == "friend:request") {
 				$type = "friend:".$type_relation;
 			}
-			$notify_params = null;
-			$notify_params['from'] = $from;
-			$notify_params['to'] = $to;
-			return $notificationService->save($notify_params, $type);
+			if ($notify) {
+				$notify_params = null;
+				$notify_params['from'] = $from;
+				$notify_params['to'] = $to;
+				return $notificationService->save($notify_params, $type);
+			}
+			return true;
 		}
 		return false;
     }

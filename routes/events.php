@@ -84,6 +84,7 @@ $app->post($container['prefix'].'/events', function (Request $request, Response 
 
 	switch ($event_type) {
 		case 'all':
+			$events_id = [];
 			$relations = $relationshipService->getRelationsByType(false, $loggedin_user->id, 'event:approve', $offset, $limit);
 			if ($relations) {
 				foreach ($relations as $key => $relation) {
