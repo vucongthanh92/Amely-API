@@ -259,6 +259,7 @@ $app->put($container['prefix'].'/events', function (Request $request, Response $
 
 $app->patch($container['prefix'].'/events', function (Request $request, Response $response, array $args) {
 	$eventService = EventService::getInstance();
+	$userService = UserService::getInstance();
 	$relationshipService = RelationshipService::getInstance();
 	$loggedin_user = loggedin_user();
 
