@@ -23,13 +23,15 @@ class Services extends SlimDatabase
     	if (!$result) return false;
     	if ($limit == 1) {
     		$obj = $result[0];
-    		foreach ($obj as $key => $value) {
+    		$properties = get_object_vars($obj);
+    		foreach ($properties as $key => $value) {
     			$obj->$key = html_entity_decode($value);
     		}
     		return $obj;
     	}
     	foreach ($result as $k => $obj) {
-    		foreach ($obj as $key => $value) {
+    		$properties = get_object_vars($obj);
+    		foreach ($properties as $key => $value) {
     			$obj->$key = html_entity_decode($value);
     		}
     		$result[$k] = $obj;
