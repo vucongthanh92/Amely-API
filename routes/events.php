@@ -45,8 +45,9 @@ $app->get($container['prefix'].'/events', function (Request $request, Response $
 	}
 	$event->invites_accepted = $invites_accepted;
 
+	$event->history = 0;
 	if ($event->end_date < $time) {
-		$event->history = true;
+		$event->history = 1;
 	}
 	return response($event);
 });
@@ -184,6 +185,11 @@ $app->post($container['prefix'].'/events', function (Request $request, Response 
 	$owners = $userService->getUsersByType($owners_id, 'id', false);
 
 	foreach ($events as $key => $event) {
+		$event->history = 0;
+		if ($event->end_date < $time) {
+			$event->history = 1;
+		}
+		
 		foreach ($owners as $key => $owner) {
 			if ($event->creator_id == $owner->id) {
 				$event->owners = array($owner);
