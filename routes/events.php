@@ -76,6 +76,11 @@ $app->post($container['prefix'].'/events', function (Request $request, Response 
 		'value' => "<> 2",
 		'operation' => ''
 	];
+	$event_params[] = [
+		'key' => 'time_created',
+		'value' => "DESC",
+		'operation' => 'order_by'
+	];
 
 	switch ($event_type) {
 		case 'all':
@@ -190,7 +195,7 @@ $app->post($container['prefix'].'/events', function (Request $request, Response 
 			$event->history = 1;
 		}
 
-		foreach ($owners as $key => $owner) {
+		foreach ($owners as $owner) {
 			if ($event->creator_id == $owner->id) {
 				$event->owners = array($owner);
 			}

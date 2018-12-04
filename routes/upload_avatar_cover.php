@@ -33,7 +33,7 @@ $app->patch($container['prefix'].'/upload_avatar_cover', function (Request $requ
 			break;
 		case 'event':
 			$eventService = EventService::getInstance();
-			$event = $eventService->getGroupById($owner_id);
+			$event = $eventService->getEventByType($owner_id, 'id');
 			if (!$event) return response(false);
 			if ($event->creator_id != $loggedin_user->id) return response(false);
 			$services->downloadImage($owner_id, $owner_type, $image_type, $images);
