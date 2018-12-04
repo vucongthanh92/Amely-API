@@ -296,13 +296,13 @@ $app->patch($container['prefix'].'/events', function (Request $request, Response
 		$event->data->id = $event->id;
 		$event->data->published = 1;
 		$event->data->status = 1;
-		return $event->update(true);
+		return response($event->update(true));
 	}
 
 	$event = object_cast("Event", $event);
 	$event->data->id = $event->id;
 	$event->data->status = 1;
-	return $event->update(true);
+	return response($event->update(true));
 
 });
 
@@ -320,5 +320,5 @@ $app->delete($container['prefix'].'/events', function (Request $request, Respons
 	$event->data->status = 2;
 	$event->data->id = $event->id;
 	$event->where = "id = {$event->id}";
-	return $event->update(true);
+	return response($event->update(true));
 });
