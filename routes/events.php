@@ -288,8 +288,7 @@ $app->patch($container['prefix'].'/events', function (Request $request, Response
 	if ($params['published']) {
 		if ($event->published) return response(false);
 		if ($event->invites_id) {
-			$invites_id = explode(',', $event->invites_id);
-			$invites = $userService->getUsersByType($invites_id, 'id');
+			$invites = $userService->getUsersByType($event->invites_id, 'id', false);
 			foreach ($invites as $key => $invite) {
 				$relationshipService->save($invite, $event, 'event:invitation');
 			}

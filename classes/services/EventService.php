@@ -36,16 +36,12 @@ class EventService extends Services
 		}
 		if ($event_id) {
 			InventoryService::getInstance()->save($event_id, "event", $data['creator_id']);
-			$owners = $userService->getUsersByType($data['owners_id'], 'id');
+			$owners = $userService->getUsersByType($data['owners_id'], 'id', false);
 			$event = $this->getEventByType($event_id, 'id');
 			foreach ($owners as $key => $owner) {
-				$notify = true;
-				if ($data['creator_id'] == $owner->id) {
-					$notify = false;
-				}
-				$relationshipService->save($owner, $event, 'event:invitation', '', $notify);
+				$relationshipService->save($owner, $event, 'event:invitation', '', false);
 				$relationshipService->save($event, $owner, 'event:approve', '', false);
-				$relationshipService->save($event, $owner, 'event:joined', '', $notify);
+				$relationshipService->save($event, $owner, 'event:joined', '', true);
 			}
 			return true;
 		}
