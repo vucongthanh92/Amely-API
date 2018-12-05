@@ -24,32 +24,19 @@ class AdvertiseService extends Services
 	public function save($data)
 	{
 		$advertise = new Advertise();
-		$advertise->data->owner_id = $data['owner_id'];
-		$advertise->data->type = $data['type'];
-		$advertise->data->title = $data['title'];
-		$advertise->data->description = $data['description'];
-		$advertise->data->advertise_type = $data['advertise_type'];
-		$advertise->data->time_type = $data['time_type'];
-		$advertise->data->target_id = $data['target_id'];
-		$advertise->data->image = $data['image'];
-		$advertise->data->budget = $data['budget'];
-		$advertise->data->cpc = $data['cpc'];
-		$advertise->data->link = $data['link'];
-		$advertise->data->amount = $data['amount'];
-		$advertise->data->start_time = $data['start_time'];
-		$advertise->data->end_time = $data['end_time'];
+		foreach ($data as $key => $value) {
+			$advertise->data->$key = $value;
+		}
 		$advertise->data->enabled = 1;
 		$advertise->data->total_click = 0;
-		$advertise->data->approved = 1;
-		$advertise->data->creator_id = $data['creator_id'];
-		$advertise_id = $advertise->insert(true);
-		return $advertise_id;
+		$advertise->data->approved = 0;
+		return $advertise->insert(true);
 	}
 
 	public function getAdvertiseShop()
 	{
 		$conditions = $this->getConditionAds(1);
-		$advertises = $this->searchObject($conditions, 0, 16);
+		$advertises = $this->getAdvertises($conditions, 0, 16);
 		if (!$advertises) return false;
 		return $advertises;
 	}
@@ -57,7 +44,7 @@ class AdvertiseService extends Services
     public function getAdvertiseProduct()
 	{
 		$conditions = $this->getConditionAds(0);
-		$advertises = $this->searchObject($conditions, 0, 16);
+		$advertises = $this->getAdvertises($conditions, 0, 16);
 		if (!$advertises) return false;
 		return $advertises;
 	}
@@ -123,6 +110,7 @@ class AdvertiseService extends Services
 	{
 		$advertise = $this->searchObject($conditions, 0, 1);
 		if (!$advertise) return false;
+		$advertise = $this->changeStructureInfo($advertise);
 		return $advertise;
 	}
 
@@ -130,6 +118,23 @@ class AdvertiseService extends Services
 	{
 		$advertises = $this->searchObject($conditions, $offset, $limit);
 		if (!$advertises) return false;
+		foreach ($advertises as $key => $ad) {
+			$ad = $this->changeStructureInfo($ad);
+			$advertises[$key] = $ad;
+		}
 		return array_values($advertises);
+	}
+
+	private function changeStructureInfo($ad)
+	{
+		$imageService = ImageService::getInstance();
+		if (isset($ad->image)) {
+			if (empty($ad->image)) unset($ad->image);
+			$ad->image = $imageService->showImage($ad->id, $ad->image, 'advertise', 'large');
+		} else {
+			unset($ad->image);
+		}
+
+		return $ad;
 	}
 }

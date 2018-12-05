@@ -117,11 +117,9 @@ $app->post($container['administrator'].'/products', function (Request $request, 
 	if (!$params['title'] || !$params['sku']) return response(false);
 
 	$product_data = [];
-	if ($product) return response(false);
 	if ($params['id']) {
 		$product_data['id'] = $params['id'];
 		$product = $productService->getProductByType($params['id'], 'id');
-		if ($product) return response(false);
 		if ($product->sku != $params['sku']) {
 			$check_sku = $productService->checkSKUshop($params['sku'], $params['owner_id']);
 			if ($check_sku) return response([

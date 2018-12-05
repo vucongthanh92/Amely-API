@@ -31,6 +31,7 @@ class Advertise extends Object
     private $total_click;
     private $approved;
     private $creator_id;
+    private $status;
 
 	public function __construct() 
 	{	
