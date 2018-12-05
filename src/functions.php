@@ -2,6 +2,14 @@
 
 use Slim\Http\Response;
 
+function responseError($error)
+{
+	return response([
+		'status' => false,
+		'error' => $error
+	]);
+}
+
 function redirectURL($url)
 {
 	header("Location: ".$url);

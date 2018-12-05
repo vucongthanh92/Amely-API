@@ -24,11 +24,10 @@ $app->post($container['administrator'].'/systems', function (Request $request, R
 
 	$system_data = null;
 	if ($params['id']) {
-		$system_data['title'] = $params['id'];	
+		$system_data['id'] = $params['id'];	
 	}
 	$system_data['title'] = $params['title'];
 	$system_data['name'] = $params['name'];
 	$system_data['value'] = $params['value'];
-
 	return response($siteSettingService->save($system_data));
 });

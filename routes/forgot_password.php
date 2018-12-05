@@ -37,7 +37,7 @@ $app->put($container['prefix'].'/forgot_password', function (Request $request, R
 
 	$code = rand(100000, 999999);
 	$user = object_cast("User", $user);
-	$user->data->code = $code;
+	$user->data->verification_code = $code;
 	$user->where = "id = {$user->id}";
 	if ($user->update()) {
 		return response(Services::getInstance()->sendByMobile($user->mobilelogin, $code));

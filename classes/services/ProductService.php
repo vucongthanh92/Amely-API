@@ -95,6 +95,23 @@ class ProductService extends Services
     	return $product->update(true);
     }
 
+    public function checkSKUshop($sku, $shop_id)
+    {
+        $product_params[] = [
+            'key' => 'owner_id',
+            'value' => "= {$shop_id}",
+            'operation' => ''
+        ];
+        $product_params[] = [
+            'key' => 'sku',
+            'value' => "= '{$sku}'",
+            'operation' => 'AND'
+        ];
+        $product = $this->getProduct($product_params);
+        if (!$product) return false;
+        return $product;
+    }
+
     public function checkSKU($sku)
     {
     	$product = $this->getProductByType($sku, 'sku');

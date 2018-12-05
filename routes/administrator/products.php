@@ -72,12 +72,12 @@ $app->post($container['administrator'].'/products', function (Request $request, 
     
 	if (!$params) $params = [];
 	if (!array_key_exists('id', $params)) $params['id'] = false;
-	if (!array_key_exists('owner_id', $params)) $params['owner_id'] = false;
+	if (!array_key_exists('owner_id', $params)) return responseError("shop_not_empty");
 	if (!array_key_exists('type', $params)) $params['type'] = 'shop';
 	if (!array_key_exists('title', $params)) $params['title'] = 0;
 	if (!array_key_exists('description', $params)) $params['description'] = 0;
-	if (!array_key_exists('sku', $params)) $params['sku'] = 0;
-	if (!array_key_exists('price', $params)) $params['price'] = 0;
+	if (!array_key_exists('sku', $params)) return responseError("sku_not_empty");
+	if (!array_key_exists('price', $params)) return responseError("price_not_empty");
 	if (!array_key_exists('model', $params)) $params['model'] = 0;
 	if (!array_key_exists('tag', $params)) $params['tag'] = 0;
 	if (!array_key_exists('tax', $params)) $params['tax'] = 0;
@@ -107,6 +107,7 @@ $app->post($container['administrator'].'/products', function (Request $request, 
 	if (!array_key_exists('parent_id', $params)) $params['parent_id'] = 0;
 	if (!array_key_exists('status', $params)) $params['status'] = 0;
 
+	if (empty($params['sku'])) return responseError("sku_not_empty");
 	if (!$params['owner_id']) {
 		$shop = $shopService->getShopByType($loggedin_user->id, 'owner_id', false);
 		if (!$shop) return response(false);
@@ -115,11 +116,25 @@ $app->post($container['administrator'].'/products', function (Request $request, 
 	$num = rand();
 	if (!$params['title'] || !$params['sku']) return response(false);
 
-	$product = $productService->checkSKU($params['sku']);
 	$product_data = [];
 	if ($product) return response(false);
 	if ($params['id']) {
 		$product_data['id'] = $params['id'];
+		$product = $productService->getProductByType($params['id'], 'id');
+		if ($product) return response(false);
+		if ($product->sku != $params['sku']) {
+			$check_sku = $productService->checkSKUshop($params['sku'], $params['owner_id']);
+			if ($check_sku) return response([
+					'status' => false,
+					'error' => "sku_exist"
+				]);
+		}
+	} else {
+		$productService->checkSKUshop($params['sku'], $params['owner_id']);
+		if ($check_sku) return response([
+					'status' => false,
+					'error' => "sku_exist"
+				]);
 	}
 	if ($params['tag']) {
 		$params['tag'] = $params['tag'];
