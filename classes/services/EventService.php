@@ -43,7 +43,7 @@ class EventService extends Services
 				$relationshipService->save($event, $owner, 'event:approve', '', false);
 				$relationshipService->save($event, $owner, 'event:joined', '', true);
 			}
-			return true;
+			return $event_id;
 		}
 		return false;
 	}
