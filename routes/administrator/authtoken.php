@@ -11,7 +11,6 @@ $app->post($container['administrator'].'/authtoken', function (Request $request,
 	$params = $request->getParsedBody();
 	if (!array_key_exists("username", $params)) return response(false);
 	if (!array_key_exists("password", $params)) return response(false); 
-	if (!array_key_exists("type", $params)) $params['type'] = 'user';
 
 	$type = false;
 	$user_params = null;
@@ -62,7 +61,7 @@ $app->post($container['administrator'].'/authtoken', function (Request $request,
         }
         $token_code = md5(($user->username).uniqid());
         $tokenService = TokenService::getInstance();
-        if ($tokenService->save($token_code, $user->id, $params['type'])) {
+        if ($tokenService->save($token_code, $user->id, 'store')) {
         	$_SESSION["OSSN_USER"] = $user;
 			$_SESSION["TOKEN"] = $token_code;
 			

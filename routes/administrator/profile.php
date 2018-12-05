@@ -6,10 +6,8 @@ use Slim\Http\Response;
 // Routes
 // $app->get('/authtoken', function (Request $request, Response $response, array $args) {
 $app->get($container['administrator'].'/profile', function (Request $request, Response $response, array $args) {
-	$userService = UserService::getInstance();
 	$storeService = StoreService::getInstance();
 	$shopService = ShopService::getInstance();
-	$likeService = LikeService::getInstance();
 	$relationshipService = RelationshipService::getInstance();
 
 	$params = $request->getQueryParams();
@@ -17,17 +15,7 @@ $app->get($container['administrator'].'/profile', function (Request $request, Re
 	$loggedin_user = loggedin_user();
 	$user_params = null;
 
-	if (array_key_exists("id", $params) && is_numeric($params['id'])) {
-		
-		$user = $userService->getUserByType($params['id'], 'id');
-
-	} else if (array_key_exists("username", $params) && $params['username'] != null) {
-
-		$user = $userService->getUserByType($params['username'], 'username');
-
-	} else {
-		$user = $loggedin_user;
-	}
+	$user = $loggedin_user;
 	if (!$user) return response(false);
 
     if ($user->chain_store) {
