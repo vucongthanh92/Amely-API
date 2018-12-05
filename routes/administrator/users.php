@@ -17,6 +17,60 @@ $app->get($container['administrator'].'/users', function (Request $request, Resp
 
 // them hoac chinh sua thong tin user
 $app->post($container['administrator'].'/users', function (Request $request, Response $response, array $args) {
+	$userService = UserService::getInstance();
+
+	$params = $request->getParsedBody();
+	if (!$params) $params = [];
+	if (!array_key_exists("username", $params))  	return response(false);
+	if (!array_key_exists("first_name", $params)) 	$params["first_name"] = false;
+	if (!array_key_exists("last_name", $params))  	$params["last_name"] = false;
+	if (!array_key_exists("email", $params)) 	 	return response(false);
+	if (!array_key_exists("password", $params))  	return response(false);
+	if (!array_key_exists("birthdate", $params)) 	$params["birthdate"] = false;
+	if (!array_key_exists("gender", $params))  	 	$params["gender"] = false;
+	if (!array_key_exists("mobilelogin", $params)) 	return response(false);
+
+
+	$username = strtolower($params['username']);
+	$mobilelogin = preg_replace("/^\\+?84/i", "0", $params['mobilelogin']);
+	$email = $params['email'];
+
+	$user = $userService->getUserByType($username, 'username', false);
+	if ($user) return response([
+		'status' => false,
+		'error' => 'username_exist'
+	]);
+
+	$user = $userService->getUserByType($mobilelogin, 'mobilelogin', false);
+	if ($user) return response([
+		'status' => false,
+		'error' => 'mobile_exist'
+	]);
+
+	$user = $userService->getUserByType($email, 'email', false);
+	if ($user) return response([
+		'status' => false,
+		'error' => 'email_exist'
+	]);
+
+	$salt = substr(uniqid(), 5);
+	$password = md5($params["password"] . $salt);
+
+	$user_data = null;
+	$user_data['type'] = 'normal';
+	$user_data['username'] = $username;
+	$user_data['email'] = $email;
+	$user_data['password'] = $password;
+	$user_data['salt'] = $salt;
+	$user_data['first_name'] = $params['first_name'];
+	$user_data['last_name'] = $params['last_name'];
+	$user_data['time_created'] = time();
+	$user_data['mobilelogin'] = $mobilelogin;
+	$user_data['birthdate'] = $params['birthdate'];
+	$user_data['gender'] = $params['gender'];
+	$user_data['usercurrency'] = "VND";
+
+	return response($userService->save($user_data));
 	
 });
 
