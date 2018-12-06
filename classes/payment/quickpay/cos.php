@@ -89,7 +89,7 @@ class COS extends \Object implements \Amely\Payment\IPaymentMethod
 				$so_data['type'] = "HD";
 				$so_data['time_created'] = $po->time_created;
 				$so_data['status'] = 1;
-				$so_data['store_id'] = $owner_cart->chain_store;
+				$so_data['store_id'] = $creator->chain_store;
 				$so_data['shipping_fee'] = 0;
 				$so_data['order_items_snapshot'] = $po->order_items_snapshot;
 				$so_data['total'] = $total;
@@ -97,7 +97,7 @@ class COS extends \Object implements \Amely\Payment\IPaymentMethod
 				$so_id = $supplyOrderService->save($so_data);
 				$purchaseOrderService->updateStatus($po->id, 1);
 
-				$store = $storeService->getStoreByType($owner_cart->chain_store, 'id');
+				$store = $storeService->getStoreByType($creator->chain_store, 'id');
 				$shop = $shopService->getShopByType($store->owner_id, 'id');
 				$walletService->deposit($shop->owner_id, $blance, 18, $so_id, "so");
 
