@@ -137,11 +137,14 @@ class CommentService extends Services
 		$imageService = ImageService::getInstance();
 		if (isset($comment->images)) {
 			$images = explode(',', $comment->images);
-			if (!$images) unset($comment->images);
-			foreach ($images as $key => $image) {
-				$images[$key] = $imageService->showImage($comment->id, $image, 'comment', 'large');
+			if ($images) {
+				foreach ($images as $key => $image) {
+					$images[$key] = $imageService->showImage($comment->id, $image, 'comment', 'large');
+				}
+				$comment->images = $images;
+			} else {
+				unset($comment->images);
 			}
-			$comment->images = $images;
 		} else {
 			unset($comment->images);
 		}
