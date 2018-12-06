@@ -70,4 +70,4 @@ $app->get($container['prefix'].'/console_offers', function (Request $request, Re
 	}
 	return response(true);
 	
-});
+})->setName('console_offers');

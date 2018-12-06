@@ -368,7 +368,7 @@ $app->delete($container['prefix'].'/offers', function (Request $request, Respons
 
 	$params = $request->getQueryParams();
 	if (!$params) $params = [];
-	if (!array_key_exists('offer_id', $params)) 	$params['offer_id'] = 0;
+	if (!array_key_exists('offer_id', $params)) return response(false);
 	
 	$offer = $offerService->getOfferByType($params['offer_id']);
 	if (!$offer) return response(false);

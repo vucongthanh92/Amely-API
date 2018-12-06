@@ -111,19 +111,21 @@ $app->patch($container['prefix'].'/cart', function (Request $request, Response $
 	$cartService = CartService::getInstance();
 	$productStoreService = ProductStoreService::getInstance();
 	$productService = ProductService::getInstance();
+
 	$loggedin_user = loggedin_user();
 	$params = $request->getParsedBody();
 	if (!$params) $params = [];
-	if (!array_key_exists('cart_id', $params))  		$params['cart_id'] = false;
-	if (!array_key_exists('product_id', $params))  		$params['product_id'] = false;
-	if (!array_key_exists('snapshot_id', $params))  	$params['snapshot_id'] = false;
-	if (!array_key_exists('store_id', $params))  		$params['store_id'] = false;
+	if (!array_key_exists('cart_id', $params))  		return responseError("cart_id_not_empty");
+	if (!array_key_exists('product_id', $params))  		return responseError("product_id_not_empty");
+	if (!array_key_exists('snapshot_id', $params))  	return responseError("snapshot_id_not_empty");
+	if (!array_key_exists('store_id', $params))  		return responseError("store_id_not_empty");
 	if (!array_key_exists('quantity', $params))  		$params['quantity'] = 0;
 	if (!array_key_exists('redeem_quantity', $params))  $params['redeem_quantity'] = 0;
 
-	$cart_item = new CartItem();
-	$cart_item->data->owner_id = $params['cart_id'];
-	$cart_item->data->product_id = $params['product_id'];
+	$cart_item = $cartService->checkItemInCart($params['product_id'], $params['store_id'], $params['cart_id']);
+
+	$check_quantity = $productStoreService->updateQuantity($params['product_id'], $params['store_id'], $cart_item->quantity - $params['quantity']);
+	if (!$check_quantity) return responseError("quantity_limit");
 
 	$cart_id = $params['cart_id'];
 	$product_id = $params['product_id'];
@@ -131,18 +133,9 @@ $app->patch($container['prefix'].'/cart', function (Request $request, Response $
 	$quantity = $params['quantity'];
 	$redeem_quantity = $params['redeem_quantity'];
 
-	$store_quantity = $productStoreService->checkQuantityInStore($product_id, $store_id);
-	if (!$store_quantity) return response(false);
-	if ($store_quantity->quantity < $quantity) {
-	 	return response([
-			'status' => false,
-			'quantity' => $store_quantity->quantity
-		]);
-	}
-	$cart_item = new CartItem();
+	$cart_item = object_cast("CartItem", $cart_item);
 	$cart_item->data->quantity = $quantity;
 	$cart_item->data->redeem_quantity = $redeem_quantity;
-
 	$cart_item->where = "owner_id = '{$cart_id}' AND product_id = '{$product_id}' AND store_id = '{$store_id}'";
 	return response($cart_item->update());
 
@@ -177,13 +170,9 @@ $app->put($container['prefix'].'/cart', function (Request $request, Response $re
 		$type = 'store';
 		$owner_id = $store_id;
 	}
-	$store_quantity = $productStoreService->checkQuantityInStore($product_id, $store_id);
+	$store_quantity = $productStoreService->updateQuantity($product_id, $store_id, $quantity);
 	if (!$store_quantity) return response(false);
-	if ($store_quantity->quantity < $quantity) {
-	 	return response([
-			'status' => false
-		]);
-	}
+	
 	$cart = $cartService->checkCart($owner_id, $type, $loggedin_user->id, 0);
 	$cart_id = false;
 	if ($cart) {

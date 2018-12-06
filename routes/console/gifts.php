@@ -36,4 +36,4 @@ $app->get($container['prefix'].'/console_gifts', function (Request $request, Res
 	return response(true);
 
 
-});
+})->setName('console_gifts');
