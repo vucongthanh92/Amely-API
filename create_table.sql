@@ -333,7 +333,8 @@ CREATE TABLE `amely_snapshots` (
   `unit` text,
   `adjourn_price` text,
   `code` text,
-  `parent_id` text
+  `parent_id` text,
+  `images` text
  ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 
