@@ -34,12 +34,15 @@ $app->post($container['administrator'].'/approval', function (Request $request, 
 				foreach ($params['subject_id'] as $subject_id) {
 					$shop = $shopService->getShopByType($subject_id, 'id', false);
 					if ($shop) {
+						$store = $storeService->getStoreByType($shop->id, 'owner_id', false);
+						if (!$store) return responseError("store_erro");
 						if ($shopService->approval($subject_id)) {
 							$user = $userService->getUserByType($shop->owner_id, 'id', false);
 							if ($user->type != 'admin') {
 								$user = object_cast("User", $user);
 								$user->data->type = 'manager';
 								$user->data->id = $user->id;
+								$user->data->chain_store = $store->id;
 								$user->where = "id = {$user->id}";
 								$user->update();
 							}
