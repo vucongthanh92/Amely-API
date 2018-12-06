@@ -17,13 +17,13 @@ $app->post($container['prefix'].'/shop/most_sold_products', function (Request $r
 		'operation' => ''
 	];
 	$product_params[] = [
-		'key' => 'enabled',
+		'key' => 'status',
 		'value' => "= 1",
 		'operation' => 'AND'
 	];
 	$product_params[] = [
 		'key' => 'approved',
-		'value' => "= 1",
+		'value' => "> 0",
 		'operation' => 'AND'
 	];
 	$product_params[] = [
