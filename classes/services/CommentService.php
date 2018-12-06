@@ -135,7 +135,7 @@ class CommentService extends Services
     private function changeStructureInfo($comment)
 	{
 		$imageService = ImageService::getInstance();
-		if (isset($comment->images)) {
+		if ($comment->images) {
 			$images = explode(',', $comment->images);
 			if ($images) {
 				foreach ($images as $key => $image) {

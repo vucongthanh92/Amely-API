@@ -40,6 +40,19 @@ class ProductStoreService extends Services
         return true;
     }
 
+    public function updateQuantity($product_id, $store_id, $quantity)
+    {
+        $store_quantity = $this->checkQuantityInStore($product_id, $store_id);
+        if (!$store_quantity) return false;
+        $update_quantity = $store_quantity->quantity - $quantity;
+        if ($update_quantity < 0) return false;
+        $store_quantity = object_cast("ProductStore", $store_quantity);
+        $store_quantity->data->quantity = $update_quantity;
+        $store_quantity->data->id = $store_quantity->id;
+        $store_quantity->where = "id = {$store_quantity->id}";
+        return $store_quantity->update(true);
+    }
+
     public function checkQuantityInStore($product_id, $store_id)
     {
     	$conditions = null;
