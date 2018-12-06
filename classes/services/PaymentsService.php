@@ -98,6 +98,7 @@ class PaymentsService extends Services
 
 	public function processOrder($order_id, $order_type = 'HD')
 	{
+		$productGroupService = ProductGroupService::getInstance();
 		$notificationService = NotificationService::getInstance();
 		$shippingService = ShippingService::getInstance();
 		$productService = ProductService::getInstance();
@@ -107,6 +108,8 @@ class PaymentsService extends Services
 		$storeService = StoreService::getInstance();
 		$userService = UserService::getInstance();
 		$purchaseOrderService = PurchaseOrderService::getInstance();
+		$shopService = ShopService::getInstance();
+
 		if ($order_type == 'HD') {
 			$po = $purchaseOrderService->getPOByType($order_id, 'id');
 			$user = $userService->getUserByType($po->owner_id, 'id', true);
@@ -127,10 +130,11 @@ class PaymentsService extends Services
 
 					$store = $storeService->getStoreByType($kitems_so, 'id');
 					$order_items_snapshot = null;
-					$weight = $total = $quantity = 0;
+					$blance = $weight = $total = $quantity = 0;
 					foreach ($items_so as $kproduct_id => $item_so) {
 						$snapshot = $snapshotService->getSnapshotByType($item_so['snapshot_id'], 'id');
-						
+						$pg = $productGroupService->getProductGroupByType($snapshot->product_group, 'id');
+
 						$order_items_snapshot[] = [
 							'product_id' => $kproduct_id,
 							'price' => $snapshot->display_price,
@@ -140,7 +144,13 @@ class PaymentsService extends Services
 							'redeem_quantity' => $item_so['redeem_quantity']
 						];
 						$quantity += $item_so['quantity'];
-						$total += $product->display_price * $item_so['quantity'];
+						$sub_total = $product->display_price * $item_so['quantity'];
+						$total += $sub_total;
+						if ($pg->percent > 0) {
+							$blance += $sub_total * (100 - $pg->percent) / 100;
+						} else if ($pg->price > 0) {
+							$blance += $item_so['quantity'] * $pg->price;
+						}
 
 						$weight += $snapshot->weight * $item_so['quantity'];
 					}
@@ -159,6 +169,7 @@ class PaymentsService extends Services
 					if ($shipping) {
 						$so_data['shipping_fee'] = $shipping->fee->fee;
 					}
+					$shop = $shopService->getShopByType($store->owner_id, 'id');
 					$so_data['po'] = $po;
 					$so_data['owner_id_po'] = $po->owner_id;
 					$so_data['owner_id'] = $po->id;
@@ -171,6 +182,7 @@ class PaymentsService extends Services
 					$so_data['quantity'] = $quantity;
 					$so_id = $supplyOrderService->save($so_data, "order:request");
 
+					WalletService::getInstance()->deposit($shop->owner_id, $blance, 18, $so_id, "so");
 					// $so = new SupplyOrder();
 					// $so->data->time_created = $order->time_created;
 					// $so->data->owner_id = $order->id;

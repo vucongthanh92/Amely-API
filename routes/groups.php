@@ -158,8 +158,9 @@ $app->patch($container['prefix'].'/groups', function (Request $request, Response
 	$group->data->description = $params['description'];
 	$group->data->privacy = $params['privacy'];
 	$group->data->rule = $params['rule'];
-
-	return response($group->update());
+	$group->data->id = $group->id;
+	$group->where = "id = {$group->id}";
+	return response($group->update(true));
 });
 
 $app->delete($container['prefix'].'/groups', function (Request $request, Response $response, array $args) {

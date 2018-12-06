@@ -60,6 +60,10 @@ class COD extends \Object implements \Amely\Payment\IPaymentMethod
 		$supplyOrderService = \SupplyOrderService::getInstance();
 		$userService = \UserService::getInstance();
 		$snapshotService = \SnapshotService::getInstance();
+		$productGroupService = \ProductGroupService::getInstance();
+		$shopService = \ShopService::getInstance();
+		$storeService = \StoreService::getInstance();
+		$walletService = \WalletService::getInstance();
 
 		$po = $purchaseOrderService->getPOByType($po_id, 'id');
 		switch ($status) { 
@@ -69,12 +73,19 @@ class COD extends \Object implements \Amely\Payment\IPaymentMethod
 			case 1:
 				$notify_type = "order:approval";
 				$order_items = unserialize($po->order_items_snapshot);
-		    	$quantity = $store_id = $weight = $total = 0;
+		    	$blance = $quantity = $store_id = $weight = $total = 0;
 				foreach ($order_items as $key => $order_item) {
 					$snapshot = $snapshotService->getSnapshotByType($order_item['snapshot_id'], 'id');
+					$pg = $productGroupService->getProductGroupByType($snapshot->product_group, 'id');
 					$weight += $snapshot->weight * $order_item['quantity'];
 					$total += $snapshot->display_price * $order_item['quantity'];
 					$quantity += ($order_item['quantity'] + $order_item['redeem_quantity']);
+					$sub_total = $snapshot->display_price * $order_item['quantity'];
+					if ($pg->percent > 0) {
+						$blance += $sub_total * (100 - $pg->percent) / 100;
+					} else if ($pg->price > 0) {
+						$blance += $order_item['quantity'] * $pg->price;
+					}
 				}
 				$so_data['po'] = $po;
 		    	$so_data['owner_id_po'] = $po->owner_id;
@@ -88,6 +99,9 @@ class COD extends \Object implements \Amely\Payment\IPaymentMethod
 				$so_data['total'] = $total;
 				$so_data['quantity'] = $quantity;
 				$so_id = $supplyOrderService->save($so_data);
+				$store = $storeService->getStoreByType($owner_cart->chain_store, 'id');
+				$shop = $shopService->getShopByType($store->owner_id, 'id');
+				$walletService->deposit($shop->owner_id, $blance, 18, $so_id, "so");
 				$purchaseOrderService->updateStatus($po->id, 1);
 
 				$sm = $shippingService->getMethod($po->shipping_method);
