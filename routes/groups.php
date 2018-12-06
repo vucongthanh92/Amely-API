@@ -153,6 +153,12 @@ $app->patch($container['prefix'].'/groups', function (Request $request, Response
 	$group = $groupService->getGroupById($params['id']);
 	$group = object_cast("Group", $group);
 	if ($group->owner_id != $loggedin_user->id) return response(false);
+	if ($group->owners_id) {
+		$owners_id = explode(',', $group->owners_id);
+		$owners_id = array_diff($owners_id, [$group->owner_id]);
+		array_push($owners_id, $params['owner_id']);
+		$group->data->owners_id = implode(',', $owners_id);
+	}
 	$group->data->owner_id = $params['owner_id'];
 	$group->data->title = $params['name'];
 	$group->data->description = $params['description'];
