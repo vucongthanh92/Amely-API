@@ -23,15 +23,41 @@ class AdvertiseService extends Services
 
 	public function save($data)
 	{
+		switch ($data['advertise_type']) {
+			case 0:
+				$advertise_type = 0;
+				break;
+			case 1:
+				$advertise_type = 1;
+				break;
+			case 2:
+				$advertise_type = 2;
+				break;
+			default:
+				return false;
+				break;
+		}
 		$advertise = new Advertise();
 		foreach ($data as $key => $value) {
 			$advertise->data->$key = $value;
 		}
-		$advertise->data->enabled = 1;
+		$advertise->data->advertise_type = $advertise_type;
+		$advertise->data->type = 'shop';
 		$advertise->data->total_click = 0;
 		$advertise->data->approved = 0;
+		$advertise->data->status = 0;
 		return $advertise->insert(true);
 	}
+
+	public function approval($ad_id)
+    {
+    	$ad = new Advertise();
+    	$ad->data->approved = time();
+    	$ad->data->status = 1;
+    	$ad->data->id = $ad_id;
+    	$ad->where = "id = {$ad_id}";
+    	return $ad->update(true);
+    }
 
 	public function getAdvertiseShop()
 	{

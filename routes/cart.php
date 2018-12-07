@@ -211,6 +211,7 @@ $app->put($container['prefix'].'/cart', function (Request $request, Response $re
 });
 
 $app->delete($container['prefix'].'/cart', function (Request $request, Response $response, array $args) {
+	$productStoreService = ProductStoreService::getInstance();
 	$cartService = CartService::getInstance();
 	$loggedin_user = loggedin_user();
 	$params = $request->getQueryParams();
@@ -225,8 +226,19 @@ $app->delete($container['prefix'].'/cart', function (Request $request, Response 
 		$owner_id = $loggedin_user->chain_store;
 	}
 
+	
+
 	$cart = $cartService->checkCart($owner_id, $type, $loggedin_user->id, 0);
 	if (!$cart) return response(false);
+
+	$cart_items = $cartService->getCartItems($cart->id);
+	foreach ($cart_items as $key => $cart_item) {
+		if ($cart_item->product_id == $params['product_id']) {
+			$store_quantity = $productStoreService->updateQuantity($cart_item->product_id, $cart_item->store_id, (-1)*$cart_item->quantity);
+		}
+	}
+
+
 
 
 	$type = 'user';

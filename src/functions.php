@@ -411,7 +411,8 @@ function response($result)
 	$response = new Response();
 	if ($result === false) {
 		return $response->withJson([
-			'status' => false
+			'status' => false,
+			'error' => ERROR_1
 		]);
 	}
 	if ($result === true) {

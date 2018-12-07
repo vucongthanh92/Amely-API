@@ -692,7 +692,7 @@ CREATE TABLE `amely_advertisements` (
   `amount` text,
   `start_time` text,
   `end_time` text,
-  `enabled` text,
+  `status` text,
   `total_click` bigint(20),
   `approved` int(11),
   `creator_id` int(11)

@@ -10,14 +10,14 @@ $app->get($container['administrator'].'/advertise', function (Request $request, 
 	$userService = UserService::getInstance();
 	$params = $request->getQueryParams();
 	if (!$params) $params = [];
-	if (!array_key_exists('advertise_id', $params)) return responseError("advertise_id_not_empty");
+	if (!array_key_exists('ad_id', $params)) return responseError(ERROR_0);
 
-	$ad = $advertiseService->getAdvertiseByType($params['advertise_id'], 'id');
+	$ad = $advertiseService->getAdvertiseByType($params['ad_id'], 'id');
 
 	switch ($ad->advertise_type) {
 		case 0:
 			$product = $productService->getProductByType($ad->target_id, 'id');
-			if (!$product) return responseError("no_data");
+			if (!$product) return responseError(ERROR_1);
 			$ad->product = $product;
 			break;
 		case 1:
@@ -26,7 +26,7 @@ $app->get($container['administrator'].'/advertise', function (Request $request, 
 			# code...
 			break;
 		default:
-			return responseError("no_data");
+			return responseError(ERROR_1);
 			break;
 	}
 
@@ -64,11 +64,16 @@ $app->put($container['administrator'].'/advertise', function (Request $request, 
 		0 la tat
 		1 la mo
 	*/
-	if (!array_key_exists('status', $params))  	$params['status'] = false;
+	if (!array_key_exists('status', $params))  	$params['status'] = -1;
 	if (!array_key_exists('offset', $params))  	$params['offset'] = 0;
 	if (!array_key_exists('limit', $params))  	$params['limit'] = 10;
 
 	$ads_params = null;
+	$ads_params[] = [
+		'key' => 'time_created',
+		'value' => "> 0",
+		'operation' => ''
+	];
 	switch ($params['approved']) {
 		case -1:
 			# code...
@@ -77,14 +82,14 @@ $app->put($container['administrator'].'/advertise', function (Request $request, 
 			$ads_params[] = [
 				'key' => 'approved',
 				'value' => "= 0",
-				'operation' => ''
+				'operation' => 'AND'
 			];
 			break;
 		case 1:
 			$ads_params[] = [
 				'key' => 'approved',
 				'value' => "> 0",
-				'operation' => ''
+				'operation' => 'AND'
 			];
 			break;
 		default:
@@ -137,8 +142,73 @@ $app->put($container['administrator'].'/advertise', function (Request $request, 
 			return response(false);
 			break;
 	}
-
 	$ads = $advertiseService->getAdvertises($ads_params, $params['offset'], $params['limit']);
-	if (!$ads) return responseError("no_data");
 	return response($ads);
+});
+
+$app->post($container['administrator'].'/advertise', function (Request $request, Response $response, array $args) {
+	$advertiseService = AdvertiseService::getInstance();
+	$shopService = ShopService::getInstance();
+
+	$loggedin_user = loggedin_user();
+	$params = $request->getParsedBody();
+	if (!$params) $params = [];
+	if (!array_key_exists('owner_id', $params)) return responseError(ERROR_0);
+	if (!array_key_exists('title', $params)) $params['title'] = "";
+	if (!array_key_exists('description', $params)) $params['description'] = "";
+	if (!array_key_exists('advertise_type', $params)) $params['advertise_type'] = 0;
+	if (!array_key_exists('time_type', $params)) $params['time_type'] = 0;
+	if (!array_key_exists('target_id', $params)) $params['target_id'] = 0;
+	if (!array_key_exists('image', $params)) $params['image'] = 0;
+	if (!array_key_exists('budget', $params)) $params['budget'] = 0;
+	if (!array_key_exists('cpc', $params)) $params['cpc'] = 0;
+	if (!array_key_exists('link', $params)) $params['link'] = 0;
+	if (!array_key_exists('amount', $params)) return responseError(ERROR_0);
+	if (!array_key_exists('start_time', $params)) return responseError(ERROR_0);
+	if (!array_key_exists('end_time', $params)) return responseError(ERROR_0);
+
+
+	if ($params['start_time'] > $params['end_time']) return responseError(ERROR_0);
+	if ($params['amount'] > 0) return responseError(ERROR_0);
+
+	switch ($params['advertise_type']) {
+		case 0:
+			$productService = ProductService::getInstance();
+			$product = $productService->getProductByType($params['target_id'], 'id');
+			if (!$product) return response(false);
+			if ($product->approved != 1) return response(false);
+			if ($product->enabled != 1) return response(false);
+			break;
+		case 1:
+			$shopService = ShopService::getInstance();
+			$shop = $shopService->getShopByType($params['target_id'], 'id');
+			if (!$shop) return response(false);
+			if ($shop->status != 1) return response(false);
+			break;
+		case 2:
+			
+			break;
+		default:
+			# code...
+			break;
+	}
+
+	$ad_data = [];
+	$ad_data['owner_id'] = $params['owner_id'];
+	$ad_data['type'] = $params['type'];
+	$ad_data['title'] = $params['title'];
+	$ad_data['description'] = $params['description'];
+	$ad_data['advertise_type'] = $params['advertise_type'];
+	$ad_data['time_type'] = $params['time_type'];
+	$ad_data['target_id'] = $params['target_id'];
+	$ad_data['image'] = $params['image'];
+	$ad_data['budget'] = $params['budget'];
+	$ad_data['cpc'] = $params['cpc'];
+	$ad_data['link'] = $params['link'];
+	$ad_data['amount'] = $params['amount'];
+	$ad_data['start_time'] = $params['start_time'];
+	$ad_data['end_time'] = $params['end_time'];
+	$ad_data['creator_id'] = $loggedin_user->id;
+
+	return response($advertiseService->save($ad_data));
 });
