@@ -124,7 +124,7 @@ $app->patch($container['prefix'].'/cart', function (Request $request, Response $
 
 	$cart_item = $cartService->checkItemInCart($params['product_id'], $params['store_id'], $params['cart_id']);
 
-	$check_quantity = $productStoreService->updateQuantity($params['product_id'], $params['store_id'], $cart_item->quantity - $params['quantity']);
+	$check_quantity = $productStoreService->updateQuantity($params['product_id'], $params['store_id'], $params['quantity'] - $cart_item->quantity);
 	if (!$check_quantity) return responseError("quantity_limit");
 
 	$cart_id = $params['cart_id'];
