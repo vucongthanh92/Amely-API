@@ -106,9 +106,13 @@ $app->post($container['prefix'].'/orders', function (Request $request, Response 
 	$paymentsService = PaymentsService::getInstance();
 	$shippingService = ShippingService::getInstance();
 
+	$pms = $paymentsService->findMethodsByCapacity('process');
+	unset($pms['quickpay/cod']);
+	unset($pms['quickpay/cos']);
+	
     return response([
 		"shipping_methods" => $shippingService->getMethods(),
-		"payment_methods" => $paymentsService->findMethodsByCapacity('process')
+		"payment_methods" => $pms
 	]);
 
 });
