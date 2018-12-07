@@ -10,8 +10,20 @@ function responseError($error)
 	]);
 }
 
-function redirectURL($url)
+function redirectURL($type = 0)
 {
+	global $settings;
+
+	switch ($type) {
+		case 1:
+			$type = "/success";
+			break;
+		default:
+			$type = "/error";
+			break;
+	}
+	$url = $settings['responseURL'].$type;
+
 	header("Location: ".$url);
 	die();
 }

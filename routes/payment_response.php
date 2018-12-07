@@ -3,6 +3,7 @@ use Slim\Http\Request;
 use Slim\Http\Response;
 
 $app->get($container['prefix'].'/payment_response', function (Request $request, Response $response, array $args) {
+	
 	$transactionService = TransactionService::getInstance();
 	$shippingService = ShippingService::getInstance();
 	$purchaseOrderService = PurchaseOrderService::getInstance();
@@ -10,9 +11,6 @@ $app->get($container['prefix'].'/payment_response', function (Request $request, 
 	$itemService = ItemService::getInstance();
 	$walletService = WalletService::getInstance();
 	$params = $request->getQueryParams();
-
-	$error = $container['response']."/error";
-	$success = $container['response']."/error";
 
 	if (!$params) $params = [];
 	if (!array_key_exists('payment_id', $params)) return redirectURL($error);
@@ -50,7 +48,8 @@ $app->get($container['prefix'].'/payment_response', function (Request $request, 
 							# code...
 							break;
 					}
-					return response($transactionService->save($transaction_params));
+					response($transactionService->save($transaction_params));
+					return redirectURL(1);
 					break;
 				case 'WALLET':
 					
@@ -64,7 +63,7 @@ $app->get($container['prefix'].'/payment_response', function (Request $request, 
 							$itemService->renew($item_id, $duration);
 							$walletService->deposit($owner_id, $total, 16, $owner_id, "wallet");
 							$walletService->withdraw($owner_id, $total, 19, $item_id, "item");
-							return redirectURL($success);
+							return redirectURL(1);
 							break;
 						case 'DELIVERY_ITEM':
 							$shipping_method = $options['shipping_method'];
@@ -82,10 +81,10 @@ $app->get($container['prefix'].'/payment_response', function (Request $request, 
 
 							$walletService->deposit($owner_id, $total, 16, $owner_id, "wallet");
 							$walletService->withdraw($owner_id, $total, 22, $do_id, "do");
-							return redirectURL($success);
+							return redirectURL(1);
 							break;
 						default:
-							return redirectURL($error);
+							return redirectURL(0);
 							break;
 					}
 					break;
@@ -95,13 +94,13 @@ $app->get($container['prefix'].'/payment_response', function (Request $request, 
 			}
 			break;
 		case 1:
-			return redirectURL($success);
+			return redirectURL(1);
 			break;
 		case 2:
-			return redirectURL($error);
+			return redirectURL(0);
 			break;
 		default:
-			return redirectURL($error);
+			return redirectURL(0);
 			break;
 	}
 
