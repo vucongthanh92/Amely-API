@@ -140,21 +140,67 @@ $app->post($container['administrator'].'/shops', function (Request $request, Res
 // thong tin nhieu cua hang
 $app->put($container['administrator'].'/shops', function (Request $request, Response $response, array $args) {
 	$shopService = ShopService::getInstance();
+	$userService = UserService::getInstance();
 	$loggedin_user = loggedin_user();
 	$params = $request->getParsedBody();
 	if (!$params) $params = [];
+	/* approved
+		-1 la lay tat ca
+		0 la chua duyet
+		1 la duyet
+	*/
+	if (!array_key_exists('approved', $params)) 	$params['approved'] = -1;
+	/* status
+		-1 lay tat ca
+		0 tat
+		1 mo
+	*/
+	if (!array_key_exists('status', $params)) 		$params['status'] = -1;
+	/* username */
+	if (!array_key_exists('username', $params)) 		$params['username'] = false;
+
 	if (!array_key_exists("offset", $params)) $params["offset"] = 0;
 	if (!array_key_exists("limit", $params)) $params["limit"] = 10;
-	if (!array_key_exists("friends", $params)) $params["friends"] = false;
 
 	$offset = (double)$params['offset'];
 	$limit = (double)$params['limit'];
 
 	$shop_params[] = [
-		'key' => 'status',
-		'value' => "IN (0,1)",
+		'key' => 'time_created',
+		'value' => "> 0",
 		'operation' => ''
 	];
+
+	switch ($params['approved']) {
+		case -1:
+			# code...
+			break;
+		case 0:
+			$shop_params[] = [
+				'key' => 'approved',
+				'value' => "= 0",
+				'operation' => 'AND'
+			];
+			break;
+		case 1:
+			$shop_params[] = [
+				'key' => 'approved',
+				'value' => "> 0",
+				'operation' => 'AND'
+			];
+			break;
+		default:
+			return responseError(Error_0);
+			break;
+	}
+
+	if ($params['status'] >= 0) {
+		$shop_params[] = [
+			'key' => 'status',
+			'value' => "= {$params['status']}",
+			'operation' => 'AND'
+		];
+	}
 
 	$shops = $shopService->getShops($shop_params, $offset, $limit, false);
 	if (!$shops) return response(false);
