@@ -149,7 +149,6 @@ $app->put($container['administrator'].'/advertise', function (Request $request, 
 $app->post($container['administrator'].'/advertise', function (Request $request, Response $response, array $args) {
 	$advertiseService = AdvertiseService::getInstance();
 	$shopService = ShopService::getInstance();
-
 	$loggedin_user = loggedin_user();
 	$params = $request->getParsedBody();
 	if (!$params) $params = [];
@@ -169,15 +168,18 @@ $app->post($container['administrator'].'/advertise', function (Request $request,
 
 
 	if ($params['start_time'] > $params['end_time']) return responseError(ERROR_0);
-	if ($params['amount'] > 0) return responseError(ERROR_0);
+	
+
+	$shop = $shopService->getShopByType($params['owner_id'], 'id');
+	
 
 	switch ($params['advertise_type']) {
 		case 0:
 			$productService = ProductService::getInstance();
 			$product = $productService->getProductByType($params['target_id'], 'id');
 			if (!$product) return response(false);
-			if ($product->approved != 1) return response(false);
-			if ($product->enabled != 1) return response(false);
+			if ($product->approved == 0) return response(false);
+			if ($product->status != 1) return response(false);
 			break;
 		case 1:
 			$shopService = ShopService::getInstance();
@@ -209,6 +211,5 @@ $app->post($container['administrator'].'/advertise', function (Request $request,
 	$ad_data['start_time'] = $params['start_time'];
 	$ad_data['end_time'] = $params['end_time'];
 	$ad_data['creator_id'] = $loggedin_user->id;
-
 	return response($advertiseService->save($ad_data));
 });
