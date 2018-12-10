@@ -59,6 +59,85 @@ class ProductService extends Services
         return false;
     }
 
+    public function excel_product_key()
+    {
+        $list = [
+            'A' => 'is_special',
+            'B' => 'title',
+            'C' => 'description',
+            'D' => 'sku',
+            'E' => 'price',
+            'F' => 'tax',
+            'G' => 'shop_category',
+            'H' => 'market_category',
+            'I' => 'unit',
+            'J' => 'origin',
+            'K' => 'manufacturer',
+            'L' => 'expiry_type',
+            'M' => 'begin_day',
+            'N' => 'end_day',
+            'O' => 'duration',
+            'P' => 'storage_duration',
+            'Q' => 'friendly_url',
+            'R' => 'product_group',
+            'S' => 'weight',
+            'T' => 'images'
+        ];
+        return $list;
+    }
+
+    public function product_conditions($product_data)
+    {
+        switch ($product_data['expiry_type']) {
+            case 0:
+                break;
+            case 1:
+                if (empty($product_data['duration'])) 
+                    return false;
+                break;
+            case 2:
+                if (!empty($product_data['begin_day']) || !empty($product_data['end_day'])) 
+                    return false;
+                break;
+            default:
+                # code...
+                break;
+        }
+        $list = [
+            'A' => 'is_special',
+            'B' => 'title',
+            'C' => 'description',
+            'D' => 'sku',
+            'E' => 'price',
+            'F' => 'tax',
+            'G' => 'shop_category',
+            'H' => 'market_category',
+            'I' => 'unit',
+            'J' => 'origin',
+            'K' => 'manufacturer',
+            'L' => 'expiry_type',
+            'M' => 'begin_day',
+            'N' => 'end_day',
+            'O' => 'duration',
+            'P' => 'storage_duration',
+            'Q' => 'friendly_url',
+            'R' => 'product_group',
+            'S' => 'weight',
+            'T' => 'images'
+        ];
+        return $list;
+    }
+
+    public function excel_products($code)
+    {
+        $path = DIRECTORY_SEPARATOR."import".DIRECTORY_SEPARATOR."{$code}";
+        $dir = $settings['image']['path'].$path;
+        if (!file_exists($dir)) {
+            mkdir($dir, 0777, true);
+        }
+        $file->moveTo($dir . DIRECTORY_SEPARATOR . $filename);
+    }
+
     public function approval($product_id)
     {
     	$snapshotService = SnapshotService::getInstance();

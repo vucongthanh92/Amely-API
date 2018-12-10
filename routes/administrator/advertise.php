@@ -149,6 +149,8 @@ $app->put($container['administrator'].'/advertise', function (Request $request, 
 $app->post($container['administrator'].'/advertise', function (Request $request, Response $response, array $args) {
 	$advertiseService = AdvertiseService::getInstance();
 	$shopService = ShopService::getInstance();
+	$walletService = WalletService::getInstance();
+
 	$loggedin_user = loggedin_user();
 	$params = $request->getParsedBody();
 	if (!$params) $params = [];
@@ -211,5 +213,7 @@ $app->post($container['administrator'].'/advertise', function (Request $request,
 	$ad_data['start_time'] = $params['start_time'];
 	$ad_data['end_time'] = $params['end_time'];
 	$ad_data['creator_id'] = $loggedin_user->id;
+
+	// withdraw($owner_id, $total, $status, $subject_id, $subject_type);
 	return response($advertiseService->save($ad_data));
 });

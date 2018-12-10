@@ -1,3 +1,18 @@
+DROP TABLE IF EXISTS `amely_progressbar`;
+CREATE TABLE `amely_progressbar` (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT,
+  PRIMARY KEY (`id`),
+  `code` text NOT NULL,
+  `time_created` int(11) NOT NULL,
+  `inserted` int(11) NOT NULL,
+  `updated` int(11) NOT NULL,
+  `error` int(11) NOT NULL,
+  `filename` text NOT NULL,
+  `number` int(11) NOT NULL,
+  `creator_id` int(11) NOT NULL,
+  `status` varchar(10)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
 DROP TABLE IF EXISTS `amely_report`;
 CREATE TABLE `amely_report` (
   `id` bigint(20) NOT NULL AUTO_INCREMENT,
