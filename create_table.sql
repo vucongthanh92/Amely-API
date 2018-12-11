@@ -2,6 +2,8 @@ DROP TABLE IF EXISTS `amely_progressbar`;
 CREATE TABLE `amely_progressbar` (
   `id` bigint(20) NOT NULL AUTO_INCREMENT,
   PRIMARY KEY (`id`),
+  `owner_id` bigint(20) NOT NULL,
+  `type` varchar(20) NOT NULL,
   `code` text NOT NULL,
   `time_created` int(11) NOT NULL,
   `inserted` int(11) NOT NULL,
@@ -9,6 +11,7 @@ CREATE TABLE `amely_progressbar` (
   `error` int(11) NOT NULL,
   `filename` text NOT NULL,
   `number` int(11) NOT NULL,
+  `total_number` int(11) NOT NULL,
   `creator_id` int(11) NOT NULL,
   `status` varchar(10)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;

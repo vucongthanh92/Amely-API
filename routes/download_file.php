@@ -58,13 +58,21 @@ $app->post($container['prefix'].'/download_file', function (Request $request, Re
 			$user = new User();
 			$user->id = $owner_id;
 			$user->data->$image_type = $filenames;
+			$user->where = "id = {$owner_id}";
 			return response($user->update());
 			break;
 		case 'comment':
 			$comment = new Annotation();
 			$comment->id = $owner_id;
 			$comment->data->images = $filenames;
+			$comment->where = "id = {$owner_id}";
 			return response($comment->update());
+			break;
+		case 'product':
+			$product = new Product();
+			$product->id =  $owner_id;
+			$product->data->images = $filenames;
+			$product->where = "id = {$owner_id}";
 			break;
 		default:
 			# code...

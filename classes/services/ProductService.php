@@ -30,7 +30,8 @@ class ProductService extends Services
     	$product->data->featured = 0;
 		$product->data->product_order = 0;
 		$product->data->approved = 0;
-		$product->data->enabled = 0;
+        $product->data->enabled = 0;
+		$product->data->status = 0;
 
         if ($data['id']) {
             $product->where = "id = {$data['id']}";
@@ -53,6 +54,10 @@ class ProductService extends Services
                 $product->data->id = $product_id;
                 $product->where = "id = {$product_id}";
                 $product->update(true);
+            }
+            if ($data['images']) {
+                $services = Services::getInstance();
+                $services->downloadImage($product_id, 'product', 'images', $data['images']);
             }
             return $product_id;
         }
@@ -88,6 +93,7 @@ class ProductService extends Services
 
     public function product_conditions($product_data)
     {
+        if (empty($product_data['title'])) return false;
         switch ($product_data['expiry_type']) {
             case 0:
                 break;
@@ -96,36 +102,32 @@ class ProductService extends Services
                     return false;
                 break;
             case 2:
-                if (!empty($product_data['begin_day']) || !empty($product_data['end_day'])) 
-                    return false;
+                if (!empty($product_data['begin_day']) || !empty($product_data['end_day'])) return false;
+                $product_data['begin_day'] = strtotime($product_data['begin_day']);
+                $product_data['end_day'] = strtotime($product_data['end_day']);
                 break;
             default:
                 # code...
                 break;
         }
-        $list = [
-            'A' => 'is_special',
-            'B' => 'title',
-            'C' => 'description',
-            'D' => 'sku',
-            'E' => 'price',
-            'F' => 'tax',
-            'G' => 'shop_category',
-            'H' => 'market_category',
-            'I' => 'unit',
-            'J' => 'origin',
-            'K' => 'manufacturer',
-            'L' => 'expiry_type',
-            'M' => 'begin_day',
-            'N' => 'end_day',
-            'O' => 'duration',
-            'P' => 'storage_duration',
-            'Q' => 'friendly_url',
-            'R' => 'product_group',
-            'S' => 'weight',
-            'T' => 'images'
-        ];
-        return $list;
+        $shop_categories = $market_categories = $categories = [];
+        if ($product_data['market_category']) {
+            $market_categories = explode(',', $product_data['market_category']);
+            $categories = array_merge($categories, $market_categories);
+            $product_data['market_category'] = null;
+        }
+        if ($product_data['shop_category']) {
+            $shop_categories = explode(',', $product_data['shop_category']);
+            $categories = array_merge($categories, $shop_categories);
+        }
+        if ($categories) {
+            $categories = array_unique($categories);
+            $product_data['category'] = implode(',', $categories);
+        }
+        if ($product_data['images']) {
+            $product_data['images'] = explode(',', $product_data['images']);
+        }
+        return $product_data;
     }
 
     public function excel_products($code)

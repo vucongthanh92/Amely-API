@@ -25,8 +25,8 @@ $app->post($container['prefix'].'/progressbar', function (Request $request, Resp
 
 	$code = $params['code'];
 	$progressbar = $progressbarService->getInfoByCode($code);
-
-	$objPHPExcel = new \PHPExcel();
+	if (!$progressbar) return false;
+	if ($progressbar->status == 1) return response(false);
 
 	$path = DIRECTORY_SEPARATOR."import".DIRECTORY_SEPARATOR."{$code}";
 	$dir = $settings['image']['path'].$path;
@@ -40,28 +40,40 @@ $app->post($container['prefix'].'/progressbar', function (Request $request, Resp
 
 	$list_key_excel = $productService->excel_product_key();
 
-	for ($row = 10; $row <= $lastRow; $row++) {
+	$number = $number_inserted = $number_updated = $number_error = 0;
+	$inserted = $updated = $error = false;
+	for ($row = 8; $row <= $lastRow; $row++) {
 		$product_data = null;
 		foreach ($list_key_excel as $key => $value) {
 			$product_data[$value] = $worksheet->getCell($key.$row)->getValue();
 		}
-		var_dump($product_data);
-		die('1');
-	}
-	var_dump($worksheet);
-	var_dump($lastRow);
-	die();
+		$product_data['owner_id'] = $progressbar->owner_id;
+		$product_data = $productService->product_conditions($product_data);
 
-	echo "<table>";
-	for ($row = 1; $row <= $lastRow; $row++) {
-		 echo "<tr><td>";
-		 echo $worksheet->getCell('A'.$row)->getValue();
-		 echo "</td><td>";
-		 echo $worksheet->getCell('B'.$row)->getValue();
-		 echo "</td><tr>";
+		if (!$product_data) {
+			$number_error++;
+			continue;
+		}
+
+		$product = $productService->checkSKUshop($product_data['sku'], $progressbar->owner_id);
+		if ($product) {
+			$updated = true;
+			$product_data['id'] = $product->id;
+		}
+		if ($productService->save($product_data)) {
+			if ($updated) {
+				$number_updated++;
+			} else {
+				$number_inserted++;
+			}
+		} else {
+			$number_error++;
+		}
+
+		$progressbarService->updateNumber($progressbar->id, $number_inserted, $number_updated, $number_error, $row);
 	}
 
-	var_dump($objPHPExcel);
-	die();
+	return response(true);
+
 
 })->setName('progressbar');

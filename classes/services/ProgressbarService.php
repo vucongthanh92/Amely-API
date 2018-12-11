@@ -17,32 +17,44 @@ class ProgressbarService extends Services
 
 	public function __construct() 
 	{
-        $this->table = "amely_progressbar";
-    }
+      $this->table = "amely_progressbar";
+  }
 
-    public function save($data)
-    {
-    	$progressbar = new Progressbar();
-    	foreach ($data as $key => $value) {
-    		$progressbar->data->$key = $value;
-    	}
-    	return $progressbar->insert(true);
-    }
+  public function save($data)
+  {
+  	$progressbar = new Progressbar();
+  	foreach ($data as $key => $value) {
+  		$progressbar->data->$key = $value;
+  	}
+  	return $progressbar->insert(true);
+  }
 
-   	public function getInfoByCode($code)
-   	{
-   		$conditions[] = [
-   			'key' => 'code',
-   			'value' => "= '{$code}'",
-   			'operation' => ''
-   		];
+  public function updateNumber($id, $inserted, $updated, $error, $number)
+  {
+    $progressbar = new Progressbar();
+    $progressbar->data->id = $id;
+    $progressbar->data->inserted = $inserted;
+    $progressbar->data->updated = $updated;
+    $progressbar->data->error = $error;
+    $progressbar->data->number = $number;
+    $progressbar->where = "id = {$id}";
+    return $progressbar->update(true);
+  }
 
-   		$progressbar = $this->getInfo($conditions);
-   		if (!$progressbar) return false;
-   		return $progressbar;
-   	}
+ 	public function getInfoByCode($code)
+ 	{
+ 		$conditions[] = [
+ 			'key' => 'code',
+ 			'value' => "= '{$code}'",
+ 			'operation' => ''
+ 		];
 
-    public function getInfo($conditions)
+ 		$progressbar = $this->getInfo($conditions);
+ 		if (!$progressbar) return false;
+ 		return $progressbar;
+ 	}
+
+  public function getInfo($conditions)
 	{
 		$progressbar = $this->searchObject($conditions, 0, 1);
 		if (!$progressbar) return false;
