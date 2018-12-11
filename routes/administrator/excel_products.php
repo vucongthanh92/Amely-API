@@ -46,6 +46,11 @@ $app->post($container['administrator'].'/excel_products', function (Request $req
 		$progressbar_data['creator_id'] = $loggedin_user->id;
 		$progressbar_data['status'] = 0;
 		if ($progressbarService->save($progressbar_data)) {
+			$obj = new stdClass;
+			$obj->code = $code;
+			$obj->action = "uploads_products";
+			$obj->url = $settings['url'].$settings['administrator']."/progressbar";
+			Services::getInstance()->connectServer("uploads_products", $obj);
 	        return response(['code' => $code]);
 		}
 	}

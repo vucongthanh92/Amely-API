@@ -2,7 +2,7 @@
 use Slim\Http\Request;
 use Slim\Http\Response;
 
-$app->get($container['prefix'].'/progressbar', function (Request $request, Response $response, array $args) {
+$app->get($container['administrator'].'/progressbar', function (Request $request, Response $response, array $args) {
 	$progressbarService = ProgressbarService::getInstance();
 	
 	$params = $request->getQueryParams();
@@ -14,7 +14,7 @@ $app->get($container['prefix'].'/progressbar', function (Request $request, Respo
 
 })->setName('progressbar');
 
-$app->post($container['prefix'].'/progressbar', function (Request $request, Response $response, array $args) {
+$app->post($container['administrator'].'/progressbar', function (Request $request, Response $response, array $args) {
 	global $settings;
 	$progressbarService = ProgressbarService::getInstance();
 	$productService = ProductService::getInstance();

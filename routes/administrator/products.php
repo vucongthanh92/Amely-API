@@ -310,7 +310,6 @@ $app->put($container['administrator'].'/products', function (Request $request, R
 		default:
 			break;
 	}
-
 	$products = $productService->getProducts($product_params, $offset, $limit);
 	if (!$products) return response(false);
 
