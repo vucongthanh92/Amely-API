@@ -10,8 +10,8 @@ $app->get($container['administrator'].'/so', function (Request $request, Respons
 	$supplyOrderService = SupplyOrderService::getInstance();
 	$deliveryOrderService = DeliveryOrderService::getInstance();
 	$snapshotService = SnapshotService::getInstance();
-
 	$userService = UserService::getInstance();
+
 	$params = $request->getQueryParams();
 	if (!$params) $params = [];
 	if (!array_key_exists('so_id', $params)) return responseError(ERROR_0);
@@ -19,6 +19,8 @@ $app->get($container['administrator'].'/so', function (Request $request, Respons
 	$so = $supplyOrderService->getSOByType($params['so_id'], 'id');
 	$po = $purchaseOrderService->getPOByType($so->owner_id, 'id');
 	$dos = $deliveryOrderService->getDOsBySO($so_id, 0, 999999, true);
+
+	$customer = $userService->getUserByType($po->owner_id, 'id', true);
 
 	$order_items = unserialize($so->order_items_snapshot);
 	if (!$order_items) return response(false);
@@ -37,22 +39,17 @@ $app->get($container['administrator'].'/so', function (Request $request, Respons
 				$total += $snapshot->display_price * $order_item['quantity'];
 				$tax += $snapshot->tax;
 			}
-			$snapshots[$ksnapshot] = $snapshot;
+			$result['items'][] = $snapshot;
 		}
 	}
 	$so->items = $snapshots;
 	if ($dos) {
-		foreach ($dos as $do) {
-			if ($do->item_id) {
-
-			} else {
-				$items = unserialize($do->order_items_snapshot);
-			}
-		}
+		
+		$result['dos'] = $dos;
 	}
 	$result['po'] = $po;
 	$result['so'] = $so;
-	$result['dos'] = $dos;
+	$result['customer'] = $customer;
 
 	return response($result);
 });
