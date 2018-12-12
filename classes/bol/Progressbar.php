@@ -26,6 +26,7 @@ class Progressbar extends Object
 {
     private $owner_id;
     private $type;
+    private $progress_type;
     private $code;
     private $time_created;
     private $inserted;

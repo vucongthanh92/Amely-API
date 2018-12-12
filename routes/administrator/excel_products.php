@@ -36,6 +36,7 @@ $app->post($container['administrator'].'/excel_products', function (Request $req
 
 		$progressbar_data['owner_id'] = $params['shop_id'];
 		$progressbar_data['type'] = 'shop';
+		$progressbar_data['progress_type'] = 'product';
 		$progressbar_data['code'] = $code;
 		$progressbar_data['number'] = 0;
 		$progressbar_data['total_number'] = $lastRow;

@@ -29,7 +29,7 @@ class ProgressbarService extends Services
   	return $progressbar->insert(true);
   }
 
-  public function updateNumber($id, $inserted, $updated, $error, $number)
+  public function updateNumber($id, $inserted, $updated, $error, $number, $status)
   {
     $progressbar = new Progressbar();
     $progressbar->data->id = $id;
@@ -37,6 +37,7 @@ class ProgressbarService extends Services
     $progressbar->data->updated = $updated;
     $progressbar->data->error = $error;
     $progressbar->data->number = $number;
+    $progressbar->data->status = 0;
     $progressbar->where = "id = {$id}";
     return $progressbar->update(true);
   }
@@ -60,4 +61,11 @@ class ProgressbarService extends Services
 		if (!$progressbar) return false;
 		return $progressbar;
 	}
+
+  public function getProgress($conditions, $offset = 0, $limit = 10)
+  {
+    $progressbars = $this->searchObject($conditions, $offset, $limit);
+    if (!$progressbars) return false;
+    return $progressbars;
+  }
 }

@@ -78,6 +78,19 @@ class StoreService extends Services
     	return $store->update(true);	
     }
 
+    public function getStoresByShop($shop_id, $getAddr = true)
+    {
+    	$conditions = null;
+		$conditions[] = [
+			'key' => 'owner_id',
+			'value' => "= {$shop_id}",
+			'operation' => ''
+		];
+		$stores = $this->getStores($conditions, 0, 99999999, $getAddr);
+		if (!$stores) return false;
+		return $stores;
+    }
+
     public function getStoresByType($input, $type ='id', $getAddr = true)
     {
     	$conditions = null;

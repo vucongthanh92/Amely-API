@@ -9,6 +9,7 @@ class DeliveryOrder extends Object
     private $description;
     private $so_id;
     private $store_id;
+    private $item_id;
     private $order_items_snapshot;
     private $status;
     private $shipping_fullname;

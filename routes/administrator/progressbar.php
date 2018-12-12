@@ -82,11 +82,50 @@ $app->post($container['administrator'].'/progressbar', function (Request $reques
 		} else {
 			$list_error = array_merge($list_error, $product_data['sku']);
 		}
-
-		$progressbarService->updateNumber($progressbar->id, implode('^0^', $list_inserted), implode('^0^', $list_updated), implode('^0^', $list_error), $row);
+		$status = 0;
+		if ($row == $lastRow) {
+			$status = 1;
+		}
+		$progressbarService->updateNumber($progressbar->id, implode('^0^', $list_inserted), implode('^0^', $list_updated), implode('^0^', $list_error), $row, $status);
 	}
 
 	return response(true);
 
 
 })->setName('progressbar');
+
+$app->put($container['administrator'].'/progressbar', function (Request $request, Response $response, array $args) {
+	global $settings;
+	$progressbarService = ProgressbarService::getInstance();
+	$productService = ProductService::getInstance();
+	
+	$params = $request->getParsedBody();
+	if (!$params) $params = [];
+	if (!array_key_exists('shop_id', $params)) return response(false);
+	if (!array_key_exists('progress_type', $params)) return response(false);
+
+	$conditions[] = [
+		'key' => 'owner_id',
+		'value' => "= {$params['shop_id']}",
+		'operation' => ''
+	];
+	$conditions[] = [
+		'key' => 'type',
+		'value' => "= 'shop'",
+		'operation' => 'AND'
+	];
+	$conditions[] = [
+		'key' => 'progress_type',
+		'value' => "= '{$params['progress_type']}'",
+		'operation' => 'AND'
+	];
+	$conditions[] = [
+		'key' => 'status',
+		'value' => "= 0",
+		'operation' => 'AND'
+	];
+
+	$progress = $progressbarService->getProgress($conditions, 0, 99999999);
+
+	return response($progress);
+});
