@@ -39,9 +39,19 @@ $app->post($container['administrator'].'/progressbar', function (Request $reques
 	$lastRow = $worksheet->getHighestRow();
 
 	$list_key_excel = $productService->excel_product_key();
-
-	$number = $number_inserted = $number_updated = $number_error = 0;
+	$number = 0;
 	$inserted = $updated = $error = false;
+	$list_inserted = $list_updated = $list_error = [];
+
+	if (!empty($progressbar->inserted)) {
+		$list_inserted = explode('^0^', $progressbar->inserted);
+	}
+	if (!empty($progressbar->updated)) {
+		$list_updated = explode('^0^', $progressbar->updated);
+	}
+	if (!empty($progressbar->error)) {
+		$list_error = explode('^0^', $progressbar->error);
+	}
 	for ($row = 8; $row <= $lastRow; $row++) {
 		$product_data = null;
 		foreach ($list_key_excel as $key => $value) {
@@ -59,18 +69,21 @@ $app->post($container['administrator'].'/progressbar', function (Request $reques
 		if ($product) {
 			$updated = true;
 			$product_data['id'] = $product->id;
-		}
-		if ($productService->save($product_data)) {
-			if ($updated) {
-				$number_updated++;
-			} else {
-				$number_inserted++;
-			}
 		} else {
-			$number_error++;
+			$updated = false;
 		}
 
-		$progressbarService->updateNumber($progressbar->id, $number_inserted, $number_updated, $number_error, $row);
+		if ($productService->save($product_data)) {
+			if ($updated) {
+				$list_updated = array_merge($list_updated, [$product_data['sku']]);
+			} else {
+				$list_inserted = array_merge($list_inserted, [$product_data['sku']]);
+			}
+		} else {
+			$list_error = array_merge($list_error, $product_data['sku']);
+		}
+
+		$progressbarService->updateNumber($progressbar->id, implode('^0^', $list_inserted), implode('^0^', $list_updated), implode('^0^', $list_error), $row);
 	}
 
 	return response(true);

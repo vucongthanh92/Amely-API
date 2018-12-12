@@ -22,6 +22,7 @@ class GiftService extends Services
 		$services = Services::getInstance();
 		$userService = UserService::getInstance();
 		$groupService = GroupService::getInstance();
+		$eventService = EventService::getInstance();
 		$obj = new stdClass;
 		switch ($data['type']) {
 			case 'user':
@@ -38,7 +39,11 @@ class GiftService extends Services
 				$obj->from = $from;
 				break;
 			case 'event':
-				# code...
+				$from = $eventService->getEventByType($data['from_id'], 'id');
+				$from->type = 'event';
+				$from->username = $from->id;
+				$from->fullname = $from->title;
+				$from->avatar = $from->avatar;
 				break;
 			case 'business':
 				# code...
@@ -65,7 +70,12 @@ class GiftService extends Services
 				$obj->to = $to;
 				break;
 			case 'event':
-				# code...
+				$to = $eventService->getEventByType($data['to_id'], 'id');
+				$to->type = 'event';
+				$to->username = $to->id;
+				$to->fullname = $to->title;
+				$to->avatar = $to->avatar;
+				$obj->to = $to;
 				break;
 			case 'business':
 				# code...
@@ -90,12 +100,14 @@ class GiftService extends Services
 			$item->data->status = 0;
 			$item->where = "id = {$data['item_id']}";
 			$item->update();
-			$obj->text = $data['message'];
-			$media = new stdClass;
-			$media->media_type = 'gift';
-			$media->url = (string)$gift_id;
-			$obj->attachment  = $media;
-			$services->giftFB($obj);
+			if ($data['to_type'] == 'user' || $data['to_type'] == 'group') {
+				$obj->text = $data['message'];
+				$media = new stdClass;
+				$media->media_type = 'gift';
+				$media->url = (string)$gift_id;
+				$obj->attachment  = $media;
+				$services->giftFB($obj);
+			}
 			
 			$notificationService = NotificationService::getInstance();
 			$notify_params = null;
