@@ -14,7 +14,7 @@ $app->get($container['prefix'].'/shops', function (Request $request, Response $r
 	$shop = $shopService->getShopByType($params['shop_id'], 'id');
 	if (!$shop) return response(false);
 	$shop->liked = false;
-	$shops_liked = $shopService->getShopsLiked($loggedin_user->id);
+	$shops_liked = $shopService->getShopsLiked($loggedin_user->id, $shop->id);
 	if ($shops_liked) $shop->liked = true;
 
 	$store_params = null;
@@ -46,7 +46,7 @@ $app->post($container['prefix'].'/shops', function (Request $request, Response $
 	$shops_liked = $shopService->getShopsLiked($loggedin_user->id);
 	$shop_params = null;
 	if ($shops_liked) {
-		$shops_liked = array_map(create_function('$o', 'return $o->subject_id;'), $shops_liked);
+		$shops_liked = array_map(create_function('$o', 'return $o->owner_id;'), $shops_liked);
 		$shops_liked = implode(',', $shops_liked);
 		$shop_params[] = [
 			'key' => 'id',

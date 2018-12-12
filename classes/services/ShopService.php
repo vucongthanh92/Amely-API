@@ -148,13 +148,13 @@ class ShopService extends Services
     	$likeService = LikeService::getInstance();
     	$conditions = null;
 	    $conditions[] = [
-	    	'key' => 'owner_id',
+	    	'key' => 'creator_id',
 	    	'value' => "= {$from}",
 	    	'operation' => ''
 	    ];
 	    if ($to) {
 	    	$conditions[] = [
-		    	'key' => 'subject_id',
+		    	'key' => 'owner_id',
 		    	'value' => "= {$to}",
 		    	'operation' => 'AND'
 		    ];	
