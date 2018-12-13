@@ -37,7 +37,7 @@ class ProgressbarService extends Services
     $progressbar->data->updated = $updated;
     $progressbar->data->error = $error;
     $progressbar->data->number = $number;
-    $progressbar->data->status = 0;
+    $progressbar->data->status = $status;
     $progressbar->where = "id = {$id}";
     return $progressbar->update(true);
   }
