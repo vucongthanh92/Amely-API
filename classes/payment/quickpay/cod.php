@@ -64,6 +64,7 @@ class COD extends \Object implements \Amely\Payment\IPaymentMethod
 		$shopService = \ShopService::getInstance();
 		$storeService = \StoreService::getInstance();
 		$walletService = \WalletService::getInstance();
+		$itemService = \ItemService::getInstance();
 
 		$po = $purchaseOrderService->getPOByType($po_id, 'id');
 		switch ($status) { 
@@ -85,6 +86,9 @@ class COD extends \Object implements \Amely\Payment\IPaymentMethod
 						$blance += $sub_total * (100 - $pg->percent) / 100;
 					} else if ($pg->price > 0) {
 						$blance += $order_item['quantity'] * $pg->price;
+					}
+					if ($order_item['redeem_quantity'] > 0) {
+						$itemService->redeemQuantityBySnapshot($snapshot->id, $order_item['redeem_quantity'], $po->owner_id, 'user');
 					}
 				}
 				$so_data['po'] = $po;

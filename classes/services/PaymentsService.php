@@ -143,6 +143,9 @@ class PaymentsService extends Services
 							'quantity' => $item_so['quantity'],
 							'redeem_quantity' => $item_so['redeem_quantity']
 						];
+						if ($item_so['redeem_quantity'] > 0) {
+							$itemService->redeemQuantityBySnapshot($snapshot->id, $item_so['redeem_quantity'], $user->id, 'user');
+						}
 						$quantity += $item_so['quantity'];
 						$sub_total = $product->display_price * $item_so['quantity'];
 						$total += $sub_total;

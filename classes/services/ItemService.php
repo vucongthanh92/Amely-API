@@ -31,6 +31,7 @@ class ItemService extends Services
 
     public function getQuantityOfItemBySnapshot($snapshot_id, $owner_id, $type = 'user')
     {
+    	$time = time();
     	$inventoryService = InventoryService::getInstance();
 		$inventory = $inventoryService->getInventoryByType($owner_id, $type);
 		if (!$inventory) return false;
@@ -56,6 +57,16 @@ class ItemService extends Services
 			'operation' => 'AND'
 		];
 		$item_params[] = [
+			'key' => '',
+			'value' => "(stored_end >= {$time} AND stored_end <> 0)",
+			'operation' => 'AND'
+		];
+		$item_params[] = [
+			'key' => '',
+			'value' => "(end_day >= {$time} OR end_day = 0)",
+			'operation' => 'AND'
+		];
+		$item_params[] = [
 			'key' => 'SUM(quantity) as sum',
 			'value' => '',
 			'operation' => 'query_params'
@@ -64,7 +75,63 @@ class ItemService extends Services
 		if (!$item) return 0;
 		$quantity = $item->sum;
 		return $quantity;
+    }
 
+    public function redeemQuantityBySnapshot($snapshot_id, $quantity, $owner_id, $type = 'user')
+    {
+    	$time = time();
+    	$inventoryService = InventoryService::getInstance();
+		$inventory = $inventoryService->getInventoryByType($owner_id, $type);
+		if (!$inventory) return false;
+		$item_params = null;
+		$item_params[] = [
+			'key' => 'owner_id',
+			'value' => "= {$inventory->id}",
+			'operation' => ''
+		];
+		$item_params[] = [
+			'key' => 'snapshot_id',
+			'value' => "= {$snapshot_id}",
+			'operation' => 'AND'
+		];
+		$item_params[] = [
+			'key' => 'quantity',
+			'value' => "> 0",
+			'operation' => 'AND'
+		];
+		$item_params[] = [
+			'key' => 'status',
+			'value' => "= 1",
+			'operation' => 'AND'
+		];
+		$item_params[] = [
+			'key' => '',
+			'value' => "(stored_end >= {$time} AND stored_end <> 0)",
+			'operation' => 'AND'
+		];
+		$item_params[] = [
+			'key' => '',
+			'value' => "(end_day >= {$time} OR end_day = 0)",
+			'operation' => 'AND'
+		];
+		$item_params[] = [
+			'key' => 'stored_end',
+			'value' => "DESC",
+			'operation' => 'order_by'
+		];
+		$items = $this->getItems($item_params, 0, 999999999999);
+		if (!$items) return false;
+		foreach ($items as $key => $item) {
+			if ($item->quantity >= $quantity) {
+				$item_id = $this->separateItem($item->id, $quantity);
+				$this->updateStatus($item_id, 2);
+				return true;
+			} else {
+				$quantity = $quantity - $item->quantity;
+				$this->updateStatus($item->id, 2);
+			}
+		}
+		return true;
     }
 
     public function updateStatus($item_id, $status)
