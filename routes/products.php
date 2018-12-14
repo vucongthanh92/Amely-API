@@ -179,14 +179,16 @@ $app->post($container['prefix'].'/products', function (Request $request, Respons
 			$categories_id = implode(',', $categories_id);
 			$categories = $categoryService->getCategoriesByType($categories_id, 'id');
 			foreach ($products as $key => $product) {
+				$store_quantity = ProductStoreService::getInstance()->showProduct($product->id);
+				if (!$store_quantity) {
+					unset($products[$key]);
+					continue;
+				}
 				if ($params['shop_id']) {
 					$product->quantity = 0;
 					$store_quantity = ProductStoreService::getInstance()->checkQuantityInStore($product->id, $loggedin_user->chain_store);
 					if ($store_quantity) {
 						$product->quantity = $store_quantity->quantity;
-					} else {
-						unset($products[$key]);
-						continue;
 					}
 				}
 				if ($categories) $product->categories = $categories;

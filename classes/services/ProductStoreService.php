@@ -53,6 +53,24 @@ class ProductStoreService extends Services
         return $store_quantity->update(true);
     }
 
+    public function showProduct($product_id) 
+    {
+        $conditions = null;
+        $conditions[] = [
+            'key' => 'product_id',
+            'value' => "= '{$product_id}'",
+            'operation' => ''
+        ];
+        $conditions[] = [
+            'key' => 'quantity',
+            'value' => "> 0",
+            'operation' => 'AND'
+        ];
+        $store_quantity = $this->getQuantityProduct($conditions);
+        if (!$store_quantity) return false;
+        return $store_quantity;
+    }
+
     public function checkQuantityInStore($product_id, $store_id)
     {
     	$conditions = null;
