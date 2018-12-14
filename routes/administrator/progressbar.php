@@ -62,6 +62,10 @@ $app->post($container['administrator'].'/progressbar', function (Request $reques
 
 		if (!$product_data) {
 			$number_error++;
+			if ($row == $lastRow) {
+				$progressbarService->updateNumber($progressbar->id, implode('^0^', $list_inserted), implode('^0^', $list_updated), implode('^0^', $list_error), $row, 1);
+				return response(true);
+			}
 			continue;
 		}
 
