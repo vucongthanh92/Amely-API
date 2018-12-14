@@ -190,9 +190,10 @@ $app->post($container['administrator'].'/products', function (Request $request, 
 	$uploadedFiles = $request->getUploadedFiles();
     $images = [];
     if (($uploadedFiles) && ($params['total_images'] > 0)) {
-    	for($i = 1; $i < $params['total_images']; $i++) {
-    		if ($uploadedFiles['image'.$i]) {
-    			array_push($images, $uploadedFiles['image'.$i]);
+    	for($i = 0; $i < $params['total_images']; $i++) {
+    		$number = $i + 1;
+    		if ($uploadedFiles['image'.$number]) {
+    			array_push($images, $uploadedFiles['image'.$number]);
     		}
     	}
     }
