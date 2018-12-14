@@ -48,10 +48,17 @@ $app->get($container['prefix'].'/orders', function (Request $request, Response $
 	$snapshots = $snapshotService->getSnapshotsByType($snapshots_id, 'id');
 
 	$result['po'] = $po;
+	if ($params['po_id']) {
+		$sos = $supplyOrderService->getSOsByPO($po->id);
+		foreach ($sos as $kso => $vso) {
+			$dos = $deliveryOrderService->getDOsBySO($vso->id, 0, 9999999, true);
+			$result['dos'][$vso->store_id] = $dos;
+		}
+	}
 	if ($params['so_id']) {
 		$dos = $deliveryOrderService->getDOsBySO($so->id, 0, 9999999, true);
-		if ($do) {
-			$result['dos'] = $dos;
+		if ($dos) {
+			$result['dos'][$so->store_id] = $dos;
 		}
 	}
 	$result['total'] = 0;
