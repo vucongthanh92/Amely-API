@@ -184,6 +184,9 @@ $app->post($container['prefix'].'/products', function (Request $request, Respons
 					$store_quantity = ProductStoreService::getInstance()->checkQuantityInStore($product->id, $loggedin_user->chain_store);
 					if ($store_quantity) {
 						$product->quantity = $store_quantity->quantity;
+					} else {
+						unset($products[$key]);
+						continue;
 					}
 				}
 				if ($categories) $product->categories = $categories;
