@@ -49,9 +49,9 @@ $app->get($container['prefix'].'/orders', function (Request $request, Response $
 
 	$result['po'] = $po;
 	if ($params['so_id']) {
-		$do = $deliveryOrderService->getDOByType($so->id, 'so_id');
+		$dos = $deliveryOrderService->getDOsBySO($so->id, 0, 9999999, true);
 		if ($do) {
-			$result['do'] = $do;
+			$result['dos'] = $dos;
 		}
 	}
 	$result['total'] = 0;
