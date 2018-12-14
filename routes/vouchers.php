@@ -39,6 +39,6 @@ $app->post($container['prefix'].'/vouchers', function (Request $request, Respons
 			continue;
 		}
 	}
-	
+	if (!$products) return response(false);
 	return response(array_values($products));
 });
