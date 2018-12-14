@@ -69,7 +69,6 @@ $app->post($container['administrator'].'/products', function (Request $request, 
 	$params = $request->getParsedBody();
 	$files = $request->getUploadedFiles();
     
-    
 	if (!$params) $params = [];
 	if (!array_key_exists('id', $params)) $params['id'] = false;
 	if (!array_key_exists('owner_id', $params)) return responseError("shop_not_empty");
@@ -106,6 +105,7 @@ $app->post($container['administrator'].'/products', function (Request $request, 
 	if (!array_key_exists('images', $params)) $params['images'] = 0;
 	if (!array_key_exists('parent_id', $params)) $params['parent_id'] = 0;
 	if (!array_key_exists('status', $params)) $params['status'] = 0;
+	if (!array_key_exists('total_images', $params)) $params['total_images'] = 0;
 
 	if (empty($params['sku'])) return responseError("sku_not_empty");
 	if (!$params['owner_id']) {
@@ -189,8 +189,12 @@ $app->post($container['administrator'].'/products', function (Request $request, 
 
 	$uploadedFiles = $request->getUploadedFiles();
     $images = [];
-    if ($uploadedFiles) {
-    	array_push($images, $uploadedFiles['images']);
+    if (($uploadedFiles) && ($params['total_images'] > 0)) {
+    	for($i = 0; $i < $params['total_images']; $i++) {
+    		if ($uploadedFiles['image'.$i]) {
+    			array_push($images, $uploadedFiles['image'.$i]);
+    		}
+    	}
     }
 
     return response($productService->save($product_data, $images));
