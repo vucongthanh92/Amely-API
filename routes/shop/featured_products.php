@@ -39,5 +39,13 @@ $app->post($container['prefix'].'/shop/featured_products', function (Request $re
 
 	$products = $productService->getProducts($product_params, 0, 16);
 	if (!$products) return response(false);
-	return response($products);
+	foreach ($products as $key => $product) {
+		$store_quantity = ProductStoreService::getInstance()->showProduct($product->id);
+		if (!$store_quantity) {
+			unset($products[$key]);
+			continue;
+		}
+	}
+	if (!$products) return response(false);
+	return response(array_values($products));
 });

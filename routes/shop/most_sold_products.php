@@ -41,5 +41,6 @@ $app->post($container['prefix'].'/shop/most_sold_products', function (Request $r
 			continue;
 		}
 	}
+	if (!$products) return response(false);
 	return response(array_values($products));
 });

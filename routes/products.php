@@ -196,7 +196,7 @@ $app->post($container['prefix'].'/products', function (Request $request, Respons
 			}
 		}
 	}
-
+	if (!$products) return response(false);
 	return response(array_values($products));
 });
 

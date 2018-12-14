@@ -30,5 +30,6 @@ $app->post($container['prefix'].'/featured_products', function (Request $request
 			continue;
 		}
 	}
+	if (!$products) return response(false);
 	return response(array_values($products));
 });
