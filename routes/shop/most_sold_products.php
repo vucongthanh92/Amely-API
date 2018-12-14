@@ -34,5 +34,12 @@ $app->post($container['prefix'].'/shop/most_sold_products', function (Request $r
 	
 	$products = $productService->getProducts($product_params, 0, 16);
 	if (!$products) return response(false);
-	return response($products);
+	foreach ($products as $key => $product) {
+		$store_quantity = ProductStoreService::getInstance()->showProduct($product->id);
+		if (!$store_quantity) {
+			unset($products[$key]);
+			continue;
+		}
+	}
+	return response(array_values($products));
 });

@@ -24,6 +24,11 @@ $app->post($container['prefix'].'/featured_products', function (Request $request
 				$products[$key] = $product;
 			}
 		}
+		$store_quantity = ProductStoreService::getInstance()->showProduct($product->id);
+		if (!$store_quantity) {
+			unset($products[$key]);
+			continue;
+		}
 	}
 	return response(array_values($products));
 });
