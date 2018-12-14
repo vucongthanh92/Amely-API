@@ -43,9 +43,8 @@ $app->post($container['prefix'].'/shipping', function (Request $request, Respons
 		
 		$fee_data['pick_province'] = $store->store_province_name;
 		$fee_data['pick_district'] = $store->store_district_name;
-		$fee_data['address'] = $store->store_address;
 		$fee_data['weight'] = $snapshot->weight * $params['quantity'];
-		$fee_data['total'] = $snapshot->display_price * $params['quantity'];
+		$fee_data['value'] = $snapshot->display_price * $params['quantity'];
 
 		$shippingService = ShippingService::getInstance();
 		$sm = $shippingService->getMethod($params['shipping_method']);
@@ -77,19 +76,17 @@ $app->post($container['prefix'].'/shipping', function (Request $request, Respons
 			$stores[$store->id]['district'] = $store->store_district_name;
 			$stores[$store->id]['address'] = $store->store_address;
 			$stores[$store->id]['weight'] += $product->weight * $cart_item->quantity;
-			$stores[$store->id]['total'] += $product->display_price * $cart_item->quantity;
+			$stores[$store->id]['value'] += $product->display_price * $cart_item->quantity;
 			$stores[$store->id]['products'][] = $product->id;
 		}
-
 		$erro = 0;
 		$str = [];
 		$total_fee = 0;
 		foreach ($stores as $key => $store) {
 			$fee_data['pick_province'] = $store['province'];
 			$fee_data['pick_district'] = $store['district'];
-			$fee_data['address'] = $store['address'];
 			$fee_data['weight'] = $store['weight'];
-			$fee_data['total'] = $store['total'];
+			$fee_data['value'] = $store['total'];
 
 			$shippingService = ShippingService::getInstance();
 			$sm = $shippingService->getMethod($params['shipping_method']);

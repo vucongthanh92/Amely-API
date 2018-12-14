@@ -147,7 +147,7 @@ class PaymentsService extends Services
 							$itemService->redeemQuantityBySnapshot($snapshot->id, $item_so['redeem_quantity'], $user->id, 'user');
 						}
 						$quantity += $item_so['quantity'];
-						$sub_total = $product->display_price * $item_so['quantity'];
+						$sub_total = $snapshot->display_price * $item_so['quantity'];
 						$total += $sub_total;
 						if ($pg->percent > 0) {
 							$blance += $sub_total * (100 - $pg->percent) / 100;
@@ -160,17 +160,19 @@ class PaymentsService extends Services
 					$fee_data = null;
 					$fee_data['pick_province'] = $store->store_province_name;
 					$fee_data['pick_district'] = $store->store_district_name;
-					$fee_data['province'] = $user->province_name;
-					$fee_data['district'] = $user->district_name;
-					$fee_data['address'] = $user->full_address;
+					$fee_data['province'] = $po->shipping_province_name;
+					$fee_data['district'] = $po->shipping_district_name;
+					$fee_data['address'] = $po->shipping_full_address;
 					$fee_data['weight'] = $weight;
 					$fee_data['value'] = $total;
-
+					
 					$so_data['shipping_fee'] = 0;
 					$shipping_fee = $shippingService->getMethod($po->shipping_method);
 					$shipping = $shipping_fee->checkFee($fee_data);
 					if ($shipping) {
 						$so_data['shipping_fee'] = $shipping->fee->fee;
+					} else {
+						$so_data['shipping_fee'] = 0;
 					}
 					$shop = $shopService->getShopByType($store->owner_id, 'id');
 					$so_data['po'] = $po;

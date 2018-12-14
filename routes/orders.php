@@ -152,7 +152,7 @@ $app->put($container['prefix'].'/orders', function (Request $request, Response $
 	if (!array_key_exists('shipping_ward', $params))	 $params['shipping_ward'] = false;
 	if (!array_key_exists('shipping_note', $params))	 $params['shipping_note'] = false;
 	if (!array_key_exists('shipping_method', $params))	 $params['shipping_method'] = false;
-	if (!array_key_exists('shipping_fee', $params))		 $params['shipping_fee'] = false;
+	if (!array_key_exists('shipping_fee', $params))		 $params['shipping_fee'] = 0;
 	if (!array_key_exists('cart_id', $params))		 	 $params['cart_id'] = false;
 
 	if (!$params['payment_method'] || !$params['cart_id']) return response(false);
