@@ -31,7 +31,6 @@ class ProductService extends Services
 		$product->data->product_order = 0;
 		$product->data->approved = 0;
         $product->data->enabled = 0;
-		$product->data->status = 0;
 
         if ($data['id']) {
             $product->where = "id = {$data['id']}";
