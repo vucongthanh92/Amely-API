@@ -105,7 +105,7 @@ $app->post($container['prefix'].'/products', function (Request $request, Respons
 	if ($category_id) {
 		$product_params[] = [
 			'key' => 'approved',
-			'value' => "REGEXP '^[0-9]+$'",
+			'value' => "> 0",
 			'operation' => 'AND'
 		];
 
@@ -119,7 +119,7 @@ $app->post($container['prefix'].'/products', function (Request $request, Respons
 		if ($shop_id) {
 			$product_params[] = [
 				'key' => 'approved',
-				'value' => "REGEXP '^[0-9]+$'",
+				'value' => "> 0",
 				'operation' => 'AND'
 			];
 			$product_params[] = [
@@ -130,6 +130,8 @@ $app->post($container['prefix'].'/products', function (Request $request, Respons
 		}
 	}
 	switch ($type_product) {
+		case 'all':
+			break;
 		case 'featured':
 			$product_params[] = [
 				'key' => 'featured',
