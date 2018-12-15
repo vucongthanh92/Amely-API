@@ -352,9 +352,34 @@ $app->delete($container['administrator'].'/products', function (Request $request
 	$productService = ProductService::getInstance();
 	$params = $request->getQueryParams();
 	if (!$params) $params = [];
-	if (!array_key_exists('id', $params)) $params['id'] = false;
-	$product = $productService->getProductByType($params['id'], 'id');
-	if (!$product) return response(false);
+	if (!array_key_exists('id', $params)) return responseError(ERROR_1);
+	if (!array_key_exists('image', $params)) $params['image'] = false;
+
+	foreach ($params['id'] as $key => $id) {
+		$properties = $productService->getPropertyProductByType($id, 'id');
+		if (!$product) return response(false);
+		if ($params['image']) {
+			$image = explode('_', $params['image']);
+			$images = [];
+			foreach ($properties as $property) {
+				$images = explode(',', $property->images);
+				$images = array_diff($images, [$image]);
+			}
+			if ($images) {
+				$images = implode(',', $images);
+			} else {
+				$images = "";
+			}
+			$product = new Product();
+			$product->data->images = $images;
+			$product->data->id = $id;
+			$product->where = "id = {$id}";
+			$product->upadte(true);
+
+		} else {
+			$productService->updateStatus($product->id, 2);
+		}
+	}
 	
-	return response($productService->updateStatus($product->id, 2));
+	return response(true);
 });
