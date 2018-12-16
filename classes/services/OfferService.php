@@ -19,6 +19,8 @@ class OfferService extends Services
 
 	public function save($data)
 	{
+		$transactionService = TransactionService::getInstance();
+
 		if ($data['id']) return false;
 		$time = time();
 		$hour = $data["duration"]*24;
@@ -33,16 +35,10 @@ class OfferService extends Services
 		$offer_id = $offer->insert(true);
 		if ($offer_id) {
 			ItemService::getInstance()->updateStatus($data['item_id'], 0);
-			$transactionService = TransactionService::getInstance();
-			$transaction_data = null;
-			$transaction_data['owner_id'] = $data['owner_id'];
-			$transaction_data['type'] = 'user';
-			$transaction_data['title'] = "";
-			$transaction_data['description'] = "";
-			$transaction_data['subject_type'] = 'offer';
-			$transaction_data['subject_id'] = $offer_id;
-			$transaction_data['status'] = 3;
-			$transactionService->save($transaction_data);
+			$creator_id = $data['owner_id'];
+			$transaction_params = $transactionService->getTransactionParams($creator_id, 'user', '', '', 'offer', $offer_id, 3, $creator_id);
+			$transactionService->save($transaction_params);
+
 			return $offer_id;
 		}
 		return false;
@@ -51,40 +47,41 @@ class OfferService extends Services
 	public function updateStatus($offer_id, $status, $counter_id = false)
     {
     	$transactionService = TransactionService::getInstance();
-		$transaction_params = null;
+
     	$offer = $this->getOfferByType($offer_id);
     	$offer = object_cast("Offer", $offer);
     	$offer->data->status = $status;
 		$offer->where = "id = {$offer_id}";
+
+		$status = $subject_type = $subject_id = null;
 		if ($offer->update()) {
 			switch ($status) {
 				case 0:
 					# code...
 					break;
 				case 1:
-					$transaction_params['status'] = 5;
+					$status = 5;
+
 					if ($counter_id) {
-						$transaction_params['subject_type'] = 'counter';
-						$transaction_params['subject_id'] = $counter_id;
+						$subject_type = 'counter';
+						$subject_id = $counter_id;
 					}
 					break;
 				case 2:
-					$transaction_params['status'] = 4;
-					$transaction_params['subject_type'] = 'offer';
-					$transaction_params['subject_id'] = $offer->id;
+					$status = 4;
+					$subject_type = 'offer';
+					$subject_id = $offer->id;
 					break;
 				default:
 					# code...
 					break;
 			}
+
+			$creator_id = $data['owner_id'];
+			$transaction_params = $transactionService->getTransactionParams($creator_id, 'user', '', '', $subject_type, $subject_id, $status, $creator_id);
+			$transactionService->save($transaction_params);
 			
-			$transaction_params['owner_id'] = $offer->owner_id;
-			$transaction_params['type'] = 'user';
-			$transaction_params['title'] = "";
-			$transaction_params['description'] = "";
-			
-			
-			return $transactionService->save($transaction_params);
+			return true;
 		}
 		return false;
     }

@@ -51,6 +51,20 @@ class TransactionService extends Services
 		return $transaction->insert(true);
     }
 
+    public function getTransactionParams($owner_id, $type, $title, $description, $subject_type, $subject_id, $status, $creator_id) 
+    {
+    	$transaction_params = null;
+		$transaction_params['owner_id'] = $owner_id;
+		$transaction_params['type'] = $type;
+		$transaction_params['title'] = $title;
+		$transaction_params['description'] = $description;
+		$transaction_params['subject_type'] = $subject_type;
+		$transaction_params['subject_id'] = $subject_id;
+		$transaction_params['status'] = $status;
+		$transaction_params['creator_id'] = $creator_id;
+		return $transaction_params;
+    }
+
     public function getTransactionsByType($owner_id, $type, $subject_type, $offset = 0, $limit = 10)
 	{
 		$conditions = null;

@@ -363,6 +363,8 @@ $app->delete($container['prefix'].'/offers', function (Request $request, Respons
 	$userService = UserService::getInstance();
 	$itemService = ItemService::getInstance();
 	$snapshotService = SnapshotService::getInstance();
+	$transactionService = TransactionService::getInstance();
+
 	$loggedin_user = loggedin_user();
 	$time = time();
 
@@ -392,14 +394,7 @@ $app->delete($container['prefix'].'/offers', function (Request $request, Respons
 		}
 	}
 
-	$transactionService = TransactionService::getInstance();
-	$transaction_params['owner_id'] = $offer->owner_id;
-	$transaction_params['type'] = 'user';
-	$transaction_params['title'] = "";
-	$transaction_params['description'] = "";
-	$transaction_params['subject_type'] = 'offer';
-	$transaction_params['subject_id'] = $offer->id;
-	$transaction_params['status'] = 4;
-	$transactionService->save($transaction_params);
+	$transaction_params = $transactionService->getTransactionParams($offer->owner_id, 'user', '', '', 'offer', $offer->id, 4, $offer->owner_id);
+    $transactionService->save($transaction_params);
 	return response(true);
 });

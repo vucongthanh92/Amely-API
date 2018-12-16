@@ -34,64 +34,34 @@ class CounterService extends Services
 	    }
 	    switch ($data['status']) {
 			case 0:
-				$transaction_params['status'] = 7;
-				$transaction_params['owner_id'] = $data['creator_id'];
-				$transaction_params['type'] = 'user';
-				$transaction_params['title'] = "";
-				$transaction_params['description'] = "";
-				$transaction_params['subject_type'] = 'counter';
-				$transaction_params['subject_id'] = $counter_id;
+				$creator_id = $data['creator_id'];
+				$transaction_params = $transactionService->getTransactionParams($creator_id, 'user', '', '', 'counter', $counter_id, 7, $creator_id);
 				$transactionService->save($transaction_params);
 				break;
 			case 1:
-				$transaction_params['status'] = 10;
-				$transaction_params['owner_id'] = $data['creator_id'];
-				$transaction_params['type'] = 'user';
-				$transaction_params['title'] = "";
-				$transaction_params['description'] = "";
-				$transaction_params['subject_type'] = 'counter';
-				$transaction_params['subject_id'] = $counter_id;
+				$creator_id = $data['creator_id'];
+				$transaction_params = $transactionService->getTransactionParams($creator_id, 'user', '', '', 'counter', $counter_id, 10, $creator_id);
 				$transactionService->save($transaction_params);
 
-				$transaction_params['status'] = 5;
-				$transaction_params['owner_id'] = $offer->owner_id;
-				$transaction_params['type'] = 'user';
-				$transaction_params['title'] = "";
-				$transaction_params['description'] = "";
-				$transaction_params['subject_type'] = 'counter';
-				$transaction_params['subject_id'] = $counter_id;
+				$creator_id = $offer->owner_id;
+				$transaction_params = $transactionService->getTransactionParams($creator_id, 'user', '', '', 'counter', $counter_id, 5, $creator_id);
 				$transactionService->save($transaction_params);
 				break;
 			case 2:
-				$transaction_params['status'] = 9;
-				$transaction_params['owner_id'] = $data['creator_id'];
-				$transaction_params['type'] = 'user';
-				$transaction_params['title'] = "";
-				$transaction_params['description'] = "";
-				$transaction_params['subject_type'] = 'counter';
-				$transaction_params['subject_id'] = $counter_id;
+				$creator_id = $data['creator_id'];
+				$transaction_params = $transactionService->getTransactionParams($creator_id, 'user', '', '', 'counter', $counter_id, 9, $creator_id);
 				$transactionService->save($transaction_params);
 
-				$transaction_params['status'] = 6;
-				$transaction_params['owner_id'] = $offer->owner_id;
-				$transaction_params['type'] = 'user';
-				$transaction_params['title'] = "";
-				$transaction_params['description'] = "";
-				$transaction_params['subject_type'] = 'counter';
-				$transaction_params['subject_id'] = $counter_id;
+				$creator_id = $offer->owner_id;
+				$transaction_params = $transactionService->getTransactionParams($creator_id, 'user', '', '', 'counter', $counter_id, 6, $creator_id);
 				$transactionService->save($transaction_params);
 				break;
 			case 3:
-				$transaction_params['status'] = 8;
-				$transaction_params['owner_id'] = $data['creator_id'];
-				$transaction_params['type'] = 'user';
-				$transaction_params['title'] = "";
-				$transaction_params['description'] = "";
-				$transaction_params['subject_type'] = 'counter';
-				$transaction_params['subject_id'] = $counter_id;
+				$creator_id = $data['creator_id'];
+				$transaction_params = $transactionService->getTransactionParams($creator_id, 'user', '', '', 'counter', $counter_id, 8, $creator_id);
 				$transactionService->save($transaction_params);
+				break;
 			default:
-				# code...
 				break;
 		}
 
@@ -119,51 +89,26 @@ class CounterService extends Services
 					# code...
 					break;
 				case 1:
-					$transaction_params['status'] = 10;
-					$transaction_params['owner_id'] = $counter->creator_id;
-					$transaction_params['type'] = 'user';
-					$transaction_params['title'] = "";
-					$transaction_params['description'] = "";
-					$transaction_params['subject_type'] = 'counter';
-					$transaction_params['subject_id'] = $counter_id;
+					$creator_id = $counter->creator_id;
+					$transaction_params = $transactionService->getTransactionParams($creator_id, 'user', '', '', 'counter', $counter_id, 10, $creator_id);
 					$transactionService->save($transaction_params);
 
-					$transaction_params['status'] = 5;
-					$transaction_params['owner_id'] = $offer->owner_id;
-					$transaction_params['type'] = 'user';
-					$transaction_params['title'] = "";
-					$transaction_params['description'] = "";
-					$transaction_params['subject_type'] = 'counter';
-					$transaction_params['subject_id'] = $counter_id;
+					$creator_id = $offer->owner_id;
+					$transaction_params = $transactionService->getTransactionParams($creator_id, 'user', '', '', 'counter', $counter_id, 5, $creator_id);
 					$transactionService->save($transaction_params);
 					break;
 				case 2:
-					$transaction_params['status'] = 9;
-					$transaction_params['owner_id'] = $counter->creator_id;
-					$transaction_params['type'] = 'user';
-					$transaction_params['title'] = "";
-					$transaction_params['description'] = "";
-					$transaction_params['subject_type'] = 'counter';
-					$transaction_params['subject_id'] = $counter_id;
+					$creator_id = $counter->creator_id;
+					$transaction_params = $transactionService->getTransactionParams($creator_id, 'user', '', '', 'counter', $counter_id, 9, $creator_id);
 					$transactionService->save($transaction_params);
 
-					$transaction_params['status'] = 6;
-					$transaction_params['owner_id'] = $offer->owner_id;
-					$transaction_params['type'] = 'user';
-					$transaction_params['title'] = "";
-					$transaction_params['description'] = "";
-					$transaction_params['subject_type'] = 'counter';
-					$transaction_params['subject_id'] = $counter_id;
+					$creator_id = $offer->owner_id;
+					$transaction_params = $transactionService->getTransactionParams($creator_id, 'user', '', '', 'counter', $counter_id, 6, $creator_id);
 					$transactionService->save($transaction_params);
 					break;
 				case 3:
-					$transaction_params['status'] = 8;
-					$transaction_params['owner_id'] = $counter->creator_id;
-					$transaction_params['type'] = 'user';
-					$transaction_params['title'] = "";
-					$transaction_params['description'] = "";
-					$transaction_params['subject_type'] = 'counter';
-					$transaction_params['subject_id'] = $counter_id;
+					$creator_id = $counter->creator_id;
+					$transaction_params = $transactionService->getTransactionParams($creator_id, 'user', '', '', 'counter', $counter_id, 8, $creator_id);
 					$transactionService->save($transaction_params);
 					break;
 				default:

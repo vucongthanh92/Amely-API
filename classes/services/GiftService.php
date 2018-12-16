@@ -23,6 +23,8 @@ class GiftService extends Services
 		$userService = UserService::getInstance();
 		$groupService = GroupService::getInstance();
 		$eventService = EventService::getInstance();
+		$transactionService = TransactionService::getInstance();
+
 		$obj = new stdClass;
 		switch ($data['type']) {
 			case 'user':
@@ -114,14 +116,9 @@ class GiftService extends Services
 			$notify_params['gift_id'] = $gift_id;
 			$notificationService->save($notify_params, "gift:request");
 
-			$transaction_params['owner_id'] = $data['from_id'];
-			$transaction_params['type'] = $data['from_type'];
-			$transaction_params['title'] = "";
-			$transaction_params['description'] = "";
-			$transaction_params['subject_type'] = "gift";
-			$transaction_params['subject_id'] = $gift_id;
-			$transaction_params['status'] = 0;
-			TransactionService::getInstance()->save($transaction_params);
+			$creator_id = $data['from_id'];
+			$transaction_params = $transactionService->getTransactionParams($creator_id, $data['from_type'], '', '', 'gift', $gift_id, 0, $creator_id);
+			$transactionService->save($transaction_params);
 			return true;
 		}
 		return false;
@@ -138,26 +135,24 @@ class GiftService extends Services
 		if ($gift->update()) {
 			switch ($status) {
 				case 0:
-					$transaction_params['status'] = 0;
+					$status = 0;
 					break;
 				case 1:
-					$transaction_params['status'] = 1;
+					$status = 1;
 					$notificationService->save($notify_params, "gift:accept");
 					break;
 				case 2:
-					$transaction_params['status'] = 2;
+					$status = 2;
 					$notificationService->save($notify_params, "gift:reject");
 					break;
 				default:
 					break;
 			}
-			$transaction_params['owner_id'] = $gift->from_id;
-			$transaction_params['type'] = $gift->from_type;
-			$transaction_params['title'] = "";
-			$transaction_params['description'] = "";
-			$transaction_params['subject_type'] = "gift";
-			$transaction_params['subject_id'] = $gift_id;
-			TransactionService::getInstance()->save($transaction_params);
+
+			$creator_id = $gift->from_id;
+			$transaction_params = $transactionService->getTransactionParams($creator_id, $gift->from_type, '', '', 'gift', $gift_id, $status, $creator_id);
+			$transactionService->save($transaction_params);
+
 			return true;
 		}
 		return false;

@@ -32,21 +32,16 @@ class WalletService extends Services
     public function deposit($owner_id, $total, $status, $subject_id, $subject_type)
     {
     	$transactionService = TransactionService::getInstance();
+
     	$wallet = $this->getWalletByOwnerId($owner_id);
-        
         $wallet = object_cast("Wallet", $wallet);
     	$wallet->data->balance = $wallet->balance + $total;
         $wallet->data->id = $wallet->id;
     	$wallet->where = "id = {$wallet->id}";
         if ($wallet->update(true)) {
-    		$transaction_params['owner_id'] = $wallet->id;
-			$transaction_params['type'] = 'wallet';
-			$transaction_params['title'] = $total;
-			$transaction_params['description'] = "";
-			$transaction_params['subject_type'] = $subject_type;
-			$transaction_params['subject_id'] = $subject_id;
-			$transaction_params['status'] = $status;
-			$transactionService->save($transaction_params);
+            
+            $transaction_params = $transactionService->getTransactionParams($wallet->id, 'wallet', $total, '', $subject_type, $subject_id, $status, $wallet->owner_id);
+            $transactionService->save($transaction_params);
     		return true;
     	}
     	return false;
@@ -55,20 +50,15 @@ class WalletService extends Services
     public function withdraw($owner_id, $total, $status, $subject_id, $subject_type)
     {
         $transactionService = TransactionService::getInstance();
+
     	$wallet = $this->getWalletByOwnerId($owner_id);
         $wallet = object_cast("Wallet", $wallet);
     	$wallet->data->balance = $wallet->balance - $total;
         $wallet->data->id = $wallet->id;
     	$wallet->where = "id = {$wallet->id}";
     	if ($wallet->update(true)) {
-    		$transaction_params['owner_id'] = $wallet->id;
-			$transaction_params['type'] = 'wallet';
-			$transaction_params['title'] = $total;
-			$transaction_params['description'] = "";
-			$transaction_params['subject_type'] = $subject_type;
-            $transaction_params['subject_id'] = $subject_id;
-			$transaction_params['status'] = $status;
-			$transactionService->save($transaction_params);
+            $transaction_params = $transactionService->getTransactionParams($wallet->id, 'wallet', $total, '', $subject_type, $subject_id, $status, $wallet->owner_id);
+            $transactionService->save($transaction_params);
     		return true;	
     	}
     	return false;

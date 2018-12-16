@@ -369,15 +369,8 @@ $app->delete($container['prefix'].'/counter_offers', function (Request $request,
 		$noty_params['counter_id'] = $params['counter_id'];
 		$notificationService->save($noty_params, 'counter:reject');
 		$counterService->updateStatus($counter->id, 2);
-		$transaction_params = null;
-		$transaction_params['status'] = 6;
-		$transaction_params['owner_id'] = $loggedin_user->id;
-		$transaction_params['type'] = 'user';
-		$transaction_params['title'] = "";
-		$transaction_params['description'] = "";
-		$transaction_params['subject_type'] = 'counter';
-		$transaction_params['subject_id'] = $counter_id;
-		$transactionService->save($transaction_params);
+		$transaction_params = $transactionService->getTransactionParams($loggedin_user->id, 'user', '', '', 'counter', $counter_id, 6, $loggedin_user->id);
+        $transactionService->save($transaction_params);
 
 	} else if ($counter->creator_id == $loggedin_user->id) {
 		$counterService->updateStatus($counter->id, 3);

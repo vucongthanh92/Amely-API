@@ -30,15 +30,9 @@ $app->get($container['prefix'].'/console_offers', function (Request $request, Re
 		$offer->data->id = $offer->id;
 		$offer->where = "id = {$offer->id}";
 		if ($offer->update()) {
-			$transaction_params = null;
-			$transaction_params['status'] = 25;
-			$transaction_params['subject_type'] = 'offer';
-			$transaction_params['subject_id'] = $offer->id;
-			$transaction_params['owner_id'] = $offer->owner_id;
-			$transaction_params['type'] = 'user';
-			$transaction_params['title'] = "";
-			$transaction_params['description'] = "";
-			$transactionService->save($transaction_params);
+			$transaction_params = $transactionService->getTransactionParams($offer->owner_id, 'user', '', '', 'offer', $offer->id, 25, $offer->owner_id);
+            $transactionService->save($transaction_params);
+
 
 			$itemService->changeOwnerItem($offer->owner_id, 'user', $offer->item_id);
 			$counter_params = null;
@@ -54,15 +48,9 @@ $app->get($container['prefix'].'/console_offers', function (Request $request, Re
 						$counterService->updateStatus($counter->id, 2);
 						$itemService->changeOwnerItem($counter->creator_id, 'user', $counter->item_id);
 					}
-					$transaction_params = null;
-					$transaction_params['status'] = 9;
-					$transaction_params['owner_id'] = $counter->creator_id;
-					$transaction_params['type'] = 'user';
-					$transaction_params['title'] = "";
-					$transaction_params['description'] = "";
-					$transaction_params['subject_type'] = 'counter';
-					$transaction_params['subject_id'] = $counter->id;
-					$transactionService->save($transaction_params);
+
+					$transaction_params = $transactionService->getTransactionParams($counter->creator_id, 'user', '', '', 'counter', $counter->id, 9, $counter->creator_id);
+            		$transactionService->save($transaction_params);
 				}
 			}
 

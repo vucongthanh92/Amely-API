@@ -45,6 +45,7 @@ class Transaction extends Object
     private $subject_type;
     private $subject_id;
     private $status;
+    private $creator_id;
     
 	public function __construct() 
 	{	

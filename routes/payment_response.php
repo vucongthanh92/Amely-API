@@ -27,28 +27,27 @@ $app->get($container['prefix'].'/payment_response', function (Request $request, 
 			switch ($payment->type) {
 				case 'HD':
 					$po = $purchaseOrderService->getPOByType($response['order_id'], 'id');
-					$transaction_params['owner_id'] = $po->owner_id;
-					$transaction_params['type'] = 'user';
-					$transaction_params['title'] = "";
-					$transaction_params['description'] = "";
-					$transaction_params['subject_type'] = 'order';
-					$transaction_params['subject_id'] = $po->id;
+					$status = null;
+
 					switch ($response['status']) {
 						case 0:
-							$transaction_params['status'] = 11;
+							$status = 11;
 							break;
 						case 1:
 							$paymentsService->processOrder($response['order_id'], $response['order_type']);
-							$transaction_params['status'] = 12;
+							$status = 12;
 							break;
 						case 2:
-							$transaction_params['status'] = 13;
+							$status = 13;
 							break;
 						default:
 							# code...
 							break;
 					}
-					response($transactionService->save($transaction_params));
+	
+					$transaction_params = $transactionService->getTransactionParams($po->owner_id, 'user', '', '', 'order', $po->id, $status, $po->owner_id);
+        			$transactionService->save($transaction_params);
+
 					return redirectURL(1);
 					break;
 				case 'WALLET':

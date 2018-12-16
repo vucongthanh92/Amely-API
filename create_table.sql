@@ -271,6 +271,7 @@ CREATE TABLE `amely_transactions` (
   `description` longtext NOT NULL,
   `subject_type` text,
   `subject_id` bigint(20),
+  `creator_id` bigint(20),
   `status` text
  ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
