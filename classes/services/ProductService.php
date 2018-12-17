@@ -40,6 +40,8 @@ class ProductService extends Services
         }
 
         if ($product_id) {
+            $properties = $this->getPropertyProductByType($product_id, 'id');
+            $images_old = explode(',', $properties->images);
             if ($images) {
                 $imageService = ImageService::getInstance();
                 $filenames = [];
@@ -48,8 +50,12 @@ class ProductService extends Services
                     $filenames[] = $filename;
                     $imageService->uploadImage($product_id, 'product', 'images', $image, $filename);
                 }
+                if (!$images_old) {
+                    $images_old = [];
+                }
+                $images_new = array_merge($images_old, $filenames);
                 $product = new Product();
-                $product->data->images = implode(',', $filenames);
+                $product->data->images = implode(',', $images_new);
                 $product->data->id = $product_id;
                 $product->where = "id = {$product_id}";
                 $product->update(true);
