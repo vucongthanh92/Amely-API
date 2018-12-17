@@ -49,11 +49,6 @@ class COD extends \Object implements \Amely\Payment\IPaymentMethod
 		$status = $this->status;
 		$creator = $this->creator;
 
-		$sm->so_id = $so_id;
-		$sm->creator_id = $po->owner_id;
-		$sm->items = $order_items_snapshot;
-		
-
 		$shippingService = \ShippingService::getInstance();
 	    $notificationService = \NotificationService::getInstance();
 		$purchaseOrderService = \PurchaseOrderService::getInstance();
