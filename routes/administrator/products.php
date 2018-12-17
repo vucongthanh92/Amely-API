@@ -191,9 +191,8 @@ $app->post($container['administrator'].'/products', function (Request $request, 
     $images = [];
     if (($uploadedFiles) && ($params['total_images'] > 0)) {
     	for($i = 0; $i < $params['total_images']; $i++) {
-    		$number = $i + 1;
-    		if ($uploadedFiles['image'.$number]) {
-    			array_push($images, $uploadedFiles['image'.$number]);
+    		if ($uploadedFiles['image_'.($i)]) {
+    			array_push($images, $uploadedFiles['image_'.$i]);
     		}
     	}
     }
@@ -350,36 +349,35 @@ $app->put($container['administrator'].'/products', function (Request $request, R
 
 $app->delete($container['administrator'].'/products', function (Request $request, Response $response, array $args) {
 	$productService = ProductService::getInstance();
-	$params = $request->getQueryParams();
+	$params = $request->getParsedBody();
 	if (!$params) $params = [];
 	if (!array_key_exists('id', $params)) return responseError(ERROR_1);
 	if (!array_key_exists('image', $params)) $params['image'] = false;
 
 	foreach ($params['id'] as $key => $id) {
 		$properties = $productService->getPropertyProductByType($id, 'id');
-		if (!$product) return response(false);
+		if (!$properties) return response(false);
 		if ($params['image']) {
 			$image = explode('_', $params['image']);
 			$images = [];
-			foreach ($properties as $property) {
-				$images = explode(',', $property->images);
-				$images = array_diff($images, [$image]);
-			}
+			$images = explode(',', $properties->images);
+			$images = array_diff($images, [$image[1]]);
+			
 			if ($images) {
 				$images = implode(',', $images);
 			} else {
 				$images = "";
 			}
+			
 			$product = new Product();
 			$product->data->images = $images;
 			$product->data->id = $id;
 			$product->where = "id = {$id}";
-			$product->upadte(true);
+			$product->update(true);
 
 		} else {
-			$productService->updateStatus($product->id, 2);
+			$productService->updateStatus($id, 2);
 		}
 	}
-	
 	return response(true);
 });
