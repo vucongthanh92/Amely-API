@@ -4,6 +4,7 @@ namespace Amely\Payment\QuickPay;
 class COD extends \Object implements \Amely\Payment\IPaymentMethod
 {
 	public $owner_cart;
+	public $status;
 	public $order_id;
 	public $description;
 	public $amount;
