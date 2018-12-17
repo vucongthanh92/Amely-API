@@ -75,6 +75,14 @@ class AdvertiseService extends Services
 		return $advertises;
 	}
 
+	public function getAdvertiseBanner()
+	{
+		$conditions = $this->getConditionAds(2);
+		$advertises = $this->getAdvertises($conditions, 0, 16);
+		if (!$advertises) return false;
+		return $advertises;
+	}
+
 	public function getConditionAds($advertise_type = 0)
     {
     	date_default_timezone_set('Asia/Ho_Chi_Minh');

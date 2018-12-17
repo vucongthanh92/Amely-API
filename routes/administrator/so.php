@@ -39,8 +39,8 @@ $app->get($container['administrator'].'/so', function (Request $request, Respons
 				$total += $snapshot->display_price * $order_item['quantity'];
 				$tax += $snapshot->tax;
 			}
-			$result['items'][] = $snapshot;
 		}
+		$result['items'][] = $snapshot;
 	}
 	$so->items = $snapshots;
 	if ($dos) {
