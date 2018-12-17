@@ -69,6 +69,8 @@ $app->post($container['prefix'].'/shops', function (Request $request, Response $
 				'value' => "IN ($friends)",
 				'operation' => ''
 			];
+		} else {
+			return response(false);
 		}
 	}
 	$shops = $shopService->getShops($shop_params, $offset, $limit, false);
