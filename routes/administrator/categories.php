@@ -52,7 +52,7 @@ $app->post($container['administrator'].'/categories', function (Request $request
 	$category_data['title'] = $params['title'];
 	$category_data['description'] = $params['description'];
 	$category_data['parent_id'] = 0;
-	if ($params['subtype'] == 0) {
+	if ($params['subtype'] == 0 || $params['subtype'] == 3) {
 		$category_data['parent_id'] = $params['parent_id'];
 	}
 	if (!$category_data['parent_id']) {
