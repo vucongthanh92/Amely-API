@@ -54,6 +54,7 @@ class ProductService extends Services
                     $images_old = [];
                 }
                 $images_new = array_merge($images_old, $filenames);
+                $images_new = array_diff($images_new, ['']);
                 $product = new Product();
                 $product->data->images = implode(',', $images_new);
                 $product->data->id = $product_id;
