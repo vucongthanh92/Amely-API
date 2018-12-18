@@ -4,7 +4,7 @@ CREATE TABLE `amely_rule` (
   PRIMARY KEY (`id`),
   `time_created` int(11) NOT NULL,
   `title` text,
-  `permission_id` int(11),
+  `permission_id` text,
   `creator_id` int(11) NOT NULL,
   `status` varchar(10)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
