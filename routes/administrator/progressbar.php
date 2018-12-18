@@ -76,6 +76,7 @@ $app->post($container['administrator'].'/progressbar', function (Request $reques
 		} else {
 			$updated = false;
 		}
+		$product_data['status'] = 0;
 
 		if ($productService->save($product_data)) {
 			if ($updated) {
