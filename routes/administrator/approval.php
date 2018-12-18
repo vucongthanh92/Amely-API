@@ -17,6 +17,7 @@ $app->post($container['administrator'].'/approval', function (Request $request, 
 	$storeService = StoreService::getInstance();
 	$productService = ProductService::getInstance();
 	$userService = UserService::getInstance();
+	$advertiseService = AdvertiseService::getInstance();
 
 	$loggedin_user = loggedin_user();
 	$params = $request->getParsedBody();
@@ -64,6 +65,14 @@ $app->post($container['administrator'].'/approval', function (Request $request, 
 			if (is_array($params['subject_id'])) {
 				foreach ($params['subject_id'] as $subject_id) {
 					$productService->approval($subject_id);
+				}
+				return response(true);
+			}
+			break;
+		case 'advertise':
+			if (is_array($params['subject_id'])) {
+				foreach ($params['subject_id'] as $subject_id) {
+					$advertiseService->approval($subject_id);
 				}
 				return response(true);
 			}

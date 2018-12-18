@@ -1,3 +1,29 @@
+DROP TABLE IF EXISTS `amely_rule`;
+CREATE TABLE `amely_rule` (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT,
+  PRIMARY KEY (`id`),
+  `time_created` int(11) NOT NULL,
+  `title` text,
+  `permission_id` int(11),
+  `creator_id` int(11) NOT NULL,
+  `status` varchar(10)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+DROP TABLE IF EXISTS `amely_permission`;
+CREATE TABLE `amely_permission` (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT,
+  PRIMARY KEY (`id`),
+  `time_created` int(11) NOT NULL,
+  `title` text,
+  `path` text,
+  `viewed` tinyint(1),
+  `inserted` tinyint(1),
+  `updated` tinyint(1),
+  `deleted` tinyint(1),
+  `creator_id` int(11) NOT NULL,
+  `status` varchar(10)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
 DROP TABLE IF EXISTS `amely_progressbar`;
 CREATE TABLE `amely_progressbar` (
   `id` bigint(20) NOT NULL AUTO_INCREMENT,
