@@ -32,6 +32,7 @@ class User extends Object
 	private $gift_count;
 	private $offer_count;
 	private $blockedusers;
+	private $rule_id;
 
 	public function __construct() 
 	{

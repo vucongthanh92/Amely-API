@@ -4,24 +4,37 @@ CREATE TABLE `amely_rule` (
   PRIMARY KEY (`id`),
   `time_created` int(11) NOT NULL,
   `title` text,
-  `permission_id` text,
   `creator_id` int(11) NOT NULL,
   `status` varchar(10)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+DROP TABLE IF EXISTS `amely_rule_permission`;
+CREATE TABLE `amely_permission` (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT,
+  PRIMARY KEY (`id`),
+  `owner_id` bigint(20) NOT NULL,
+  `type` varchar(20) NOT NULL,
+  `time_created` int(11) NOT NULL,
+  `title` text,
+  `rule_id` bigint(20),
+  `permission_id` bigint(20),
+  `option` text,
+  `get` tinyint(1),
+  `post` tinyint(1),
+  `put` tinyint(1),
+  `patch` tinyint(1),
+  `delete` tinyint(1)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 DROP TABLE IF EXISTS `amely_permission`;
 CREATE TABLE `amely_permission` (
   `id` bigint(20) NOT NULL AUTO_INCREMENT,
   PRIMARY KEY (`id`),
+  `owner_id` bigint(20) NOT NULL,
+  `type` varchar(20) NOT NULL,
   `time_created` int(11) NOT NULL,
   `title` text,
-  `path` text,
-  `viewed` tinyint(1),
-  `inserted` tinyint(1),
-  `updated` tinyint(1),
-  `deleted` tinyint(1),
-  `creator_id` int(11) NOT NULL,
-  `status` varchar(10)
+  `path` text
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 DROP TABLE IF EXISTS `amely_progressbar`;
@@ -250,7 +263,8 @@ CREATE TABLE `amely_users` (
   `cover` text,
   `gift_count` int DEFAULT 0,
   `offer_count` int DEFAULT 0,
-  `blockedusers` text
+  `blockedusers` text,
+  `rule_id` int(11),
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 DROP TABLE IF EXISTS `amely_promotion_items`; 
