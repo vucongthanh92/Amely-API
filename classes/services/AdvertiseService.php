@@ -110,6 +110,16 @@ class AdvertiseService extends Services
     		'value' => ">= (amount*1)",
     		'operation' => 'AND'
     	];
+    	$conditions[] = [
+			'key' => 'approved',
+			'value' => "> 0",
+			'operation' => 'AND'
+		];
+		$conditions[] = [
+			'key' => 'status',
+			'value' => "= 1",
+			'operation' => 'AND'
+		];
      	return $conditions;
     }
 
