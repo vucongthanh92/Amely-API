@@ -358,10 +358,9 @@ $app->delete($container['administrator'].'/products', function (Request $request
 		$properties = $productService->getPropertyProductByType($id, 'id');
 		if (!$properties) return response(false);
 		if ($params['image']) {
-			$image = explode('_', $params['image']);
 			$images = [];
 			$images = explode(',', $properties->images);
-			$images = array_diff($images, [$image[1]]);
+			$images = array_diff($images, [$params['image']]);
 			
 			if ($images) {
 				$images = implode(',', $images);
