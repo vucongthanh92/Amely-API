@@ -283,17 +283,21 @@ class ProductService extends Services
 		$imageService = ImageService::getInstance();
         $product->description = html_entity_decode($product->description);
         $images = [];
+        $images_name = [];
         if ($product->images) {
         	foreach (explode(",", $product->images) as $key => $image) {
+                array_push($images_name, $image);
         		array_push($images, $imageService->showImage($product->id, $image, 'product', 'large'));
         	}
         } else {
         	array_push($images, $imageService->showImage($product->id, "default", 'product', 'large'));
         }
         if ($images) {
-        	$product->images = $images;
+            $product->images = $images;
+        	$product->images_name = $images_name;
         } else {
             unset($product->images);
+            unset($product->images_name);
         }
         $product->display_price = $this->getPrice($product);
         $product->display_currency = "VND";
