@@ -5,15 +5,13 @@ class RulePermission extends Object
     private $owner_id;
     private $type;
     private $time_created;
-    private $title;
-    private $rule_id;
     private $permission_id;
-    private $option;
     private $get;
     private $post;
     private $put;
     private $patch;
     private $delete;
+    private $creator_id;
 
 	public function __construct() 
 	{	

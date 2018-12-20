@@ -26,6 +26,7 @@ class UserService extends Services
     	foreach ($data as $key => $value) {
     		$user->data->$key = $value;
     	}
+    	$user->data->rule_id = 0;
     	if ($data['id']) {
     		$user->where = "id = {$data['id']}";
     		return $user->update(true);

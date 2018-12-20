@@ -7,6 +7,7 @@ class Permission extends Object
     private $time_created;
     private $title;
     private $path;
+    private $option;
 
 	public function __construct() 
 	{	

@@ -54,6 +54,7 @@ class PermissionService extends Services
         foreach ($data as $key => $value) {
             $rule_permission->data->$key = $value;
         }
+        $rule_permission->data->type = 'rule';
         if ($data['id']) {
             $rule_permission->where = "id = {$data['id']}";
             return $rule_permission->update(true);
@@ -70,13 +71,70 @@ class PermissionService extends Services
         return $user->update(true);
     }
 
+    public function checkPermission($rule_id, $path, $method)
+    {   
+        $type = "";
+        switch ($method) {
+            case 'GET':
+                $type = 'get';
+                break;
+            case 'POST':
+                $type = 'post';
+                break;
+            case 'PUT':
+                $type = 'put';
+                break;
+            case 'PATCH':
+                $type = 'patch';
+                break;
+            case 'DELETE':
+                $type = 'delete';
+                break;
+            default:
+                return false;
+                break;
+        }
+        
+        $permission = $this->getPermissionByPath($path);
+        if (!$permission) return false;
+        $this->table = "amely_rule_permission";
+        $conditions[] = [
+            'key' => $type,
+            'value' => "= 1",
+            'operation' => ''
+        ];
+        $conditions[] = [
+            'key' => 'owner_id',
+            'value' => "= {$rule_id}",
+            'operation' => 'AND'
+        ];
+        $conditions[] = [
+            'key' => 'permission_id',
+            'value' => "= {$permission->id}",
+            'operation' => 'AND'
+        ];
+        $check = $this->searchObject($conditions, 0, 1);
+        return $check;
+    }
+
+    public function getRuleByType($rule_id)
+    {
+        $this->table = "amely_rule";
+        $conditions[] = [
+            'key' => 'id',
+            'value' => "= {$rule_id}",
+            'operation' => ''
+        ];
+        return $this->searchObject($conditions, 0, 1);   
+    }
+
     public function getRules()
     {
         $this->table = "amely_rule";
         return $this->searchObject(null, 0, 9999999);
     }
 
-    public function getPermission()
+    public function getPermissions()
     {
         $this->table = "amely_permission";
         return $this->searchObject(null, 0, 9999999);
@@ -86,10 +144,21 @@ class PermissionService extends Services
     {
         $this->table = "amely_rule_permission";
         $conditions[] = [
-            'key' => 'rule_id',
+            'key' => 'owner_id',
             'value' => "= {$rule_id}",
             'operation' => ''
         ];
         return $this->searchObject($conditions, 0, 9999999);
+    }
+
+    public function getPermissionByPath($path)
+    {
+        $this->table = "amely_permission";
+        $conditions[] = [
+            'key' => 'path',
+            'value' => "= '{$path}'",
+            'operation' => ''
+        ];
+        return $this->searchObject($conditions, 0, 1);
     }
 }

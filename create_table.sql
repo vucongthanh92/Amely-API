@@ -15,15 +15,13 @@ CREATE TABLE `amely_permission` (
   `owner_id` bigint(20) NOT NULL,
   `type` varchar(20) NOT NULL,
   `time_created` int(11) NOT NULL,
-  `title` text,
-  `rule_id` bigint(20),
   `permission_id` bigint(20),
-  `option` text,
   `get` tinyint(1),
   `post` tinyint(1),
   `put` tinyint(1),
   `patch` tinyint(1),
-  `delete` tinyint(1)
+  `delete` tinyint(1),
+  `creator_id` bigint(20)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 DROP TABLE IF EXISTS `amely_permission`;
@@ -34,7 +32,8 @@ CREATE TABLE `amely_permission` (
   `type` varchar(20) NOT NULL,
   `time_created` int(11) NOT NULL,
   `title` text,
-  `path` text
+  `path` text,
+  `option` text
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 DROP TABLE IF EXISTS `amely_progressbar`;

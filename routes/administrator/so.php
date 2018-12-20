@@ -18,7 +18,7 @@ $app->get($container['administrator'].'/so', function (Request $request, Respons
 
 	$so = $supplyOrderService->getSOByType($params['so_id'], 'id');
 	$po = $purchaseOrderService->getPOByType($so->owner_id, 'id');
-	$dos = $deliveryOrderService->getDOsBySO($so_id, 0, 999999, true);
+	$dos = $deliveryOrderService->getDOsBySO($so->id, 0, 999999, true);
 
 	$customer = $userService->getUserByType($po->owner_id, 'id', true);
 

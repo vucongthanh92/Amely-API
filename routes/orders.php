@@ -11,6 +11,8 @@ $app->get($container['prefix'].'/orders', function (Request $request, Response $
 	$userService = UserService::getInstance();
 	$deliveryOrderService = DeliveryOrderService::getInstance();
 	$loggedin_user = loggedin_user();
+	$result = $shops_id = $stores_id = $snapshots_id = [];
+
 	$params = $request->getQueryParams();
 	if (!$params) $params = [];
 	if (!array_key_exists('po_id', $params)) $params['po_id'] = false;
@@ -26,11 +28,11 @@ $app->get($container['prefix'].'/orders', function (Request $request, Response $
 		$so = $supplyOrderService->getSOByType($params['so_id'], 'id');
 		$order_items = unserialize($so->order_items_snapshot);
 		$po = $purchaseOrderService->getPOByType($so->owner_id, 'id');
+		$result['so'] = $so;
 	}
 
 
 	if (!$order_items) return response(false);
-	$result = $shops_id = $stores_id = $snapshots_id = [];
 	foreach ($order_items as $key => $order_item) {
 		array_push($stores_id, $order_item['store_id']);
 		array_push($snapshots_id, $order_item['snapshot_id']);
