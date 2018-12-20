@@ -66,6 +66,7 @@ class PermissionService extends Services
     public function setRuleForUser($user_id, $rule_id)
     {
         $user = new User();
+        $user->data->id = $user_id;
         $user->data->rule = $rule_id;
         $user->where = "id = {$user_id}";
         return $user->update(true);

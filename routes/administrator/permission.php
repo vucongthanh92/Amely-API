@@ -81,3 +81,25 @@ $app->post($container['administrator'].'/permission', function (Request $request
 	}
 	return response(true);	
 });
+
+$app->patch($container['administrator'].'/permission', function (Request $request, Response $response, array $args) {
+	$permissionService = PermissionService::getInstance();
+	$userService = UserService::getInstance();
+
+	$loggedin_user = loggedin_user();
+
+	$params = $request->getParsedBody();
+	if (!$params) $params = [];
+	if (!array_key_exists('user_id', $params)) return responseError(ERROR_0);
+	if (!array_key_exists('rule_id', $params)) return responseError(ERROR_0);
+
+	$user = $userService->getUserByType($params['user_id'], 'id', false);
+	if (!$user) return response(false);
+
+	$rule = $permissionService->getRuleByType($params['rule_id']);
+	if (!$rule) return response(false);
+	if ($rule->status != 1) return response(false);
+
+
+	return response($permissionService->setRuleForUser($params['user_id'], $params['rule_id']));
+});

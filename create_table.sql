@@ -9,7 +9,7 @@ CREATE TABLE `amely_rule` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 DROP TABLE IF EXISTS `amely_rule_permission`;
-CREATE TABLE `amely_permission` (
+CREATE TABLE `amely_rule_permission` (
   `id` bigint(20) NOT NULL AUTO_INCREMENT,
   PRIMARY KEY (`id`),
   `owner_id` bigint(20) NOT NULL,
