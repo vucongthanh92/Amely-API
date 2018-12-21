@@ -65,7 +65,7 @@ $app->post($container['prefix'].'/banner', function (Request $request, Response 
 		}
 		$banners[$key]['banner_url'] = $advertise->image;
 		$banners[$key]['link'] = $advertise->link;
-		$banners[$key]['guid'] = $advertise->id;
+		$banners[$key]['id'] = $advertise->id;
     }
 	return response(array_values($banners));
 
