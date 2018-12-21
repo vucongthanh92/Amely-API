@@ -9,6 +9,7 @@ $app->post($container['prefix'].'/banner', function (Request $request, Response 
 	$userService = UserService::getInstance();
 	$groupService = GroupService::getInstance();
 	$shopService = ShopService::getInstance();
+	$productService = ProductService::getInstance();
 
 	$loggedin_user = loggedin_user();
 	$advertises = $advertiseService->getAdvertiseBanner();
@@ -16,7 +17,7 @@ $app->post($container['prefix'].'/banner', function (Request $request, Response 
 	foreach ($advertises as $key => $advertise) {
 		$parse = parse_url($advertise->link);
 		$url = preg_replace('/^www\./i', '', $parse['host']);
-		if ($url == $settings['domain']) {
+		if ($url == "amely.com") {
 			$path = explode("/", $parse['path']);
 			$url_type = $path[1];
 			$friendly_url = $path[2];
@@ -35,19 +36,15 @@ $app->post($container['prefix'].'/banner', function (Request $request, Response 
 						$banners[$key]['group_id'] = $matches[1][0];
 					}
 					break;
-				case 's':
-					$banners[$key]['type'] = "product";
-					$matches = array();
-					preg_match_all('/.*?-(\\d+)$/i', $path[2], $matches);
-					if (count($matches) >= 2) {
-						$banners[$key]['product_id'] = $matches[1][0];
-					}
-					break;
 				case 'p':
-					
+					$product = $productService->getProductByType($friendly_url, 'friendly_url');
+					$banners[$key]['type'] = "product";
+					$banners[$key]['product_id'] = $product->id;
+					break;
+				case 's':
 					$shop = $shopService->getShopByType($friendly_url, 'friendly_url', false);
 					$banners[$key]['type'] = "shop";
-					$banners[$key]['shop_guid'] = $shop->id;
+					$banners[$key]['shop_id'] = $shop->id;
 					$banners[$key]['shop_owner_id'] = $shop->owner_id;
 					break;
 				case 'event':
