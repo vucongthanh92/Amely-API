@@ -37,7 +37,9 @@ $app->post($container['administrator'].'/permission', function (Request $request
 
 	$params = $request->getParsedBody();
 	if (!$params) $params = [];
-	if (!array_key_exists('rule_id', $params)) return responseError(ERROR_0);
+	if (!array_key_exists('rule_id', $params)) $params['rule_id'] = false;
+	if (!array_key_exists('title', $params)) return responseError(ERROR_0);
+	if (!array_key_exists('status', $params)) $params['status'] = 0;
 	/* 
 		neu ko co action nao = 1 thi ko gui 
 		array chuoi (thu tu cua chuoi nhu sau 
@@ -54,21 +56,30 @@ $app->post($container['administrator'].'/permission', function (Request $request
 		]
 	*/
 	if (!array_key_exists('permissions', $params))  $params['permissions'] = [];
-
-	$rule_permissions = $permissionService->getPermissionsByRule($params['rule_id']);
-	if ($rule_permissions) {
-		foreach ($rule_permissions as $key => $rule_permission) {
-			$rulePermission = new RulePermission();
-			$rulePermission->data->id = $rule_permission->id;
-			$rulePermission->where = "id = {$rule_permission->id}";
-			$rulePermission->delete(true);
+	if ($params['rule_id']) {
+		$rule_data['id'] = $params['rule_id'];
+		$rule_id = $params['rule_id'];
+	}
+	$rule_data['title'] = $params['title'];
+	$rule_data['creator_id'] = $loggedin_user->id;
+	$rule_data['status'] = $params['status'];
+	$rule_id = $permissionService->saveRule($rule_data);
+	if (!$params['rule_id']) {
+		$rule_permissions = $permissionService->getPermissionsByRule($params['rule_id']);
+		if ($rule_permissions) {
+			foreach ($rule_permissions as $key => $rule_permission) {
+				$rulePermission = new RulePermission();
+				$rulePermission->data->id = $rule_permission->id;
+				$rulePermission->where = "id = {$rule_permission->id}";
+				$rulePermission->delete(true);
+			}
 		}
 	}
 
 	if ($params['permissions']) {
 		foreach ($params['permissions'] as $key => $permissions) {
 			$permissions = explode(',', $permissions);
-			$permission_data['owner_id'] = $params['rule_id'];
+			$permission_data['owner_id'] = $rule_id;
 			$permission_data['permission_id'] = $permissions[0];
 			$permission_data['get'] = $permissions[2];
 			$permission_data['post'] = $permissions[3];
