@@ -20,6 +20,7 @@ class AuthMiddleware
         $name = $route->getName();
         $uri = $request->getUri();
         $path = $uri->getPath();
+        $check_path_administrator = in_array("administrator", explode('/', $path));
         $method = $route->getMethods();
 
         if (in_array($name, $user_token_ignore)) {
@@ -38,7 +39,11 @@ class AuthMiddleware
                     return $next($request, $response);    
                 }
                 $check_permission = $permissionService->checkPermission($loggedin_user->rule_id, $path, $method[0]);
-                if ($check_permission) {
+                if ($check_path_administrator) {
+                    if ($check_permission) {
+                        return $next($request, $response);
+                    }
+                } else {
                     return $next($request, $response);
                 }
                 return responseError(ERROR_2);
