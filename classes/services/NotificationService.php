@@ -278,7 +278,7 @@ class NotificationService extends Services
 				$eventService = EventService::getInstance();
 				$userService = UserService::getInstance();
 				$event = $eventService->getEventByType($data['from']->id, 'id');
-				$owner_id = $params['to']->id;
+				$owner_id = $data['to']->id;
 				$owner_type = 'user';
 				$notify_token = $tokenService->getNotifyToken($owner_id, $owner_type);
 				$from_id = $data['from']->id;

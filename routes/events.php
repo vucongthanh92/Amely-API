@@ -39,13 +39,15 @@ $app->get($container['prefix'].'/events', function (Request $request, Response $
 	    	'operation' => 'AND'
 	    ];
 	    $relations = $relationshipService->getRelations($relation_params, 0, 99999999);
-	    foreach ($relations as $key => $relation) {
-	    	foreach ($invites as $key => $invite) {
-	    		if ($relation->relation_to == $invite->id) {
-					array_push($invites_accepted, $invite);
-	    		}
-	    	}
-		}
+	    if ($relations) {
+		    foreach ($relations as $key => $relation) {
+		    	foreach ($invites as $key => $invite) {
+		    		if ($relation->relation_to == $invite->id) {
+						array_push($invites_accepted, $invite);
+		    		}
+		    	}
+			}
+	    }
 	}
 	$event->invites_accepted = $invites_accepted;
 
