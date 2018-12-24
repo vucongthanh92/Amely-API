@@ -384,6 +384,11 @@ $app->delete($container['prefix'].'/offers', function (Request $request, Respons
 		'value' => "= {$params['offer_id']}",
 		'operation' => ''
 	];
+	$counter_params[] = [
+		'key' => 'status',
+		'value' => "= 0",
+		'operation' => 'AND'
+	];
 	$counters = $counterService->getCounters($counter_params, 0, 99999999);
 	if ($counters) {
 		foreach ($counters as $key => $counter) {
