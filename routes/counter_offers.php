@@ -364,10 +364,6 @@ $app->delete($container['prefix'].'/counter_offers', function (Request $request,
 	$offer = $offerService->getOfferByType($counter->owner_id, 'id');
 	if ($offer->owner_id != $loggedin_user->id && $counter->creator_id != $loggedin_user->id) return response(false);
 	if ($offer->owner_id == $loggedin_user->id) {
-		$noty_params = null;
-		$noty_params['offer_id'] = $offer->id;
-		$noty_params['counter_id'] = $params['counter_id'];
-		$notificationService->save($noty_params, 'counter:reject');
 		$counterService->updateStatus($counter->id, 2);
 		$transaction_params = $transactionService->getTransactionParams($loggedin_user->id, 'user', '', '', 'counter', $counter_id, 6, $loggedin_user->id);
         $transactionService->save($transaction_params);
