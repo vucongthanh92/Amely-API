@@ -275,12 +275,10 @@ CREATE TABLE `amely_promotion_items` (
   `time_created` int(11) NOT NULL,
   `title` text NOT NULL,
   `description` longtext NOT NULL,
-  `subtype` text NOT NULL,
-  `promotion_type` text,
-  `promotion_percent` text,
-  `promotion_price` text,
-  `promotion_currency` text,
-  `promotion_product` text
+  `percent` text,
+  `price` text,
+  `currency` text,
+  `product` text
  ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 DROP TABLE IF EXISTS `amely_promotions`; 
@@ -292,11 +290,11 @@ CREATE TABLE `amely_promotions` (
   `time_created` int(11) NOT NULL,
   `title` text NOT NULL,
   `description` longtext NOT NULL,
-  `subtype` text NOT NULL,
-  `time_start` text,
-  `time_end` text,
+  `time_type` text,
+  `start_time` text,
+  `end_time` text,
   `status` text,
-  `activated` text
+  `approved` text
  ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 DROP TABLE IF EXISTS `amely_transactions`; 

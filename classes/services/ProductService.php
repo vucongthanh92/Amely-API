@@ -95,6 +95,11 @@ class ProductService extends Services
         return false;
     }
 
+    public function updateMostSold($product_id)
+    {
+        
+    }
+
     public function excel_product_key()
     {
         $list = [
