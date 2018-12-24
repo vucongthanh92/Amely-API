@@ -244,7 +244,7 @@ class NotificationService extends Services
 				$owner_id = $counter_owner->id;
 				$owner_type = 'user';
 				$notify_token = $tokenService->getNotifyToken($counter_owner->id, $owner_type);
-				$from_id = $offer_owner->creator_id;
+				$from_id = $offer_owner->id;
 				$from_type = 'user';
 				$from_title = $offer_owner->fullname;
 				$to_id = $counter_owner->id;
@@ -264,7 +264,7 @@ class NotificationService extends Services
 				$owner_id = $counter_owner->id;
 				$owner_type = 'user';
 				$notify_token = $tokenService->getNotifyToken($counter_owner->id, $owner_type);
-				$from_id = $offer_owner->creator_id;
+				$from_id = $offer_owner->id;
 				$from_type = 'user';
 				$from_title = $offer_owner->fullname;
 				$to_id = $counter_owner->id;

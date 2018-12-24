@@ -69,12 +69,14 @@ class ShopService extends Services
     	$supplyOrderService = SupplyOrderService::getInstance();
     	$storeService = StoreService::getInstance();
     	$stores = $storeService->getStoresByType($shop_id, 'owner_id', false);
-		foreach ($stores as $key => $store) {
-			$so = $supplyOrderService->getSOByType($store->id, 'store_id');
-			if ($so) {
-				$storeService->delete($store->id);
+    	if ($stores) {
+			foreach ($stores as $key => $store) {
+				$so = $supplyOrderService->getSOByType($store->id, 'store_id');
+				if ($so) {
+					$storeService->delete($store->id);
+				}
 			}
-		}
+    	}
     	$shop = new Shop();
     	$shop->data->id = $shop_id;
     	$shop->where = "id = {$shop_id}";
