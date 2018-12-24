@@ -245,10 +245,10 @@ $app->patch($container['prefix'].'/offers', function (Request $request, Response
 	$offerService->updateStatus($offer->id, 1, $counter->id);
 	$counterService->updateStatus($counter->id, 1);
 
-	$noty_params = null;
-	$noty_params['offer_id'] = $offer->id;
-	$noty_params['counter_id'] = $counter->id;
-	$notificationService->save($noty_params, 'counter:accept');
+	// $noty_params = null;
+	// $noty_params['offer_id'] = $offer->id;
+	// $noty_params['counter_id'] = $counter->id;
+	// $notificationService->save($noty_params, 'counter:accept');
 
 	$counter_params = null;
 	$counter_params[] = [
