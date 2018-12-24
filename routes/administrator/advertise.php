@@ -205,7 +205,6 @@ $app->post($container['administrator'].'/advertise', function (Request $request,
 	$ad_data['advertise_type'] = $params['advertise_type'];
 	$ad_data['time_type'] = $params['time_type'];
 	$ad_data['target_id'] = $params['target_id'];
-	$ad_data['image'] = $params['image'];
 	$ad_data['budget'] = $params['budget'];
 	$ad_data['cpc'] = $params['cpc'];
 	$ad_data['link'] = $params['link'];
@@ -214,6 +213,15 @@ $app->post($container['administrator'].'/advertise', function (Request $request,
 	$ad_data['end_time'] = $params['end_time'];
 	$ad_data['creator_id'] = $loggedin_user->id;
 
-	// withdraw($owner_id, $total, $status, $subject_id, $subject_type);
-	return response($advertiseService->save($ad_data));
+	$uploadedFiles = $request->getUploadedFiles();
+    $image = false;
+    if ($uploadedFiles) {
+	    $uploadedFile = $uploadedFiles['image'];
+	    if ($uploadedFile->getError() === UPLOAD_ERR_OK) {
+	        $files = $request->getUploadedFiles();
+	        $image = $files['image'];
+	    }
+    }
+
+	return response($advertiseService->save($ad_data, $image));
 });

@@ -21,7 +21,7 @@ class AdvertiseService extends Services
     }
   
 
-	public function save($data)
+	public function save($data, $image = false)
 	{
 		switch ($data['advertise_type']) {
 			case 0:
@@ -46,7 +46,26 @@ class AdvertiseService extends Services
 		$advertise->data->total_click = 0;
 		$advertise->data->approved = 0;
 		$advertise->data->status = 0;
-		return $advertise->insert(true);
+
+		if ($image) {
+    		$filename = getFilename();
+    		$advertise->data->image = $filename;
+    	}
+
+    	if ($data['id']) {
+    		$advertise->where = "id = {$data['id']}";
+    		$ad_id = $advertise->update(true);
+    	} else {
+    		$ad_id = $advertise->insert(true);
+    	}
+    	if ($ad_id) {
+			if ($image) {
+				$imageService = ImageService::getInstance();			
+				$imageService->uploadImage($ad_id, 'advertise', 'images', $image, $filename);
+			}
+			return $ad_id;
+    	}
+    	return false;
 	}
 
 	public function approval($ad_id)
