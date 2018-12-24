@@ -23,14 +23,15 @@ $app->get($container['prefix'].'/console_gifts', function (Request $request, Res
 	];
 
 	$gifts = $giftService->getGifts($gift_params, 0, 99999999999);
-
-	foreach ($gifts as $key => $gift) {
-		$itemService->updateStatus($gift->item_id, 1);
-		$gift = object_cast("Gift", $gift);
-		$gift->data->status = 2;
-		$gift->data->id = $gift->id;
-		$gift->where = "id = {$gift->id}";
-		$gift->update();
+	if ($gifts) {
+		foreach ($gifts as $key => $gift) {
+			$itemService->updateStatus($gift->item_id, 1);
+			$gift = object_cast("Gift", $gift);
+			$gift->data->status = 2;
+			$gift->data->id = $gift->id;
+			$gift->where = "id = {$gift->id}";
+			$gift->update();
+		}
 	}
 
 	return response(true);

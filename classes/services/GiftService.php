@@ -126,6 +126,8 @@ class GiftService extends Services
 
 	public function updateStatus($gift_id, $status)
 	{
+		$transactionService = TransactionService::getInstance();
+		
 		$gift = $this->getGiftByType($gift_id, 'id');
 		$notificationService = NotificationService::getInstance();
 		$notify_params['gift_id'] = $gift_id;

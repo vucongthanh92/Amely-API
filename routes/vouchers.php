@@ -32,11 +32,13 @@ $app->post($container['prefix'].'/vouchers', function (Request $request, Respons
 	];
 
 	$products = $productService->getProducts($product_params, $params['offset'], $params['limit']);
-	foreach ($products as $key => $product) {
-		$store_quantity = ProductStoreService::getInstance()->showProduct($product->id);
-		if (!$store_quantity) {
-			unset($products[$key]);
-			continue;
+	if ($products) {
+		foreach ($products as $key => $product) {
+			$store_quantity = ProductStoreService::getInstance()->showProduct($product->id);
+			if (!$store_quantity) {
+				unset($products[$key]);
+				continue;
+			}
 		}
 	}
 	if (!$products) return response(false);
