@@ -129,7 +129,7 @@ class GiftService extends Services
 		$gift = $this->getGiftByType($gift_id, 'id');
 		$notificationService = NotificationService::getInstance();
 		$notify_params['gift_id'] = $gift_id;
-		$gift = new Gift();
+		$gift = object_cast("Gift", $gift);
 		$gift->where = "id = {$gift_id}";
 		$gift->data->status  = $status;
 		if ($gift->update()) {

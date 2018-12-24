@@ -31,6 +31,31 @@ class ProductService extends Services
 		$product->data->product_order = 0;
 		$product->data->approved = 0;
         $product->data->enabled = 0;
+        if ($data['category']) {
+            $category = explode(',', $data['category']);
+            $category = array_diff($category, ['']);
+            $product->data->category = implode(',', $category);
+        }
+        if ($data['voucher_category']) {
+            $voucher_category = explode(',', $data['voucher_category']);
+            $voucher_category = array_diff($voucher_category, ['']);
+            $product->data->voucher_category = implode(',', $voucher_category);
+        }
+        if ($data['ticket_category']) {
+            $ticket_category = explode(',', $data['ticket_category']);
+            $ticket_category = array_diff($ticket_category, ['']);
+            $product->data->ticket_category = implode(',', $ticket_category);
+        }
+        if ($data['shop_category']) {
+            $shop_category = explode(',', $data['shop_category']);
+            $shop_category = array_diff($shop_category, ['']);
+            $product->data->shop_category = implode(',', $shop_category);
+        }
+        if ($data['market_category']) {
+            $market_category = explode(',', $data['market_category']);
+            $market_category = array_diff($market_category, ['']);
+            $product->data->market_category = implode(',', $market_category);
+        }
 
         if ($data['id']) {
             $product->where = "id = {$data['id']}";
