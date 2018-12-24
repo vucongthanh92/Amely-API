@@ -27,26 +27,29 @@ class ImageService extends Services
             mkdir($dir, 0777, true);
         }
         $exif = exif_read_data($file->file);
-        if (!empty($exif['Orientation'])) {
-            $imageResource = imagecreatefromjpeg($file->file); // provided that the image is jpeg. Use relevant function otherwise
-            switch ($exif['Orientation']) {
-                case 3:
-                $image = imagerotate($imageResource, 180, 0);
-                break;
-                case 6:
-                $image = imagerotate($imageResource, -90, 0);
-                break;
-                case 8:
-                $image = imagerotate($imageResource, 90, 0);
-                break;
-                default:
-                $image = $imageResource;
-            } 
+        if ($exif) {
+            if (!empty($exif['Orientation'])) {
+                $imageResource = imagecreatefromjpeg($file->file); // provided that the image is jpeg. Use relevant function otherwise
+                switch ($exif['Orientation']) {
+                    case 3:
+                    $image = imagerotate($imageResource, 180, 0);
+                    break;
+                    case 6:
+                    $image = imagerotate($imageResource, -90, 0);
+                    break;
+                    case 8:
+                    $image = imagerotate($imageResource, 90, 0);
+                    break;
+                    default:
+                    $image = $imageResource;
+                } 
+            }
+
+            imagejpeg($image, $dir . DIRECTORY_SEPARATOR . $filename, 90);
+        } else {
+            $file->moveTo($dir . DIRECTORY_SEPARATOR . $filename);
         }
 
-        imagejpeg($image, $dir . DIRECTORY_SEPARATOR . $filename, 90);
-
-        // $file->moveTo($dir . DIRECTORY_SEPARATOR . $filename);
         $sizes = $this->image_sizes();
         foreach ($sizes as $key => $size) {
             $resize = new ResizeImage($dir . DIRECTORY_SEPARATOR . $filename);
