@@ -25,7 +25,7 @@ $app->get($container['prefix'].'/invitation', function (Request $request, Respon
 				case 'event':
 					$events_approve_id = [];
 
-					$events_approve = $relationshipService->getRelationsByType($loggedin_user->id, false, 'event:approve', 0, 99999999);
+					$events_approve = $relationshipService->getRelationsByType(false, $loggedin_user->id, 'event:approve', 0, 99999999);
 					if ($events_approve) {
 						foreach ($events_approve as $key => $event_approve) {
 							array_push($events_approve_id, $event_approve->relation_from);
