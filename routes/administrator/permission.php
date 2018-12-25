@@ -24,8 +24,8 @@ $app->put($container['administrator'].'/permission', function (Request $request,
 	$rules = $permissionService->getRules();
 	$permissions = $permissionService->getPermissions();
 
-	return response([
-		'rules' => $rules,
+	return response(
+	[	'rules' => $rules,
 		'permissions' => $permissions
 	]);
 	
@@ -64,7 +64,7 @@ $app->post($container['administrator'].'/permission', function (Request $request
 	$rule_data['creator_id'] = $loggedin_user->id;
 	$rule_data['status'] = $params['status'];
 	$rule_id = $permissionService->saveRule($rule_data);
-	if (!$params['rule_id']) {
+	if ($params['rule_id']) {
 		$rule_permissions = $permissionService->getPermissionsByRule($params['rule_id']);
 		if ($rule_permissions) {
 			foreach ($rule_permissions as $key => $rule_permission) {
@@ -81,9 +81,9 @@ $app->post($container['administrator'].'/permission', function (Request $request
 			$permissions = explode(',', $permissions);
 			$permission_data['owner_id'] = $rule_id;
 			$permission_data['permission_id'] = $permissions[0];
-			$permission_data['get'] = $permissions[2];
-			$permission_data['post'] = $permissions[3];
-			$permission_data['put'] = $permissions[1];
+			$permission_data['get'] = $permissions[1];
+			$permission_data['post'] = $permissions[2];
+			$permission_data['put'] = $permissions[3];
 			$permission_data['patch'] = $permissions[4];
 			$permission_data['delete'] = $permissions[5];
 			$permission_data['creator_id'] = $loggedin_user->id;
