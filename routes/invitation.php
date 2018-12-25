@@ -41,7 +41,7 @@ $app->get($container['prefix'].'/invitation', function (Request $request, Respon
 					];
 					$relation_params[] = [
 						'key' => 'relation_to',
-						'value' => "NOT IN ($events_approve_id)",
+						'value' => "NOT IN ({$events_approve_id})",
 						'operation' => 'AND'
 					];
 					$relation_params[] = [
