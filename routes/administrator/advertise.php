@@ -168,7 +168,6 @@ $app->post($container['administrator'].'/advertise', function (Request $request,
 	if (!array_key_exists('start_time', $params)) return responseError(ERROR_0);
 	if (!array_key_exists('end_time', $params)) return responseError(ERROR_0);
 
-
 	if ($params['start_time'] > $params['end_time']) return responseError(ERROR_0);
 	
 

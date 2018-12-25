@@ -278,7 +278,7 @@ CREATE TABLE `amely_promotion_items` (
   `percent` text,
   `price` text,
   `currency` text,
-  `product` text
+  `product_id` text
  ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 DROP TABLE IF EXISTS `amely_promotions`; 

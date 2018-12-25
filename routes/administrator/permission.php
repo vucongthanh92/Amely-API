@@ -114,3 +114,32 @@ $app->patch($container['administrator'].'/permission', function (Request $reques
 
 	return response($permissionService->setRuleForUser($params['user_id'], $params['rule_id']));
 });
+
+$app->delete($container['administrator'].'/permission', function (Request $request, Response $response, array $args) {
+	$permissionService = PermissionService::getInstance();
+	$userService = UserService::getInstance();
+
+	$params = $request->getQueryParams();
+	if (!$params) $params = [];
+	if (!array_key_exists('rule_id', $params)) return responseError(ERROR_0);
+
+	$users = $userService->getUsersByType($params['rule_id'], 'rule_id', false);
+
+	if ($users) return response(false);
+
+	$rule_permissions = $permissionService->getPermissionsByRule($params['rule_id']);
+	if ($rule_permissions) {
+		foreach ($rule_permissions as $key => $rule_permission) {
+			$rulePermission = new RulePermission();
+			$rulePermission->data->id = $rule_permission->id;
+			$rulePermission->where = "id = {$rule_permission->id}";
+			$rulePermission->delete(true);
+		}
+	}
+
+	$rule = $permissionService->getRuleByType($params['rule_id']);
+	$rule = object_cast("Rule", $rule);
+	$rule->data->id = $rule->id;
+	$rule->where = "id = {$rule->id}";
+	return response($rule->delete(true));
+});
