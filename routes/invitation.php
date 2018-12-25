@@ -27,8 +27,8 @@ $app->get($container['prefix'].'/invitation', function (Request $request, Respon
 
 					$events_approve = $relationshipService->getRelationsByType($loggedin_user->id, false, 'event:approve', 0, 99999999);
 					if ($events_approve) {
-						foreach ($events_approve as $key => $events_approve) {
-							array_push($events_approve_id, $events_approve->relation_from);
+						foreach ($events_approve as $key => $event_approve) {
+							array_push($events_approve_id, $event_approve->relation_from);
 						}
 					}
 					$events_approve_id = array_unique($events_approve_id);
@@ -46,7 +46,7 @@ $app->get($container['prefix'].'/invitation', function (Request $request, Respon
 					];
 					$relation_params[] = [
 						'key' => 'relation_from',
-						'value' => "= $loggedin_user->id",
+						'value' => "= {$loggedin_user->id}",
 						'operation' => 'AND'
 					];
 					$events_invitation_id = [];
