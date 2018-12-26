@@ -36,6 +36,79 @@ class PromotionService extends Services
         }
     }
 
+    public function updateStatus($promotion_id, $status)
+    {
+        $promotionItemService = PromotionItemService::getInstance();
+        $productService = ProductService::getInstance();
+
+        switch ($status) {
+            case 0:
+                $promotion = new Promotion();
+                $promotion->data->id = $promotion_id;
+                $promotion->data->status = 0;
+                $promotion->where = "id = {$promotion_id}";
+                if ($promotion->update(true)) {
+                    $promotion_items  = $promotionItemService->getPromotionItemsByPromotionId($promotion_id, 0, 99999999);
+                    if ($promotion_items) {
+                        foreach ($promotion_items as $key => $promotion_item) {
+                            $productService->generateSnapshotSalePrice($promotion_item->product_id, 0);
+                        }
+                    }
+                }
+                break;
+            case 1:
+                $promotion = new Promotion();
+                $promotion->data->id = $promotion_id;
+                $promotion->data->status = 1;
+                $promotion->where = "id = {$promotion_id}";
+                return $promotion->update(true);
+                break;
+            case 2:
+                $promotion = new Promotion();
+                $promotion->data->id = $promotion_id;
+                $promotion->data->status = 2;
+                $promotion->where = "id = {$promotion_id}";
+                return $promotion->update(true);
+                break;
+            default:
+                return false;
+                break;
+        }
+        return false;
+    }
+
+    public function approved($promotion_id)
+    {
+        $promotionItemService = PromotionItemService::getInstance();
+        $productService = ProductService::getInstance();
+
+        $time = time();
+
+        $promotion = new Promotion();
+        $promotion->data->id = $promotion_id;
+        $promotion->data->approved = $time;
+        $promotion->where = "id = {$promotion_id}";
+        if ($promotion->update(true)) {
+            $promotion_items  = $promotionItemService->getPromotionItemsByPromotionId($promotion_id, 0, 99999999);
+            if ($promotion_items) {
+                foreach ($promotion_items as $key => $promotion_item) {
+                    $product = $productService->getProductByType($promotion_item->product_id, 'id');
+
+                    if ($promotion_item->percent) {
+                        $sale_price = $product->price - ($product->price * $promotion_item->percent / 100);
+                    }
+                    if ($promotion_item->price) {
+                        $sale_price = $promotion_item->price;
+                    }
+                    $productService->generateSnapshotSalePrice($product->id, $sale_price);
+                }
+            }
+
+            return true;
+        }
+        return false;
+    }
+
     public function getPromotionById($promotion_id)
     {
     	$conditions[] = [

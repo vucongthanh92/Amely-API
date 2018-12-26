@@ -97,11 +97,17 @@ $app->put($container['administrator'].'/promotion', function (Request $request, 
 	if (!array_key_exists('limit', $params)) $params['limit'] = 10;
 	
 	$conditions = null;
+	$conditions[] = [
+		'key' => 'status',
+		'value' => "<> 2",
+		'operation' => ''
+	];
+
 	if ($params['shop_id']) {
 		$conditions[] = [
 			'key' => 'owner_id',
 			'value' => "= {$params['shop_id']}",
-			'operation' => ''
+			'operation' => 'AND'
 		];
 	}
 	$promotions = $promotionService->getPromotions($conditions, $params['offset'], $params['limit']);
@@ -114,6 +120,7 @@ $app->delete($container['administrator'].'/promotion', function (Request $reques
 
 	$promotionService = PromotionService::getInstance();
 	$promotionItemService = PromotionItemService::getInstance();
+	$productService = ProductService::getInstance();
 
 	$params = $request->getQueryParams();
 	if (!$params) $params = [];
@@ -125,19 +132,27 @@ $app->delete($container['administrator'].'/promotion', function (Request $reques
 	if ($params['promotion_item_id']) {
 		$promotion_item = $promotionItemService->getPromotionItemById($params['promotion_item_id']);
 		if (!$promotion_item) return response(false);
+		$product_id = $promotion_item->product_id;
 		$promotion_item = object_cast("PromotionItem", $promotion_item);
 		$promotion_item->data->id = $promotion_item->id;
 		$promotion_item->where = "id = {$promotion_item->id}";
-		return response($promotion_item->delete(true));
+		if ($promotion_item->delete(true)) {
+			$productService->generateSnapshotSalePrice($product_id, 0);
+			return response(true);
+		}
+		return response(false);
 	} else {
 		$promotion_items = $promotionItemService->getPromotionItemsByPromotionId($promotion->id, 0, 9999999);
 
 		if ($promotion_items) {
 			foreach ($promotion_items as $key => $promotion_item) {
+				$product_id = $promotion_item->product_id;
 				$promotion_item = object_cast("PromotionItem", $promotion_item);
 				$promotion_item->data->id = $promotion_item->id;
 				$promotion_item->where = "id = {$promotion_item->id}";
-				$promotion_item->delete(true);
+				if ($promotion_item->delete(true)) {
+					$productService->generateSnapshotSalePrice($product_id, 0);
+				}
 			}
 		}
 

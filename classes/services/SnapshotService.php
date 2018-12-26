@@ -98,7 +98,7 @@ class SnapshotService extends Services
     public function generateSnapshotKey($obj)
     {
     	$product = clone $obj;
-    	$keys_except = ['owner_id','type','time_created','description','tag','number_sold','friendly_url','product_order','downoad','featured','approved','enabled','voucher_category','ticket_category','shop_category','market_categry','category','images','parent_id'];
+    	$keys_except = ['id', 'owner_id','type','time_created','description','tag','number_sold','friendly_url','product_order','downoad','featured','approved','enabled','voucher_category','ticket_category','shop_category','market_categry','category','images','parent_id', 'status'];
 		foreach ($keys_except as $key) {
 			unset($product->$key);
 		}

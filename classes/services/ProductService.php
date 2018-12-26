@@ -176,6 +176,34 @@ class ProductService extends Services
         $file->moveTo($dir . DIRECTORY_SEPARATOR . $filename);
     }
 
+    public function generateSnapshotSalePrice($product_id, $sale_price)
+    {
+        $snapshotService = SnapshotService::getInstance();
+        $product_properties = $this->getPropertyProductByType($product_id);
+        if (!$product_properties) return response(false);
+        $product_properties->sale_price = $sale_price;
+        $key = $snapshotService->generateSnapshotKey($product_properties);
+        $snapshot = $snapshotService->checkExistKey($key);
+        if ($snapshot) {
+            $snapshot_id = $snapshot->id;
+        } else {
+            $snapshot_data = null;
+            foreach ($product_properties as $property => $product_property) {
+                $snapshot_data[$property] = $product_property;
+            }
+            unset($snapshot_data['id']);
+            $snapshot_data['code'] = $key;
+            $snapshot_id = $snapshotService->save($snapshot_data);
+        }
+
+        $product = new Product();
+        $product->data->sale_price = $sale_price;
+        $product->data->snapshot_id = $snapshot_id;
+        $product->data->id = $product_id;
+        $product->where = "id = {$product_id}";
+        return $product->update(true);
+    }
+
     public function approval($product_id)
     {
     	$snapshotService = SnapshotService::getInstance();
