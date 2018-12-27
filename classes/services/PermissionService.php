@@ -68,7 +68,7 @@ class PermissionService extends Services
         $user = new User();
         $user->data->id = $user_id;
         $user->data->type = $user_type;
-        $user->data->rule = $rule_id;
+        $user->data->rule_id = $rule_id;
         $user->where = "id = {$user_id}";
         return $user->update(true);
     }
