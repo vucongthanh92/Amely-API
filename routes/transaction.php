@@ -13,6 +13,8 @@ use Slim\Http\Response;
 */
 $app->post($container['prefix'].'/transaction', function (Request $request, Response $response, array $args) {
 	$transactionService = TransactionService::getInstance();
+	$purchaseOrderService = PurchaseOrderService::getInstance();
+
 	$loggedin_user = loggedin_user();
 	$params = $request->getParsedBody();
 	if (!$params) $params = [];
@@ -60,6 +62,29 @@ $app->post($container['prefix'].'/transaction', function (Request $request, Resp
 				'operation' => 'AND'
 			];
 			$transactions = $transactionService->getTransactions($conditions, $params['offset'], $params['limit']);
+			break;
+		case 'order':
+			$conditions[] = [
+				'key' => 'owner_id',
+				'value' => "= '{$params['owner_id']}'",
+				'operation' => ''
+			];
+			$conditions[] = [
+				'key' => 'type',
+				'value' => "= '{$params['owner_type']}'",
+				'operation' => 'AND'
+			];
+			$conditions[] = [
+				'key' => 'subject_type',
+				'value' => "= '{$params['subject_type']}'",
+				'operation' => 'AND'
+			];
+			$transactions = $transactionService->getTransactions($conditions, $params['offset'], $params['limit']);
+			foreach ($transactions as $key => $transaction) {
+				$po = $purchaseOrderService->getPOByType($transaction->subject_id, 'id');
+				$transaction->display_order = $po->display_order;
+				$transactions[$key] = $transaction;
+			}
 			break;
 		default:
 			$conditions[] = [
