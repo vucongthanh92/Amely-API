@@ -81,7 +81,7 @@ $app->put($container['administrator'].'/do', function (Request $request, Respons
 	if (!array_key_exists('offset', $params))  	$params['offset'] = 0;
 	if (!array_key_exists('limit', $params))  	$params['limit'] = 10;
 
-	if (!$params['shop_id'] && !$params['store_id']) return response(false);
+	// if (!$params['shop_id'] && !$params['store_id']) return response(false);
 
 	$so_params = null;
 	if ($params['store_id']) {
@@ -93,11 +93,13 @@ $app->put($container['administrator'].'/do', function (Request $request, Respons
 		$stores_id = implode(',', array_map(create_function('$o', 'return $o->id;'), $stores));
 	}
 
-	$do_params[] = [
-		'key' => 'store_id',
-		'value' => "IN ({$stores_id})",
-		'operation' => ''
-	];
+	if ($stores_id) {
+		$do_params[] = [
+			'key' => 'store_id',
+			'value' => "IN ({$stores_id})",
+			'operation' => ''
+		];
+	}
 
 	if ($params['status'] >= 0) {
 		$do_params[] = [

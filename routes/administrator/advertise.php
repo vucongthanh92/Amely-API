@@ -224,3 +224,19 @@ $app->post($container['administrator'].'/advertise', function (Request $request,
 
 	return response($advertiseService->save($ad_data, $image));
 });
+
+$app->delete($container['administrator'].'/advertise', function (Request $request, Response $response, array $args) {
+	$advertiseService = AdvertiseService::getInstance();
+	$productService = ProductService::getInstance();
+	$shopService = ShopService::getInstance();
+	$userService = UserService::getInstance();
+	$params = $request->getQueryParams();
+	if (!$params) $params = [];
+	if (!array_key_exists('ad_id', $params)) return responseError(ERROR_0);
+
+	$ad = $advertiseService->getAdvertiseByType($params['ad_id'], 'id');
+
+	if (!$ad) return response(false);
+
+	return response($advertiseService->updateStatus($ad->id, 2));
+});

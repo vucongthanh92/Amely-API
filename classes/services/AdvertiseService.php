@@ -77,6 +77,15 @@ class AdvertiseService extends Services
     	$ad->where = "id = {$ad_id}";
     	return $ad->update(true);
     }
+    
+    public function updateStatus($ad_id, $status)
+    {
+    	$ad = new Advertise();
+    	$ad->data->status = $status;
+    	$ad->data->id = $ad_id;
+    	$ad->where = "id = {$ad_id}";
+    	return $ad->update(true);
+    }
 
 	public function getAdvertiseShop()
 	{

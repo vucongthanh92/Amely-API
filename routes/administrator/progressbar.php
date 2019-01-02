@@ -3,13 +3,92 @@ use Slim\Http\Request;
 use Slim\Http\Response;
 
 $app->get($container['administrator'].'/progressbar', function (Request $request, Response $response, array $args) {
+	global $settings;
 	$progressbarService = ProgressbarService::getInstance();
+	$productService = ProductService::getInstance();
 	
 	$params = $request->getQueryParams();
 	if (!$params) $params = [];
 	if (!array_key_exists('code', $params)) return response(false);
 
-	$progressbar = $progressbarService->getInfoByCode($params['code']);
+	$code = $params['code'];
+	$progressbar = $progressbarService->getInfoByCode($code);
+
+	if (!$progressbar) return false;
+	if ($progressbar->status == 1) return response(false);
+	if ($progressbar->row >= $progressbar->total_number) return response(false);
+	$sku_before = $sku_after = null;
+	$row = $progressbar->number + 1;
+
+	$path = DIRECTORY_SEPARATOR."import".DIRECTORY_SEPARATOR."{$code}";
+	$dir = $settings['image']['path'].$path;
+
+	$tmpfname = $dir.DIRECTORY_SEPARATOR.$progressbar->filename;
+
+	$excelReader = PHPExcel_IOFactory::createReaderForFile($tmpfname);
+	$excelObj = $excelReader->load($tmpfname);
+	$worksheet = $excelObj->getSheet(0);
+	$lastRow = $worksheet->getHighestRow();
+
+	$list_key_excel = $productService->excel_product_key();
+	$number = 0;
+	$inserted = $updated = $error = false;
+	$list_inserted = $list_updated = $list_error = [];
+
+	if (!empty($progressbar->inserted)) {
+		$list_inserted = explode('^0^', $progressbar->inserted);
+	}
+	if (!empty($progressbar->updated)) {
+		$list_updated = explode('^0^', $progressbar->updated);
+	}
+	if (!empty($progressbar->error)) {
+		$list_error = explode('^0^', $progressbar->error);
+	}
+	$checkError = 0;
+	$product_data = null;
+	foreach ($list_key_excel as $key => $value) {
+		$sku_before = $worksheet->getCell('D'.($row-1))->getValue();
+		$sku_after = $worksheet->getCell('D'.($row))->getValue();
+		$product_data[$value] = $worksheet->getCell($key.$row)->getValue();
+	}
+	if ($sku_before == null && $sku_after == null) {
+		$progressbarService->updateNumber($progressbar->id, implode('^0^', $list_inserted), implode('^0^', $list_updated), implode('^0^', $list_error), $lastRow, 1);
+		return response(false);
+	}
+	$product_data['owner_id'] = $progressbar->owner_id;
+	$product_data = $productService->product_conditions($product_data);
+
+	if (!$product_data['status']) {
+		$list_error = array_merge($list_error, $product_data['sku']);
+		$progressbarService->updateNumber($progressbar->id, implode('^0^', $list_inserted), implode('^0^', $list_updated), implode('^0^', $list_error), $row, 0);
+		return response(true);
+	}
+
+	$product = $productService->checkSKUshop($product_data['sku'], $progressbar->owner_id);
+	if ($product) {
+		$updated = true;
+		$product_data['id'] = $product->id;
+	} else {
+		$updated = false;
+	}
+	$product_data['status'] = 0;
+
+	if ($productService->save($product_data)) {
+		if ($updated) {
+			$list_updated = array_merge($list_updated, [$product_data['sku']]);
+		} else {
+			$list_inserted = array_merge($list_inserted, [$product_data['sku']]);
+		}
+	} else {
+		$list_error = array_merge($list_error, $product_data['sku']);
+	}
+	$status = 0;
+	if ($row >= $lastRow) {
+		$status = 1;
+	}
+	$progressbarService->updateNumber($progressbar->id, implode('^0^', $list_inserted), implode('^0^', $list_updated), implode('^0^', $list_error), $row, $status);
+
+
 	return response($progressbar);
 
 })->setName('progressbar');
@@ -22,7 +101,6 @@ $app->post($container['administrator'].'/progressbar', function (Request $reques
 	$params = $request->getParsedBody();
 	if (!$params) $params = [];
 	if (!array_key_exists('code', $params)) return response(false);
-
 	$code = $params['code'];
 	$progressbar = $progressbarService->getInfoByCode($code);
 	if (!$progressbar) return false;
@@ -52,6 +130,7 @@ $app->post($container['administrator'].'/progressbar', function (Request $reques
 	if (!empty($progressbar->error)) {
 		$list_error = explode('^0^', $progressbar->error);
 	}
+	$checkError = 0;
 	for ($row = 8; $row <= $lastRow; $row++) {
 		$product_data = null;
 		foreach ($list_key_excel as $key => $value) {
@@ -62,10 +141,15 @@ $app->post($container['administrator'].'/progressbar', function (Request $reques
 
 		if (!$product_data) {
 			$number_error++;
+			if ($checkError == 2) {
+				$progressbarService->updateNumber($progressbar->id, implode('^0^', $list_inserted), implode('^0^', $list_updated), implode('^0^', $list_error), $row, 1);
+				return response(true);
+			}
 			if ($row == $lastRow) {
 				$progressbarService->updateNumber($progressbar->id, implode('^0^', $list_inserted), implode('^0^', $list_updated), implode('^0^', $list_error), $row, 1);
 				return response(true);
 			}
+			$checkError++;
 			continue;
 		}
 

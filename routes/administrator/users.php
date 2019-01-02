@@ -13,7 +13,9 @@ $app->get($container['administrator'].'/users', function (Request $request, Resp
 	$user = $userService->getUserByType($params['username'], 'username', true);
 
 	$shop = $shopService->getShopByType($user->id, 'owner_id');
-	$user->shop = $shop;
+	if ($shop) {
+		$user->shop = $shop;
+	}
 	
 	return response($user);
 });

@@ -201,7 +201,6 @@ $app->put($container['administrator'].'/shops', function (Request $request, Resp
 			'operation' => 'AND'
 		];
 	}
-
 	$shops = $shopService->getShops($shop_params, $offset, $limit, false);
 	if (!$shops) return response(false);
 	return response($shops);

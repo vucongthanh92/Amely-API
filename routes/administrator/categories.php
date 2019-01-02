@@ -94,6 +94,8 @@ $app->put($container['administrator'].'/categories', function (Request $request,
 	if (!array_key_exists('limit', $params)) $params['limit'] = 10;
 	if (!array_key_exists('shop_id', $params)) $params['shop_id'] = false;
 	if (!array_key_exists('type', $params)) $params['type'] = 0;
+	if (!array_key_exists('enabled', $params)) $params['enabled'] = -1;
+
 	$offset = (double)$params['offset'];
 	$limit = (double)$params['limit'];
 	$shop_id = $params['shop_id'];
@@ -122,6 +124,13 @@ $app->put($container['administrator'].'/categories', function (Request $request,
 			'value' => "= {$params['type']}",
 			'operation' => ''
 		];
+	}
+	if ($params['enabled'] >= 0) {
+		$category_params[] = [
+			'key' => 'enabled',
+			'value' => "= {$params['enabled']}",
+			'operation' => 'AND'
+		];	
 	}
 
 	$categories = $categoryService->getCategories($category_params, $offset, $limit);

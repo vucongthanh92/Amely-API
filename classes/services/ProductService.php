@@ -20,7 +20,7 @@ class ProductService extends Services
         $this->table = "amely_products";
     }
 
-    public function save($data, $images)
+    public function save($data, $images = false)
     {
     	$product = new Product();
     	foreach ($data as $key => $value) {
@@ -135,10 +135,16 @@ class ProductService extends Services
                 break;
             case 1:
                 if (empty($product_data['duration'])) 
-                    return false;
+                    return [
+                        'status' => false,
+                        'data' => $product_data
+                    ];
                 break;
             case 2:
-                if (!empty($product_data['begin_day']) || !empty($product_data['end_day'])) return false;
+                if (!empty($product_data['begin_day']) || !empty($product_data['end_day'])) return [
+                        'status' => false,
+                        'data' => $product_data
+                    ];
                 $product_data['begin_day'] = strtotime($product_data['begin_day']);
                 $product_data['end_day'] = strtotime($product_data['end_day']);
                 break;
@@ -163,7 +169,10 @@ class ProductService extends Services
         if ($product_data['images']) {
             $product_data['images'] = explode(',', $product_data['images']);
         }
-        return $product_data;
+        return [
+            'status' => true,
+            'data' => $product_data
+        ];
     }
 
     public function excel_products($code)
@@ -178,7 +187,10 @@ class ProductService extends Services
 
     public function generateSnapshotSalePrice($product_id, $sale_price)
     {
+        global $settings;
         $snapshotService = SnapshotService::getInstance();
+        $services = Services::getInstance();
+
         $product_properties = $this->getPropertyProductByType($product_id);
         if (!$product_properties) return response(false);
         $product_properties->sale_price = $sale_price;
@@ -201,12 +213,21 @@ class ProductService extends Services
         $product->data->snapshot_id = $snapshot_id;
         $product->data->id = $product_id;
         $product->where = "id = {$product_id}";
-        return $product->update(true);
+        if ($product->update(true)) {
+            $source = $settings['image']['path']."/product/{$product_id}";
+            $dest = $settings['image']['path']."/snapshot/{$snapshot_id}";
+            $services->recurse_copy($source, $dest);
+            return true;
+        }
+        return false;
     }
 
     public function approval($product_id)
     {
+        global $settings;
     	$snapshotService = SnapshotService::getInstance();
+        $services = Services::getInstance();
+
 		$product_properties = $this->getPropertyProductByType($product_id);
         if (!$product_properties) return response(false);
         $key = $snapshotService->generateSnapshotKey($product_properties);
@@ -228,7 +249,13 @@ class ProductService extends Services
         $product->data->snapshot_id = $snapshot_id;
         $product->data->id = $product_id;
         $product->where = "id = {$product_id}";
-        return $product->update(true);
+        if ($product->update(true)) {
+            $source = $settings['image']['path']."/product/{$product_id}";
+            $dest = $settings['image']['path']."/snapshot/{$snapshot_id}";
+            $services->recurse_copy($source, $dest);
+            return true;
+        }
+        return false;
     }
 
     public function updateStatus($product_id, $status)

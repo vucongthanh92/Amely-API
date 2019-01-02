@@ -208,13 +208,17 @@ $app->put($container['administrator'].'/products', function (Request $request, R
 	$loggedin_user = loggedin_user();
 	$params = $request->getParsedBody();
 	if (!$params) $params = [];
-	// lay theo trang thai phe duyet || khong truyen approved se lay theo status
-	// approved ( false la chua phe duyet || true la da phe duyet)
-	if (!array_key_exists('approved', $params)) 	$params['approved'] = false;
+	/* lay theo trang thai phe duyet || khong truyen approved se lay theo status
+	approved ( false la chua phe duyet || true la da phe duyet)
+		-1 lay tat ca
+		0 sp chua duyet
+		1 sp duyet
+	*/
+	if (!array_key_exists('approved', $params)) 	$params['approved'] = -1;
 	/* lay theo trang thai  status ( kieu status la number (0,1,2))
 		khong truyen status se lay tat ca
 	*/
-	if (!array_key_exists('status', $params)) 		$params['status'] = "0,1";
+	if (!array_key_exists('status', $params)) 		$params['status'] = -1;
 	/* lay theo cua hang ( kieu gia tri cua shop_id la number)
 		khong truyen shop_id se lay tat ca
 	*/
@@ -247,24 +251,44 @@ $app->put($container['administrator'].'/products', function (Request $request, R
 		'value' => 'DESC',
 		'operation' => 'order_by'
 	];
-	if ($approved) {
+	$product_params[] = [
+		'key' => "time_created",
+		'value' => ">= 0",
+		'operation' => ''
+	];
+	switch ($params['approved']) {
+		case 0:
+			$product_params[] = [
+				'key' => "approved",
+				'value' => "= 0",
+				'operation' => 'AND'
+			];
+			break;
+		case 1:
+			$product_params[] = [
+				'key' => "approved",
+				'value' => "> 0",
+				'operation' => 'AND'
+			];
+			break;
+		default:
+			# code...
+			break;
+	}
+	
+	if ($params['status'] >= 0) {
 		$product_params[] = [
-			'key' => "approved",
-			'value' => "> 0",
-			'operation' => ''
+			'key' => "status",
+			'value' => "= {$params['status']}",
+			'operation' => 'AND'
 		];
 	} else {
 		$product_params[] = [
-			'key' => "approved",
-			'value' => "= 0",
-			'operation' => ''
+			'key' => "status",
+			'value' => "IN (0,1)",
+			'operation' => 'AND'
 		];
 	}
-	$product_params[] = [
-		'key' => "status",
-		'value' => "IN ({$status})",
-		'operation' => 'AND'
-	];
 
 	if ($shop_id) {
 		$product_params[] = [
