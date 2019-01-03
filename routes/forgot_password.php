@@ -17,11 +17,12 @@ $app->post($container['prefix'].'/forgot_password', function (Request $request, 
 	$salt = substr(uniqid(), 5);
 	$password = md5($params['new_password'] . $salt);
 
-	$user = new User;
+	$user = object_cast("User", $user);
 	$user->data->password = $password;
-	$user->data->salt = $salt;	
+	$user->data->salt = $salt;
+	$user->data->id = $user->id;
 	$user->where = "id = {$user->id}";
-	return response($user->update());
+	return response($user->update(true));
 })->setName('forgot_password');
 
 $app->put($container['prefix'].'/forgot_password', function (Request $request, Response $response, array $args) {
@@ -39,7 +40,7 @@ $app->put($container['prefix'].'/forgot_password', function (Request $request, R
 	$user = object_cast("User", $user);
 	$user->data->verification_code = $code;
 	$user->where = "id = {$user->id}";
-	if ($user->update()) {
+	if ($user->update(true)) {
 		return response(Services::getInstance()->sendByMobile($user->mobilelogin, $code));
 	}
 	return response(false);
