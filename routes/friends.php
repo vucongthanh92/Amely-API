@@ -17,6 +17,16 @@ $app->get($container['prefix'].'/friends', function (Request $request, Response 
     if (!$user) return response(false);
 
     $friends_id = $relationshipService->getFriendsGUID($user->id);
+    $list_request_from = $relationshipService->getRelationByType($user->id, false, 'friend:request');
+    $list_request_to = $relationshipService->getRelationByType(false, $user->id, 'friend:request');
+    if ($list_request_from) {
+        $list_request_from = array_map(create_function('$o', 'return $o->relation_to;'), $list_request_from);
+    }
+    if ($list_request_to) {
+        $list_request_to = array_map(create_function('$o', 'return $o->relation_from;'), $list_request_to);
+    }
+    $friends_id = array_intersect(array_unique($list_request_from), array_unique($list_request_to));
+
     if (!$friends_id) return response(false);
     $friends_id = implode(",", array_unique($friends_id));
 	if ($user->id != $loggedin_user->id) {
