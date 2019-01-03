@@ -224,7 +224,7 @@ class ProductService extends Services
 
     public function approval($product_id)
     {
-        global $settings;
+        global $settings, $elasticsearch;
     	$snapshotService = SnapshotService::getInstance();
         $services = Services::getInstance();
 
@@ -243,6 +243,7 @@ class ProductService extends Services
             $snapshot_data['code'] = $key;
             $snapshot_id = $snapshotService->save($snapshot_data);
         }
+        $p = $this->getProductByType($product_id, 'id');
 
         $product = new Product();
         $product->data->approved = time();
@@ -250,6 +251,24 @@ class ProductService extends Services
         $product->data->id = $product_id;
         $product->where = "id = {$product_id}";
         if ($product->update(true)) {
+            $params = null;
+            $params = [
+                'index' => "products",
+                'type' => "product",
+                'id' => (int)$p->id,
+                'body' => [
+                    'Title' => $p->title,
+                    'Phone' => '',
+                    'Username' => '',
+                    'Fullname' => '',
+                    'Email' => '',
+                    'Price' => $p->display_price,
+                    'Image' => $p->images[0],
+                    'Shop'  => ''
+                ]
+            ];
+            $elasticsearch->index($params);
+
             $source = $settings['image']['path']."/product/{$product_id}";
             $dest = $settings['image']['path']."/snapshot/{$snapshot_id}";
             $services->recurse_copy($source, $dest);

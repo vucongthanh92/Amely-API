@@ -31,9 +31,9 @@ return [
         ],
         'db' => [
             "host" => "localhost",
-            "dbname" => "amelyv1",
+            "dbname" => "amelyV1",
             "user" => "root",
-            "pass" => ""
+            "pass" => "thinhnez123"
         ],
         'mail' => [
             'mail_SMTPDebug' => 0,
@@ -55,11 +55,13 @@ return [
         ],
         'sms' => 'http://sms.amely.com',
         'image' => [
-            'url' => 'https://userdata.amely.com',
-            'path' => 'C:\xampp\htdocs\api_userdata',
+            'url' => 'http://userdata.local',
+            'path' => '/home/thinhnez/web/userdata.local/public_html/',
             'avatar' => 'http://userdata.amely.com/default1.png',
             'cover' => 'http://userdata.amely.com/default2.jpg'
         ],
+        'root' => '/home/thinhnez/web/api.local/public_html/',
+        'domain' => 'amely.com',
         'url' => "http://api.local",
         'prefix' => "/ws/v1",
         'administrator' => "/ws/v1/administrator",
