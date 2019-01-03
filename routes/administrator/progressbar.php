@@ -15,8 +15,8 @@ $app->get($container['administrator'].'/progressbar', function (Request $request
 	$progressbar = $progressbarService->getInfoByCode($code);
 
 	if (!$progressbar) return false;
-	if ($progressbar->status == 1) return response(false);
-	if ($progressbar->row >= $progressbar->total_number) return response(false);
+	if ($progressbar->status == 1) return response($progressbar);
+	if ($progressbar->row >= $progressbar->total_number) return response($progressbar);
 	$sku_before = $sku_after = null;
 	$row = $progressbar->number + 1;
 
@@ -45,42 +45,42 @@ $app->get($container['administrator'].'/progressbar', function (Request $request
 		$list_error = explode('^0^', $progressbar->error);
 	}
 	$checkError = 0;
-	$product_data = null;
+	$product_params = null;
 	foreach ($list_key_excel as $key => $value) {
 		$sku_before = $worksheet->getCell('D'.($row-1))->getValue();
 		$sku_after = $worksheet->getCell('D'.($row))->getValue();
-		$product_data[$value] = $worksheet->getCell($key.$row)->getValue();
+		$product_params[$value] = $worksheet->getCell($key.$row)->getValue();
 	}
 	if ($sku_before == null && $sku_after == null) {
 		$progressbarService->updateNumber($progressbar->id, implode('^0^', $list_inserted), implode('^0^', $list_updated), implode('^0^', $list_error), $lastRow, 1);
-		return response(false);
+		return response($progressbar);
 	}
-	$product_data['owner_id'] = $progressbar->owner_id;
-	$product_data = $productService->product_conditions($product_data);
+	$product_params['owner_id'] = $progressbar->owner_id;
+	
+	$product_data = $productService->product_conditions($product_params);
 
 	if (!$product_data['status']) {
-		$list_error = array_merge($list_error, $product_data['sku']);
+		$list_error = array_merge($list_error, $product_data['data']['sku']);
 		$progressbarService->updateNumber($progressbar->id, implode('^0^', $list_inserted), implode('^0^', $list_updated), implode('^0^', $list_error), $row, 0);
-		return response(true);
+		return response($progressbar);
 	}
 
-	$product = $productService->checkSKUshop($product_data['sku'], $progressbar->owner_id);
+	$product = $productService->checkSKUshop($product_data['data']['sku'], $progressbar->owner_id);
 	if ($product) {
 		$updated = true;
-		$product_data['id'] = $product->id;
+		$product_data['data']['id'] = $product->id;
 	} else {
 		$updated = false;
 	}
-	$product_data['status'] = 0;
-
-	if ($productService->save($product_data)) {
+	$product_data['data']['status'] = 0;
+	if ($productService->save($product_data['data'])) {
 		if ($updated) {
-			$list_updated = array_merge($list_updated, [$product_data['sku']]);
+			$list_updated = array_merge($list_updated, [$product_data['data']['sku']]);
 		} else {
-			$list_inserted = array_merge($list_inserted, [$product_data['sku']]);
+			$list_inserted = array_merge($list_inserted, [$product_data['data']['sku']]);
 		}
 	} else {
-		$list_error = array_merge($list_error, $product_data['sku']);
+		$list_error = array_merge($list_error, $product_data['data']['sku']);
 	}
 	$status = 0;
 	if ($row >= $lastRow) {
