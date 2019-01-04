@@ -122,7 +122,8 @@ class ProductService extends Services
             'Q' => 'friendly_url',
             'R' => 'product_group',
             'S' => 'weight',
-            'T' => 'images'
+            'T' => 'tag',
+            'U' => 'images'
         ];
         return $list;
     }
@@ -141,12 +142,16 @@ class ProductService extends Services
                     ];
                 break;
             case 2:
-                if (!empty($product_data['begin_day']) || !empty($product_data['end_day'])) return [
+                if (empty($product_data['begin_day']) || empty($product_data['end_day'])) return [
                         'status' => false,
                         'data' => $product_data
                     ];
-                $product_data['begin_day'] = strtotime($product_data['begin_day']);
-                $product_data['end_day'] = strtotime($product_data['end_day']);
+                if (is_numeric($product_data['begin_day']) || is_numeric($product_data['end_day'])) return [
+                        'status' => false,
+                        'data' => $product_data
+                    ];
+                $product_data['begin_day'] = strtotime($product_data['begin_day']." 00:00:00");
+                $product_data['end_day'] = strtotime($product_data['end_day']." 23:59:59");
                 break;
             default:
                 # code...

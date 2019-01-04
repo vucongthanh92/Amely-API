@@ -124,8 +124,8 @@ $app->get($container['administrator'].'/file', function (Request $request, Respo
 	$categories_shop = $categoryService->getCategories($category_shop_params, 0, 999999999);
 
 	$dir = $settings['root'];
-	$file_default = $dir.'files'.DIRECTORY_SEPARATOR.'template.xlsx';
-	$file_excel = $dir.'files'.DIRECTORY_SEPARATOR.'shop'.DIRECTORY_SEPARATOR.$params['shop_id'].DIRECTORY_SEPARATOR.'template.xlsx';
+	$file_default = $dir.'files'.DIRECTORY_SEPARATOR.'Template.xlsx';
+	$file_excel = $dir.'files'.DIRECTORY_SEPARATOR.'shop'.DIRECTORY_SEPARATOR.$params['shop_id'].DIRECTORY_SEPARATOR.'Template.xlsx';
 
 	if (!file_exists($dir.'files'.DIRECTORY_SEPARATOR.'shop'.DIRECTORY_SEPARATOR.$params['shop_id'])) {
         mkdir($dir.'files'.DIRECTORY_SEPARATOR.'shop'.DIRECTORY_SEPARATOR.$params['shop_id'], 0777, true);
@@ -175,7 +175,7 @@ $app->get($container['administrator'].'/file', function (Request $request, Respo
 		}
 
 		header('Content-type: application/vnd.ms-excel');
-		header('Content-Disposition: attachment; filename="template.xlsx"');
+		header('Content-Disposition: attachment; filename="Template.xlsx"');
 		PHPExcel_IOFactory::createWriter($objPHPExcel, 'Excel2007')->save($file_excel);
 
 		readfile($file_excel);
