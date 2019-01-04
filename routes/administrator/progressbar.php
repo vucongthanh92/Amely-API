@@ -112,7 +112,7 @@ $app->post($container['administrator'].'/progressbar', function (Request $reques
 	$excelReader = PHPExcel_IOFactory::createReaderForFile($tmpfname);
 	$excelObj = $excelReader->load($tmpfname);
 	$worksheet = $excelObj->getSheet(0);
-	$lastRow = $worksheet->getHighestRow() - 6;
+	$lastRow = $worksheet->getHighestRow();
 
 	$list_key_excel = $productService->excel_product_key();
 	$number = 0;

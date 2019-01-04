@@ -399,7 +399,10 @@ $app->delete($container['administrator'].'/products', function (Request $request
 			$product->update(true);
 
 		} else {
-			$productService->updateStatus($id, 2);
+			$product = new Product();
+			$product->data->id = $id;
+			$product->where = "id = {$id}";
+			$product->delete(true);
 		}
 	}
 	return response(true);

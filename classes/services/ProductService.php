@@ -130,7 +130,10 @@ class ProductService extends Services
 
     public function product_conditions($product_data)
     {
-        if (empty($product_data['title'])) return false;
+        if (empty($product_data['title'])) return [
+            'status' => false,
+            'data' => $product_data
+        ];
         switch ($product_data['expiry_type']) {
             case 0:
                 break;
@@ -256,23 +259,23 @@ class ProductService extends Services
         $product->data->id = $product_id;
         $product->where = "id = {$product_id}";
         if ($product->update(true)) {
-            $params = null;
-            $params = [
-                'index' => "products",
-                'type' => "product",
-                'id' => (int)$p->id,
-                'body' => [
-                    'Title' => $p->title,
-                    'Phone' => '',
-                    'Username' => '',
-                    'Fullname' => '',
-                    'Email' => '',
-                    'Price' => $p->display_price,
-                    'Image' => $p->images[0],
-                    'Shop'  => ''
-                ]
-            ];
-            $elasticsearch->index($params);
+            // $params = null;
+            // $params = [
+            //     'index' => "products",
+            //     'type' => "product",
+            //     'id' => (int)$p->id,
+            //     'body' => [
+            //         'Title' => $p->title,
+            //         'Phone' => '',
+            //         'Username' => '',
+            //         'Fullname' => '',
+            //         'Email' => '',
+            //         'Price' => $p->display_price,
+            //         'Image' => $p->images[0],
+            //         'Shop'  => ''
+            //     ]
+            // ];
+            // $elasticsearch->index($params);
 
             $source = $settings['image']['path']."/product/{$product_id}";
             $dest = $settings['image']['path']."/snapshot/{$snapshot_id}";
