@@ -57,6 +57,9 @@ class ProductService extends Services
             $product->data->market_category = implode(',', $market_category);
         }
 
+        if (!$data['friendly_url']) {
+        }
+
         if ($data['id']) {
             $product->where = "id = {$data['id']}";
             $product_id = $product->update(true);
@@ -64,6 +67,7 @@ class ProductService extends Services
             $product_id = $product->insert(true);
         }
 
+        
         if ($product_id) {
             $properties = $this->getPropertyProductByType($product_id, 'id');
             $images_old = explode(',', $properties->images);
@@ -177,6 +181,18 @@ class ProductService extends Services
         if ($product_data['images']) {
             $product_data['images'] = explode(',', $product_data['images']);
         }
+        if ($product_data['id']) {
+            $product_id = $product_data['id'];
+        } else {
+            $product_id = false;
+        }
+        if (!$product_data['friendly_url']) {
+            $product_data['friendly_url'] = slugify($product_data['title']);
+        }
+        if ($this->checkFriendlyUrl($product_id, $product_data['friendly_url'])) return [
+            'status' => false,
+            'data' => $product_data
+        ];
         return [
             'status' => true,
             'data' => $product_data
@@ -316,6 +332,14 @@ class ProductService extends Services
     	$product = $this->getProductByType($sku, 'sku');
     	if (!$product) return false;
     	return $product;
+    }
+
+    public function checkFriendlyUrl($product_id = false, $friendly_url)
+    {
+        $product = $this->getProductByType($friendly_url, 'friendly_url');
+        if (!$product) return false;
+        if ($product->id == $product_id) return false;
+        return $product;
     }
 
     public function getPropertyProductByType($input, $type = 'id')

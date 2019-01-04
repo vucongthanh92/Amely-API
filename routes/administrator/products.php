@@ -403,6 +403,10 @@ $app->delete($container['administrator'].'/products', function (Request $request
 			$product->data->id = $id;
 			$product->where = "id = {$id}";
 			$product->delete(true);
+
+			$productStore = new ProductStore();
+			$productStore->where = "product_id = {$id}";
+			$productStore->delete();
 		}
 	}
 	return response(true);

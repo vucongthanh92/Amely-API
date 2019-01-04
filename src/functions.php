@@ -2,6 +2,13 @@
 
 use Slim\Http\Response;
 
+
+function slugify($str)
+{
+	$cls = new \Cocur\Slugify\Slugify();
+	return $cls->slugify($str);
+}
+
 function responseError($error)
 {
 	return response([
