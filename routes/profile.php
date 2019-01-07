@@ -60,7 +60,9 @@ $app->get($container['prefix'].'/profile', function (Request $request, Response 
 					$shop->shop_ward = $store->store_ward;
 					$shop->full_address = $store->full_address;
 			    }
-			    $user->shop = $shop;
+			    if ($shop->approved > 0 && $shop->status == 1) {
+			    	$user->shop = $shop;
+			    }
 		    }
 		    if ($loggedin_user->id != $user->id) {
 			    $relation = $relationshipService->getFriendRequested($loggedin_user->id, $user->id);

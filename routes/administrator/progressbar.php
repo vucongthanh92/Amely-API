@@ -16,75 +16,75 @@ $app->get($container['administrator'].'/progressbar', function (Request $request
 	if (!$progressbar) return false;
 	if ($progressbar->status == 1) return response($progressbar);
 	if ($progressbar->row >= $progressbar->total_number) return response($progressbar);
-	// $sku_before = $sku_after = null;
-	// $row = $progressbar->number + 1;
+	$sku_before = $sku_after = null;
+	$row = $progressbar->number + 1;
 
-	// $path = DIRECTORY_SEPARATOR."import".DIRECTORY_SEPARATOR."{$code}";
-	// $dir = $settings['image']['path'].$path;
+	$path = DIRECTORY_SEPARATOR."import".DIRECTORY_SEPARATOR."{$code}";
+	$dir = $settings['image']['path'].$path;
 
-	// $tmpfname = $dir.DIRECTORY_SEPARATOR.$progressbar->filename;
+	$tmpfname = $dir.DIRECTORY_SEPARATOR.$progressbar->filename;
 
-	// $excelReader = PHPExcel_IOFactory::createReaderForFile($tmpfname);
-	// $excelObj = $excelReader->load($tmpfname);
-	// $worksheet = $excelObj->getSheet(0);
-	// $lastRow = $worksheet->getHighestRow();
+	$excelReader = PHPExcel_IOFactory::createReaderForFile($tmpfname);
+	$excelObj = $excelReader->load($tmpfname);
+	$worksheet = $excelObj->getSheet(0);
+	$lastRow = $worksheet->getHighestRow();
 
-	// $list_key_excel = $productService->excel_product_key();
-	// $number = 0;
-	// $inserted = $updated = $error = false;
-	// $list_inserted = $list_updated = $list_error = [];
+	$list_key_excel = $productService->excel_product_key();
+	$number = 0;
+	$inserted = $updated = $error = false;
+	$list_inserted = $list_updated = $list_error = [];
 
-	// if (!empty($progressbar->inserted)) {
-	// 	$list_inserted = explode('^0^', $progressbar->inserted);
-	// }
-	// if (!empty($progressbar->updated)) {
-	// 	$list_updated = explode('^0^', $progressbar->updated);
-	// }
-	// if (!empty($progressbar->error)) {
-	// 	$list_error = explode('^0^', $progressbar->error);
-	// }
-	// $checkError = 0;
-	// $product_params = null;
-	// foreach ($list_key_excel as $key => $value) {
-	// 	$sku_before = $worksheet->getCell('D'.($row-1))->getValue();
-	// 	$sku_after = $worksheet->getCell('D'.($row))->getValue();
-	// 	$product_params[$value] = $worksheet->getCell($key.$row)->getValue();
-	// }
-	// if ($sku_before == null && $sku_after == null) {
-	// 	$progressbarService->updateNumber($progressbar->id, implode('^0^', $list_inserted), implode('^0^', $list_updated), implode('^0^', $list_error), $lastRow, 1);
-	// 	return response($progressbar);
-	// }
-	// $product_params['owner_id'] = $progressbar->owner_id;
+	if (!empty($progressbar->inserted)) {
+		$list_inserted = explode('^0^', $progressbar->inserted);
+	}
+	if (!empty($progressbar->updated)) {
+		$list_updated = explode('^0^', $progressbar->updated);
+	}
+	if (!empty($progressbar->error)) {
+		$list_error = explode('^0^', $progressbar->error);
+	}
+	$checkError = 0;
+	$product_params = null;
+	foreach ($list_key_excel as $key => $value) {
+		$sku_before = $worksheet->getCell('D'.($row-1))->getValue();
+		$sku_after = $worksheet->getCell('D'.($row))->getValue();
+		$product_params[$value] = $worksheet->getCell($key.$row)->getValue();
+	}
+	if ($sku_before == null && $sku_after == null) {
+		$progressbarService->updateNumber($progressbar->id, implode('^0^', $list_inserted), implode('^0^', $list_updated), implode('^0^', $list_error), $lastRow, 1);
+		return response($progressbar);
+	}
+	$product_params['owner_id'] = $progressbar->owner_id;
 	
-	// $product_data = $productService->product_conditions($product_params);
-	// if (!$product_data['status']) {
-	// 	$list_error = array_merge($list_error, $product_data['data']['sku']);
-	// 	$progressbarService->updateNumber($progressbar->id, implode('^0^', $list_inserted), implode('^0^', $list_updated), implode('^0^', $list_error), $row, 0);
-	// 	return response($progressbar);
-	// }
+	$product_data = $productService->product_conditions($product_params);
+	if (!$product_data['status']) {
+		$list_error = array_merge($list_error, $product_data['data']['sku']);
+		$progressbarService->updateNumber($progressbar->id, implode('^0^', $list_inserted), implode('^0^', $list_updated), implode('^0^', $list_error), $row, 0);
+		return response($progressbar);
+	}
 
-	// $product = $productService->checkSKUshop($product_data['data']['sku'], $progressbar->owner_id);
-	// if ($product) {
-	// 	$updated = true;
-	// 	$product_data['data']['id'] = $product->id;
-	// } else {
-	// 	$updated = false;
-	// }
-	// $product_data['data']['status'] = 0;
-	// if ($productService->save($product_data['data'])) {
-	// 	if ($updated) {
-	// 		$list_updated = array_merge($list_updated, [$product_data['data']['sku']]);
-	// 	} else {
-	// 		$list_inserted = array_merge($list_inserted, [$product_data['data']['sku']]);
-	// 	}
-	// } else {
-	// 	$list_error = array_merge($list_error, $product_data['data']['sku']);
-	// }
-	// $status = 0;
-	// if ($row >= $lastRow) {
-	// 	$status = 1;
-	// }
-	// $progressbarService->updateNumber($progressbar->id, implode('^0^', $list_inserted), implode('^0^', $list_updated), implode('^0^', $list_error), $row, $status);
+	$product = $productService->checkSKUshop($product_data['data']['sku'], $progressbar->owner_id);
+	if ($product) {
+		$updated = true;
+		$product_data['data']['id'] = $product->id;
+	} else {
+		$updated = false;
+	}
+	$product_data['data']['status'] = 0;
+	if ($productService->save($product_data['data'])) {
+		if ($updated) {
+			$list_updated = array_merge($list_updated, [$product_data['data']['sku']]);
+		} else {
+			$list_inserted = array_merge($list_inserted, [$product_data['data']['sku']]);
+		}
+	} else {
+		$list_error = array_merge($list_error, $product_data['data']['sku']);
+	}
+	$status = 0;
+	if ($row >= $lastRow) {
+		$status = 1;
+	}
+	$progressbarService->updateNumber($progressbar->id, implode('^0^', $list_inserted), implode('^0^', $list_updated), implode('^0^', $list_error), $row, $status);
 
 
 	return response($progressbar);
@@ -227,6 +227,8 @@ $app->patch($container['administrator'].'/progressbar', function (Request $reque
 	$progressbar = $progressbarService->getInfoByCode($code);
 	$progressbar = object_cast("Progressbar", $progressbar);
 	$progressbar->data->status = 1;
+	$progressbar->data->id = $progressbar->id;
+	$progressbar->where = "id = {$progressbar->id}";
 	$progressbar->update();
 	return response($progressbar);
 

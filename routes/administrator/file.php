@@ -3,6 +3,7 @@ use Slim\Http\Request;
 use Slim\Http\Response;
 
 $app->get($container['administrator'].'/file', function (Request $request, Response $response, array $args) {
+	global $settings;
 	$productGroupService = ProductGroupService::getInstance();
 	$categoryService = CategoryService::getInstance();
 
@@ -125,10 +126,9 @@ $app->get($container['administrator'].'/file', function (Request $request, Respo
 
 	$dir = $settings['root'];
 	$file_default = $dir.'files'.DIRECTORY_SEPARATOR.'Template.xlsx';
-	$file_excel = $dir.'files'.DIRECTORY_SEPARATOR.'shop'.DIRECTORY_SEPARATOR.$params['shop_id'].DIRECTORY_SEPARATOR.'Template.xlsx';
-
-	if (!file_exists($dir.'files'.DIRECTORY_SEPARATOR.'shop'.DIRECTORY_SEPARATOR.$params['shop_id'])) {
-        mkdir($dir.'files'.DIRECTORY_SEPARATOR.'shop'.DIRECTORY_SEPARATOR.$params['shop_id'], 0777, true);
+	$file_excel = $settings['image']['path'].DIRECTORY_SEPARATOR.'files'.DIRECTORY_SEPARATOR.'shop'.DIRECTORY_SEPARATOR.$params['shop_id'].DIRECTORY_SEPARATOR.'Template.xlsx';
+	if (!file_exists($settings['image']['path'].DIRECTORY_SEPARATOR.'files'.DIRECTORY_SEPARATOR.'shop'.DIRECTORY_SEPARATOR.$params['shop_id'])) {
+        mkdir($settings['image']['path'].DIRECTORY_SEPARATOR.'files'.DIRECTORY_SEPARATOR.'shop'.DIRECTORY_SEPARATOR.$params['shop_id'], 0777, true);
     }
 
 	if (file_exists($file_default)) {

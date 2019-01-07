@@ -157,8 +157,10 @@ class ProductService extends Services
                         'status' => false,
                         'data' => $product_data
                     ];
-                $product_data['begin_day'] = strtotime($product_data['begin_day']." 00:00:00");
-                $product_data['end_day'] = strtotime($product_data['end_day']." 23:59:59");
+                $product_data['begin_day'] = $product_data['begin_day']." 00:00:00";
+                $product_data['end_day'] = $product_data['end_day']." 23:59:59";
+                $product_data['begin_day'] = strtotime($product_data['begin_day']);
+                $product_data['end_day'] = strtotime($product_data['end_day']);
                 break;
             default:
                 # code...
