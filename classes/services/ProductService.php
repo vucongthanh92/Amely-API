@@ -191,7 +191,7 @@ class ProductService extends Services
         if (!$product_data['friendly_url']) {
             $product_data['friendly_url'] = slugify($product_data['title']);
         }
-        if ($this->checkFriendlyUrl($product_id, $product_data['friendly_url'])) return [
+        if ($this->checkFriendlyUrl($product_data['id'], $product_data['friendly_url'])) return [
             'status' => false,
             'data' => $product_data
         ];
