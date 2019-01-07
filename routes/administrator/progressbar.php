@@ -214,3 +214,20 @@ $app->put($container['administrator'].'/progressbar', function (Request $request
 
 	return response($progress);
 });
+
+$app->patch($container['administrator'].'/progressbar', function (Request $request, Response $response, array $args) {
+	global $settings;
+	$progressbarService = ProgressbarService::getInstance();
+	$productService = ProductService::getInstance();
+	
+	$params = $request->getParsedBody();
+	if (!$params) $params = [];
+	if (!array_key_exists('code', $params)) return response(false);
+	$code = $params['code'];
+	$progressbar = $progressbarService->getInfoByCode($code);
+	$progressbar = object_cast("Progressbar", $progressbar);
+	$progressbar->data->status = 1;
+	$progressbar->update();
+	return response($progressbar);
+
+})->setName('progressbar');
