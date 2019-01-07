@@ -135,6 +135,16 @@ $app->post($container['administrator'].'/progressbar', function (Request $reques
 			$product_data[$value] = $worksheet->getCell($key.$row)->getValue();
 		}
 		$product_data['owner_id'] = $progressbar->owner_id;
+
+		$product = $productService->checkSKUshop($product_data['sku'], $progressbar->owner_id);
+		if ($product) {
+			$updated = true;
+			$product_data['id'] = $product->id;
+		} else {
+			$product_data['id'] = false;
+			$updated = false;
+		}
+
 		$product_conditions = $productService->product_conditions($product_data);
 
 		if (!$product_conditions['status']) {
@@ -149,13 +159,6 @@ $app->post($container['administrator'].'/progressbar', function (Request $reques
 			continue;
 		}
 
-		$product = $productService->checkSKUshop($product_conditions['data']['sku'], $progressbar->owner_id);
-		if ($product) {
-			$updated = true;
-			$product_conditions['data']['id'] = $product->id;
-		} else {
-			$updated = false;
-		}
 		$product_conditions['data']['status'] = 0;
 
 		if ($productService->save($product_conditions['data'])) {
