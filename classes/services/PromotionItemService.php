@@ -30,8 +30,9 @@ class PromotionItemService extends Services
         $promotionItem->data->currency = 'VND';
 
         if ($data['id']) {
+            $promotionItem->data->id = $data['id'];
         	$promotionItem->where = "id = {$data['id']}";
-        	$promotionItem->upadte(true);
+        	$promotionItem->update(true);
         } else {
         	return $promotionItem->insert(true);
         }

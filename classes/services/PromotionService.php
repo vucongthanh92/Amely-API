@@ -29,8 +29,9 @@ class PromotionService extends Services
         $promotion->data->type = 'shop';
 
         if ($data['id']) {
+            $promotion->data->id = $data['id'];
         	$promotion->where = "id = {$data['id']}";
-        	return $promotion->upadte(true);
+        	return $promotion->update(true);
         } else {
         	return $promotion->insert(true);
         }
