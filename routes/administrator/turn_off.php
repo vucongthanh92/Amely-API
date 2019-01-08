@@ -48,6 +48,14 @@ $app->post($container['administrator'].'/turn_off', function (Request $request, 
 			// 	return response(true);
 			// }
 			break;
+		case 'category':
+			if (is_array($params['subject_id'])) {
+				foreach ($params['subject_id'] as $subject_id) {
+					$categoryService->updateStatus($subject_id, 0);
+				}
+				return response(true);
+			}
+			break;
 		default:
 			# code...
 			break;

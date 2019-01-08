@@ -145,15 +145,17 @@ $app->delete($container['administrator'].'/categories', function (Request $reque
 	$params = $request->getQueryParams();
 	if (!$params) $params = [];
 	if (!array_key_exists('id', $params)) return response(false);
-
 	$category = $categoryService->getCategoryByType($params['id'], 'id');
+	$category = object_cast("Category", $category);
+	$category->data->id = $category->id;
+	$category->where = "id = {$category->id}";
 
 	if ($loggedin_user->type == 'admin') {
-		return response($categoryService->delete($category->id));
+		return response($category->delete(true));
 	}
 
-	if ($loggedin_user->shop->id == $category->owner_id && $category->type == 'shop') {
-		return response($categoryService->delete($category->id));
+	if ($loggedin_user->id == $category->creator_id && $category->type == 'shop') {
+		return response($category->delete(true));
 	}
 
 	return response(false);

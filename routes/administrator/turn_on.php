@@ -9,6 +9,7 @@ $app->post($container['administrator'].'/turn_on', function (Request $request, R
 	$productService = ProductService::getInstance();
 	$userService = UserService::getInstance();
 	$advertiseService = AdvertiseService::getInstance();
+	$categoryService = CategoryService::getInstance();
 
 	$loggedin_user = loggedin_user();
 	$params = $request->getParsedBody();
@@ -47,6 +48,14 @@ $app->post($container['administrator'].'/turn_on', function (Request $request, R
 			// 	}
 			// 	return response(true);
 			// }
+			break;
+		case 'category':
+			if (is_array($params['subject_id'])) {
+				foreach ($params['subject_id'] as $subject_id) {
+					$categoryService->updateStatus($subject_id, 1);
+				}
+				return response(true);
+			}
 			break;
 		default:
 			# code...

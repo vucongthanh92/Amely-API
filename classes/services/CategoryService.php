@@ -109,6 +109,15 @@ class CategoryService extends Services
     	return $category->delete();
     }
 
+    public function updateStatus($category_id, $status)
+    {
+        $category = new Category();
+        $category->data->status = $status;
+        $category->data->id = $category_id;
+        $category->where = "id = {$category_id}";
+        return $category->update(true);
+    }
+
     public function getCategoriesByType($input, $type ='id')
     {
     	$conditions = null;
