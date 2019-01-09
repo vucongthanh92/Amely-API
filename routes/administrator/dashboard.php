@@ -18,8 +18,20 @@ $app->get($container['administrator'].'/dashboard', function (Request $request, 
 	if (!$params) $params = [];
 	if (!array_key_exists('shop_id', $params)) $params['shop_id'] = false;
 
+    $result = [];
+
+    $result['product_pending'] = 0;
+    $result['product_approved'] = 0;
+    $result['shop_pending'] = 0;
+    $result['shop_approved'] = 0;
+    $result['user_unactive'] = 0;
+    $result['user_active'] = 0;
+    $result['order'] = 0;
+    $result['total_amount'] = 0;
+
 
 	$wallet = $walletService->getWalletByOwnerId($loggedin_user->id);
+    if (!$wallet) return response($result);
 
 	$product_approved_params[] = [
 		'key' => 'time_created',
@@ -45,6 +57,7 @@ $app->get($container['administrator'].'/dashboard', function (Request $request, 
     ];
 
     $products_approved = $productService->getProduct($product_approved_params, 0, 1);
+    if (!$products_approved) return response($result);
 
     $product_pending_params[] = [
 		'key' => 'time_created',
@@ -70,6 +83,7 @@ $app->get($container['administrator'].'/dashboard', function (Request $request, 
     ];
 
     $products_pending = $productService->getProduct($product_pending_params);
+    if (!$products_pending) return response($result);
 
     $shop_approved_params[] = [
     	'key' => 'approved',
@@ -83,6 +97,7 @@ $app->get($container['administrator'].'/dashboard', function (Request $request, 
     ];
 
     $shops_approved = $shopService->getShop($shop_approved_params);
+    if (!$shops_approved) return response($result);
 
     $shop_pending_params[] = [
     	'key' => 'approved',
@@ -96,6 +111,7 @@ $app->get($container['administrator'].'/dashboard', function (Request $request, 
     ];
 
     $shops_pending = $shopService->getShop($shop_pending_params);
+    if (!$shops_pending) return response($result);
 
     $user_unactive_params[] = [
     	'key' => 'activation',
@@ -108,6 +124,7 @@ $app->get($container['administrator'].'/dashboard', function (Request $request, 
     	'operation' => 'count'
     ];
     $users_unactive = $userService->getUser($user_unactive_params, false, true);
+    if (!$users_unactive) return response($result);
 
     $user_active_params[] = [
     	'key' => 'activation',
@@ -120,6 +137,7 @@ $app->get($container['administrator'].'/dashboard', function (Request $request, 
     	'operation' => 'count'
     ];
     $users_active = $userService->getUser($user_active_params, false, true);
+    if (!$users_active) return response($result);
 
     $so_params[] = [
     	'key' => '*',
@@ -146,8 +164,8 @@ $app->get($container['administrator'].'/dashboard', function (Request $request, 
     }
 	
 	$sos = $supplyOrderService->getSO($so_params);
+    if (!$sos) return response($result);
 
-	$result = [];
 	$result['product_pending'] = $products_pending->count;
 	$result['product_approved'] = $products_approved->count;
 	$result['shop_pending'] = $shops_pending->count;

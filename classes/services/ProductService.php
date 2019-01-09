@@ -166,6 +166,9 @@ class ProductService extends Services
                 # code...
                 break;
         }
+        if ($product_data['adjourn_price']) {
+            $product_data['adjourn_price'] = 1;
+        }
         $shop_categories = $market_categories = $categories = [];
         if ($product_data['market_category']) {
             $market_categories = explode(',', $product_data['market_category']);

@@ -72,6 +72,7 @@ $app->post($container['administrator'].'/promotion', function (Request $request,
     if (!$promotion_id) return response(false);
     if ($params['items']) {
 	    foreach ($params['items'] as $key => $item) {
+	    	$promotionItem = null;
 	    	if ($item['promotion_item_id']) {
 	    		$promotionItem['id'] = $item['promotion_item_id'];
 	    	}
