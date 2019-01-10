@@ -345,5 +345,66 @@ class Services extends SlimDatabase
 		}
 	}
 
+	public function elasticsearch($data, $type, $action = 'insert')
+	{	
+		$shopService = ShopService::getInstance();
+		switch ($action) {
+			case 'insert':
+				$action = "createElasticsearch";
+				break;
+			case 'update':
+				$action = "updateElasticsearch";
+				break;
+			case 'delete':
+				$action = "deleteElasticsearch";
+				break;
+			default:
+				# code...
+				break;
+		}
+
+		$obj = new stdClass;
+		$params = null;
+		switch ($type) {
+	        case 'product':
+	        	$obj->index = "products";
+	        	$obj->type = "product";
+	        	$obj->id = $data->id;
+	        	$obj->Title = $data->title;
+	        	$obj->Price = $data->display_price;
+	        	$obj->Image = $data->images[0];
+	        	$obj->Shop = $data->owner_id;
+	            break;
+	        case 'shop':
+	        	$shop = $shopService->getShopByType($data->owner_id, 'id');
+	        	$location = new stdClass;
+	        	$location->lat = $data->lat;
+	        	$location->lon = $data->lng;
+
+	        	$obj->index = "shops";
+	        	$obj->type = "shop";
+	        	$obj->id = $data->id;
+	        	$obj->location = $location;
+	            $obj->Title = $data->title;
+                $obj->Phone = $data->store_phone;
+                $obj->Username = '';
+                $obj->Fullname = '';
+                $obj->Email = '';
+                $obj->Description = $data->description;
+                $obj->Address = $data->full_address;
+                $obj->Price = '';
+                $obj->Image = $shop->avatar;
+                $obj->Shop = $shop->id;
+                $obj->OwnerID = $shop->owner_id;
+	            break;
+	        case 'user':
+	            break;
+	        default:
+	            break;
+    	}
+		
+		return $this->connectServer($action, $obj);
+	}
+
 	// UPDATE amely_feeds SET description = REPLACE(description,',1',''), description = REPLACE(description,'1,',''),description = REPLACE(description,'1','') where id = 1;
 }

@@ -891,3 +891,10 @@ VALUES ( '1', 'user', '1546743907', 'Khuyến mãi', 'ws/v1/administrator/promot
 
 INSERT INTO `amely_permission` ( `owner_id`, `type`, `time_created`, `title`, `path`, `option`) 
 VALUES ( '1', 'user', '1546743907', 'Sử dụng', 'ws/v1/administrator/redeem', '');
+
+
+
+
+
+INSERT INTO `amely_product_group` ( `owner_id`, `type`, `time_created`, `title`, `description`, `percent`, `price`, `currency`, `status`) 
+VALUES ( '1', 'user', '1546743907', 'Sử dụng', '','10', '','VND', 1);

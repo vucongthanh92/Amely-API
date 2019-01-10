@@ -161,7 +161,7 @@ $app->post($container['administrator'].'/progressbar', function (Request $reques
 
 		$product_conditions['data']['status'] = 0;
 
-		if ($productService->save($product_conditions['data'])) {
+		if ($productService->saveByExcel($product_conditions['data'])) {
 			if ($updated) {
 				$list_updated = array_merge($list_updated, [$product_conditions['data']['sku']]);
 			} else {

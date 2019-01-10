@@ -22,6 +22,8 @@ class StoreService extends Services
 
     public function save($data)
     {
+    	$services = Services::getInstance();
+
     	$store = new Store();
     	foreach ($data as $key => $value) {
     		$store->data->$key = $value;
@@ -30,7 +32,11 @@ class StoreService extends Services
     	$store->data->type = 'shop';
     	if ($data['id']) {
     		$store->where = "id = {$data['id']}";
-    		return $store->update(true);
+    		if ($store->update(true)) {
+    			$s = $this->getStoreByType($data['id'], 'id');
+    			$services->elasticsearch($s, 'shop', 'update');
+    			return true;
+    		}
     	} else {
     		return $store->insert(true);
     	}
@@ -39,19 +45,29 @@ class StoreService extends Services
 
     public function approval($store_id)
     {
+    	$services = Services::getInstance();
+
+    	$s = $this->getStoreByType($store_id, 'id');
+
     	$store = new Store();
     	$store->data->approved = time();
     	$store->data->status = 1;
     	$store->data->id = $store_id;
     	$store->where = "id = {$store_id}";
-    	return $store->update(true);
+    	if ($store->update(true)) {
+    		$services->elasticsearch($s, 'shop', 'insert');
+    		return true;
+    	}
+    	return false;
     }
 
     public function delete($store_id)
     {
-    	$storeService = StoreService::getInstance();
+    	$services = Services::getInstance();
     	$productStoreService = ProductStoreService::getInstance();
+
     	$deleted = true;
+    	$s = $this->getStoreByType($store_id, 'id');
     	$ps = $productStoreService->getQuantityByType($store_id, 'store_id', 0, 9999999999);
     	if ($ps) {
 	    	foreach ($ps as $key => $value) {
@@ -62,6 +78,7 @@ class StoreService extends Services
 	    	}
     	}
     	if ($deleted) {
+    		$services->elasticsearch($s, 'shop', 'delete');
     		$store = new Store();
 	    	$store->where = "id = {$store_id}";
 	    	return $store->delete();
@@ -71,6 +88,17 @@ class StoreService extends Services
 
     public function updateStatus($store_id, $status)
     {
+    	$s = $this->getStoreByType($store_id, 'id');
+    	switch ($status) {
+    		case 0:
+    			$services->elasticsearch($s, 'shop', 'delete');
+    			break;
+    		case 1:
+    			$services->elasticsearch($s, 'shop', 'insert');
+    			break;
+    		default:
+    			break;
+    	}
     	$store = new Store();
     	$store->data->status = $status;
     	$store->data->id = $store_id;

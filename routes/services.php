@@ -24,6 +24,12 @@ $app->get($container['prefix'].'/services', function (Request $request, Response
 })->setName('services');
 
 $app->post($container['prefix'].'/services', function (Request $request, Response $response, array $args) {
+    // $services = Services::getInstance();
+    // $productService = ProductService::getInstance();
+
+    // $product = $productService->getProductByType(2, 'id');
+    // $services->elasticsearch($product, 'product');
+    die('1231');
 	// $services = Services::getInstance();
 	// $services->sendByMobile("0349692858", "test nha");
 

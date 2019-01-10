@@ -99,9 +99,68 @@ class ProductService extends Services
         return false;
     }
 
+
     public function updateMostSold($product_id)
     {
         
+    }
+
+    public function saveByExcel($data)
+    {
+        $product = new Product();
+        foreach ($data as $key => $value) {
+            $product->data->$key = $value;
+        }
+        $product->data->type = 'shop';
+        $product->data->featured = 0;
+        $product->data->product_order = 0;
+        $product->data->approved = 0;
+        $product->data->enabled = 0;
+        if ($data['category']) {
+            $category = explode(',', $data['category']);
+            $category = array_diff($category, ['']);
+            $product->data->category = implode(',', $category);
+        }
+        if ($data['voucher_category']) {
+            $voucher_category = explode(',', $data['voucher_category']);
+            $voucher_category = array_diff($voucher_category, ['']);
+            $product->data->voucher_category = implode(',', $voucher_category);
+        }
+        if ($data['ticket_category']) {
+            $ticket_category = explode(',', $data['ticket_category']);
+            $ticket_category = array_diff($ticket_category, ['']);
+            $product->data->ticket_category = implode(',', $ticket_category);
+        }
+        if ($data['shop_category']) {
+            $shop_category = explode(',', $data['shop_category']);
+            $shop_category = array_diff($shop_category, ['']);
+            $product->data->shop_category = implode(',', $shop_category);
+        }
+        if ($data['market_category']) {
+            $market_category = explode(',', $data['market_category']);
+            $market_category = array_diff($market_category, ['']);
+            $product->data->market_category = implode(',', $market_category);
+        }
+
+        if (!$data['friendly_url']) {
+        }
+
+        if ($data['id']) {
+            $product->where = "id = {$data['id']}";
+            $product_id = $product->update(true);
+        } else {
+            $product_id = $product->insert(true);
+        }
+
+        
+        if ($product_id) {
+            if ($data['images']) {
+                $services = Services::getInstance();
+                $services->downloadImage($product_id, 'product', 'images', $data['images']);
+            }
+            return $product_id;
+        }
+        return false;
     }
 
     public function excel_product_key()
@@ -173,7 +232,6 @@ class ProductService extends Services
         if ($product_data['market_category']) {
             $market_categories = explode(',', $product_data['market_category']);
             $categories = array_merge($categories, $market_categories);
-            $product_data['market_category'] = null;
         }
         if ($product_data['shop_category']) {
             $shop_categories = explode(',', $product_data['shop_category']);
@@ -273,13 +331,14 @@ class ProductService extends Services
             $snapshot_id = $snapshotService->save($snapshot_data);
         }
         $p = $this->getProductByType($product_id, 'id');
-
+        
         $product = new Product();
         $product->data->approved = time();
         $product->data->snapshot_id = $snapshot_id;
         $product->data->id = $product_id;
         $product->where = "id = {$product_id}";
         if ($product->update(true)) {
+            $services->elasticsearch($p, 'product', 'insert');
             // $params = null;
             // $params = [
             //     'index' => "products",
@@ -308,11 +367,32 @@ class ProductService extends Services
 
     public function updateStatus($product_id, $status)
     {
+        $services = Services::getInstance();
+        $p = $this->getProductByType($product_id, 'id');
+
+        switch ($status) {
+            case 0:
+                $services->elasticsearch($p, 'product', 'delete');
+                break;
+            case 1:
+                $services->elasticsearch($p, 'product', 'insert');
+                break;
+            case 2:
+                $services->elasticsearch($p, 'product', 'delete');
+                break;
+            default:
+                # code...
+                break;
+        }
     	$product = new Product();
     	$product->data->status = $status;
         $product->data->id = $product_id;
     	$product->where = "id = {$product_id}";
-    	return $product->update(true);
+    	if ($product->update(true)) {
+            
+            return true;
+        }
+        return false;
     }
 
     public function checkSKUshop($sku, $shop_id)
