@@ -26,6 +26,17 @@ $app->get($container['prefix'].'/most_sold_products', function (Request $request
 		'value' => "DESC",
 		'operation' => 'order_by'
 	];
+	$product_params[] = [
+        'key' => 'amely_product_store ps',
+        'value' => "ps.product_id = amely_products.id",
+        'operation' => 'JOIN'
+    ];
+    $product_params[] = [
+        'key' => 'ps.quantity',
+        'value' => "> 0",
+        'operation' => 'AND'
+    ];
+    $product_params = $productService->queryProductParams($product_params);
 
 	$products =  $productService->getProducts($product_params, 0, 16);
 	if (!$products) return response(false);

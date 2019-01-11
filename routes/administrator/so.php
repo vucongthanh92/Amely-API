@@ -83,6 +83,7 @@ $app->put($container['administrator'].'/so', function (Request $request, Respons
 	// if (!$params['shop_id'] && !$params['store_id']) return response(false);
 
 	$so_params = null;
+	$check = '';
 	if ($params['store_id']) {
 		$stores_id = $params['store_id'];
 	}
@@ -97,12 +98,13 @@ $app->put($container['administrator'].'/so', function (Request $request, Respons
 			'value' => "IN ({$stores_id})",
 			'operation' => ''
 		];
+		$check = 'AND';
 	}
 	if ($params['status'] >= 0) {
 		$so_params[] = [
 			'key' => 'status',
 			'value' => "= {$params['status']}",
-			'operation' => 'AND'
+			'operation' => $check
 		];	
 	}
 	$sos = $supplyOrderService->getSOs($so_params, $params['offset'], $params['limit']);

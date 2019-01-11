@@ -17,7 +17,7 @@ class ProductService extends Services
 
 	public function __construct() 
 	{
-        $this->table = "amely_products";
+        $this->table = "amely_products p";
     }
 
     public function save($data, $images = false)
@@ -165,6 +165,226 @@ class ProductService extends Services
             return $product_id;
         }
         return false;
+    }
+
+    public function queryProductParams($product_params)
+    {
+        $product_params[] = [
+            'key' => 'p.id',
+            'value' => '',
+            'operation' => 'query_params'
+        ];
+        $product_params[] = [
+            'key' => 'p.owner_id',
+            'value' => '',
+            'operation' => 'query_params'
+        ];
+        $product_params[] = [
+            'key' => 'p.type',
+            'value' => '',
+            'operation' => 'query_params'
+        ];
+        $product_params[] = [
+            'key' => 'p.time_created',
+            'value' => '',
+            'operation' => 'query_params'
+        ];
+        $product_params[] = [
+            'key' => 'p.title',
+            'value' => '',
+            'operation' => 'query_params'
+        ];
+        $product_params[] = [
+            'key' => 'p.description',
+            'value' => '',
+            'operation' => 'query_params'
+        ];
+        $product_params[] = [
+            'key' => 'p.sku',
+            'value' => '',
+            'operation' => 'query_params'
+        ];
+        $product_params[] = [
+            'key' => 'p.price',
+            'value' => '',
+            'operation' => 'query_params'
+        ];
+        $product_params[] = [
+            'key' => 'p.snapshot_id',
+            'value' => '',
+            'operation' => 'query_params'
+        ];
+        $product_params[] = [
+            'key' => 'p.model',
+            'value' => '',
+            'operation' => 'query_params'
+        ];
+        $product_params[] = [
+            'key' => 'p.tag',
+            'value' => '',
+            'operation' => 'query_params'
+        ];
+        $product_params[] = [
+            'key' => 'p.number_sold',
+            'value' => '',
+            'operation' => 'query_params'
+        ];
+        $product_params[] = [
+            'key' => 'p.tax',
+            'value' => '',
+            'operation' => 'query_params'
+        ];
+        $product_params[] = [
+            'key' => 'p.friendly_url',
+            'value' => '',
+            'operation' => 'query_params'
+        ];
+        $product_params[] = [
+            'key' => 'p.weight',
+            'value' => '',
+            'operation' => 'query_params'
+        ];
+        $product_params[] = [
+            'key' => 'p.expiry_type',
+            'value' => '',
+            'operation' => 'query_params'
+        ];
+        $product_params[] = [
+            'key' => 'p.currency',
+            'value' => '',
+            'operation' => 'query_params'
+        ];
+        $product_params[] = [
+            'key' => 'p.origin',
+            'value' => '',
+            'operation' => 'query_params'
+        ];
+        $product_params[] = [
+            'key' => 'p.product_order',
+            'value' => '',
+            'operation' => 'query_params'
+        ];
+        $product_params[] = [
+            'key' => 'p.duration',
+            'value' => '',
+            'operation' => 'query_params'
+        ];
+        $product_params[] = [
+            'key' => 'p.storage_duration',
+            'value' => '',
+            'operation' => 'query_params'
+        ];
+        $product_params[] = [
+            'key' => 'p.is_special',
+            'value' => '',
+            'operation' => 'query_params'
+        ];
+        $product_params[] = [
+            'key' => 'p.product_group',
+            'value' => '',
+            'operation' => 'query_params'
+        ];
+        $product_params[] = [
+            'key' => 'p.creator_id',
+            'value' => '',
+            'operation' => 'query_params'
+        ];
+        $product_params[] = [
+            'key' => 'p.custom_attributes',
+            'value' => '',
+            'operation' => 'query_params'
+        ];
+        $product_params[] = [
+            'key' => 'p.download',
+            'value' => '',
+            'operation' => 'query_params'
+        ];
+        $product_params[] = [
+            'key' => 'p.featured',
+            'value' => '',
+            'operation' => 'query_params'
+        ];
+        $product_params[] = [
+            'key' => 'p.begin_day',
+            'value' => '',
+            'operation' => 'query_params'
+        ];
+        $product_params[] = [
+            'key' => 'p.end_day',
+            'value' => '',
+            'operation' => 'query_params'
+        ];
+        $product_params[] = [
+            'key' => 'p.manufacturer',
+            'value' => '',
+            'operation' => 'query_params'
+        ];
+        $product_params[] = [
+            'key' => 'p.sale_price',
+            'value' => '',
+            'operation' => 'query_params'
+        ];
+        $product_params[] = [
+            'key' => 'p.unit',
+            'value' => '',
+            'operation' => 'query_params'
+        ];
+        $product_params[] = [
+            'key' => 'p.approved',
+            'value' => '',
+            'operation' => 'query_params'
+        ];
+        $product_params[] = [
+            'key' => 'p.enabled',
+            'value' => '',
+            'operation' => 'query_params'
+        ];
+        $product_params[] = [
+            'key' => 'p.voucher_category',
+            'value' => '',
+            'operation' => 'query_params'
+        ];
+        $product_params[] = [
+            'key' => 'p.ticket_category',
+            'value' => '',
+            'operation' => 'query_params'
+        ];
+        $product_params[] = [
+            'key' => 'p.shop_category',
+            'value' => '',
+            'operation' => 'query_params'
+        ];
+        $product_params[] = [
+            'key' => 'p.market_category',
+            'value' => '',
+            'operation' => 'query_params'
+        ];
+        $product_params[] = [
+            'key' => 'p.category',
+            'value' => '',
+            'operation' => 'query_params'
+        ];
+        $product_params[] = [
+            'key' => 'p.adjourn_price',
+            'value' => '',
+            'operation' => 'query_params'
+        ];
+        $product_params[] = [
+            'key' => 'p.images',
+            'value' => '',
+            'operation' => 'query_params'
+        ];
+        $product_params[] = [
+            'key' => 'p.parent_id',
+            'value' => '',
+            'operation' => 'query_params'
+        ];
+        $product_params[] = [
+            'key' => 'p.status',
+            'value' => '',
+            'operation' => 'query_params'
+        ];
+        return $product_params;
     }
 
     public function excel_product_key()

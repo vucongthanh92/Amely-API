@@ -32,10 +32,21 @@ $app->post($container['prefix'].'/shop/featured_products', function (Request $re
 		'operation' => 'AND'
 	];
 	$product_params[] = [
-		'key' => 'product_order',
+		'key' => 'amely_products.product_order',
 		'value' => 'DESC',
 		'operation' => 'order_by'
 	];
+	$product_params[] = [
+        'key' => 'amely_product_store ps',
+        'value' => "ps.product_id = amely_products.id",
+        'operation' => 'JOIN'
+    ];
+    $product_params[] = [
+        'key' => 'ps.quantity',
+        'value' => "> 0",
+        'operation' => 'AND'
+    ];
+    $product_params = $productService->queryProductParams($product_params);
 
 	$products = $productService->getProducts($product_params, 0, 16);
 	if (!$products) return response(false);

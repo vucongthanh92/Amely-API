@@ -85,7 +85,7 @@ $app->post($container['prefix'].'/products', function (Request $request, Respons
 	$limit = $params['limit'];
 
 	$product_params[] = [
-		'key' => 'id',
+		'key' => 'amely_products.id',
 		'value' => 'DESC',
 		'operation' => 'order_by'
 	];
@@ -163,6 +163,17 @@ $app->post($container['prefix'].'/products', function (Request $request, Respons
 		default:
 			break;
 	}
+	$product_params[] = [
+        'key' => 'amely_product_store ps',
+        'value' => "ps.product_id = amely_products.id",
+        'operation' => 'JOIN'
+    ];
+    $product_params[] = [
+        'key' => 'ps.quantity',
+        'value' => "> 0",
+        'operation' => 'AND'
+    ];
+    $product_params = $productService->queryProductParams($product_params);
 
 	$products = $productService->getProducts($product_params, $offset, $limit);
 	if (!$products) return response(false);

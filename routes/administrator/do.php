@@ -84,6 +84,7 @@ $app->put($container['administrator'].'/do', function (Request $request, Respons
 	// if (!$params['shop_id'] && !$params['store_id']) return response(false);
 
 	$so_params = null;
+	$check = '';
 	if ($params['store_id']) {
 		$stores_id = $params['store_id'];
 	}
@@ -99,13 +100,14 @@ $app->put($container['administrator'].'/do', function (Request $request, Respons
 			'value' => "IN ({$stores_id})",
 			'operation' => ''
 		];
+		$check = 'AND';
 	}
 
 	if ($params['status'] >= 0) {
 		$do_params[] = [
 			'key' => 'status',
 			'value' => "= {$params['status']}",
-			'operation' => 'AND'
+			'operation' => $check
 		];
 	}
 

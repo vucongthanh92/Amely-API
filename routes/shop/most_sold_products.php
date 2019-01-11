@@ -27,10 +27,21 @@ $app->post($container['prefix'].'/shop/most_sold_products', function (Request $r
 		'operation' => 'AND'
 	];
 	$product_params[] = [
-		'key' => 'number_sold',
+		'key' => 'amely_products.number_sold',
 		'value' => "DESC",
 		'operation' => 'order_by'
 	];
+	$product_params[] = [
+        'key' => 'amely_product_store ps',
+        'value' => "ps.product_id = amely_products.id",
+        'operation' => 'JOIN'
+    ];
+    $product_params[] = [
+        'key' => 'ps.quantity',
+        'value' => "> 0",
+        'operation' => 'AND'
+    ];
+    $product_params = $productService->queryProductParams($product_params);
 	
 	$products = $productService->getProducts($product_params, 0, 16);
 	if (!$products) return response(false);

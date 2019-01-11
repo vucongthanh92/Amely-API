@@ -247,7 +247,7 @@ $app->put($container['administrator'].'/products', function (Request $request, R
 	$limit = $params['limit'];
 
 	$product_params[] = [
-		'key' => 'id',
+		'key' => 'amely_products.id',
 		'value' => 'DESC',
 		'operation' => 'order_by'
 	];
@@ -338,6 +338,7 @@ $app->put($container['administrator'].'/products', function (Request $request, R
 		default:
 			break;
 	}
+
 	$products = $productService->getProducts($product_params, $offset, $limit);
 	if (!$products) return response(false);
 
@@ -360,6 +361,8 @@ $app->put($container['administrator'].'/products', function (Request $request, R
 					$store_quantity = ProductStoreService::getInstance()->checkQuantityInStore($product->id, $loggedin_user->chain_store);
 					if ($store_quantity) {
 						$product->quantity = $store_quantity->quantity;
+					} else {
+						$product->quantity = 0;
 					}
 				}
 				if ($categories) $product->categories = $categories;
