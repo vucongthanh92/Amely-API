@@ -175,6 +175,7 @@ $app->post($container['administrator'].'/progressbar', function (Request $reques
 			$status = 1;
 		}
 		$progressbarService->updateNumber($progressbar->id, implode('^0^', $list_inserted), implode('^0^', $list_updated), implode('^0^', $list_error), $row, $status);
+		continue;
 	}
 
 	return response(true);
