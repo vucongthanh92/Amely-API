@@ -122,10 +122,10 @@ class SnapshotService extends Services
         $images = [];
         if ($snapshot->images) {
         	foreach (explode(",", $snapshot->images) as $key => $image) {
-        		array_push($images, $imageService->showImage($snapshot->id, $image, 'product', 'large'));
+        		array_push($images, $imageService->showImage($snapshot->id, $image, 'snapshot', 'large'));
         	}
         } else {
-        	array_push($images, $imageService->showImage($snapshot->id, "default", 'product', 'large'));
+        	array_push($images, $imageService->showImage($snapshot->id, "default", 'snapshot', 'large'));
         }
         if ($images) {
         	$snapshot->images = $images;
