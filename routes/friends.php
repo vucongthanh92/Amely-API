@@ -17,8 +17,8 @@ $app->get($container['prefix'].'/friends', function (Request $request, Response 
     if (!$user) return response(false);
 
     $friends_id = $relationshipService->getFriendsGUID($user->id);
-    $list_request_from = $relationshipService->getRelationByType($user->id, false, 'friend:request');
-    $list_request_to = $relationshipService->getRelationByType(false, $user->id, 'friend:request');
+    $list_request_from = $relationshipService->getRelationsByType($user->id, false, 'friend:request', 0, 99999999);
+    $list_request_to = $relationshipService->getRelationsByType(false, $user->id, 'friend:request', 0, 99999999);
     if ($list_request_from) {
         $list_request_from = array_map(create_function('$o', 'return $o->relation_to;'), $list_request_from);
     }

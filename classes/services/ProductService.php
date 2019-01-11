@@ -100,9 +100,13 @@ class ProductService extends Services
     }
 
 
-    public function updateMostSold($product_id)
+    public function updateMostSold($product_id, $quantity)
     {
-        
+        $product = new Product();
+        $product->data->id = $product_id;
+        $product->data->number_sold = $quantity;
+        $product->where = "id = {$product_id}";
+        return $product->update(true);
     }
 
     public function saveByExcel($data)
@@ -225,8 +229,8 @@ class ProductService extends Services
                 # code...
                 break;
         }
-        if ($product_data['adjourn_price']) {
-            $product_data['adjourn_price'] = 1;
+        if (!$product_data['adjourn_price']) {
+            $product_data['adjourn_price'] = 10000;
         }
         $shop_categories = $market_categories = $categories = [];
         if ($product_data['market_category']) {

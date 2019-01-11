@@ -146,7 +146,8 @@ $app->post($container['administrator'].'/progressbar', function (Request $reques
 		}
 
 		$product_conditions = $productService->product_conditions($product_data);
-
+		$product_conditions['data']['creator_id'] = $progressbar->creator_id;
+		
 		if (!$product_conditions['status']) {
 			$list_error = array_merge($list_error, $product_conditions['data']['sku']);
 

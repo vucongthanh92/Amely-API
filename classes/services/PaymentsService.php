@@ -132,6 +132,7 @@ class PaymentsService extends Services
 					$order_items_snapshot = null;
 					$blance = $weight = $total = $quantity = 0;
 					foreach ($items_so as $kproduct_id => $item_so) {
+						$p = $productService->getProductByType($kproduct_id, 'id');
 						$snapshot = $snapshotService->getSnapshotByType($item_so['snapshot_id'], 'id');
 						$pg = $productGroupService->getProductGroupByType($snapshot->product_group, 'id');
 
@@ -146,6 +147,9 @@ class PaymentsService extends Services
 						if ($item_so['redeem_quantity'] > 0) {
 							$itemService->redeemQuantityBySnapshot($snapshot->id, $item_so['redeem_quantity'], $user->id, 'user');
 						}
+						$productService->updateMostSold($p->id, ($p->number_sold + $item_so['quantity']));
+						
+
 						$quantity += $item_so['quantity'];
 						$sub_total = $snapshot->display_price * $item_so['quantity'];
 						$total += $sub_total;
