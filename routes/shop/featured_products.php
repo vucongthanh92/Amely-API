@@ -12,39 +12,44 @@ $app->post($container['prefix'].'/shop/featured_products', function (Request $re
 
 	$product_params = null;
 	$product_params[] = [
-		'key' => 'owner_id',
+		'key' => 'p.owner_id',
 		'value' => "= {$params['shop_id']}",
 		'operation' => ''
 	];
 	$product_params[] = [
-		'key' => 'approved',
+		'key' => 'p.approved',
 		'value' => "> 0",
 		'operation' => 'AND'
 	];
 	$product_params[] = [
-		'key' => 'status',
+		'key' => 'p.status',
 		'value' => "= 1",
 		'operation' => 'AND'
 	];
 	$product_params[] = [
-		'key' => 'featured',
+		'key' => 'p.featured',
 		'value' => "= 1",
 		'operation' => 'AND'
 	];
 	$product_params[] = [
-		'key' => 'amely_products.product_order',
+		'key' => 'p.product_order',
 		'value' => 'DESC',
 		'operation' => 'order_by'
 	];
 	$product_params[] = [
         'key' => 'amely_product_store ps',
-        'value' => "ps.product_id = amely_products.id",
+        'value' => "ps.product_id = p.id",
         'operation' => 'JOIN'
     ];
     $product_params[] = [
         'key' => 'ps.quantity',
         'value' => "> 0",
         'operation' => 'AND'
+    ];
+    $product_params[] = [
+    	'key' => 'ps.quantity',
+    	'value' => '',
+    	'operation' => 'query_params'
     ];
     $product_params = $productService->queryProductParams($product_params);
 

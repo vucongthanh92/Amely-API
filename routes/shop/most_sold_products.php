@@ -12,34 +12,39 @@ $app->post($container['prefix'].'/shop/most_sold_products', function (Request $r
 
 	$product_params = null;
 	$product_params[] = [
-		'key' => 'owner_id',
+		'key' => 'p.owner_id',
 		'value' => "= {$params['shop_id']}",
 		'operation' => ''
 	];
 	$product_params[] = [
-		'key' => 'status',
+		'key' => 'p.status',
 		'value' => "= 1",
 		'operation' => 'AND'
 	];
 	$product_params[] = [
-		'key' => 'approved',
+		'key' => 'p.approved',
 		'value' => "> 0",
 		'operation' => 'AND'
 	];
 	$product_params[] = [
-		'key' => 'amely_products.number_sold',
+		'key' => 'p.number_sold',
 		'value' => "DESC",
 		'operation' => 'order_by'
 	];
 	$product_params[] = [
         'key' => 'amely_product_store ps',
-        'value' => "ps.product_id = amely_products.id",
+        'value' => "ps.product_id = p.id",
         'operation' => 'JOIN'
     ];
     $product_params[] = [
         'key' => 'ps.quantity',
         'value' => "> 0",
         'operation' => 'AND'
+    ];
+    $product_params[] = [
+    	'key' => 'ps.quantity',
+    	'value' => '',
+    	'operation' => 'query_params'
     ];
     $product_params = $productService->queryProductParams($product_params);
 	

@@ -85,18 +85,18 @@ $app->post($container['prefix'].'/products', function (Request $request, Respons
 	$limit = $params['limit'];
 
 	$product_params[] = [
-		'key' => 'amely_products.id',
+		'key' => 'p.id',
 		'value' => 'DESC',
 		'operation' => 'order_by'
 	];
 	$product_params[] = [
-		'key' => "status",
+		'key' => "p.status",
 		'value' => "= 1",
 		'operation' => ''
 	];
 	if ($product_filter) {
 		$product_params[] = [
-			'key' => 'product_group',
+			'key' => 'p.product_group',
 			'value' => "= {$product_filter}",
 			'operation' => 'AND'
 		];
@@ -104,13 +104,13 @@ $app->post($container['prefix'].'/products', function (Request $request, Respons
 
 	if ($category_id) {
 		$product_params[] = [
-			'key' => 'approved',
+			'key' => 'p.approved',
 			'value' => "> 0",
 			'operation' => 'AND'
 		];
 
 		$product_params[] = [
-			'key' => "FIND_IN_SET({$category_id}, category)",
+			'key' => "FIND_IN_SET({$category_id}, p.category)",
 			'value' => '',
 			'operation' => 'AND'
 		];
@@ -118,12 +118,12 @@ $app->post($container['prefix'].'/products', function (Request $request, Respons
 	} else {
 		if ($shop_id) {
 			$product_params[] = [
-				'key' => 'approved',
+				'key' => 'p.approved',
 				'value' => "> 0",
 				'operation' => 'AND'
 			];
 			$product_params[] = [
-				'key' => 'owner_id',
+				'key' => 'p.owner_id',
 				'value' => "= {$shop_id}",
 				'operation' => 'AND'
 			];
@@ -134,28 +134,28 @@ $app->post($container['prefix'].'/products', function (Request $request, Respons
 			break;
 		case 'featured':
 			$product_params[] = [
-				'key' => 'featured',
+				'key' => 'p.featured',
 				'value' => "= 1",
 				'operation' => 'AND'
 			];
 			break;
 		case 'default':
 			$product_params[] = [
-				'key' => 'is_special',
+				'key' => 'p.is_special',
 				'value' => "= 0",
 				'operation' => 'AND'
 			];
 			break;
 		case 'voucher':
 			$product_params[] = [
-				'key' => 'is_special',
+				'key' => 'p.is_special',
 				'value' => "= 1",
 				'operation' => 'AND'
 			];
 			break;
 		case 'ticket':
 		    $product_params[] = [
-				'key' => 'is_special',
+				'key' => 'p.is_special',
 				'value' => "= 2",
 				'operation' => 'AND'
 			];
@@ -165,13 +165,18 @@ $app->post($container['prefix'].'/products', function (Request $request, Respons
 	}
 	$product_params[] = [
         'key' => 'amely_product_store ps',
-        'value' => "ps.product_id = amely_products.id",
+        'value' => "ps.product_id = p.id",
         'operation' => 'JOIN'
     ];
     $product_params[] = [
         'key' => 'ps.quantity',
         'value' => "> 0",
         'operation' => 'AND'
+    ];
+    $product_params[] = [
+    	'key' => 'ps.quantity',
+    	'value' => '',
+    	'operation' => 'query_params'
     ];
     $product_params = $productService->queryProductParams($product_params);
 
