@@ -8,13 +8,15 @@ $app->put($container['administrator'].'/count', function (Request $request, Resp
 	$storeService = StoreService::getInstance();
 	$productService = ProductService::getInstance();
 	$supplyOrderService = SupplyOrderService::getInstance();
-	$supplyOrderService = SupplyOrderService::getInstance();
+	$deliveryOrderService = DeliveryOrderService::getInstance();
+	$purchaseOrderService = PurchaseOrderService::getInstance();
 
-	$params = $request->getQueryParams();
+	$params = $request->getParsedBody();
 	if (!$params) $params = [];
 	if (!array_key_exists('shop_id', $params)) $params['shop_id'] = '';
 	if (!array_key_exists('type', $params)) $params['type'] = 'user';
 
+	$count = 0;
 	switch ($params['type']) {
 		case 'user':
 			# code...
@@ -26,7 +28,32 @@ $app->put($container['administrator'].'/count', function (Request $request, Resp
 			# code...
 			break;
 		case 'product':
-			# code...
+			$product_params[] = [
+				'key' => 'time_created',
+				'value' => "> 0",
+				'operation' => ''
+			];
+			if ($params['shop_id']) {
+				$product_params[] = [
+					'key' => 'owner_id',
+					'value' => "= {$params['shop_id']}",
+					'operation' => 'AND'
+				];
+			}
+			$product_params[] = [
+				'key' => 'approved',
+				'value' => "> 0",
+				'operation' => 'AND'
+			];
+			$product_params[] = [
+		    	'key' => '*',
+		    	'value' => "count",
+		    	'operation' => 'count'
+		    ];
+
+		    $products = $productService->getProduct($product_params, 0, 1);
+		    if (!$products) $count = 0;
+    		$count = $products->count;
 			break;
 		case 'so':
 			# code...
@@ -53,8 +80,8 @@ $app->put($container['administrator'].'/count', function (Request $request, Resp
 			# code...
 			break;
 		default:
-			# code...
+			$count = 0;
 			break;
 	}
-	return response(true);
+	return response(['count' => $count]);
 });
