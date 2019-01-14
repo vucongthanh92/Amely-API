@@ -247,7 +247,7 @@ $app->put($container['administrator'].'/products', function (Request $request, R
 	$limit = $params['limit'];
 
 	$product_params[] = [
-		'key' => 'amely_products.id',
+		'key' => 'p.id',
 		'value' => 'DESC',
 		'operation' => 'order_by'
 	];
