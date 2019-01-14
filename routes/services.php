@@ -17,8 +17,10 @@ $app->get($container['prefix'].'/services', function (Request $request, Response
 
 	$settings = $siteSettingService->getSiteSettings($conditions, 0, 99999999);
 	$data['current_time'] = $current_time;
-	foreach ($settings as $key => $setting) {
-		$data[$setting->name] = $setting->value;
+	if ($settings) {
+		foreach ($settings as $key => $setting) {
+			$data[$setting->name] = $setting->value;
+		}
 	}
 	return response($data);
 })->setName('services');

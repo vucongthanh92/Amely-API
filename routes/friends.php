@@ -21,9 +21,13 @@ $app->get($container['prefix'].'/friends', function (Request $request, Response 
     $list_request_to = $relationshipService->getRelationsByType(false, $user->id, 'friend:request', 0, 99999999);
     if ($list_request_from) {
         $list_request_from = array_map(create_function('$o', 'return $o->relation_to;'), $list_request_from);
+    } else {
+        $list_request_from = [];
     }
     if ($list_request_to) {
         $list_request_to = array_map(create_function('$o', 'return $o->relation_from;'), $list_request_to);
+    } else {
+        $list_request_to = [];
     }
     $friends_id = array_intersect(array_unique($list_request_from), array_unique($list_request_to));
 

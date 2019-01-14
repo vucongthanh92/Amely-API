@@ -1081,70 +1081,70 @@ INSERT INTO `amely_rule` ( `time_created`, `title`, `creator_id`, `status`)
 VALUES ('1546743907', 'Quản trị bán hàng', '1', '1');
 
 INSERT INTO `amely_permission` ( `owner_id`, `type`, `time_created`, `title`, `path`, `option`) 
-VALUES ( '1', 'user', '1546743907', 'Đăng nhập', 'ws/v1/administrator/authtoken', '');
+VALUES ( '1', 'user', '1546743907', 'Đăng nhập', '/ws/v1/administrator/authtoken', '');
 
 INSERT INTO `amely_permission` ( `owner_id`, `type`, `time_created`, `title`, `path`, `option`) 
-VALUES ( '1', 'user', '1546743907', 'Tổng quát', 'ws/v1/administrator/dashboard', '');
+VALUES ( '1', 'user', '1546743907', 'Tổng quát', '/ws/v1/administrator/dashboard', '');
 
 INSERT INTO `amely_permission` ( `owner_id`, `type`, `time_created`, `title`, `path`, `option`) 
-VALUES ( '1', 'user', '1546743907', 'Người dùng', 'ws/v1/administrator/users', '');
+VALUES ( '1', 'user', '1546743907', 'Người dùng', '/ws/v1/administrator/users', '');
 
 INSERT INTO `amely_permission` ( `owner_id`, `type`, `time_created`, `title`, `path`, `option`) 
-VALUES ( '1', 'user', '1546743907', 'Hệ thống', 'ws/v1/administrator/systems', '');
+VALUES ( '1', 'user', '1546743907', 'Hệ thống', '/ws/v1/administrator/systems', '');
 
 INSERT INTO `amely_permission` ( `owner_id`, `type`, `time_created`, `title`, `path`, `option`) 
-VALUES ( '1', 'user', '1546743907', 'Cửa hàng', 'ws/v1/administrator/shops', '');
+VALUES ( '1', 'user', '1546743907', 'Cửa hàng', '/ws/v1/administrator/shops', '');
 
 INSERT INTO `amely_permission` ( `owner_id`, `type`, `time_created`, `title`, `path`, `option`) 
-VALUES ( '1', 'user', '1546743907', 'Chi nhánh', 'ws/v1/administrator/stores', '');
+VALUES ( '1', 'user', '1546743907', 'Chi nhánh', '/ws/v1/administrator/stores', '');
 
 INSERT INTO `amely_permission` ( `owner_id`, `type`, `time_created`, `title`, `path`, `option`) 
-VALUES ( '1', 'user', '1546743907', 'Thông tin cá nhân', 'ws/v1/administrator/profile', '');
+VALUES ( '1', 'user', '1546743907', 'Thông tin cá nhân', '/ws/v1/administrator/profile', '');
 
 INSERT INTO `amely_permission` ( `owner_id`, `type`, `time_created`, `title`, `path`, `option`) 
-VALUES ( '1', 'user', '1546743907', 'Hóa đơn cửa hàng', 'ws/v1/administrator/so', '');
+VALUES ( '1', 'user', '1546743907', 'Hóa đơn cửa hàng', '/ws/v1/administrator/so', '');
 
 INSERT INTO `amely_permission` ( `owner_id`, `type`, `time_created`, `title`, `path`, `option`) 
-VALUES ( '1', 'user', '1546743907', 'Hóa đơn giao hàng', 'ws/v1/administrator/do', '');
+VALUES ( '1', 'user', '1546743907', 'Hóa đơn giao hàng', '/ws/v1/administrator/do', '');
 
 INSERT INTO `amely_permission` ( `owner_id`, `type`, `time_created`, `title`, `path`, `option`) 
-VALUES ( '1', 'user', '1546743907', 'Quảng cáo', 'ws/v1/administrator/advertise', '');
+VALUES ( '1', 'user', '1546743907', 'Quảng cáo', '/ws/v1/administrator/advertise', '');
 
 INSERT INTO `amely_permission` ( `owner_id`, `type`, `time_created`, `title`, `path`, `option`) 
-VALUES ( '1', 'user', '1546743907', 'Duyệt', 'ws/v1/administrator/approval', '');
+VALUES ( '1', 'user', '1546743907', 'Duyệt', '/ws/v1/administrator/approval', '');
 
 INSERT INTO `amely_permission` ( `owner_id`, `type`, `time_created`, `title`, `path`, `option`) 
-VALUES ( '1', 'user', '1546743907', 'Danh mục', 'ws/v1/administrator/categories', '');
+VALUES ( '1', 'user', '1546743907', 'Danh mục', '/ws/v1/administrator/categories', '');
 
 INSERT INTO `amely_permission` ( `owner_id`, `type`, `time_created`, `title`, `path`, `option`) 
-VALUES ( '1', 'user', '1546743907', 'Import Excel Product', 'ws/v1/administrator/excel_products', '');
+VALUES ( '1', 'user', '1546743907', 'Import Excel Product', '/ws/v1/administrator/excel_products', '');
 
 INSERT INTO `amely_permission` ( `owner_id`, `type`, `time_created`, `title`, `path`, `option`) 
-VALUES ( '1', 'user', '1546743907', 'Download file template', 'ws/v1/administrator/file', 'product');
+VALUES ( '1', 'user', '1546743907', 'Download file template', '/ws/v1/administrator/file', 'product');
 
 INSERT INTO `amely_permission` ( `owner_id`, `type`, `time_created`, `title`, `path`, `option`) 
-VALUES ( '1', 'user', '1546743907', 'Tài chính', 'ws/v1/administrator/finance', '');
+VALUES ( '1', 'user', '1546743907', 'Tài chính', '/ws/v1/administrator/finance', '');
 
 INSERT INTO `amely_permission` ( `owner_id`, `type`, `time_created`, `title`, `path`, `option`) 
-VALUES ( '1', 'user', '1546743907', 'Phân quyền', 'ws/v1/administrator/permission', '');
+VALUES ( '1', 'user', '1546743907', 'Phân quyền', '/ws/v1/administrator/permission', '');
 
 INSERT INTO `amely_permission` ( `owner_id`, `type`, `time_created`, `title`, `path`, `option`) 
-VALUES ( '1', 'user', '1546743907', 'Nhóm ngành hàng', 'ws/v1/administrator/product_group', '');
+VALUES ( '1', 'user', '1546743907', 'Nhóm ngành hàng', '/ws/v1/administrator/product_group', '');
 
 INSERT INTO `amely_permission` ( `owner_id`, `type`, `time_created`, `title`, `path`, `option`) 
-VALUES ( '1', 'user', '1546743907', 'Nhập số lượng sản phẩm', 'ws/v1/administrator/product_store', '');
+VALUES ( '1', 'user', '1546743907', 'Nhập số lượng sản phẩm', '/ws/v1/administrator/product_store', '');
 
 INSERT INTO `amely_permission` ( `owner_id`, `type`, `time_created`, `title`, `path`, `option`) 
-VALUES ( '1', 'user', '1546743907', 'Sản phẩm', 'ws/v1/administrator/products', '');
+VALUES ( '1', 'user', '1546743907', 'Sản phẩm', '/ws/v1/administrator/products', '');
 
 INSERT INTO `amely_permission` ( `owner_id`, `type`, `time_created`, `title`, `path`, `option`) 
-VALUES ( '1', 'user', '1546743907', 'Tiến trình', 'ws/v1/administrator/progressbar', '');
+VALUES ( '1', 'user', '1546743907', 'Tiến trình', '/ws/v1/administrator/progressbar', '');
 
 INSERT INTO `amely_permission` ( `owner_id`, `type`, `time_created`, `title`, `path`, `option`) 
-VALUES ( '1', 'user', '1546743907', 'Khuyến mãi', 'ws/v1/administrator/promotion', '');
+VALUES ( '1', 'user', '1546743907', 'Khuyến mãi', '/ws/v1/administrator/promotion', '');
 
 INSERT INTO `amely_permission` ( `owner_id`, `type`, `time_created`, `title`, `path`, `option`) 
-VALUES ( '1', 'user', '1546743907', 'Sử dụng', 'ws/v1/administrator/redeem', '');
+VALUES ( '1', 'user', '1546743907', 'Sử dụng', '/ws/v1/administrator/redeem', '');
 
 
 INSERT INTO `amely_product_group` ( `owner_id`, `type`, `time_created`, `title`, `description`, `percent`, `price`, `currency`, `status`) VALUES ( '1', 'user', '1546743907', '1. ĐIỆN TỬ', '','5', '','VND', 1);

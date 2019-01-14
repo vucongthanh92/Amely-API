@@ -96,10 +96,10 @@ class PermissionService extends Services
                 return false;
                 break;
         }
-        
         $permission = $this->getPermissionByPath($path);
         if (!$permission) return false;
         $this->table = "amely_rule_permission";
+        $conditions = null;
         $conditions[] = [
             'key' => $type,
             'value' => "= 1",
