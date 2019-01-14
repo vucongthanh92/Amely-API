@@ -39,6 +39,7 @@ $app->post($container['administrator'].'/promotion', function (Request $request,
 	if (!array_key_exists('time_type', $params)) $params['time_type'] = 0;
 	if (!array_key_exists('start_time', $params)) $params['start_time'] = 0;
 	if (!array_key_exists('end_time', $params)) $params['end_time'] = 0;
+	if (!array_key_exists('status', $params)) $params['status'] = 0;
 	/*
 		percent hoac price ()
 		[
@@ -65,7 +66,7 @@ $app->post($container['administrator'].'/promotion', function (Request $request,
     $promotion_data['time_type'] = $params['time_type'];
     $promotion_data['start_time'] = $params['start_time'];
     $promotion_data['end_time'] = $params['end_time'];
-    $promotion_data['status'] = 0;
+    $promotion_data['status'] = $params['status'];
     $promotion_data['approved'] = 0;
 
     $promotion_id = $promotionService->save($promotion_data);
