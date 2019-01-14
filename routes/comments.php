@@ -107,7 +107,7 @@ $app->put($container['prefix'].'/comments', function (Request $request, Response
 				break;
 		}
 		$notificationService->save($notify_params, $notification_type);
-		return response(true);
+		return response($comment_id);
 	}
 	return response(false);
 });
