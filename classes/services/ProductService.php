@@ -120,6 +120,10 @@ class ProductService extends Services
         $product->data->product_order = 0;
         $product->data->approved = 0;
         $product->data->enabled = 0;
+        if ($data['images']) {
+            $product->data->images = implode(',', $data['images']);
+        }
+
         if ($data['category']) {
             $category = explode(',', $data['category']);
             $category = array_diff($category, ['']);
