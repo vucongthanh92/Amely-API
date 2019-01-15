@@ -156,13 +156,12 @@ class ProductService extends Services
             $product_id = $product->insert(true);
         }
 
-        
         if ($product_id) {
-            if ($data['images']) {
-                $services = Services::getInstance();
-                $services->downloadImage($product_id, 'product', 'images', $data['images']);
-            }
-            return $product_id;
+            // if (is_array($data['images'])) {
+            //     $services = Services::getInstance();
+            //     $services->downloadImage($product_id, 'product', 'images', $data['images']);
+            // }
+            return true;
         }
         return false;
     }
@@ -730,9 +729,21 @@ class ProductService extends Services
         $images = [];
         $images_name = [];
         if ($product->images) {
-        	foreach (explode(",", $product->images) as $key => $image) {
-                array_push($images_name, $image);
-        		array_push($images, $imageService->showImage($product->id, $image, 'product', 'large'));
+            $images = explode(",", $product->images);
+        	foreach ($images as $key => $image) {
+                $is_http = false;
+                $type_list = array("https://", "http://");
+                foreach ($type_list as $type) {
+                    if (strpos($image, $type) !== false) {
+                        $is_http = true;
+                    }
+                }
+                if ($is_http) {
+                    array_push($images, $image);
+                } else {
+                    array_push($images_name, $image);
+            		array_push($images, $imageService->showImage($product->id, $image, 'product', 'large'));
+                }
         	}
         } else {
         	array_push($images, $imageService->showImage($product->id, "default", 'product', 'large'));
