@@ -16,7 +16,7 @@ $app->get($container['administrator'].'/permission', function (Request $request,
 		$rule->permissions = $rule_permissions;
 	}
 	return response($rule);
-});
+})->setName('permission');
 
 $app->put($container['administrator'].'/permission', function (Request $request, Response $response, array $args) {
 	$permissionService = PermissionService::getInstance();
@@ -29,7 +29,7 @@ $app->put($container['administrator'].'/permission', function (Request $request,
 		'permissions' => $permissions
 	]);
 	
-});
+})->setName('permission');
 
 $app->post($container['administrator'].'/permission', function (Request $request, Response $response, array $args) {
 	$permissionService = PermissionService::getInstance();
@@ -91,7 +91,7 @@ $app->post($container['administrator'].'/permission', function (Request $request
 		}
 	}
 	return response(true);	
-});
+})->setName('permission');
 
 $app->patch($container['administrator'].'/permission', function (Request $request, Response $response, array $args) {
 	$permissionService = PermissionService::getInstance();
@@ -114,7 +114,7 @@ $app->patch($container['administrator'].'/permission', function (Request $reques
 
 
 	return response($permissionService->setRuleForUser($params['user_id'], $params['user_type'], $params['rule_id']));
-});
+})->setName('permission');
 
 $app->delete($container['administrator'].'/permission', function (Request $request, Response $response, array $args) {
 	$permissionService = PermissionService::getInstance();
@@ -143,4 +143,4 @@ $app->delete($container['administrator'].'/permission', function (Request $reque
 	$rule->data->id = $rule->id;
 	$rule->where = "id = {$rule->id}";
 	return response($rule->delete(true));
-});
+})->setName('permission');

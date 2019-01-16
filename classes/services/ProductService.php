@@ -733,8 +733,7 @@ class ProductService extends Services
         $images = [];
         $images_name = [];
         if ($product->images) {
-            $images = explode(",", $product->images);
-        	foreach ($images as $key => $image) {
+        	foreach (explode(",", $product->images) as $key => $image) {
                 $is_http = false;
                 $type_list = array("https://", "http://");
                 foreach ($type_list as $type) {
@@ -744,6 +743,7 @@ class ProductService extends Services
                 }
                 if ($is_http) {
                     array_push($images, $image);
+                    array_push($images_name, $image);
                 } else {
                     array_push($images_name, $image);
             		array_push($images, $imageService->showImage($product->id, $image, 'product', 'large'));

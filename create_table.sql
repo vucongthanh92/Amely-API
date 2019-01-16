@@ -1074,6 +1074,9 @@ text-indent:-18.0pt;mso-list:l2 level1 lfo2&quot;&gt;&lt;!--[if !supportLists]--
 INSERT INTO `amely_users` ( `address`, `birthdate`, `district`, `email`, `first_name`, `gender`, `language`, `last_name`, `mobilelogin`, `password`, `province`, `salt`, `time_created`, `type`, `usercurrency`, `username`, `ward`, `rule_id`) 
 VALUES ( '49/2/2 M PVC', '1993-08-03', '764', 'cocungkhongcho@gmail.com', 'Thinh', 'male', 'VN', 'Nguyen', '0349692858', '0ac72799b690e2e911d533600d7984e8', '79', '5d0834d1', '1543562344', 'admin', 'VND', 'administrator', '26882', '1');
 
+INSERT INTO `amely_wallets` (`owner_id`, `type`, `time_created`, `title`, `description`, `balance`, `currency`) VALUES (1, 'user', 1546743907, '','' ,0, 'VND');
+
+
 INSERT INTO `amely_rule` ( `time_created`, `title`, `creator_id`, `status`) 
 VALUES ('1546743907', 'Administrator', '1', '1');
 

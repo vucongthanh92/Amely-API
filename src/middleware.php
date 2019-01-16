@@ -13,7 +13,7 @@ class AuthMiddleware
     {
         $permissionService = PermissionService::getInstance();
 
-    	$user_token_ignore = ["appupdate", "register", "authtoken", "activation", "resize", "download_file", "forgot_password", "services", "payment_response", "console_offers", "console_gifts", "progressbar", "file", "console_promotions"];
+    	$user_token_ignore = ["appupdate", "register", "authtoken", "activation", "resize", "download_file", "forgot_password", "services", "payment_response", "console_offers", "console_gifts", "progressbar", "file", "console_promotions", "permission"];
 
     	$route = $request->getAttribute('route');
         if (!$route) return responseError("token_error");
@@ -22,7 +22,6 @@ class AuthMiddleware
         $path = $uri->getPath();
         $check_path_administrator = in_array("administrator", explode('/', $path));
         $method = $route->getMethods();
-
         if (in_array($name, $user_token_ignore)) {
             return $next($request, $response);
         } else {

@@ -138,6 +138,11 @@ $app->get($container['administrator'].'/dashboard', function (Request $request, 
     	'operation' => ''
     ];
     $user_active_params[] = [
+        'key' => 'activation',
+        'value' => "is null",
+        'operation' => 'OR'
+    ];
+    $user_active_params[] = [
     	'key' => '*',
     	'value' => "count",
     	'operation' => 'count'
