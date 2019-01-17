@@ -37,6 +37,9 @@ class AuthMiddleware
                 if ($loggedin_user->rule_id == 1) {
                     return $next($request, $response);    
                 }
+                if ($loggedin_user->rule_id == 2) {
+                    return $next($request, $response);    
+                }
                 $check_permission = $permissionService->checkPermission($loggedin_user->rule_id, $path, $method[0]);
                 if ($check_path_administrator) {
                     if ($check_permission) {

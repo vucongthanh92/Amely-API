@@ -164,7 +164,7 @@ $app->get($container['administrator'].'/dashboard', function (Request $request, 
     		'operation' => ''
     	];
     	$stores = $storeService->getStores($store_params, 0, 999999, false);
-    	$stores_id = null;
+    	$stores_id = [];
     	foreach ($stores as $key => $store) {
     		array_push($stores_id, $store->id);
     	}

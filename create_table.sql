@@ -1756,7 +1756,4 @@ INSERT INTO `amely_product_group` ( `owner_id`, `type`, `time_created`, `title`,
 INSERT INTO `amely_product_group` ( `owner_id`, `type`, `time_created`, `title`, `description`, `percent`, `price`, `currency`, `status`) VALUES ( '1', 'user', '1546743907', '20.8. DỊCH VỤ THUÊ NHÀ', '','4', '','VND', 1);
 INSERT INTO `amely_product_group` ( `owner_id`, `type`, `time_created`, `title`, `description`, `percent`, `price`, `currency`, `status`) VALUES ( '1', 'user', '1546743907', '20.9. DỊCH VỤ THUÊ NGƯỜI GIÚP VIỆC', '','4', '','VND', 1);
 INSERT INTO `amely_product_group` ( `owner_id`, `type`, `time_created`, `title`, `description`, `percent`, `price`, `currency`, `status`) VALUES ( '1', 'user', '1546743907', '20.10. E-VOUCHER THU HỘ', '','4', '','VND', 1);
-INSERT INTO `amely_product_group` ( `owner_id`, `type`, `time_created`, `title`, `description`, `percent`, `price`, `currency`, `status`) VALUES ( '1', 'user', '1546743907', '21. ĂN UỐNG (F & B', '','5', '','VND', 1);
-
-INSERT INTO `amely_categories` (`owner_id`,`type`,`time_created`,`title`,`description`,`subtype`,`friendly_url`,`sort_order`,`enabled`,`parent_id`,`creator_id`,`logo`)
-VALUES ('1', 'AMELY', '1546743907', 'Danh muc 1', '', '0', 'danh-muc-1', '0', '1', '', '1', ''); 
+INSERT INTO `amely_product_group` ( `owner_id`, `type`, `time_created`, `title`, `description`, `percent`, `price`, `currency`, `status`) VALUES ( '1', 'user', '1546743907', '21. ĂN UỐNG (F & B', '','5', '','VND', 1); 
