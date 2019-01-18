@@ -79,11 +79,18 @@ class ProductStoreService extends Services
     		'value' => "= '{$product_id}'",
     		'operation' => ''
     	];
-    	$conditions[] = [
-    		'key' => 'store_id',
-    		'value' => "= '{$store_id}'",
-    		'operation' => 'AND'
-    	];
+        if ($store_id) {
+            $conditions[] = [
+                'key' => 'store_id',
+                'value' => "= '{$store_id}'",
+                'operation' => 'AND'
+            ];    
+        }
+        $conditions[] = [
+            'key' => 'quantity',
+            'value' => "> 0",
+            'operation' => 'AND'
+        ];
     	$store_quantity = $this->getQuantityProduct($conditions);
 		if (!$store_quantity) return false;
 		return $store_quantity;

@@ -356,14 +356,15 @@ $app->put($container['administrator'].'/products', function (Request $request, R
 			$categories_id = implode(',', $categories_id);
 			$categories = $categoryService->getCategoriesByType($categories_id, 'id');
 			foreach ($products as $key => $product) {
+				$chain_store = null;
 				if ($params['shop_id']) {
-					$product->quantity = 0;
-					$store_quantity = ProductStoreService::getInstance()->checkQuantityInStore($product->id, $loggedin_user->chain_store);
-					if ($store_quantity) {
-						$product->quantity = $store_quantity->quantity;
-					} else {
-						$product->quantity = 0;
-					}
+					$chain_store = $loggedin_user->chain_store;
+				}
+				$store_quantity = ProductStoreService::getInstance()->checkQuantityInStore($product->id, $chain_store);
+				if ($store_quantity) {
+					$product->quantity = $store_quantity->quantity;
+				} else {
+					$product->quantity = 0;	
 				}
 				if ($categories) $product->categories = $categories;
 				$products[$key] = $product;
