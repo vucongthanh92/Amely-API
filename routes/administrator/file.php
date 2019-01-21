@@ -215,11 +215,13 @@ $app->get($container['administrator'].'/file', function (Request $request, Respo
 				$stores = $storeService->getStores($store_params, 0, 999999999);
 				if (!$stores) return false;
 
-				$sheetData->setCellValue('A1', "Sản phẩm | Chi nhánh");
-				$char_store = 'B';
+				$sheetData->setCellValue('A1', "Sản phẩm");
+				$sheetData->setCellValue('B1', "SKU");
+				$sheetData->setCellValue('C1', "Chi nhánh");
+				$char_store = 'C';
 				foreach ($stores as $key => $store) {
 					$title = $store->id.'-'.$store->title;
-					$sheetData->setCellValue($char_store.'1', $title);
+					$sheetData->setCellValue($char_store.'2', $title);
 					$char_store++;
 				}
 				$product_params[] = [
@@ -234,11 +236,11 @@ $app->get($container['administrator'].'/file', function (Request $request, Respo
 				];
 				$products = $productService->getProducts($product_params, 0, 999999999);
 
-				$product_number = 2;
+				$product_number = 3;
 				foreach ($products as $key => $product) {
-					$title = $product->title.'( '.$product->sku.' )';
-					$sheetData->setCellValue('A'.$product_number, $title);
-					$char_store = 'B';
+					$sheetData->setCellValue('A'.$product_number, $product->title);
+					$sheetData->setCellValue('B'.$product_number, $product->sku);
+					$char_store = 'C';
 					foreach ($stores as $store) {
 						$sheetData->setCellValue($char_store.$product_number, 0);
 						$char_store++;

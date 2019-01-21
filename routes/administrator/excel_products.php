@@ -12,11 +12,25 @@ $app->get($container['administrator'].'/excel_products', function (Request $requ
 	$params = $request->getQueryParams();
 	if (!$params) $params = [];
 	if (!array_key_exists('shop_id', $params)) return responseError(ERROR_0);
+	if (!array_key_exists('type', $params)) $params['type'] = 'product';
 
 	if ($params['shop_id']) {
-		return response([
-			'url' => $settings['url'].$settings['administrator']."/file?shop_id={$params['shop_id']}"
-		]);
+		switch ($params['type']) {
+			case 'product':
+				return response([
+					'url' => $settings['url'].$settings['administrator']."/file?shop_id={$params['shop_id']}&type=product"
+				]);
+				break;
+			case 'quantity':
+				return response([
+					'url' => $settings['url'].$settings['administrator']."/file?shop_id={$params['shop_id']}&type=quantity"
+				]);
+				break;
+			default:
+				# code...
+				break;
+		}
+		
 	}
 	return response(false);
 });
@@ -30,6 +44,7 @@ $app->post($container['administrator'].'/excel_products', function (Request $req
 	$params = $request->getParsedBody();
 	if (!$params) $params = [];
 	if (!array_key_exists('shop_id', $params)) return response(false);
+	if (!array_key_exists('type', $params)) $params['type'] = 'product';
 
 	$shop = $shopService->getShopByType($params['shop_id']);
 	if (!$shop) return false;
@@ -55,7 +70,7 @@ $app->post($container['administrator'].'/excel_products', function (Request $req
 
 		$progressbar_data['owner_id'] = $params['shop_id'];
 		$progressbar_data['type'] = 'shop';
-		$progressbar_data['progress_type'] = 'product';
+		$progressbar_data['progress_type'] = $params['type'];
 		$progressbar_data['code'] = $code;
 		$progressbar_data['number'] = 0;
 		$progressbar_data['total_number'] = $lastRow;

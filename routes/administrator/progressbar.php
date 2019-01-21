@@ -95,6 +95,7 @@ $app->post($container['administrator'].'/progressbar', function (Request $reques
 	global $settings;
 	$progressbarService = ProgressbarService::getInstance();
 	$productService = ProductService::getInstance();
+	$productStoreService = ProductStoreService::getInstance();
 	
 	$params = $request->getParsedBody();
 	if (!$params) $params = [];
@@ -113,8 +114,8 @@ $app->post($container['administrator'].'/progressbar', function (Request $reques
 	$excelObj = $excelReader->load($tmpfname);
 	$worksheet = $excelObj->getSheet(0);
 	$lastRow = $worksheet->getHighestRow();
+	$lastCol = $worksheet->getHighestColumn();
 
-	$list_key_excel = $productService->excel_product_key();
 	$number = 0;
 	$inserted = $updated = $error = false;
 	$list_inserted = $list_updated = $list_error = [];
@@ -129,55 +130,107 @@ $app->post($container['administrator'].'/progressbar', function (Request $reques
 		$list_error = explode('^0^', $progressbar->error);
 	}
 	$checkError = 0;
-	for ($row = 7; $row <= $lastRow; $row++) {
-		$product_data = null;
-		foreach ($list_key_excel as $key => $value) {
-			$product_data[$value] = $worksheet->getCell($key.$row)->getValue();
-		}
-		$product_data['owner_id'] = $progressbar->owner_id;
+	switch ($progressbar->progress_type) {
+		case 'product':
+			$list_key_excel = $productService->excel_product_key();
+			for ($row = 7; $row <= $lastRow; $row++) {
+				$product_data = null;
+				foreach ($list_key_excel as $key => $value) {
+					$product_data[$value] = $worksheet->getCell($key.$row)->getValue();
+				}
+				$product_data['owner_id'] = $progressbar->owner_id;
 
-		$product = $productService->checkSKUshop($product_data['sku'], $progressbar->owner_id);
-		if ($product) {
-			$updated = true;
-			$product_data['id'] = $product->id;
-		} else {
-			$product_data['id'] = false;
-			$updated = false;
-		}
+				$product = $productService->checkSKUshop($product_data['sku'], $progressbar->owner_id);
+				if ($product) {
+					$updated = true;
+					$product_data['id'] = $product->id;
+				} else {
+					$product_data['id'] = false;
+					$updated = false;
+				}
 
-		$product_conditions = $productService->product_conditions($product_data);
-		$product_conditions['data']['creator_id'] = $progressbar->creator_id;
-		
-		if (!$product_conditions['status']) {
-			$list_error = array_merge($list_error, $product_conditions['data']['sku']);
+				$product_conditions = $productService->product_conditions($product_data);
+				$product_conditions['data']['creator_id'] = $progressbar->creator_id;
+				
+				if (!$product_conditions['status']) {
+					$list_error = array_merge($list_error, $product_conditions['data']['sku']);
 
-			$status = 0;
-			if ($row >= $lastRow) {
-				$status = 1;
+					$status = 0;
+					if ($row >= $lastRow) {
+						$status = 1;
+					}
+					$progressbarService->updateNumber($progressbar->id, implode('^0^', $list_inserted), implode('^0^', $list_updated), implode('^0^', $list_error), $row, $status);
+					
+					continue;
+				}
+
+				$product_conditions['data']['status'] = 0;
+
+				if ($productService->saveByExcel($product_conditions['data'])) {
+					if ($updated) {
+						$list_updated = array_merge($list_updated, [$product_conditions['data']['sku']]);
+					} else {
+						$list_inserted = array_merge($list_inserted, [$product_conditions['data']['sku']]);
+					}
+				} else {
+					$list_error = array_merge($list_error, $product_conditions['data']['sku']);
+				}
+				$status = 0;
+				if ($row >= $lastRow) {
+					$status = 1;
+				}
+				$progressbarService->updateNumber($progressbar->id, implode('^0^', $list_inserted), implode('^0^', $list_updated), implode('^0^', $list_error), $row, $status);
+				continue;
 			}
-			$progressbarService->updateNumber($progressbar->id, implode('^0^', $list_inserted), implode('^0^', $list_updated), implode('^0^', $list_error), $row, $status);
+			break;
+		case 'quantity':
+			$stores_id = [];
+			$shop_id = $progressbar->owner_id;
+			for ($col = 'C'; $col <= $lastCol; $col++) {
+				$store = explode('-', $worksheet->getCell($col.'2')->getValue());
+				$store_id = $store[0];
+				$stores_id[$col] = $store_id;
+			}
+			foreach ($stores_id as $key => $store_id) {
+				for ($row = 3; $row <= $lastRow; $row++) {
+					$tmp = [];
+					$sku = $worksheet->getCell('B'.$row)->getValue();
+					array_push($tmp, $sku);
+					$quantity = $worksheet->getCell($key.$row)->getValue();
+					if ($quantity > 0) {
+						$product = $productService->checkSKUshop($sku, $shop_id);
+						if ($product->approved > 0) {
+							$list_updated = array_merge($list_updated, $tmp);
+							$product_store_data = [];
+							$product_store_data['store_id'] = $store_id;
+							$product_store_data['product_id'] = $product->id;
+							$product_store_data['quantity'] = $quantity;
+							$product_store_data['owner_id'] = $shop_id;
+							$product_store_data['creator_id'] = $progressbar->creator_id;
+							$productStoreService->save($product_store_data);
+
+							$progressbarService->updateNumber($progressbar->id, implode('^0^', $list_inserted), implode('^0^', $list_updated), implode('^0^', $list_error), $row, 0);
+							continue;
+						} else {
+							$list_error = array_merge($list_error, $tmp);
+							$progressbarService->updateNumber($progressbar->id, implode('^0^', $list_inserted), implode('^0^', $list_updated), implode('^0^', $list_error), $row, 0);
+							continue;
+						}
+					} else {
+						$list_error = array_merge($list_error, $tmp);
+						$progressbarService->updateNumber($progressbar->id, implode('^0^', $list_inserted), implode('^0^', $list_updated), implode('^0^', $list_error), $row, 0);
+						continue;
+					}
+				}
+			}
+			$progressbarService->updateNumber($progressbar->id, implode('^0^', $list_inserted), implode('^0^', $list_updated), implode('^0^', $list_error), $lastRow, 1);
 			
-			continue;
-		}
-
-		$product_conditions['data']['status'] = 0;
-
-		if ($productService->saveByExcel($product_conditions['data'])) {
-			if ($updated) {
-				$list_updated = array_merge($list_updated, [$product_conditions['data']['sku']]);
-			} else {
-				$list_inserted = array_merge($list_inserted, [$product_conditions['data']['sku']]);
-			}
-		} else {
-			$list_error = array_merge($list_error, $product_conditions['data']['sku']);
-		}
-		$status = 0;
-		if ($row >= $lastRow) {
-			$status = 1;
-		}
-		$progressbarService->updateNumber($progressbar->id, implode('^0^', $list_inserted), implode('^0^', $list_updated), implode('^0^', $list_error), $row, $status);
-		continue;
+			break;
+		default:
+			# code...
+			break;
 	}
+	
 
 	return response(true);
 
