@@ -377,6 +377,7 @@ $app->put($container['administrator'].'/products', function (Request $request, R
 
 $app->delete($container['administrator'].'/products', function (Request $request, Response $response, array $args) {
 	$productService = ProductService::getInstance();
+	$services = Services::getInstance();
 	$params = $request->getParsedBody();
 	if (!$params) $params = [];
 	if (!array_key_exists('id', $params)) return responseError(ERROR_1);
@@ -384,6 +385,7 @@ $app->delete($container['administrator'].'/products', function (Request $request
 
 	foreach ($params['id'] as $key => $id) {
 		$properties = $productService->getPropertyProductByType($id, 'id');
+		$p = $productService->getProductByType($id, 'id');
 		if (!$properties) return response(false);
 		if ($params['image']) {
 			$images = [];
@@ -403,6 +405,8 @@ $app->delete($container['administrator'].'/products', function (Request $request
 			$product->update(true);
 
 		} else {
+			$services->elasticsearch($p, 'product', 'delete');
+
 			$product = new Product();
 			$product->data->id = $id;
 			$product->where = "id = {$id}";
