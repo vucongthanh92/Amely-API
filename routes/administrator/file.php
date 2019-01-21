@@ -215,9 +215,6 @@ $app->get($container['administrator'].'/file', function (Request $request, Respo
 				$stores = $storeService->getStores($store_params, 0, 999999999);
 				if (!$stores) return false;
 
-				$sheetData->setCellValue('A1', "Sản phẩm");
-				$sheetData->setCellValue('B1', "SKU");
-				$sheetData->setCellValue('C1', "Chi nhánh");
 				$char_store = 'C';
 				foreach ($stores as $key => $store) {
 					$title = $store->id.'-'.$store->title;
