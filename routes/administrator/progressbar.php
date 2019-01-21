@@ -191,35 +191,38 @@ $app->post($container['administrator'].'/progressbar', function (Request $reques
 				$store_id = $store[0];
 				$stores_id[$col] = $store_id;
 			}
+			$stores_id = array_filter($stores_id, function($value) { return $value !== ''; });
 			foreach ($stores_id as $key => $store_id) {
 				for ($row = 3; $row <= $lastRow; $row++) {
-					$tmp = [];
+					$error = false;
 					$sku = $worksheet->getCell('B'.$row)->getValue();
-					array_push($tmp, $sku);
 					$quantity = $worksheet->getCell($key.$row)->getValue();
 					if ($quantity > 0) {
 						$product = $productService->checkSKUshop($sku, $shop_id);
-						if ($product->approved > 0) {
-							$list_updated = array_merge($list_updated, $tmp);
-							$product_store_data = [];
-							$product_store_data['store_id'] = $store_id;
-							$product_store_data['product_id'] = $product->id;
-							$product_store_data['quantity'] = $quantity;
-							$product_store_data['owner_id'] = $shop_id;
-							$product_store_data['creator_id'] = $progressbar->creator_id;
-							$productStoreService->save($product_store_data);
+						if ($product) {
+							if ($product->approved > 0) {
+								$list_updated = array_merge($list_updated, [$sku]);
+								$product_store_data = [];
+								$product_store_data['store_id'] = $store_id;
+								$product_store_data['product_id'] = $product->id;
+								$product_store_data['quantity'] = $quantity;
+								$product_store_data['owner_id'] = $shop_id;
+								$product_store_data['creator_id'] = $progressbar->creator_id;
+								$productStoreService->save($product_store_data);
 
-							$progressbarService->updateNumber($progressbar->id, implode('^0^', $list_inserted), implode('^0^', $list_updated), implode('^0^', $list_error), $row, 0);
-							continue;
+								$progressbarService->updateNumber($progressbar->id, implode('^0^', $list_inserted), implode('^0^', $list_updated), implode('^0^', $list_error), $row, 0);
+							} else {
+								$error = true;
+							}
 						} else {
-							$list_error = array_merge($list_error, $tmp);
-							$progressbarService->updateNumber($progressbar->id, implode('^0^', $list_inserted), implode('^0^', $list_updated), implode('^0^', $list_error), $row, 0);
-							continue;
+							$error = true;
 						}
 					} else {
-						$list_error = array_merge($list_error, $tmp);
+						$error = true;
+					}
+					if ($error) {
+						array_push($list_error, $sku);
 						$progressbarService->updateNumber($progressbar->id, implode('^0^', $list_inserted), implode('^0^', $list_updated), implode('^0^', $list_error), $row, 0);
-						continue;
 					}
 				}
 			}

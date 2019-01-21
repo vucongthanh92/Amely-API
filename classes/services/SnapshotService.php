@@ -122,7 +122,18 @@ class SnapshotService extends Services
         $images = [];
         if ($snapshot->images) {
         	foreach (explode(",", $snapshot->images) as $key => $image) {
-        		array_push($images, $imageService->showImage($snapshot->id, $image, 'snapshot', 'large'));
+        		$is_http = false;
+                $type_list = array("https://", "http://");
+                foreach ($type_list as $type) {
+                    if (strpos($image, $type) !== false) {
+                        $is_http = true;
+                    }
+                }
+                if ($is_http) {
+                    array_push($images, $image);
+                } else {
+        			array_push($images, $imageService->showImage($snapshot->id, $image, 'snapshot', 'large'));
+                }
         	}
         } else {
         	array_push($images, $imageService->showImage($snapshot->id, "default", 'snapshot', 'large'));
