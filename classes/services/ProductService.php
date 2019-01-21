@@ -22,6 +22,8 @@ class ProductService extends Services
 
     public function save($data, $images = false)
     {
+        $services = Services::getInstance();
+        
     	$product = new Product();
     	foreach ($data as $key => $value) {
     		$product->data->$key = $value;
@@ -62,6 +64,10 @@ class ProductService extends Services
 
         if ($data['id']) {
             $product->where = "id = {$data['id']}";
+            $p = $this->getProductByType($data['id'], 'id');
+            if ($data['status'] != 1) {
+                $services->elasticsearch($p, 'product', 'delete');
+            }
             $product_id = $product->update(true);
         } else {
             $product_id = $product->insert(true);
@@ -91,7 +97,6 @@ class ProductService extends Services
                 $product->update(true);
             }
             if ($data['images']) {
-                $services = Services::getInstance();
                 $services->downloadImage($product_id, 'product', 'images', $data['images']);
             }
             return $product_id;
