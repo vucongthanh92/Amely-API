@@ -99,7 +99,7 @@ class PromotionService extends Services
                         $sale_price = $product->price - ($product->price * $promotion_item->percent / 100);
                     }
                     if ($promotion_item->price) {
-                        $sale_price = $promotion_item->price;
+                        $sale_price = $product->price - $promotion_item->price;
                     }
                     $productService->generateSnapshotSalePrice($product->id, $sale_price);
                 }
