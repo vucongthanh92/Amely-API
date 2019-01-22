@@ -23,12 +23,14 @@ $app->get($container['prefix'].'/orders', function (Request $request, Response $
 	if ($params['po_id']) {
 		$po = $purchaseOrderService->getPOByType($params['po_id'], 'id');
 		$order_items = unserialize($po->order_items_snapshot);
+		$total = $po->total;
 	}
 	if ($params['so_id']) {
 		$so = $supplyOrderService->getSOByType($params['so_id'], 'id');
 		$order_items = unserialize($so->order_items_snapshot);
 		$po = $purchaseOrderService->getPOByType($so->owner_id, 'id');
 		$result['so'] = $so;
+		$total = $so->total;
 	}
 
 
@@ -65,28 +67,14 @@ $app->get($container['prefix'].'/orders', function (Request $request, Response $
 	}
 	$result['total'] = 0;
 	foreach ($stores as $store) {
-		$total = $tax = 0;
+		$tax = 0;
 		foreach ($snapshots as $snapshot) {
 			foreach ($order_items as $order_item) {
 				if ($snapshot->id == $order_item['snapshot_id']) {
 					$snapshot->display_quantity = $order_item['quantity'];
 					$snapshot->redeem_quantity = $order_item['redeem_quantity'];
-					$total += $snapshot->display_price * $order_item['quantity'];
 					$tax += $snapshot->tax;
 					$result['items'][$store->id][] = $snapshot;
-					// if ($order_item['quantity'] > 0) {
-					// 	$snapshot->display_quantity = $order_item['quantity'];
-					// 	$snapshot->redeem_quantity = 0;
-					// 	$total += $snapshot->display_price * $order_item['quantity'];
-					// 	$tax += $snapshot->tax;
-					// 	$result['items'][$store->id][] = $snapshot;
-					// }
-					// if ($order_item['redeem_quantity'] > 0) {
-					// 	$snapshot_redeem = clone $snapshot;
-					// 	$snapshot_redeem->display_quantity = 0;
-					// 	$snapshot_redeem->redeem_quantity = $order_item['redeem_quantity'];
-					// 	$result['items'][$store->id][] = $snapshot_redeem;
-					// }
 				}
 			}
 		}
@@ -96,13 +84,13 @@ $app->get($container['prefix'].'/orders', function (Request $request, Response $
 				$store->avatar = $shop->avatar;
 			}
 		}
-		$result['total'] = $result['total'] + $total;
 
 		$store->owner = $userService->getUserByType($store->id, 'chain_store', true);
 		$store->total = $total;
 		$store->tax = $tax;
 		$result['stores'][] = $store;
 	}
+	$result['total'] = $total;
 
 	$result['customer'] = $userService->getUserByType($po->owner_id, 'id', true);
 
