@@ -498,6 +498,7 @@ class ProductService extends Services
         if ($product_data['shop_category']) {
             $shop_categories = explode(',', $product_data['shop_category']);
             $categories = array_merge($categories, $shop_categories);
+            $product_data['shop_category'] = implode(',', $shop_categories);
         }
         if ($categories) {
             $categories = array_unique($categories);
