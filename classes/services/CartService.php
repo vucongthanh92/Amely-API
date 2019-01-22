@@ -80,6 +80,14 @@ class CartService extends Services
         return $cart;
     }
 
+    public function getCarts($conditions, $offset = 0, $limit = 10)
+    {
+        $this->table = "amely_cart";
+        $carts = $this->searchObject($conditions, $offset, $limit);
+        if (!$carts) return false;
+        return $carts;
+    }
+
     public function checkItemInCart($product_id, $store_id, $cart_id)
     {
         $conditions = null;

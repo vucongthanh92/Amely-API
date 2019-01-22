@@ -10,6 +10,7 @@ $app->get($container['prefix'].'/payment_response', function (Request $request, 
 	$paymentsService = PaymentsService::getInstance();
 	$itemService = ItemService::getInstance();
 	$walletService = WalletService::getInstance();
+	$productStoreService = ProductStoreService::getInstance();
 	$params = $request->getQueryParams();
 
 	if (!$params) $params = [];
@@ -96,6 +97,23 @@ $app->get($container['prefix'].'/payment_response', function (Request $request, 
 			return redirectURL(1);
 			break;
 		case 2:
+			$pm = $paymentsService->getMethod($payment->payment_method);
+			$pm->order_id = $payment->owner_id;
+			$pm->order_type = $payment->type;
+			$pm->payment_id = $payment->id;
+			$response = $pm->getResult();
+			if (!$response) return redirectURL($error);
+			switch ($payment->type) {
+				case 'HD':
+					$po = $purchaseOrderService->getPOByType($response['order_id'], 'id');
+					$order_items = unserialize($po->order_items_snapshot);
+					if (!$order_items) return false;
+					foreach ($order_items as $key => $order_item) {
+						$productStoreService->updateQuantity($order_item['product_id'], $order_item['store_id'], -$order_item['quantity']);
+					}
+
+					break;
+			}
 			return redirectURL(0);
 			break;
 		default:

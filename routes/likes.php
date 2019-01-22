@@ -83,7 +83,7 @@ $app->delete($container['prefix'].'/likes', function (Request $request, Response
 	if (!in_array($type, ['feed', 'business', 'shop'])) return response(false);
 
 	$like = new Like();
-	$like->where = "owner_id = {$loggedin_user->id} AND subject_id = {$subject_id} AND type ='{$type}'";
+	$like->where = "creator_id = {$loggedin_user->id} AND owner_id = {$subject_id} AND type ='{$type}'";
 	return response($like->delete());
 
 });

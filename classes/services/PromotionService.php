@@ -22,6 +22,9 @@ class PromotionService extends Services
 
     public function save($data)
     {
+        $promotionItemService = PromotionItemService::getInstance();
+        $productService = ProductService::getInstance();
+
         $promotion = new Promotion();
         foreach ($data as $key => $value) {
         	$promotion->data->$key = $value;
@@ -31,7 +34,16 @@ class PromotionService extends Services
         if ($data['id']) {
             $promotion->data->id = $data['id'];
         	$promotion->where = "id = {$data['id']}";
-        	return $promotion->update(true);
+        	if ($promotion->update(true)) {
+                if ($data['status'] == 0) {
+                    $promotion_items  = $promotionItemService->getPromotionItemsByPromotionId($data['id'], 0, 99999999);
+                    if ($promotion_items) {
+                        foreach ($promotion_items as $key => $promotion_item) {
+                            $productService->generateSnapshotSalePrice($promotion_item->product_id, 0);
+                        }
+                    }
+                }
+            }
         } else {
         	return $promotion->insert(true);
         }

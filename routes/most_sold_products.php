@@ -12,13 +12,13 @@ $app->get($container['prefix'].'/most_sold_products', function (Request $request
 		'operation' => ''
 	];
 	$product_params[] = [
-		'key' => 'p.enabled',
+		'key' => 'p.status',
 		'value' => "= 1",
 		'operation' => 'AND'
 	];
 	$product_params[] = [
 		'key' => 'p.approved',
-		'value' => "= 1",
+		'value' => "> 0",
 		'operation' => 'AND'
 	];
 	$product_params[] = [
@@ -42,7 +42,6 @@ $app->get($container['prefix'].'/most_sold_products', function (Request $request
     	'operation' => 'query_params'
     ];
     $product_params = $productService->queryProductParams($product_params);
-
 	$products =  $productService->getProducts($product_params, 0, 16);
 	if (!$products) return response(false);
 
