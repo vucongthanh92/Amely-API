@@ -23,7 +23,7 @@ class ProductService extends Services
     public function save($data, $images = false)
     {
         $services = Services::getInstance();
-        
+
     	$product = new Product();
     	foreach ($data as $key => $value) {
     		$product->data->$key = $value;
@@ -67,6 +67,11 @@ class ProductService extends Services
             $p = $this->getProductByType($data['id'], 'id');
             if ($data['status'] != 1) {
                 $services->elasticsearch($p, 'product', 'delete');
+            }
+            if ($p->approved > 0) {
+                if ($data['status'] == 1) {
+                    $services->elasticsearch($p, 'product', 'insert');
+                }
             }
             $product_id = $product->update(true);
         } else {
@@ -425,6 +430,8 @@ class ProductService extends Services
 
     public function product_conditions($product_data)
     {
+        $categoryService = CategoryService::getInstance();
+
         if (empty($product_data['title'])) return [
             'status' => false,
             'data' => $product_data
@@ -460,10 +467,33 @@ class ProductService extends Services
         if (!$product_data['adjourn_price']) {
             $product_data['adjourn_price'] = 10000;
         }
-        $shop_categories = $market_categories = $categories = [];
+        $ticket_categories = $voucher_categories = $shop_categories = $market_categories = $categories = [];
         if ($product_data['market_category']) {
-            $market_categories = explode(',', $product_data['market_category']);
-            $categories = array_merge($categories, $market_categories);
+            $categories = explode(',', $product_data['market_category']);
+            foreach ($market_categories as $key => $category_id) {
+                $category = $categoryService->getCategoryByType($category_id, 'id');
+                switch ($category->subtype) {
+                    case 0:
+                        $market_categories = array_merge($market_categories, [$category->id]);
+                        break;
+                    case 1:
+                        $voucher_categories = array_merge($voucher_categories, [$category->id]);
+                        break;
+                    case 2:
+                        $ticket_categories = array_merge($ticket_categories, [$category->id]);
+                        break;
+                    case 3:
+                        $shop_categories = array_merge($shop_categories, [$category->id]);
+                        break;
+                    default:
+                        # code...
+                        break;
+                }
+            }
+            $product_data['market_category'] = $market_categories;
+            $product_data['voucher_category'] = $voucher_categories;
+            $product_data['ticket_category'] = $ticket_categories;
+            $product_data['shop_category'] = $shop_categories;
         }
         if ($product_data['shop_category']) {
             $shop_categories = explode(',', $product_data['shop_category']);

@@ -169,4 +169,11 @@ class CategoryService extends Services
 		$category->logo = $imageService->showImage($category->id, $category->logo, 'category', 'medium');
 		return $category;
 	}
+
+    public function getCountCategories($conditions, $offset = 0, $limit = 10)
+    {
+        $categories = $this->searchObject($conditions, $offset, $limit);
+        if (!$categories) return false;
+        return $categories;
+    }
 }

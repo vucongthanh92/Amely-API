@@ -187,7 +187,7 @@ class PaymentsService extends Services
 					$so_data['status'] = 0;
 					$so_data['store_id'] = $kitems_so;
 					$so_data['order_items_snapshot'] = serialize($order_items_snapshot);
-					$so_data['total'] = $total;
+					$so_data['total'] = $total + $so_data['shipping_fee'];
 					$so_data['quantity'] = $quantity;
 					$so_id = $supplyOrderService->save($so_data, "order:request");
 

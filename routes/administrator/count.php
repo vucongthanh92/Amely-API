@@ -10,6 +10,7 @@ $app->put($container['administrator'].'/count', function (Request $request, Resp
 	$supplyOrderService = SupplyOrderService::getInstance();
 	$deliveryOrderService = DeliveryOrderService::getInstance();
 	$purchaseOrderService = PurchaseOrderService::getInstance();
+	$categoryService = CategoryService::getInstance();
 
 	$params = $request->getParsedBody();
 	if (!$params) $params = [];
@@ -42,7 +43,7 @@ $app->put($container['administrator'].'/count', function (Request $request, Resp
 			}
 			$product_params[] = [
 				'key' => 'approved',
-				'value' => "> 0",
+				'value' => ">= 0",
 				'operation' => 'AND'
 			];
 			$product_params[] = [
@@ -73,8 +74,32 @@ $app->put($container['administrator'].'/count', function (Request $request, Resp
 		case 'product_group':
 			# code...
 			break;
-		case 'categories':
-			# code...
+		case 'category':
+			$category_params[] = [
+				'key' => 'time_created',
+				'value' => "> 0",
+				'operation' => ''
+			];
+			if ($params['shop_id']) {
+				$category_params[] = [
+					'key' => 'owner_id',
+					'value' => "= {$params['shop_id']}",
+					'operation' => 'AND'
+				];
+				$category_params[] = [
+					'key' => 'subtype',
+					'value' => "= 3",
+					'operation' => 'AND'
+				];
+			}
+			$category_params[] = [
+				'key' => '*',
+		    	'value' => "count",
+		    	'operation' => 'count'
+			];
+			$categories = $categoryService->getCountCategories($category_params, 0, 1);
+		    if (!$categories) $count = 0;
+    		$count = $categories->count;
 			break;
 		case 'redeem':
 			# code...

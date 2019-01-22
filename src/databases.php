@@ -405,9 +405,6 @@ class SlimDatabase
 			$offset = "OFFSET {$params['load_more_offset']}";
 			$query = "SELECT {$parameters} FROM {$params['from']} {$joins} {$wheres} {$order_by} {$group_by} {$limit} {$offset};";
 			$db = $connectDB->query($query);
-			// var_dump(expression)
-		    // $db->execute();
-
 		    
 		    if (!$db) return false;
 		    if (!property_exists($db, 'num_rows')) return false;
@@ -446,7 +443,11 @@ class SlimDatabase
 	                    break;
 	                case 'JOIN':
 	                    $params['joins'] = "JOIN ".$condition['key']." ON ".$condition['value'];
-	                    break;   
+	                    break;
+	                case 'LIKE':
+	                    $where = $condition['key']." LIKE ".$condition['value'];
+	                    $params['wheres'][] = $where;
+	                    break;
 	                default:
 	                    $where = $condition['operation']." ".$condition['key']." ".$condition['value'];
 	                    $params['wheres'][] = $where;
