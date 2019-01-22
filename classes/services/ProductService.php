@@ -483,7 +483,7 @@ class ProductService extends Services
                         $ticket_categories = array_merge($ticket_categories, [$category->id]);
                         break;
                     case 3:
-                        $shop_categories = array_merge($shop_categories, [$category->id]);
+                        // $shop_categories = array_merge($shop_categories, [$category->id]);
                         break;
                     default:
                         # code...
@@ -493,10 +493,16 @@ class ProductService extends Services
             $product_data['market_category'] = implode(',', $market_categories);
             $product_data['voucher_category'] = implode(',', $voucher_categories);
             $product_data['ticket_category'] = implode(',', $ticket_categories);
-            $product_data['shop_category'] = implode(',', $shop_categories);
         }
         if ($product_data['shop_category']) {
-            $shop_categories = explode(',', $product_data['shop_category']);
+            if (explode(',', $product_data['shop_category'])) {
+                foreach (explode(',', $product_data['shop_category']) as $shop_category_id) {
+                    $category = $categoryService->getCategoryByType($shop_category_id, 'id');
+                    if ($category->subtype == 3) {
+                        $shop_categories = array_merge($shop_categories, [$category->id]);
+                    }
+                }
+            }
             $categories = array_merge($categories, $shop_categories);
             $product_data['shop_category'] = implode(',', $shop_categories);
         }

@@ -342,12 +342,17 @@ $app->put($container['administrator'].'/products', function (Request $request, R
 
 	if ($params['keyword']) {
 		$product_params[] = [
-			'key' => 'title',
+			'key' => 'AND title',
+			'value' => "'%".$params['keyword']."%'",
+			'operation' => 'LIKE'
+		];
+		$product_params[] = [
+			'key' => 'OR sku',
 			'value' => "'%".$params['keyword']."%'",
 			'operation' => 'LIKE'
 		];
 	}
-	
+
 	$products = $productService->getProducts($product_params, $offset, $limit);
 	if (!$products) return response(false);
 

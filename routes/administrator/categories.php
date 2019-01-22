@@ -93,6 +93,7 @@ $app->put($container['administrator'].'/categories', function (Request $request,
 	if (!array_key_exists('offset', $params)) $params['offset'] = 0;
 	if (!array_key_exists('limit', $params)) $params['limit'] = 10;
 	if (!array_key_exists('shop_id', $params)) $params['shop_id'] = false;
+	if (!array_key_exists('keyword', $params)) 		$params['keyword'] = false;
 	if (!array_key_exists('type', $params)) $params['type'] = 0;
 	if (!array_key_exists('enabled', $params)) $params['enabled'] = -1;
 
@@ -131,6 +132,13 @@ $app->put($container['administrator'].'/categories', function (Request $request,
 			'value' => "= {$params['enabled']}",
 			'operation' => 'AND'
 		];	
+	}
+	if ($params['keyword']) {
+		$category_params[] = [
+			'key' => 'AND title',
+			'value' => "'%".$params['keyword']."%'",
+			'operation' => 'LIKE'
+		];
 	}
 
 	$categories = $categoryService->getCategories($category_params, $offset, $limit);
