@@ -470,7 +470,7 @@ class ProductService extends Services
         $ticket_categories = $voucher_categories = $shop_categories = $market_categories = $categories = [];
         if ($product_data['market_category']) {
             $categories = explode(',', $product_data['market_category']);
-            foreach ($market_categories as $key => $category_id) {
+            foreach ($categories as $key => $category_id) {
                 $category = $categoryService->getCategoryByType($category_id, 'id');
                 switch ($category->subtype) {
                     case 0:
@@ -490,10 +490,10 @@ class ProductService extends Services
                         break;
                 }
             }
-            $product_data['market_category'] = $market_categories;
-            $product_data['voucher_category'] = $voucher_categories;
-            $product_data['ticket_category'] = $ticket_categories;
-            $product_data['shop_category'] = $shop_categories;
+            $product_data['market_category'] = implode(',', $market_categories);
+            $product_data['voucher_category'] = implode(',', $voucher_categories);
+            $product_data['ticket_category'] = implode(',', $ticket_categories);
+            $product_data['shop_category'] = implode(',', $shop_categories);
         }
         if ($product_data['shop_category']) {
             $shop_categories = explode(',', $product_data['shop_category']);

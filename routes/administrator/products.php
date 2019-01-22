@@ -235,6 +235,7 @@ $app->put($container['administrator'].'/products', function (Request $request, R
 		khong truyen category_id se lay tat ca
 	*/
 	if (!array_key_exists('category_id', $params)) 	$params['category_id'] = false;
+	if (!array_key_exists('keyword', $params)) 		$params['keyword'] = false;
 	if (!array_key_exists('offset', $params)) 			$params['offset'] = 0;
 	if (!array_key_exists('limit', $params)) 			$params['limit'] = 10;
 
@@ -339,6 +340,14 @@ $app->put($container['administrator'].'/products', function (Request $request, R
 			break;
 	}
 
+	if ($params['keyword']) {
+		$product_params[] = [
+			'key' => 'title',
+			'value' => "'%".$params['keyword']."%'",
+			'operation' => 'LIKE'
+		];
+	}
+	
 	$products = $productService->getProducts($product_params, $offset, $limit);
 	if (!$products) return response(false);
 
