@@ -212,6 +212,7 @@ $app->post($container['administrator'].'/advertise', function (Request $request,
 	$ad_data['end_time'] = $params['end_time'];
 	$ad_data['creator_id'] = $loggedin_user->id;
 
+
 	$uploadedFiles = $request->getUploadedFiles();
     $image = false;
     if ($uploadedFiles) {
@@ -222,7 +223,32 @@ $app->post($container['administrator'].'/advertise', function (Request $request,
 	    }
     }
 
-	return response($advertiseService->save($ad_data, $image));
+	if ($loggedin_user->type == 'admin') {
+		return response($advertiseService->save($ad_data, $image));
+	} else {
+		$wallet = $walletService->getWalletByOwnerId($loggedin_user->id);
+		if ($wallet->balance >= $params['budget']) {
+			$ad_id = $advertiseService->save($ad_data, $image);
+			if ($ad_id) {
+				switch ($params['advertise_type']) {
+					case 0:
+						$status = 20;
+						break;
+					case 1:
+						$status = 21;
+						break;
+					case 2:
+						# code...
+						break;
+					default:
+						$status = 17;
+						break;
+				}
+				$walletService->withdraw($loggedin_user->id, $params['budget'], $status, $ad_id, 'wallet');
+			}
+		}
+		return response(false);
+	}
 });
 
 $app->delete($container['administrator'].'/advertise', function (Request $request, Response $response, array $args) {

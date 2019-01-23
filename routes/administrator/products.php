@@ -205,6 +205,9 @@ $app->put($container['administrator'].'/products', function (Request $request, R
 	$shopService = ShopService::getInstance();
 	$storeService = StoreService::getInstance();
 	$categoryService = CategoryService::getInstance();
+	$promotionService = PromotionService::getInstance();
+	$promotionItemService = PromotionItemService::getInstance();
+
 	$loggedin_user = loggedin_user();
 	$params = $request->getParsedBody();
 	if (!$params) $params = [];
@@ -238,6 +241,8 @@ $app->put($container['administrator'].'/products', function (Request $request, R
 	if (!array_key_exists('keyword', $params)) 		$params['keyword'] = false;
 	if (!array_key_exists('offset', $params)) 			$params['offset'] = 0;
 	if (!array_key_exists('limit', $params)) 			$params['limit'] = 10;
+
+	if (!array_key_exists('isPromotion', $params)) 		$params['isPromotion'] = false;
 
 	$approved = $params['approved'];
 	$status = $params['status'];
@@ -351,6 +356,37 @@ $app->put($container['administrator'].'/products', function (Request $request, R
 			'value' => "'%".$params['keyword']."%'",
 			'operation' => 'LIKE'
 		];
+	}
+
+	if ($params['isPromotion']) {
+		$promotion_params[] = [
+			'key' => 'status',
+			'value' => '= 1',
+			'operation' => ''
+		];
+		$promotion_params[] = [
+			'key' => 'approved',
+			'value' => '> 0',
+			'operation' => 'AND'
+		];
+		$promotions = $promotionService->getPromotions($promotion_params, 0, 999999999);
+		if ($promotions) {
+			$promotions_id = array_map(create_function('$o', 'return $o->id;'), $promotions);
+			$promotions_id = implode(',', $promotions_id);
+			$promotion_item_params[] = [
+				'key' => 'owner_id',
+				'value' => "IN ({$promotions_id})",
+				'operation' => ''
+			];
+			$promotion_items = $promotionItemService->getPromotionItems($promotion_item_params, 0, 9999999999);
+			$products_id = array_map(create_function('$o', 'return $o->product_id;'), $promotion_items);
+			$products_id = implode(',', $products_id);
+			$product_params[] = [
+				'key' => 'id',
+				'value' => "NOT IN ({$products_id})",
+				'operation' => 'AND'
+			];
+		}
 	}
 
 	$products = $productService->getProducts($product_params, $offset, $limit);

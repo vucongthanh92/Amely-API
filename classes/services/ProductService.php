@@ -121,10 +121,12 @@ class ProductService extends Services
 
     public function saveByExcel($data)
     {
+        $data['description'] = decodeString($data['description']);
         $product = new Product();
         foreach ($data as $key => $value) {
             $product->data->$key = $value;
         }
+
         $product->data->type = 'shop';
         $product->data->featured = 0;
         $product->data->product_order = 0;

@@ -2,6 +2,13 @@
 
 use Slim\Http\Response;
 
+function decodeString($str)
+{
+	$search = array("\r\n","\n\r","\r","\n");
+    $replace = "<br>";
+    $str = str_replace($search, $replace, $str);
+    return $str;
+}
 
 function slugify($str)
 {
