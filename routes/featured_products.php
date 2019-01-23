@@ -5,31 +5,23 @@ use Slim\Http\Response;
 $app->post($container['prefix'].'/featured_products', function (Request $request, Response $response, array $args) {
 	$advertiseService = AdvertiseService::getInstance();
 	$productService = ProductService::getInstance();
+	$productStoreService = ProductStoreService::getInstance();
 	$loggedin_user = loggedin_user();
 	$advertises = $advertiseService->getAdvertiseProduct();
 	if (!$advertises) return response(false);
 	$ads = [];
-	foreach ($advertises as $key => $advertise) {
-		$ads[$advertise->id] = $advertise->target_id;
-	}
-	$products_id = array_unique(array_values($ads));
-	$products_id = implode(',', $products_id);
-	if (!$products_id) return response(false);
-	$products = $productService->getProductsByType($products_id, 'id');
 
-	foreach ($products as $key => $product) {
-		foreach ($ads as $kad => $ad) {
-			if ($ad == $product->id) {
-				$product->advertise_id = $ads[$kad];
-				$products[$key] = $product;
-			}
-		}
-		$store_quantity = ProductStoreService::getInstance()->showProduct($product->id);
-		if (!$store_quantity) {
-			unset($products[$key]);
-			continue;
-		}
+	foreach ($advertises as $key => $advertise) {
+		$product = $productService->getProductByType($advertise->target_id, 'id');
+		if (!$product) continue;
+		if ($product->approved <= 0) continue;
+		if ($product->status != 1) continue;
+		$store_quantity = $productStoreService->showProduct($product->id);
+		if (!$store_quantity) continue;
+		if ($store_quantity <= 0) continue;
+		$product->advertise_id = $advertise->id;
+		array_push($ads, $product);
 	}
-	if (!$products) return response(false);
-	return response(array_values($products));
+
+	return response(array_values($ads));
 });
