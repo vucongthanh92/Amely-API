@@ -289,7 +289,6 @@ class SlimDatabase
 		$id_response = 0;
 		if (!$object->data) return false;
 		foreach ($object->data as $key => $value) {
-			$value = mysql_real_escape_string($value);
 			$params['sets'][] = "`{$key}` = '{$value}'";
 			array_push($params['names'], $key);
 			if ($key == 'sku') {
