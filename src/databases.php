@@ -289,13 +289,13 @@ class SlimDatabase
 		$id_response = 0;
 		if (!$object->data) return false;
 		foreach ($object->data as $key => $value) {
-			$params['sets'][] = "`{$key}` = '{$value}'";
 			array_push($params['names'], $key);
 			if ($key == 'sku') {
 				array_push($params['values'], $value);
 			} else {
 				array_push($params['values'], htmlspecialchars($value, ENT_QUOTES, 'UTF-8'));
 			}
+			$params['sets'][] = "`{$key}` = '{$value}'";
 			if ($key == 'id') {
 				$id_response = $value;
 			}
