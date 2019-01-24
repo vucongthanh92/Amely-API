@@ -26,12 +26,13 @@ class ShopService extends Services
     	foreach ($data as $key => $value) {
     		$shop->data->$key = $value;
     	}
-    	$shop->data->approved = 0;
     	$shop->data->type = 'user';
     	if ($data['id']) {
     		$shop->where = "id = {$data['id']}";
+    		$this->updateStatus($data['id'], $data['status']);
     		$shop_id = $shop->update(true);
     	} else {
+    		$shop->data->approved = 0;
     		$shop_id = $shop->insert(true);
     	}
 
@@ -85,18 +86,29 @@ class ShopService extends Services
 
     public function updateStatus($shop_id, $status)
     {
-    	$shop = new Shop();
-    	$shop->data->status = $status;
-    	$shop->data->id = $shop_id;
-    	$shop->where = "id = {$shop_id}";
-    	if ($shop->update(true)) {
-    		$storeService = StoreService::getInstance();
-    		$stores = $storeService->getStoreByType($shop_id, 'owner_id', false);
-    		foreach ($stores as $key => $store) {
-    			$storeService->updateStatus($store->id, $status);
-    		}
-    		return $shop_id;
+    	$storeService = StoreService::getInstance();
+    	$productService = ProductService::getInstance();
+
+    	$s = $this->getShopByType($shop_id, 'id');
+
+    	if ($s->status != $status) {
+	    	$shop = new Shop();
+	    	$shop->data->status = $status;
+	    	$shop->data->id = $shop_id;
+	    	$shop->where = "id = {$shop_id}";
+	    	if ($shop->update(true)) {
+	    		$stores = $storeService->getStoreByType($shop_id, 'owner_id', false);
+	    		foreach ($stores as $key => $store) {
+	    			$storeService->updateStatus($store->id, $status);
+	    		}
+	    		$products = $productService->getProductsByType($shop_id, 'owner_id');
+	    		foreach ($products as $k => $product) {
+	    			$productService->updateStatus($product->id, $status);
+	    		}
+	    		return $shop_id;
+	    	}
     	}
+
     	return false;
     }
 
