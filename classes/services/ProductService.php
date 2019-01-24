@@ -466,9 +466,18 @@ class ProductService extends Services
                 # code...
                 break;
         }
+
+        if (!is_numeric($product_data['price'])) {
+            return [
+                'status' => false,
+                'data' => $product_data
+            ];
+        }
+
         if (!$product_data['adjourn_price']) {
             $product_data['adjourn_price'] = 10000;
         }
+
         $ticket_categories = $voucher_categories = $shop_categories = $market_categories = $categories = [];
         if ($product_data['market_category']) {
             $categories = explode(',', $product_data['market_category']);

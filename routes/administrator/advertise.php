@@ -111,6 +111,12 @@ $app->put($container['administrator'].'/advertise', function (Request $request, 
 			'value' => "= {$params['status']}",
 			'operation' => 'AND'
 		];
+	} else {
+		$ads_params[] = [
+			'key' => 'status',
+			'value' => "IN (0,1)",
+			'operation' => 'AND'
+		];
 	}
 
 	switch ($params['advertise_type']) {

@@ -156,9 +156,10 @@ class AdvertiseService extends Services
     	$advertise = $this->getAdvertiseByType($advertise_id, 'id');
 		if (!$advertise) return false;
 
-		if (((double)$advertise->amount + (double)$advertise->cpc) > $advertise->budget) return false;
+		if (((double)$advertise->cpc) > $advertise->budget) return false;
 
 		$advertise = object_cast("Advertise", $advertise);
+		$advertise->data->budget = $advertise->budget - $advertise->cpc;
 		$advertise->data->total_click = (int) $advertise->total_click + 1;
 		$advertise->data->amount = (int) $advertise->amount + (int) $advertise->cpc;
 		$advertise->where = "id = {$advertise->id}";

@@ -44,6 +44,7 @@ $app->post($container['administrator'].'/approval', function (Request $request, 
 								$user->data->type = 'manager';
 								$user->data->id = $user->id;
 								$user->data->chain_store = $store->id;
+								$user->data->rule_id = 2;
 								$user->where = "id = {$user->id}";
 								$user->update();
 							}
