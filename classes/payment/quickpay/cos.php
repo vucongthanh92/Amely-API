@@ -61,7 +61,8 @@ class COS extends \Object implements \Amely\Payment\IPaymentMethod
 		$storeService = \StoreService::getInstance();
 		$walletService = \WalletService::getInstance();
 		$itemService = \ItemService::getInstance();
-
+		$productStoreService = \ProductStoreService::getInstance();
+		
 		$po = $purchaseOrderService->getPOByType($po_id, 'id');
 		switch ($status) {
 			case 0:
