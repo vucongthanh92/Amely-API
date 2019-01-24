@@ -25,14 +25,14 @@ class Services extends SlimDatabase
     		$obj = $result[0];
     		$properties = get_object_vars($obj);
     		foreach ($properties as $key => $value) {
-    			$obj->$key = htmlspecialchars_decode($value);
+    			$obj->$key = htmlspecialchars_decode($value, ENT_QUOTES);
     		}
     		return $obj;
     	}
     	foreach ($result as $k => $obj) {
     		$properties = get_object_vars($obj);
     		foreach ($properties as $key => $value) {
-    			$obj->$key = htmlspecialchars_decode($value);
+    			$obj->$key = htmlspecialchars_decode($value, ENT_QUOTES);
     		}
     		$result[$k] = $obj;
     	}

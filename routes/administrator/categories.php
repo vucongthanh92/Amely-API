@@ -136,7 +136,7 @@ $app->put($container['administrator'].'/categories', function (Request $request,
 	if ($params['keyword']) {
 		$category_params[] = [
 			'key' => 'AND title',
-			'value' => "'%".$params['keyword']."%'",
+			'value' => "'%".htmlspecialchars($params['keyword'], ENT_QUOTES)."%'",
 			'operation' => 'LIKE'
 		];
 	}

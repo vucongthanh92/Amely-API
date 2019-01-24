@@ -348,12 +348,12 @@ $app->put($container['administrator'].'/products', function (Request $request, R
 	if ($params['keyword']) {
 		$product_params[] = [
 			'key' => 'AND title',
-			'value' => "'%".$params['keyword']."%'",
+			'value' => "'%".htmlspecialchars($params['keyword'], ENT_QUOTES)."%'",
 			'operation' => 'LIKE'
 		];
 		$product_params[] = [
 			'key' => 'OR sku',
-			'value' => "'%".$params['keyword']."%'",
+			'value' => "'%".htmlspecialchars($params['keyword'], ENT_QUOTES)."%'",
 			'operation' => 'LIKE'
 		];
 	}

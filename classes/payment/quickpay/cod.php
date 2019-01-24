@@ -92,7 +92,7 @@ class COD extends \Object implements \Amely\Payment\IPaymentMethod
 				$so_data['owner_id'] = $po->id;
 				$so_data['type'] = "HD";
 				$so_data['time_created'] = $po->time_created;
-				$so_data['status'] = 0;
+				$so_data['status'] = 1;
 				$so_data['store_id'] = $creator->chain_store;
 				$so_data['shipping_fee'] = $po->shipping_fee;
 				$so_data['order_items_snapshot'] = $po->order_items_snapshot;
@@ -113,6 +113,11 @@ class COD extends \Object implements \Amely\Payment\IPaymentMethod
 			case 2:
 				$notify_type = "order:reject";
 				$purchaseOrderService->updateStatus($po->id, 2);
+				$order_items = unserialize($po->order_items_snapshot);
+				if (!$order_items) return false;
+				foreach ($order_items as $key => $order_item) {
+					$productStoreService->updateQuantity($order_item['product_id'], $order_item['store_id'], -$order_item['quantity']);
+				}
 				break;
 			default:
 				break;

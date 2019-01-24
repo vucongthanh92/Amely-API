@@ -112,6 +112,12 @@ class COS extends \Object implements \Amely\Payment\IPaymentMethod
 			case 2:
 				$notify_type = "order:reject";
 				$purchaseOrderService->updateStatus($po->id, 2);
+				$order_items = unserialize($po->order_items_snapshot);
+				if (!$order_items) return false;
+				foreach ($order_items as $key => $order_item) {
+					$productStoreService->updateQuantity($order_item['product_id'], $order_item['store_id'], -$order_item['quantity']);
+				}
+
 				break;
 			default:
 				break;

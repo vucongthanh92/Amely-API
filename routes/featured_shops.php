@@ -10,21 +10,12 @@ $app->post($container['prefix'].'/featured_shops', function (Request $request, R
 	if (!$advertises) return response(false);
 	$ads = [];
 	foreach ($advertises as $key => $advertise) {
-		$ads[$advertise->id] = $advertise->target_id;
+		$shop = $shopService->getShopByType($advertise->target_id, 'id', 0, 999999);
+		if (!$shop) continue;
+		if ($shop->approved <= 0) continue;
+		if ($shop->status != 1) continue;
+		$shop->advertise_id = $advertise->id;
+		array_push($ads, $shop);
 	}
-	$shops_id = array_unique(array_values($ads));
-	$shops_id = implode(',', $shops_id);
-	if (!$shops_id) return response(false);
-	$shops = $shopService->getShopsByType($shops_id, 'id', 0, 999999);
-
-	foreach ($shops as $key => $shop) {
-		foreach ($ads as $kad => $ad) {
-			if ($ad == $shop->id) {
-				$shop->advertise_id = $ads[$kad];
-				$shops[$key] = $shop;
-			}
-		}
-	}
-	return response(array_values($shops));
-
+	return response(array_values($ads));
 });
