@@ -57,7 +57,7 @@ $app->get($container['prefix'].'/console_promotions', function (Request $request
 	$promotions = $promotionService->getPromotions($conditions, 0, 99999999);
 	if ($promotions) {
 		foreach ($promotions as $key => $promotion) {
-			$promotionService->updateStatus($promotion->id, 0);
+			$promotionService->updateStatus($promotion->id, 2);
 		}
 	}
 
