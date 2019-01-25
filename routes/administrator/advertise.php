@@ -251,6 +251,7 @@ $app->post($container['administrator'].'/advertise', function (Request $request,
 						break;
 				}
 				$walletService->withdraw($loggedin_user->id, $params['budget'], $status, $ad_id, 'wallet');
+				return response($ad_id);
 			}
 		}
 		return response(false);
@@ -270,5 +271,21 @@ $app->delete($container['administrator'].'/advertise', function (Request $reques
 
 	if (!$ad) return response(false);
 
-	return response($advertiseService->updateStatus($ad->id, 2));
+	if ($advertiseService->updateStatus($ad->id, 2)) {
+		$status = 16;
+		switch ($ad->advertise_type) {
+			case '0':
+				$status = 20;
+				break;
+			case '1':
+				$status = 21;
+				break;
+			default:
+				# code...
+				break;
+		}
+		$walletService->deposit($ad->creator_id, $params['budget'], $status, $ad->id, 'wallet');
+		return response(true);
+	}
+	return response(false);
 });
