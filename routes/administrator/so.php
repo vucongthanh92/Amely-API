@@ -11,6 +11,8 @@ $app->get($container['administrator'].'/so', function (Request $request, Respons
 	$deliveryOrderService = DeliveryOrderService::getInstance();
 	$snapshotService = SnapshotService::getInstance();
 	$userService = UserService::getInstance();
+	$redeemService = RedeemService::getInstance();
+	$itemService = ItemService::getInstance();
 
 	$params = $request->getQueryParams();
 	if (!$params) $params = [];
@@ -44,12 +46,41 @@ $app->get($container['administrator'].'/so', function (Request $request, Respons
 	}
 	$so->items = $snapshots;
 	if ($dos) {
-		
 		$result['dos'] = $dos;
 	}
+	$item_params[] = [
+		'key' => 'so_id',
+		'value' => "= {$so->id}",
+		'operation' => ''
+	];
+	$items = $itemService->getItems($item_params, 0, 9999999999);
+	if ($items) {
+		$items_id = array_unique(array_map(create_function('$o', 'return $o->id;'), $items));
+		$items_id = implode(',', $items_id);
+		$redeem_params[] = [
+			'key' => 'item_id',
+			'value' => "In ({$items_id})",
+			'operation' => ''
+		];
+		$redeems = $redeemService->getRedeems($redeem_params, 0, 99999999);
+		if ($redeems) {
+			foreach ($redeems as $key => $redeem) {
+				foreach ($items as $item) {
+					if ($item->id == $redeem->item_id) {
+						$snapshot = $snapshotService->getSnapshotByType($item->snapshot_id, 'id');
+						$snapshot->quantity = $item->quantity;
+						$result['redeem'][] = $snapshot;
+					}
+				}
+			}
+		}
+	}
+
+	
 	$result['po'] = $po;
 	$result['so'] = $so;
 	$result['customer'] = $customer;
+
 
 	return response($result);
 });

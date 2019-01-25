@@ -361,13 +361,8 @@ $app->put($container['administrator'].'/products', function (Request $request, R
 	if ($params['isPromotion']) {
 		$promotion_params[] = [
 			'key' => 'status',
-			'value' => '= 1',
+			'value' => 'IN (0,1)',
 			'operation' => ''
-		];
-		$promotion_params[] = [
-			'key' => 'approved',
-			'value' => '> 0',
-			'operation' => 'AND'
 		];
 		$promotions = $promotionService->getPromotions($promotion_params, 0, 999999999);
 		if ($promotions) {
