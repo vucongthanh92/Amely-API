@@ -68,10 +68,14 @@ $app->get($container['administrator'].'/so', function (Request $request, Respons
 				foreach ($items as $item) {
 					if ($item->id == $redeem->item_id) {
 						$snapshot = $snapshotService->getSnapshotByType($item->snapshot_id, 'id');
-						$snapshot->quantity = $item->quantity;
-						$result['redeems'][] = $snapshot;
+						$redeem->item = $snapshot;
 					}
 				}
+				$store = $storeService->getStoreByType($redeem->store_id, 'id');
+				$redeem->store = $store;
+				$customer = $userService->getUserByType($redeem->creator_id);
+				$redeem->customer = $customer;
+				$result['redeems'][] = $redeem;
 			}
 		}
 	}
