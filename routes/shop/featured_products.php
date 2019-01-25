@@ -12,6 +12,11 @@ $app->post($container['prefix'].'/shop/featured_products', function (Request $re
 
 	$product_params = null;
 	$product_params[] = [
+    	'key' => 'p.id',
+    	'value' => '',
+    	'operation' => 'group_by'
+    ];
+	$product_params[] = [
 		'key' => 'p.owner_id',
 		'value' => "= {$params['shop_id']}",
 		'operation' => ''

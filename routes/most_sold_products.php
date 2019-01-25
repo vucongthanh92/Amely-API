@@ -12,6 +12,11 @@ $app->get($container['prefix'].'/most_sold_products', function (Request $request
 		'operation' => ''
 	];
 	$product_params[] = [
+    	'key' => 'p.id',
+    	'value' => '',
+    	'operation' => 'group_by'
+    ];
+	$product_params[] = [
 		'key' => 'p.status',
 		'value' => "= 1",
 		'operation' => 'AND'

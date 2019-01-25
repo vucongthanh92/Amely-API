@@ -407,7 +407,7 @@ class SlimDatabase
 					$joins = implode(' ', $params['joins']);
 			}
 			$offset = "OFFSET {$params['load_more_offset']}";
-			$query = "SELECT {$parameters} FROM {$params['from']} {$joins} {$wheres} {$order_by} {$group_by} {$limit} {$offset};";
+			$query = "SELECT {$parameters} FROM {$params['from']} {$joins} {$wheres} {$group_by} {$order_by} {$limit} {$offset};";
 			$db = $connectDB->query($query);
 		    
 		    if (!$db) return false;

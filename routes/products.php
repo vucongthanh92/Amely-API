@@ -85,6 +85,11 @@ $app->post($container['prefix'].'/products', function (Request $request, Respons
 	$limit = $params['limit'];
 
 	$product_params[] = [
+    	'key' => 'p.id',
+    	'value' => '',
+    	'operation' => 'group_by'
+    ];
+	$product_params[] = [
 		'key' => 'p.id',
 		'value' => 'DESC',
 		'operation' => 'order_by'
@@ -178,11 +183,7 @@ $app->post($container['prefix'].'/products', function (Request $request, Respons
     	'value' => '',
     	'operation' => 'query_params'
     ];
-    $product_params[] = [
-    	'key' => 'p.id',
-    	'value' => '',
-    	'operation' => 'group_by'
-    ];
+   
     $product_params = $productService->queryProductParams($product_params);
 
 	$products = $productService->getProducts($product_params, $offset, $limit);
