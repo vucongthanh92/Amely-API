@@ -5,6 +5,9 @@ use Slim\Http\Response;
 $app->post($container['prefix'].'/notification', function (Request $request, Response $response, array $args) {
 	$notificationService = NotificationService::getInstance();
 	$userService = UserService::getInstance();
+	$groupService = GroupService::getInstance();
+	$eventService = EventService::getInstance();
+
 	$loggedin_user = loggedin_user();
 	$params = $request->getParsedBody();
 	if (!$params) $params = [];
@@ -37,7 +40,7 @@ $app->post($container['prefix'].'/notification', function (Request $request, Res
 
 	if (!$notifications) return response(false);
 
-	$users_id = $groups_id = [];
+	$events_id = $users_id = $groups_id = [];
 	foreach ($notifications as $key => $notification) {
 		switch ($notification->from_type) {
 			case 'user':
@@ -45,6 +48,9 @@ $app->post($container['prefix'].'/notification', function (Request $request, Res
 				break;
 			case 'group':
 				array_push($groups_id, $notification->from_id);
+				break;
+			case 'event':
+				array_push($events_id, $notification->from_id);
 				break;
 			default:
 				# code...
@@ -70,12 +76,26 @@ $app->post($container['prefix'].'/notification', function (Request $request, Res
 			case 'group':
 				if ($groups_id) {
 					$groups_id = implode(',', $groups_id);
-					$groups = $userService->getUsersByType($groups_id, 'id');
+					$groups = $groupService->getGroupsById($groups_id, 'id', 0, 9999999999);
 					if ($groups) {
 						foreach ($groups as $group) {
 							if ($notification->from_id == $group->id) {
 								$notification->from = $group;
 								$notification->from_avatar = $group->avatar;
+							}
+						}
+					}
+				}
+				break;
+			case 'event':
+				if ($events_id) {
+					$events_id = implode(',', $events_id);
+					$events = $eventService->getEventsByType($events_id, 'id', 0, 999999999);
+					if ($events) {
+						foreach ($events as $event) {
+							if ($notification->from_id == $event->id) {
+								$notification->from = $event;
+								$notification->from_avatar = $event->avatar;
 							}
 						}
 					}
