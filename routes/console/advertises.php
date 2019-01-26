@@ -42,4 +42,4 @@ $app->get($container['prefix'].'/console_advertises', function (Request $request
 	return response(true);
 
 
-})->setName('console_promotions');
+})->setName('console_advertises');

@@ -18,9 +18,7 @@ $app->get($container['administrator'].'/redeem', function (Request $request, Res
 	if ($params['redeem_id']) {
 		$redeem = $redeemService->getRedeemByType($params['redeem_id'], 'id');
 		$item = $itemService->getItemByType($redeem->item_id, 'id');
-		$snapshot = $snapshotService->getSnapshotByType($item->snapshot_id, 'id');
-
-		$redeem->item = $snapshot;
+		$redeem->item = $item;
 		$redeem->quantity = $item->quantity;
 
 		$store = $storeService->getStoreByType($redeem->store_id, 'id');
