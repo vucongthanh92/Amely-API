@@ -39,44 +39,52 @@ $app->put($container['administrator'].'/redeem', function (Request $request, Res
 	$services = Services::getInstance();
 	$redeemService = RedeemService::getInstance();
 	$itemService = ItemService::getInstance();
+	$storeService = StoreService::getInstance();
 
 	$loggedin_user = loggedin_user();
 
-	if (!$loggedin_user->chain_store) return response(false);
 	$params = $request->getParsedBody();
 	if (!$params) $params = [];
-	if (!array_key_exists('code', $params)) $params['code'] = false;
+	if (!array_key_exists('shop_id', $params)) $params['shop_id'] = false;
+	if (!array_key_exists('store_id', $params)) $params['store_id'] = false;
+
+	if (!array_key_exists('offset', $params)) $params['offset'] = 0;
+	if (!array_key_exists('limit', $params)) $params['limit'] = 10;
+
+	$stores_id = false;
 	$redeem_parmas = null;
 	$redeem_parmas[] = [
-		'key' => 'code',
-		'value' => "= '{$params['code']}'",
+		'key' => 'time_created',
+		'value' => "DESC",
+		'operation' => 'order_by'
+	];
+	$redeem_parmas[] = [
+		'key' => 'time_created',
+		'value' => "> 0",
 		'operation' => ''
 	];
-	$redeem = $redeemService->getRedeem($redeem_parmas);
-	if ($redeem) return response(false);
-	$decrypt = $services->b64decode($params['code']);
-	$data = $services->decrypt($decrypt);
-	$data = unserialize($data);
-
-	$time = time();
-	$time_affter_5m = $data['time'] + (5*60);
-
-	if ($time > $time_affter_5m) return response(false);
-	$item_id = $itemService->separateItem($data['item_id'], $data['quantity']);
-
-	$redeem_data = null;
-	$redeem_data['owner_id'] = $data['owner_id'];
-	$redeem_data['item_id'] = $item_id;
-	$redeem_data['creator_id'] = $loggedin_user->id;
-	$redeem_data['code'] = $params['code'];
-	$redeem_data['store_id'] = $loggedin_user->chain_store;
-	$redeem_data['status'] = 1;
-	$redeem_id = $redeemService->save($redeem_data);
-
-	$transaction_params = $transactionService->getTransactionParams($data['owner_id'], 'user', '', '', 'redeem', $redeem_id, 14, $data['owner_id']);
-    $transactionService->save($transaction_params);
-
-    $transaction_params = $transactionService->getTransactionParams($loggedin_user->chain_store, 'store', '', '', 'redeem', $redeem_id, 14, $loggedin_user->id);
-    $transactionService->save($transaction_params);
-	return response(true);
+	if ($params['shop_id']) {
+		$stores = $storeService->getStoresByShop($params['shop_id'], false);
+		if ($stores) {
+			$stores_id = array_unique(array_map(create_function('$o', 'return $o->id;'), $stores));
+			$stores_id = implode(',', $stores_id);
+		}
+	}
+	if ($params['store_id']) {
+		$stores_id = $params['store_id'];
+	}
+	if ($stores_id) {
+		$redeem_parmas[] = [
+			'key' => 'store_id',
+			'value' => "IN ({$stores_id})",
+			'operation' => 'AND'
+		];
+	}
+	$redeems = $redeemService->getRedeems($redeem_parmas, $params['offset'], $params['limit']);
+	if (!$redeems) return response(false);
+	foreach ($redeems as $key => $redeem) {
+		$store = $storeService->getStoreByType($redeem->store_id, 'id', false);
+		$redeem->store = $store;
+	}
+	return response($redeems);
 });

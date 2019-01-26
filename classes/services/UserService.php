@@ -57,6 +57,15 @@ class UserService extends Services
     	return false;
     }
 
+    public function updateCount($user_id, $type, $count)
+    {
+    	$user = new User();
+    	$user->$type = $count;
+    	$user->data->id = $user_id;
+    	$user->where = "id = {$user->id}";
+    	return $user->update();
+    }
+
     public function getUserByType($input, $type ='id', $getAddr = true, $password = true)
 	{	
 		$conditions = null;

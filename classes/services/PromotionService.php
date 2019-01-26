@@ -90,6 +90,26 @@ class PromotionService extends Services
         return false;
     }
 
+    public function getPromotionsRuning()
+    {
+        $current_time = time();
+
+        $conditions[] = [
+            'key' => 'status',
+            'value' => "= 1",
+            'operation' => ''
+        ];
+        $conditions[] = [
+            'key' => '',
+            'value' => "(((DATE_FORMAT(from_unixtime(start_time), '%Y-%m-%d') <= DATE_FORMAT(from_unixtime({$current_time}), '%Y-%m-%d')) AND (DATE_FORMAT(from_unixtime(end_time), '%Y-%m-%d') >= DATE_FORMAT(from_unixtime({$current_time}), '%Y-%m-%d')) AND (DATE_FORMAT(from_unixtime(start_time), '%H:%i:%s') <= DATE_FORMAT(from_unixtime({$current_time}), '%H:%i:%s')) AND (DATE_FORMAT(from_unixtime(end_time), '%H:%i:%s') >= DATE_FORMAT(from_unixtime({$current_time}), '%H:%i:%s')) AND time_type = 1) OR ((start_time < {$current_time}) AND (end_time >= {$current_time}) AND time_type = 0))",
+            'operation' => 'AND'
+        ];
+
+        $promotions = $this->getPromotions($conditions, 0, 99999999);
+        if (!$promotions) return false;
+        return $promotions;
+    }
+
     public function approved($promotion_id)
     {
         $promotionItemService = PromotionItemService::getInstance();

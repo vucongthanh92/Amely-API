@@ -59,7 +59,7 @@ $app->get($container['administrator'].'/so', function (Request $request, Respons
 		$items_id = implode(',', $items_id);
 		$redeem_params[] = [
 			'key' => 'item_id',
-			'value' => "In ({$items_id})",
+			'value' => "IN ({$items_id})",
 			'operation' => ''
 		];
 		$redeems = $redeemService->getRedeems($redeem_params, 0, 99999999);
@@ -69,6 +69,7 @@ $app->get($container['administrator'].'/so', function (Request $request, Respons
 					if ($item->id == $redeem->item_id) {
 						$snapshot = $snapshotService->getSnapshotByType($item->snapshot_id, 'id');
 						$redeem->item = $snapshot;
+						$redeem->quantity = $item->quantity;
 					}
 				}
 				$store = $storeService->getStoreByType($redeem->store_id, 'id');

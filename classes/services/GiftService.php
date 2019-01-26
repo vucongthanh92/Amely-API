@@ -97,6 +97,8 @@ class GiftService extends Services
 		$gift->data->message = $data['message'];
 		$gift->data->status = 0;
 		$gift_id = $gift->insert(true);
+
+		$userService->updateCount();
 		if ($gift_id) {
 			$item = new Item();
 			$item->data->status = 0;
