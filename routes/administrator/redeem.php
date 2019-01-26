@@ -19,16 +19,17 @@ $app->get($container['administrator'].'/redeem', function (Request $request, Res
 		$redeem = $redeemService->getRedeemByType($params['redeem_id'], 'id');
 		$item = $itemService->getItemByType($redeem->item_id, 'id');
 		$snapshot = $snapshotService->getSnapshotByType($item->snapshot_id, 'id');
-		$item->snapshot = $snapshot;
-		$shop = $shopService->getShopByType($snapshot->owner_id, 'id');
-		$store = $storeService->getStoreByType($redeem->store_id, 'id', true);
-		$shop->store = $store;
-		$user = $userService->getUserByType($redeem->creator_id, 'id', false);
-		return response([
-			'item' => $item,
-			'shop' => $shop,
-			'user' => $user
-		]);
+
+		$redeem->item = $snapshot;
+		$redeem->quantity = $item->quantity;
+
+		$store = $storeService->getStoreByType($redeem->store_id, 'id');
+		$redeem->store = $store;
+		$redeem->shop = $shopService->getShopByType($store->owner_id, 'id');
+		$customer = $userService->getUserByType($redeem->owner_id);
+		$redeem->customer = $customer;
+		
+		return response($redeem);
 	}
 
 	return response(false);

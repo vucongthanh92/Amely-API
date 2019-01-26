@@ -74,7 +74,7 @@ $app->get($container['administrator'].'/so', function (Request $request, Respons
 				}
 				$store = $storeService->getStoreByType($redeem->store_id, 'id');
 				$redeem->store = $store;
-				$customer = $userService->getUserByType($redeem->creator_id);
+				$customer = $userService->getUserByType($redeem->owner_id);
 				$redeem->customer = $customer;
 				$result['redeems'][] = $redeem;
 			}
