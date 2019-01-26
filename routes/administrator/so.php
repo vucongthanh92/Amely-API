@@ -67,6 +67,8 @@ $app->get($container['administrator'].'/so', function (Request $request, Respons
 			foreach ($redeems as $key => $redeem) {
 				foreach ($items as $item) {
 					if ($item->id == $redeem->item_id) {
+						$snapshot = $snapshotService->getSnapshotByType($item->snapshot_id, 'id');
+						$item->snapshot = $snapshot;
 						$redeem->item = $item;
 						$redeem->quantity = $item->quantity;
 					}
