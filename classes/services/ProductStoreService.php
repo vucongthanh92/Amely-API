@@ -22,6 +22,8 @@ class ProductStoreService extends Services
 
     public function save($data)
     {
+        $services = Services::getInstance();
+
         $data['type'] = 'shop';
         $ps = $this->checkQuantityInStore($data['product_id'], $data['store_id']);
         if ($ps) {
@@ -29,13 +31,27 @@ class ProductStoreService extends Services
             $productStore->data->quantity = $data['quantity'];
             $productStore->data->id = $ps->id;
             $productStore->where = "store_id = {$data['store_id']} AND product_id = {$data['product_id']}";
-            return $productStore->update(true);
+            if ($productStore->update(true)) {
+                if ($data['quantity'] > 0) {
+                    $services->elasticsearch($p, 'product', 'insert');
+                } else {
+                    $services->elasticsearch($p, 'product', 'delete');
+                }
+                return true;
+            }
         } else {
             $productStore = new ProductStore();
             foreach ($data as $key => $value) {
                 $productStore->data->$key = $value;
             }
-            return $productStore->insert(true);
+            if ($productStore->insert(true)) {
+                if ($data['quantity'] > 0) {
+                    $services->elasticsearch($p, 'product', 'insert');
+                } else {
+                    $services->elasticsearch($p, 'product', 'delete');
+                }
+                return true;
+            }
         }
         return true;
     }

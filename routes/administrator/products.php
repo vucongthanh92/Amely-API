@@ -357,8 +357,7 @@ $app->put($container['administrator'].'/products', function (Request $request, R
 			'operation' => 'LIKE'
 		];
 	}
-
-	if ($params['isPromotion']) {
+	if ($params['isPromotion'] !== "false" && $params['isPromotion']) {
 		$promotion_params[] = [
 			'key' => 'status',
 			'value' => 'IN (0,1)',

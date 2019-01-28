@@ -1076,6 +1076,11 @@ VALUES ( '49/2/2 M PVC', '1993-08-03', '764', 'cocungkhongcho@gmail.com', 'Thinh
 
 INSERT INTO `amely_wallets` (`owner_id`, `type`, `time_created`, `title`, `description`, `balance`, `currency`) VALUES (1, 'user', 1546743907, '','' ,0, 'VND');
 
+INSERT INTO `amely_site_settings` ( `time_created`, `title`, `name`, `value`) 
+VALUES ('1546743907', 'Hạn mức tặng quà', 'limit_gift', '30');
+
+INSERT INTO `amely_site_settings` ( `time_created`, `title`, `name`, `value`) 
+VALUES ('1546743907', 'Hạn mức trao đổi', 'limit_offer', '30');
 
 INSERT INTO `amely_rule` ( `time_created`, `title`, `creator_id`, `status`) 
 VALUES ('1546743907', 'Administrator', '1', '1');

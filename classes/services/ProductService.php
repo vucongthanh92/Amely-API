@@ -23,6 +23,7 @@ class ProductService extends Services
     public function save($data, $images = false)
     {
         $services = Services::getInstance();
+        $categoryService = CategoryService::getInstance();
 
     	$product = new Product();
     	foreach ($data as $key => $value) {
@@ -36,6 +37,13 @@ class ProductService extends Services
         if ($data['category']) {
             $category = explode(',', $data['category']);
             $category = array_diff($category, ['']);
+            foreach ($category as $k => $v) {
+                $c = $categoryService->getCategoryByType($v, 'id');
+                if ($c->parent_id) {
+                    array_push($category, $c->parent_id);
+                }
+            }
+            $category = array_unique($category);
             $product->data->category = implode(',', $category);
         }
         if ($data['voucher_category']) {
@@ -121,6 +129,8 @@ class ProductService extends Services
 
     public function saveByExcel($data)
     {
+        $categoryService = CategoryService::getInstance();
+
         $data['description'] = decodeString($data['description']);
         $product = new Product();
         foreach ($data as $key => $value) {
@@ -139,6 +149,13 @@ class ProductService extends Services
         if ($data['category']) {
             $category = explode(',', $data['category']);
             $category = array_diff($category, ['']);
+            foreach ($category as $k => $v) {
+                $c = $categoryService->getCategoryByType($v, 'id');
+                if ($c->parent_id) {
+                    array_push($category, $c->parent_id);
+                }
+            }
+            $category = array_unique($category);
             $product->data->category = implode(',', $category);
         }
         if ($data['voucher_category']) {
@@ -618,7 +635,7 @@ class ProductService extends Services
         $product->data->id = $product_id;
         $product->where = "id = {$product_id}";
         if ($product->update(true)) {
-            $services->elasticsearch($p, 'product', 'insert');
+            
             // $params = null;
             // $params = [
             //     'index' => "products",
@@ -655,7 +672,9 @@ class ProductService extends Services
                 $services->elasticsearch($p, 'product', 'delete');
                 break;
             case 1:
-                $services->elasticsearch($p, 'product', 'insert');
+                if ($p->approved > 0) {
+                    $services->elasticsearch($p, 'product', 'insert');
+                }
                 break;
             case 2:
                 $services->elasticsearch($p, 'product', 'delete');
