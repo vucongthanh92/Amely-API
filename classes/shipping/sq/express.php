@@ -16,11 +16,20 @@ class Express extends \Object
 
 	function __construct()
 	{
-		$this->url = "https://dev.ghtk.vn";
-		$this->ghtk_token = "9A95897FF196803235CC80a66aAa9ea7f396739e";
-		$this->return_transfer = true;
-        $this->version = CURL_HTTP_VERSION_1_1;
-        $this->currency = 'VND';
+		/* dev
+			$this->url = "https://dev.ghtk.vn";
+			$this->ghtk_token = "9A95897FF196803235CC80a66aAa9ea7f396739e";
+			$this->return_transfer = true;
+	        $this->version = CURL_HTTP_VERSION_1_1;
+	        $this->currency = 'VND';
+        */
+	    /* product */
+	    	$this->url = "https://khachhang.giaohangtietkiem.vn";
+			$this->ghtk_token = "E0Ffc300eDa222cE8F12c95586c4f7fa8aBBa0B5";
+			$this->return_transfer = true;
+	        $this->version = CURL_HTTP_VERSION_1_1;
+	        $this->currency = 'VND';
+        
 	}
 	
 	public function process()

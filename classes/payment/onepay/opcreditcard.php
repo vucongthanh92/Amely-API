@@ -31,16 +31,30 @@ class OPCreditCard extends \Object implements \Amely\Payment\IPaymentMethod
 
 	function __construct()
 	{
+		/* dev
+			$this->Title = "";
+			$this->virtualPaymentClientURL = "https://mtf.onepay.vn/vpcpay/vpcpay.op";
+			$this->vpc_Merchant = "TESTONEPAY";
+			$this->vpc_AccessCode = "6BEB2546";
+			$this->secure_secret = '6D0870CDE5F24F34F3915FB0045120DB';
+			$this->vpc_Version = '2';
+			$this->vpc_Command = 'pay';
+			$this->vpc_Locale = 'vn';
+			$this->vpc_TicketNo = getRealIpAddr();
+			$this->display = 'mobile';
+		*/
+		/* product */
 		$this->Title = "";
-		$this->virtualPaymentClientURL = "https://mtf.onepay.vn/vpcpay/vpcpay.op";
-		$this->vpc_Merchant = "TESTONEPAY";
-		$this->vpc_AccessCode = "6BEB2546";
-		$this->secure_secret = '6D0870CDE5F24F34F3915FB0045120DB';
+		$this->virtualPaymentClientURL = "https://onepay.vn/vpcpay/vpcpay.op";
+		$this->vpc_Merchant = "MDIITC";
+		$this->vpc_AccessCode = "54E30682";
+		$this->secure_secret = 'E054D29ED7193B399204D892E282E476';
 		$this->vpc_Version = '2';
 		$this->vpc_Command = 'pay';
 		$this->vpc_Locale = 'vn';
 		$this->vpc_TicketNo = getRealIpAddr();
 		$this->display = 'mobile';
+
 		// $this->vpc_ReturnURL = $return_url;
 		// $this->AgainLink = $return_url;
 	}
